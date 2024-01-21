@@ -1,0 +1,129 @@
+---
+source: tests/parse-json-docs/main.rs
+expression: local_items
+---
+[
+    (
+        "0:0:1778",
+        [
+            "integration                                        0:0:1778             [Module: (integration)]",
+        ],
+    ),
+    (
+        "0:10:1776",
+        [
+            "integration::a                                     0:10:1776            [Module: (a)]",
+        ],
+    ),
+    (
+        "0:11:415",
+        [
+            "integration::a::c                                  0:11:415             [Module: (c)]",
+        ],
+    ),
+    (
+        "0:12-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "0:13-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct: (S)]",
+        ],
+    ),
+    (
+        "0:5:260",
+        [
+            "integration::Trait                                 0:5:260              [Trait: (Trait)]",
+        ],
+    ),
+    (
+        "0:6",
+        [],
+    ),
+    (
+        "a:2:2957:254-0:3:1774",
+        [
+            "core::marker::Sync                                 2:2957:254           [Trait]",
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "a:2:32492:244-0:3:1774",
+        [
+            "core::marker::Send                                 2:32492:244          [Trait]",
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "a:2:32574:2039-0:3:1774",
+        [
+            "core::marker::Unpin                                2:32574:2039         [Trait]",
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "a:2:42204:2420-0:3:1774",
+        [
+            "core::panic::unwind_safe::UnwindSafe               2:42204:2420         [Trait]",
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "a:2:42205:2749-0:3:1774",
+        [
+            "core::panic::unwind_safe::RefUnwindSafe            2:42205:2749         [Trait]",
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:2432-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:2435-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:2735-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:2739-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:2745-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:2750-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "b:2:3504-0:3:1774",
+        [
+            "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+]

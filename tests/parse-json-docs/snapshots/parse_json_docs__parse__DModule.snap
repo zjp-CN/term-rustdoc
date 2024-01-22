@@ -1,5 +1,5 @@
 ---
-source: tests/parse-json-docs/main.rs
+source: tests/parse-json-docs/parse.rs
 expression: parsed
 ---
 DModule {

@@ -104,3 +104,31 @@ impl Debug for ItemCount {
         base.finish()
     }
 }
+
+impl Debug for ImplCount {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut base = f.debug_struct("ImplCount");
+        if self.total != 0 {
+            base.field("kind", &self.kind);
+            base.field("total", &self.total);
+            skip_fmt!(0: base, self . structs enums unions);
+        }
+        base.finish()
+    }
+}
+
+impl Debug for ImplCounts {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut base = f.debug_struct("ImplCounts");
+        if self.total.total != 0 {
+            base.field("total", &self.total);
+            if self.inherent.total != 0 {
+                base.field("inherent", &self.inherent);
+            }
+            if self.trait_.total != 0 {
+                base.field("trait", &self.trait_);
+            }
+        }
+        base.finish()
+    }
+}

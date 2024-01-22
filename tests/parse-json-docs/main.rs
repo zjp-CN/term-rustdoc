@@ -12,10 +12,9 @@ use std::{
     str::FromStr,
     sync::LazyLock,
 };
-use term_rustdoc::{
-    tree::DModule,
-    util::{xformat, CompactStringExt, XString},
-};
+use term_rustdoc::util::{xformat, CompactStringExt, XString};
+
+mod parse;
 
 static INTEGRATION: LazyLock<JsonDoc> = LazyLock::new(|| {
     tracing_subscriber::fmt::init();
@@ -413,24 +412,4 @@ fn parse_extract_local() {
         .collect::<Vec<_>>();
     local_items.sort_unstable();
     snap!("local_items", local_items);
-}
-
-#[test]
-fn parse_module() {
-    let parsed = DModule::new(&INTEGRATION.doc);
-    snap!("DModule", parsed);
-    snap!(parsed.current_items_counts(), @r###"
-    ItemCount {
-        modules: 1,
-        structs: 1,
-        traits: 1,
-    }
-    "###);
-    snap!(parsed.recursive_items_counts(), @r###"
-    ItemCount {
-        modules: 2,
-        structs: 1,
-        traits: 1,
-    }
-    "###);
 }

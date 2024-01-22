@@ -54,13 +54,13 @@ impl DModule {
                         ..
                     }) = &item.inner
                     {
-                        return Some((id.clone(), items.as_slice()));
+                        return Some((id.to_ID(), items.as_slice()));
                     }
                 }
                 None
             })
             .expect("root module not found");
-        Self::new_inner(id.to_ID(), root, &doc.index)
+        Self::new_inner(id, root, &doc.index)
     }
 
     fn new_inner(id: ID, inner_items: &[Id], index: &IndexMap) -> Self {
@@ -275,7 +275,7 @@ impl DTrait {
 macro_rules! gen_simple_items {
     ($($name:ident),+) => {$(
         #[derive(Debug)] pub struct $name { pub id: ID, }
-        impl $name { fn new(id: ID) -> Self { Self { id } } }
+        impl $name { pub fn new(id: ID) -> Self { Self { id } } }
     )+};
 }
 gen_simple_items!(DFunctions, DStatic, DConstant);

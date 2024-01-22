@@ -2,7 +2,7 @@ use super::{DMacroKind, DModule};
 use std::ops::{Add, AddAssign};
 
 #[derive(Default)]
-pub struct TotolCount {
+pub struct ItemCount {
     pub modules: u32,
     pub structs: u32,
     pub unions: u32,
@@ -19,11 +19,11 @@ pub struct TotolCount {
     pub macros_derv: u32,
 }
 
-impl Add for TotolCount {
-    type Output = TotolCount;
+impl Add for ItemCount {
+    type Output = ItemCount;
 
     fn add(self, rhs: Self) -> Self::Output {
-        TotolCount {
+        ItemCount {
             modules: self.modules + rhs.modules,
             structs: self.structs + rhs.structs,
             unions: self.unions + rhs.unions,
@@ -42,7 +42,7 @@ impl Add for TotolCount {
     }
 }
 
-impl AddAssign for TotolCount {
+impl AddAssign for ItemCount {
     fn add_assign(&mut self, rhs: Self) {
         self.modules += rhs.modules;
         self.structs += rhs.structs;
@@ -64,7 +64,7 @@ impl AddAssign for TotolCount {
 impl DModule {
     /// Count the items under current module excluding the current module itself.
     #[rustfmt::skip]
-    pub fn current_items_counts(&self) -> TotolCount {
+    pub fn current_items_counts(&self) -> ItemCount {
         macro_rules! len {
             ($self:ident . $( $field:ident )+ ) => { $(
                 let $field = $self.$field.len().try_into()
@@ -82,7 +82,7 @@ impl DModule {
                 DMacroKind::ProcDerive => derv += 1,
             }
         }
-        TotolCount {
+        ItemCount {
             modules, structs, unions, enums, functions, 
             traits, constants, statics, type_alias, imports,
             macros_decl: decl,
@@ -93,7 +93,7 @@ impl DModule {
     }
 
     /// Count all the items excluding the root itself.
-    pub fn recursive_items_counts(&self) -> TotolCount {
+    pub fn recursive_items_counts(&self) -> ItemCount {
         self.modules.iter().map(Self::current_items_counts).fold(
             self.current_items_counts(),
             |mut acc, tc| {

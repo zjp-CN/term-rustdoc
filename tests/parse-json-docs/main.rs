@@ -195,8 +195,8 @@ fn compression() -> Result<()> {
     );
     shot!(bin_compression, @r###"
     [raw json text => bb] 330.8 KB => 167.3 KB (-49%)
-    [binary bytes  => xz] 167.3 KB => 39.9 KB (-76%)
-    [raw json text => xz] 330.8 KB => 39.9 KB (-88%) 
+    [binary bytes  => xz] 167.3 KB => 40.0 KB (-76%)
+    [raw json text => xz] 330.8 KB => 40.0 KB (-88%) 
     "###);
 
     Ok(())
@@ -420,14 +420,14 @@ fn parse_module() {
     let parsed = DModule::new(&INTEGRATION.doc);
     snap!("DModule", parsed);
     snap!(parsed.current_items_counts(), @r###"
-    TotolCount {
+    ItemCount {
         modules: 1,
         structs: 1,
         traits: 1,
     }
     "###);
     snap!(parsed.recursive_items_counts(), @r###"
-    TotolCount {
+    ItemCount {
         modules: 2,
         structs: 1,
         traits: 1,

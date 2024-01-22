@@ -7,7 +7,7 @@ mod id;
 mod stats;
 
 pub use id::{IDs, IdToID, SliceToIds, ID};
-pub use stats::TotolCount;
+pub use stats::ItemCount;
 
 pub type Arr<T> = Box<[T]>;
 /// Use `IDs::default()` instead of `IDs::new()` to create an empty IDs.

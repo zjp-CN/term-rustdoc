@@ -93,9 +93,9 @@ impl Debug for DTypeAlias {
     }
 }
 
-impl Debug for TotolCount {
+impl Debug for ItemCount {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut base = f.debug_struct("TotolCount");
+        let mut base = f.debug_struct("ItemCount");
         skip_fmt!(
             0: base, self . modules structs unions enums functions
             traits constants statics type_alias imports

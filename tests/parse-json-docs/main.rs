@@ -419,4 +419,18 @@ fn parse_extract_local() {
 fn parse_module() {
     let parsed = DModule::new(&INTEGRATION.doc);
     snap!("DModule", parsed);
+    snap!(parsed.current_items_counts(), @r###"
+    TotolCount {
+        modules: 1,
+        structs: 1,
+        traits: 1,
+    }
+    "###);
+    snap!(parsed.recursive_items_counts(), @r###"
+    TotolCount {
+        modules: 2,
+        structs: 1,
+        traits: 1,
+    }
+    "###);
 }

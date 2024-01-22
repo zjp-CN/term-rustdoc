@@ -18,6 +18,11 @@ macro_rules! skip_fmt {
             $base.field(::std::stringify!($field), &$self.$field);
         }
     )+};
+    (0: $base:ident, $self:ident . $($field:ident)+ ) => {$(
+        if $self.$field != 0 {
+            $base.field(::std::stringify!($field), &$self.$field);
+        }
+    )+};
 }
 
 impl Debug for DModule {
@@ -84,6 +89,18 @@ impl Debug for DTypeAlias {
         let mut base = f.debug_struct("DTypeAlias");
         base.field("id", &self.id);
         skip_fmt!(option: base, self.source_path);
+        base.finish()
+    }
+}
+
+impl Debug for TotolCount {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut base = f.debug_struct("TotolCount");
+        skip_fmt!(
+            0: base, self . modules structs unions enums functions
+            traits constants statics type_alias imports
+            macros_decl macros_func macros_attr macros_derv
+        );
         base.finish()
     }
 }

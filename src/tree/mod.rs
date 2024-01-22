@@ -2,10 +2,12 @@ use rustdoc_types::*;
 use std::collections::HashMap;
 
 mod display;
-
 #[allow(non_snake_case)]
 mod id;
+mod stats;
+
 pub use id::{IDs, IdToID, SliceToIds, ID};
+pub use stats::TotolCount;
 
 pub type Arr<T> = Box<[T]>;
 /// Use `IDs::default()` instead of `IDs::new()` to create an empty IDs.

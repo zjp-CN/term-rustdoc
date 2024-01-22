@@ -1,7 +1,6 @@
 #![feature(lazy_cell)]
 use bytesize::ByteSize;
 use color_eyre::eyre::{eyre, Result};
-use compact_str::{format_compact as xformat, CompactString as XString, CompactStringExt};
 use insta::{assert_debug_snapshot as snap, assert_display_snapshot as shot};
 use regex::Regex;
 use rustc_hash::FxHashMap;
@@ -13,8 +12,13 @@ use std::{
     str::FromStr,
     sync::LazyLock,
 };
+use term_rustdoc::{
+    tree::DModule,
+    util::{xformat, CompactStringExt, XString},
+};
 
 static INTEGRATION: LazyLock<JsonDoc> = LazyLock::new(|| {
+    tracing_subscriber::fmt::init();
     get_integration_json_doc().expect("failed to get the json doc of tests/integration crate")
 });
 
@@ -409,4 +413,10 @@ fn parse_extract_local() {
         .collect::<Vec<_>>();
     local_items.sort_unstable();
     snap!("local_items", local_items);
+}
+
+#[test]
+fn parse_module() {
+    let parsed = DModule::new(&INTEGRATION.doc);
+    snap!("DModule", parsed);
 }

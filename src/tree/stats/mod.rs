@@ -81,6 +81,7 @@ pub struct ImplCount {
     pub total: u32,
 }
 
+/// Count the impl **blocks**.
 #[derive(Clone)]
 pub struct ImplCounts {
     pub inherent: ImplCount,
@@ -165,3 +166,29 @@ impl DModule {
             .fold(self.current_impls_counts(), acc_sum)
     }
 }
+
+/* FIXME: to elaborate metrics on Impls
+
+/// Count impl blocks.
+#[derive(Clone, Debug)]
+pub struct ImplBlockCounts(pub ImplCounts);
+
+/// Count functions (including methods) in impl blocks w.r.t
+/// * the amount of items
+/// * the amount of arguments
+/// * the amount of generics (lifetime/type/constant)
+/// * the amount of trait bounds (lifetime/type/constant)
+/// * the occurence of identical fn name (using the Vec<Name> instead of digits)
+#[derive(Clone, Debug)]
+pub struct ImplFunctionCounts {
+    pub items: ImplCounts,
+}
+
+/// Count methods (the receiver is ) in impl blocks w.r.t
+/// * all the metrics on ImplFunctionCounts
+/// * and the amount of receiver types separately
+///   * Self/&Self/&mut Self/Box<Self>/Rc<Self>/Arc<Self>/Pin<P>
+///     see <https://doc.rust-lang.org/reference/items/traits.html#object-safety>
+#[derive(Clone, Debug)]
+pub struct ImplMethodCounts(pub ImplCounts);
+*/

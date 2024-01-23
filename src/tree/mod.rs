@@ -1,9 +1,11 @@
+use crate::util::{ToCompactString, XString};
 use rustdoc_types::*;
 use std::collections::HashMap;
+use termtree::Tree;
 
-mod display;
 #[allow(non_snake_case)]
 mod id;
+mod impls;
 mod stats;
 
 pub use id::{IDs, IdToID, SliceToIds, ID};

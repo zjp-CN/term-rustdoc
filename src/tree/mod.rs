@@ -111,6 +111,12 @@ impl DModule {
             _ => (),
         }
     }
+
+    /// To a recursive tree displayed with ids as nodes.
+    pub fn to_tree(&self) -> Tree<XString> {
+        let mut tree = Tree::new(self.id.as_str().to_compact_string());
+        tree
+    }
 }
 
 #[derive(Default)]

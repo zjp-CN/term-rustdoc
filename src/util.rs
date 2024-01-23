@@ -1,1 +1,3 @@
-pub use compact_str::{format_compact as xformat, CompactString as XString, CompactStringExt};
+pub use compact_str::{
+    format_compact as xformat, CompactString as XString, CompactStringExt, ToCompactString,
+};

@@ -27,10 +27,11 @@ mod imports;
 mod macros;
 pub use macros::{DMacro, DMacroKind};
 
-use crate::tree::{IDs, IdToID, IndexMap, SliceToIds, ID};
-use crate::util::{ToCompactString, XString};
+use crate::tree::{
+    impls::show::{DocTree, Show},
+    IdToID, IndexMap, ID,
+};
 use rustdoc_types::{Crate, Id, Item, ItemEnum, MacroKind, Module};
-use termtree::Tree;
 
 /// Module tree with structural items.
 /// All the items only carry ids without actual data.
@@ -46,7 +47,7 @@ pub struct DModule {
     pub structs: Vec<DStruct>,
     pub unions: Vec<DUnion>,
     pub enums: Vec<DEnum>,
-    pub functions: Vec<DFunctions>,
+    pub functions: Vec<DFunction>,
     pub traits: Vec<DTrait>,
     pub constants: Vec<DConstant>,
     pub statics: Vec<DStatic>,
@@ -104,7 +105,7 @@ impl DModule {
             Struct(item) => self.structs.push(DStruct::new(id, item, index)),
             Union(item) => self.unions.push(DUnion::new(id, item, index)),
             Enum(item) => self.enums.push(DEnum::new(id, item, index)),
-            Function(_) => self.functions.push(DFunctions::new(id)),
+            Function(_) => self.functions.push(DFunction::new(id)),
             Trait(item) => self.traits.push(DTrait::new(id, item, index)),
             Constant(_) => self.constants.push(DConstant::new(id)),
             Static(_) => self.statics.push(DStatic::new(id)),
@@ -122,11 +123,42 @@ impl DModule {
             _ => (),
         }
     }
+}
 
-    /// To a recursive tree displayed with ids as nodes.
-    pub fn to_tree(&self) -> Tree<XString> {
-        let mut tree = Tree::new(self.id.as_str().to_compact_string());
-        tree
+/// To a recursive tree displayed with ids as nodes.
+impl Show for DModule {
+    fn show(&self) -> DocTree {
+        format!("[mod] {}", self.id).show().with_leaves(
+            self.modules
+                .iter()
+                .map(DModule::show)
+                .chain(self.structs.iter().map(DStruct::show))
+                .chain(self.unions.iter().map(DUnion::show))
+                .chain(self.enums.iter().map(DEnum::show))
+                .chain(self.traits.iter().map(DTrait::show))
+                .chain(self.functions.iter().map(DFunction::show))
+                .chain(self.constants.iter().map(DConstant::show))
+                .chain(self.statics.iter().map(DStatic::show))
+                .chain(self.macros.iter().map(DMacro::show)),
+        )
+    }
+
+    fn show_prettier(&self) -> DocTree {
+        format!("[mod] {}", self.id)
+            .show_prettier()
+            .with_leaves(
+                self.modules
+                    .iter()
+                    .map(DModule::show_prettier)
+                    .chain(self.structs.iter().map(DStruct::show_prettier))
+                    .chain(self.unions.iter().map(DUnion::show_prettier))
+                    .chain(self.enums.iter().map(DEnum::show_prettier))
+                    .chain(self.traits.iter().map(DTrait::show_prettier))
+                    .chain(self.functions.iter().map(DFunction::show_prettier))
+                    .chain(self.constants.iter().map(DConstant::show_prettier))
+                    .chain(self.statics.iter().map(DStatic::show_prettier))
+                    .chain(self.macros.iter().map(DMacro::show_prettier)),
+            )
     }
 }
 
@@ -135,9 +167,18 @@ macro_rules! gen_simple_items {
     ($($name:ident),+) => {$(
         #[derive(Debug)] pub struct $name { pub id: ID, }
         impl $name { pub fn new(id: ID) -> Self { Self { id } } }
+        impl Show for $name {
+            fn show(&self) -> DocTree {
+                format!("{}s {}", &stringify!($name)[1..], self.id).show()
+            }
+
+            fn show_prettier(&self) -> DocTree {
+                self.show()
+            }
+        }
     )+};
 }
-gen_simple_items!(DFunctions, DStatic, DConstant);
+gen_simple_items!(DFunction, DStatic, DConstant);
 
 // TODO:
 // *  structs, enums, and enum variants: [non_exhaustive]

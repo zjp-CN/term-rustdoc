@@ -26,6 +26,8 @@ regex = "1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
+constcat = "0.4"
+
 [dev-dependencies]
 insta = "1"
 

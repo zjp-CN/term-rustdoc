@@ -186,6 +186,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "constcat"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "325bfa454baa4898475be5c0ec5f3a5dd3c2e4c4a9ef5e951a25427e9928de1f"
+
+[[package]]
 name = "encode_unicode"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -582,6 +588,7 @@ dependencies = [
  "bytesize",
  "color-eyre",
  "compact_str",
+ "constcat",
  "insta",
  "public-api",
  "redb",

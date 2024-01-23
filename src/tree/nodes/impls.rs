@@ -1,4 +1,8 @@
-use super::{IDs, Id, IdToID, IndexMap, ItemEnum, ID};
+use crate::tree::{
+    impls::show::{show_ids, show_ids_with, DocTree, Show},
+    IDs, IdToID, IndexMap, ID,
+};
+use rustdoc_types::{Id, ItemEnum};
 
 #[derive(Default)]
 pub struct DImpl {
@@ -47,5 +51,37 @@ impl DImpl {
             && self.trait_.is_empty()
             && self.auto.is_empty()
             && self.blanket.is_empty()
+    }
+}
+
+impl Show for DImpl {
+    fn show(&self) -> DocTree {
+        "Implementations".show().with_leaves([
+            "Inherent Impls"
+                .show()
+                .with_leaves(show_ids(&self.inherent)),
+            "Trait Impls".show().with_leaves(show_ids(&self.trait_)),
+            "Auto Impls".show().with_leaves(show_ids(&self.auto)),
+            "Blanket Impls"
+                .show()
+                .with_leaves(show_ids(&self.blanket)),
+        ])
+    }
+
+    fn show_prettier(&self) -> DocTree {
+        "Implementations".show().with_leaves([
+            "Inherent Impls"
+                .show()
+                .with_leaves(show_ids_with(&self.inherent, icon!("[inhrt]"))),
+            "Trait Impls"
+                .show()
+                .with_leaves(show_ids_with(&self.trait_, icon!("[trait]"))),
+            "Auto Impls"
+                .show()
+                .with_leaves(show_ids_with(&self.auto, icon!("[auto]"))),
+            "Blanket Impls"
+                .show()
+                .with_leaves(show_ids_with(&self.blanket, icon!("[blkt]"))),
+        ])
     }
 }

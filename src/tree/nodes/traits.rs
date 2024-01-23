@@ -1,5 +1,8 @@
-use super::{IDs, IdToID, IndexMap, ItemEnum, SliceToIds, ID};
-use rustdoc_types::Trait;
+use crate::tree::{
+    impls::show::{show_ids, show_ids_with, DocTree, Show},
+    IDs, IdToID, IndexMap, SliceToIds, ID,
+};
+use rustdoc_types::{ItemEnum, Trait};
 
 pub struct DTrait {
     pub id: ID,
@@ -35,5 +38,43 @@ impl DTrait {
             functions: functions.into(),
             implementations: item.implementations.to_ids(),
         }
+    }
+}
+
+impl Show for DTrait {
+    fn show(&self) -> DocTree {
+        format!("[trait] {}", self.id).show().with_leaves([
+            "Associated Types"
+                .show()
+                .with_leaves(show_ids(&self.types)),
+            "Associated Constants"
+                .show()
+                .with_leaves(show_ids(&self.constants)),
+            "Associated Functions"
+                .show()
+                .with_leaves(show_ids(&self.functions)),
+            "Implementors"
+                .show()
+                .with_leaves(show_ids(&self.implementations)),
+        ])
+    }
+
+    fn show_prettier(&self) -> DocTree {
+        format!("[trait] {}", self.id)
+            .show_prettier()
+            .with_leaves([
+                "Associated Types"
+                    .show()
+                    .with_leaves(show_ids_with(&self.types, icon!("[assoc type]"))),
+                "Associated Constants"
+                    .show()
+                    .with_leaves(show_ids_with(&self.constants, icon!("[assoc const]"))),
+                "Associated Functions"
+                    .show()
+                    .with_leaves(show_ids_with(&self.functions, icon!("[fn]"))),
+                "Implementors"
+                    .show()
+                    .with_leaves(show_ids_with(&self.implementations, icon!())),
+            ])
     }
 }

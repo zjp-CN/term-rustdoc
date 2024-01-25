@@ -119,55 +119,16 @@ impl DModule {
     }
 }
 
-macro_rules! chain {
-    ($field:ident, $node:literal, $self:ident, $map:ident) => {
-        $self.$field.is_empty().not().then(|| {
-            $node
-                .show()
-                .with_leaves($self.$field.iter().map(|val| val.show_prettier($map)))
-        })
-    };
-}
-
+macro_rules! impl_show {
+    ($( $field:ident => $node:literal => $fty:ident ,)+ ) => {
 /// To a recursive tree displayed with ids as nodes.
 impl Show for DModule {
     fn show(&self) -> DocTree {
         format!("[mod] {}", self.id).show().with_leaves(
-            self.modules.iter().map(DModule::show).chain([
-                "Structs"
-                    .show()
-                    .with_leaves(self.structs.iter().map(DStruct::show)),
-                "Unions"
-                    .show()
-                    .with_leaves(self.unions.iter().map(DUnion::show)),
-                "Enums"
-                    .show()
-                    .with_leaves(self.enums.iter().map(DEnum::show)),
-                "Traits"
-                    .show()
-                    .with_leaves(self.traits.iter().map(DTrait::show)),
-                "Functions"
-                    .show()
-                    .with_leaves(self.functions.iter().map(DFunction::show)),
-                "Constants"
-                    .show()
-                    .with_leaves(self.constants.iter().map(DConstant::show)),
-                "Statics"
-                    .show()
-                    .with_leaves(self.statics.iter().map(DStatic::show)),
-                "Macros - Declarative"
-                    .show()
-                    .with_leaves(self.macros_decl.iter().map(DMacroDecl::show)),
-                "Macro - Function"
-                    .show()
-                    .with_leaves(self.macros_func.iter().map(DMacroFunc::show)),
-                "Macro - Attribute"
-                    .show()
-                    .with_leaves(self.macros_attr.iter().map(DMacroAttr::show)),
-                "Macro - Derive"
-                    .show()
-                    .with_leaves(self.macros_derv.iter().map(DMacroDerv::show)),
-            ]),
+            self.modules.iter().map(DModule::show)
+            $(
+                .chain( impl_show!(@show $field $node $fty self map) )
+            )+
         )
     }
 
@@ -176,24 +137,42 @@ impl Show for DModule {
             self.modules
                 .iter()
                 .map(|m| m.show_prettier(map))
-                .chain(chain!(structs, "Structs", self, map))
-                .chain(chain!(unions, "Unions", self, map))
-                .chain(chain!(enums, "Enums", self, map))
-                .chain(chain!(traits, "Traits", self, map))
-                .chain(chain!(functions, "Functions", self, map))
-                .chain(chain!(constants, "Constants", self, map))
-                .chain(chain!(statics, "Statics", self, map))
-                .chain(chain!(macros_decl, "Macros - Declarative", self, map))
-                .chain(chain!(macros_func, "Macros - Function", self, map))
-                .chain(chain!(macros_attr, "Macros - Attribute", self, map))
-                .chain(chain!(macros_derv, "Macros - Derive", self, map)),
+                $(
+                    .chain( impl_show!(@pretty $field $node self map) )
+                )+
         )
     }
+}
+    };
+    (@pretty $field:ident $node:literal $self:ident $map:ident) => {
+        $self.$field.is_empty().not().then(|| {
+            $node.show().with_leaves($self.$field.iter().map(|val| val.show_prettier($map)))
+        })
+    };
+    (@show $field:ident $node:literal $fty:ident $self:ident $map:ident) => {
+        $self.$field.is_empty().not().then(|| {
+            $node.show().with_leaves($self.$field.iter().map($fty::show))
+        })
+    };
+}
+
+impl_show! {
+    structs     => "Structs"              => DStruct,
+    unions      => "Unions"               => DUnion,
+    enums       => "Enums"                => DEnum,
+    traits      => "Traits"               => DTrait,
+    functions   => "Functions"            => DFunction,
+    constants   => "Constants"            => DConstant,
+    statics     => "Statics"              => DStatic,
+    macros_decl => "Macros - Declarative" => DMacroDecl,
+    macros_func => "Macros - Function"    => DMacroFunc,
+    macros_attr => "Macros - Attribute"   => DMacroAttr,
+    macros_derv => "Macros - Derive"      => DMacroDerv,
 }
 
 /// generate id wrapper types for simple items
 macro_rules! gen_simple_items {
-    ($($name:ident => $show:literal -> $kind:ident),+ $(,)?) => {$(
+    ($($name:ident => $show:literal => $kind:ident , )+ ) => {$(
         #[derive(Debug)] pub struct $name { pub id: ID, }
         impl $name { pub fn new(id: ID) -> Self { Self { id } } }
         impl Show for $name {
@@ -204,14 +183,15 @@ macro_rules! gen_simple_items {
         }
     )+};
 }
+
 gen_simple_items! {
-    DFunction => "[fn] {}" -> Function ,
-    DStatic => "[static] {}" -> Static,
-    DConstant => "[constant] {}" -> Constant,
-    DMacroDecl => "[macro decl] {}" -> Macro,
-    DMacroFunc => "[macro func] {}" -> Macro,
-    DMacroAttr => "[macro attr] {}" -> ProcAttribute,
-    DMacroDerv => "[macro derv] {}" -> ProcDerive,
+    DFunction  => "[fn] {}"         => Function ,
+    DStatic    => "[static] {}"     => Static,
+    DConstant  => "[constant] {}"   => Constant,
+    DMacroDecl => "[macro decl] {}" => Macro,
+    DMacroFunc => "[macro func] {}" => Macro,
+    DMacroAttr => "[macro attr] {}" => ProcAttribute,
+    DMacroDerv => "[macro derv] {}" => ProcDerive,
 }
 
 // TODO:

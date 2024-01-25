@@ -9,29 +9,7 @@ fn parse_module() {
     shot!(parsed.show(), @r###"
     [mod] 0:0:1778
     ├── [mod] 0:10:1776
-    │   ├── [mod] 0:11:415
-    │   │   ├── Structs
-    │   │   ├── Unions
-    │   │   ├── Enums
-    │   │   ├── Traits
-    │   │   ├── Functions
-    │   │   ├── Constants
-    │   │   ├── Statics
-    │   │   ├── Macros - Declarative
-    │   │   ├── Macro - Function
-    │   │   ├── Macro - Attribute
-    │   │   └── Macro - Derive
-    │   ├── Structs
-    │   ├── Unions
-    │   ├── Enums
-    │   ├── Traits
-    │   ├── Functions
-    │   ├── Constants
-    │   ├── Statics
-    │   ├── Macros - Declarative
-    │   ├── Macro - Function
-    │   ├── Macro - Attribute
-    │   └── Macro - Derive
+    │   └── [mod] 0:11:415
     ├── Structs
     │   └── [struct] 0:3:1774
     │       ├── Fields
@@ -53,22 +31,13 @@ fn parse_module() {
     │               ├── b:2:2739-0:3:1774
     │               ├── b:2:2735-0:3:1774
     │               └── b:2:2432-0:3:1774
-    ├── Unions
-    ├── Enums
-    ├── Traits
-    │   └── [trait] 0:5:260
-    │       ├── Associated Types
-    │       ├── Associated Constants
-    │       ├── Associated Functions
-    │       └── Implementors
-    │           └── 0:6
-    ├── Functions
-    ├── Constants
-    ├── Statics
-    ├── Macros - Declarative
-    ├── Macro - Function
-    ├── Macro - Attribute
-    └── Macro - Derive
+    └── Traits
+        └── [trait] 0:5:260
+            ├── Associated Types
+            ├── Associated Constants
+            ├── Associated Functions
+            └── Implementors
+                └── 0:6
     "###);
     shot!(parsed.show_prettier(&IDMap::from_crate(doc)), @r###"
     [mod] integration

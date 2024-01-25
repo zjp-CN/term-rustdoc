@@ -47,7 +47,6 @@ fn parse_module() {
     │   └── [struct] integration::S
     │       ├── No field
     │       └── Implementations
-    │           ├── Inherent Impls
     │           ├── Trait Impls
     │           │   └── [trait] S: Trait
     │           ├── Auto Impls
@@ -66,11 +65,8 @@ fn parse_module() {
     │               └── [blkt] T: Borrow<T>
     └── Traits
         └── [trait] integration::Trait
-            ├── Associated Types
-            ├── Associated Constants
-            ├── Associated Functions
             └── Implementors
-                └── S: Trait
+                └──  S: Trait
     "###);
 
     snap!(parsed.current_items_counts(), @r###"

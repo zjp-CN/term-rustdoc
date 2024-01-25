@@ -63,6 +63,56 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
         .map(move |id| Tree::new(map.name(id)).with_glyphs(glyph))
 }
 
+/// ### Usage 1
+///
+/// ````rust,ignore
+/// let leaves = names_node!(self map "No Implementations!":
+///     "Inherent Impls" inherent "[inhrt]",
+///     "Trait Impls"    trait_   "[trait]",
+///     "Auto Impls"     auto     "[auto]",
+///     "Blanket Impls"  blanket  "[blkt]",
+/// );
+/// node.with_leaves(leaves);
+/// ````
+///
+/// ### Usage 2
+///
+/// ````rust,ignore
+/// let fields = names_node!(@single self map "No Fields!"
+///     "Fields" fields "[field]"
+/// );
+/// node!("[union] {}", map.path(&self.id, ItemKind::Union))
+///     .with_leaves([fields, self.impls.show_prettier(map)])
+/// ````
+macro_rules! names_node {
+    (
+        $self:ident $map:ident $root:literal :
+        $( $node:literal $field:ident $icon:literal , )+ $(,)?
+    ) => {{
+        if $( $self.$field.is_empty() )&&+ { return $root.show() }
+        ::std::iter::empty()
+            $(
+                .chain(names_node!(@chain $node $field $icon $self $map))
+            )+
+    }};
+    (@chain $node:literal $field:ident $icon:literal $self:ident $map:ident) => {
+        (!$self.$field.is_empty()).then(|| {
+            $node.show().with_leaves($crate::tree::impls::show::show_names(
+                &*$self.$field, icon!($icon), $map
+            ))
+        })
+    };
+    (@single $self:ident $map:ident $root:literal $node:literal $field:ident $icon:literal) => {
+        if $self.$field.is_empty() {
+            $root.show()
+        } else {
+            $node.show().with_leaves($crate::tree::impls::show::show_names(
+                &*$self.$field, icon!($icon), $map
+            ))
+        }
+    };
+}
+
 // pub fn show_paths<'id, S: 'id + ?Sized + IdAsStr>(
 //     ids: impl 'id + IntoIterator<Item = &'id S>,
 //     kind: ItemKind,

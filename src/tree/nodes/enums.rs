@@ -1,5 +1,5 @@
 use crate::tree::{
-    impls::show::{show_ids, show_names, DocTree, Show},
+    impls::show::{show_ids, DocTree, Show},
     DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
 };
 use rustdoc_types::{Enum, ItemKind};
@@ -29,11 +29,10 @@ impl Show for DEnum {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        node!("[enum] {}", map.path(&self.id, ItemKind::Enum)).with_leaves([
-            "Variants"
-                .show()
-                .with_leaves(show_names(&*self.variants, icon!("[variant]"), map)),
-            self.impls.show_prettier(map),
-        ])
+        let variant = names_node!(@single self map "No Variants!"
+            "Variants" variants "[variant]"
+        );
+        let leaves = [variant, self.impls.show_prettier(map)];
+        node!("[enum] {}", map.path(&self.id, ItemKind::Enum)).with_leaves(leaves)
     }
 }

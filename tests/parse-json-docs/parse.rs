@@ -49,28 +49,28 @@ fn parse_module() {
     │       └── Implementations
     │           ├── Inherent Impls
     │           ├── Trait Impls
-    │           │   └── [trait] 0:6
+    │           │   └── [trait] S: Trait
     │           ├── Auto Impls
-    │           │   ├── [auto] a:2:2957:254-0:3:1774
-    │           │   ├── [auto] a:2:42204:2420-0:3:1774
-    │           │   ├── [auto] a:2:32574:2039-0:3:1774
-    │           │   ├── [auto] a:2:32492:244-0:3:1774
-    │           │   └── [auto] a:2:42205:2749-0:3:1774
+    │           │   ├── [auto] S: Sync
+    │           │   ├── [auto] S: UnwindSafe
+    │           │   ├── [auto] S: Unpin
+    │           │   ├── [auto] S: Send
+    │           │   └── [auto] S: RefUnwindSafe
     │           └── Blanket Impls
-    │               ├── [blkt] b:2:2745-0:3:1774
-    │               ├── [blkt] b:2:3504-0:3:1774
-    │               ├── [blkt] b:2:2435-0:3:1774
-    │               ├── [blkt] b:2:2750-0:3:1774
-    │               ├── [blkt] b:2:2739-0:3:1774
-    │               ├── [blkt] b:2:2735-0:3:1774
-    │               └── [blkt] b:2:2432-0:3:1774
+    │               ├── [blkt] T: TryInto<U>
+    │               ├── [blkt] T: Any
+    │               ├── [blkt] T: BorrowMut<T>
+    │               ├── [blkt] T: TryFrom<U>
+    │               ├── [blkt] T: From<T>
+    │               ├── [blkt] T: Into<U>
+    │               └── [blkt] T: Borrow<T>
     └── Traits
         └── [trait] integration::Trait
             ├── Associated Types
             ├── Associated Constants
             ├── Associated Functions
             └── Implementors
-                └── 0:6
+                └── S: Trait
     "###);
 
     snap!(parsed.current_items_counts(), @r###"

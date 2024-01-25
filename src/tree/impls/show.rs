@@ -2,7 +2,6 @@ use crate::{
     tree::{IDMap, IdAsStr, ID},
     util::XString,
 };
-use rustdoc_types::ItemKind;
 pub use termtree::{GlyphPalette, Tree};
 
 macro_rules! icon {
@@ -55,15 +54,25 @@ macro_rules! node {
     };
 }
 
-pub fn show_paths<'id, S: 'id + ?Sized + IdAsStr>(
+pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
     ids: impl 'id + IntoIterator<Item = &'id S>,
-    kind: ItemKind,
     glyph: GlyphPalette,
     map: &'id IDMap,
 ) -> impl 'id + Iterator<Item = DocTree> {
-    map.path_node(ids, kind)
-        .map(move |node| Tree::new(node).with_glyphs(glyph))
+    ids.into_iter()
+        .map(move |id| Tree::new(map.name(id)).with_glyphs(glyph))
 }
+
+// pub fn show_paths<'id, S: 'id + ?Sized + IdAsStr>(
+//     ids: impl 'id + IntoIterator<Item = &'id S>,
+//     kind: ItemKind,
+//     glyph: GlyphPalette,
+//     map: &'id IDMap,
+// ) -> impl 'id + Iterator<Item = DocTree> {
+//     ids.into_iter()
+//         .map(move |id| Tree::new(map.path(id, &kind)).with_glyphs(glyph))
+// }
+
 pub fn show_ids(ids: &[ID]) -> impl '_ + Iterator<Item = DocTree> {
     ids.iter().map(|id| id.as_str().show())
 }

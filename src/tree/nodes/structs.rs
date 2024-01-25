@@ -1,5 +1,5 @@
 use crate::tree::{
-    impls::show::{show_ids, show_paths, DocTree, Show},
+    impls::show::{show_ids, show_names, DocTree, Show},
     DImpl, IDMap, IDs, IdToID, IndexMap, SliceToIds, ID,
 };
 use crate::util::xformat;
@@ -70,17 +70,11 @@ impl Show for DStruct {
             (0, true) => node.extend([private_fields()]),
             (0, false) => node.extend(["No field".show()]),
             (_, true) => node.extend([
-                fields_root(len).with_leaves(show_paths(
-                    &*self.fields,
-                    ItemKind::StructField,
-                    icon!("[field]"),
-                    map,
-                )),
+                fields_root(len).with_leaves(show_names(&*self.fields, icon!("[field]"), map)),
                 private_fields(),
             ]),
-            (_, false) => node.extend([fields_root(len).with_leaves(show_paths(
+            (_, false) => node.extend([fields_root(len).with_leaves(show_names(
                 &*self.fields,
-                ItemKind::StructField,
                 icon!("[field]"),
                 map,
             ))]),

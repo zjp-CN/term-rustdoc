@@ -1,5 +1,4 @@
 mod impls;
-
 pub use impls::DImpl;
 
 mod structs;
@@ -174,7 +173,8 @@ macro_rules! gen_simple_items {
         impl Show for $name {
             fn show(&self) -> DocTree { self.id.show() }
             fn show_prettier(&self, map: &IDMap) -> DocTree {
-                node!($show, map.path(&self.id, ItemKind::$kind))
+                // node!($show, map.path(&self.id, ItemKind::$kind))
+                node!($show, map.name(&self.id))
             }
         }
     )+};

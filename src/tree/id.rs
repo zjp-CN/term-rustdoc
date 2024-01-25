@@ -1,5 +1,7 @@
-use crate::util::{CompactStringExt, XString};
-use rustdoc_types::{Crate, Id, Item, ItemKind, ItemSummary};
+use crate::util::{xformat, CompactStringExt, XString};
+use rustdoc_types::{
+    Crate, GenericArg, GenericArgs, Id, Item, ItemEnum, ItemKind, ItemSummary, Path, Type,
+};
 use std::{borrow::Borrow, cell::RefCell, collections::HashMap};
 
 // NOTE: potentially small improvements on id by using CompactString,
@@ -117,22 +119,18 @@ impl IDMap<'_> {
 
         val
     }
+}
 
+/// Get the shortest item name only based on IndexMap.
+impl IDMap<'_> {
     pub fn get_item(&self, id: &str) -> Option<&Item> {
         self.use_id(id, |id| self.index.get(id))
-    }
-
-    pub fn get_path(&self, id: &str) -> Option<&ItemSummary> {
-        self.use_id(id, |id| self.paths.get(id))
     }
 
     // fn use_item(&self, id: &Id, f: impl FnOnce(&Item) -> XString) -> Option<XString> {
     //     self.get_item(&id.0).map(f)
     // }
     //
-    // fn use_path(&self, id: &Id, f: impl FnOnce(&ItemSummary) -> XString) -> Option<XString> {
-    //     self.get_path(&id.0).map(f)
-    // }
 
     /// If the id doesn't refer to an Item, emit a warn and use the id as the result.
     fn use_item_well(&self, id: &str, f: impl FnOnce(&Item) -> XString) -> XString {
@@ -145,6 +143,101 @@ impl IDMap<'_> {
         }
     }
 
+    /// * If the id refers to an Item with a name, use the name;
+    /// * if not, try getting the name depending on item type;
+    /// * id will be used as the result when name parsing is not yet supported.
+    pub fn name<S>(&self, id: &S) -> XString
+    where
+        S: ?Sized + IdAsStr,
+    {
+        let id = id.id_str();
+        self.use_item_well(id, |item| {
+            let name = item.name.as_deref().map(XString::from);
+            name.unwrap_or_else(|| item_name(item).unwrap_or_else(|| id.into()))
+        })
+    }
+}
+
+/// Deduce the name from its item type.
+fn item_name(item: &Item) -> Option<XString> {
+    match &item.inner {
+        ItemEnum::Impl(item) => {
+            dbg!(&item);
+            let implementor = item
+                .blanket_impl
+                .as_ref()
+                .and_then(type_name)
+                .or_else(|| type_name(&item.for_))
+                .unwrap_or_default();
+            let trait_ = item.trait_.as_ref().and_then(resolved_path_name)?;
+            Some(xformat!("{implementor}: {trait_}"))
+        }
+        _ => None,
+    }
+}
+
+const COMMA: XString = XString::new_inline(", ");
+
+fn type_name(ty: &Type) -> Option<XString> {
+    match ty {
+        Type::ResolvedPath(p) => resolved_path_name(p),
+        Type::Generic(t) => Some(t.as_str().into()),
+        _ => None,
+    }
+}
+
+fn resolved_path_name(p: &Path) -> Option<XString> {
+    let name = p.name.as_str();
+    match p.args.as_deref() {
+        Some(GenericArgs::AngleBracketed { args, bindings: _ }) => {
+            // FIXME: bindings without args
+            if args.is_empty() {
+                Some(name.into())
+            } else {
+                Some(xformat!(
+                    "{name}<{}>",
+                    args.iter()
+                        .filter_map(generic_arg_name)
+                        .intersperse(COMMA)
+                        .collect::<XString>()
+                ))
+            }
+        }
+        Some(GenericArgs::Parenthesized { inputs, output }) => {
+            let args = inputs
+                .iter()
+                .filter_map(type_name)
+                .intersperse(COMMA)
+                .collect::<XString>();
+            let ret = output
+                .as_ref()
+                .and_then(|t| Some(xformat!(" -> {}", type_name(t)?)))
+                .unwrap_or_default();
+            Some(xformat!("{name}({args}){ret}"))
+        }
+        None => Some(name.into()),
+    }
+}
+
+fn generic_arg_name(arg: &GenericArg) -> Option<XString> {
+    match arg {
+        GenericArg::Lifetime(life) => Some(life.as_str().into()),
+        GenericArg::Type(ty) => type_name(ty),
+        GenericArg::Const(_) => None,
+        GenericArg::Infer => Some(XString::new_inline("_")),
+    }
+}
+
+/// Get the external item path only based on PathMap.
+impl IDMap<'_> {
+    pub fn get_path(&self, id: &str) -> Option<&ItemSummary> {
+        self.use_id(id, |id| self.paths.get(id))
+    }
+
+    // fn use_path(&self, id: &Id, f: impl FnOnce(&ItemSummary) -> XString) -> Option<XString> {
+    //     self.get_path(&id.0).map(f)
+    // }
+
     /// If the id doesn't refer to an ItemSummary, emit a warn and use the id as the result.
     fn use_path_well(&self, id: &str, f: impl FnOnce(&ItemSummary) -> XString) -> XString {
         match self.get_path(id).map(f) {
@@ -156,29 +249,13 @@ impl IDMap<'_> {
         }
     }
 
-    /// If the id doesn't refer to an Item, emit a warn and use the id as the result.
-    pub fn item_node<'id, S: IdAsStr>(
-        &'id self,
-        ids: &'id [S],
-        mut f: impl 'id + FnMut(&str, &Item) -> XString,
-    ) -> impl 'id + Iterator<Item = XString> {
-        ids.iter().map(move |id| {
-            let id = id.id_str();
-            self.use_item_well(id, |item| f(id, item))
-        })
-    }
-
     /// If the id doesn't refer to an ItemSummary with exact given kind,
     /// emit a warn and use the id as the result.
-    pub fn path_node<'id, S: 'id + ?Sized + IdAsStr>(
-        &'id self,
-        ids: impl 'id + IntoIterator<Item = &'id S>,
-        kind: ItemKind,
-    ) -> impl 'id + Iterator<Item = XString> {
-        ids.into_iter().map(move |id| self.path(id, &kind))
-    }
-
-    pub fn path<S: ?Sized + IdAsStr, K: Borrow<ItemKind>>(&self, id: &S, kind: K) -> XString {
+    pub fn path<S, K>(&self, id: &S, kind: K) -> XString
+    where
+        S: ?Sized + IdAsStr,
+        K: Borrow<ItemKind>,
+    {
         self.use_path_well(id.id_str(), move |item| {
             let id = id.id_str();
             let kind = kind.borrow();

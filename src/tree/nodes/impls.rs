@@ -1,8 +1,8 @@
 use crate::tree::{
-    impls::show::{show_ids, show_paths, DocTree, Show},
+    impls::show::{show_ids, show_names, DocTree, Show},
     IDMap, IDs, IdToID, IndexMap, ID,
 };
-use rustdoc_types::{Id, ItemEnum, ItemKind};
+use rustdoc_types::{Id, ItemEnum};
 
 #[derive(Default)]
 pub struct DImpl {
@@ -68,30 +68,18 @@ impl Show for DImpl {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         "Implementations".show().with_leaves([
-            "Inherent Impls".show().with_leaves(show_paths(
-                &*self.inherent,
-                ItemKind::Impl,
-                icon!("[inhrt]"),
-                map,
-            )),
-            "Trait Impls".show().with_leaves(show_paths(
-                &*self.trait_,
-                ItemKind::Impl,
-                icon!("[trait]"),
-                map,
-            )),
-            "Auto Impls".show().with_leaves(show_paths(
-                &*self.auto,
-                ItemKind::Impl,
-                icon!("[auto]"),
-                map,
-            )),
-            "Blanket Impls".show().with_leaves(show_paths(
-                &*self.blanket,
-                ItemKind::Impl,
-                icon!("[blkt]"),
-                map,
-            )),
+            "Inherent Impls"
+                .show()
+                .with_leaves(show_names(&*self.inherent, icon!("[inhrt]"), map)),
+            "Trait Impls"
+                .show()
+                .with_leaves(show_names(&*self.trait_, icon!("[trait]"), map)),
+            "Auto Impls"
+                .show()
+                .with_leaves(show_names(&*self.auto, icon!("[auto]"), map)),
+            "Blanket Impls"
+                .show()
+                .with_leaves(show_names(&*self.blanket, icon!("[blkt]"), map)),
         ])
     }
 }

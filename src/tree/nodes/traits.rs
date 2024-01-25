@@ -1,5 +1,5 @@
 use crate::tree::{
-    impls::show::{show_ids, show_paths, DocTree, Show},
+    impls::show::{show_ids, show_names, DocTree, Show},
     IDMap, IDs, IdToID, IndexMap, SliceToIds, ID,
 };
 use rustdoc_types::{ItemEnum, ItemKind, Trait};
@@ -59,30 +59,24 @@ impl Show for DTrait {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         node!("[trait] {}", map.path(&self.id, ItemKind::Trait)).with_leaves([
-            "Associated Types".show().with_leaves(show_paths(
+            "Associated Types".show().with_leaves(show_names(
                 &*self.types,
-                ItemKind::AssocType,
                 icon!("[assoc type]"),
                 map,
             )),
-            "Associated Constants".show().with_leaves(show_paths(
+            "Associated Constants".show().with_leaves(show_names(
                 &*self.constants,
-                ItemKind::AssocConst,
                 icon!("[assoc const]"),
                 map,
             )),
-            "Associated Functions".show().with_leaves(show_paths(
+            "Associated Functions".show().with_leaves(show_names(
                 &*self.functions,
-                ItemKind::Function,
                 icon!("[fn]"),
                 map,
             )),
-            "Implementors".show().with_leaves(show_paths(
-                &*self.implementations,
-                ItemKind::Impl,
-                icon!(),
-                map,
-            )),
+            "Implementors"
+                .show()
+                .with_leaves(show_names(&*self.implementations, icon!(), map)),
         ])
     }
 }

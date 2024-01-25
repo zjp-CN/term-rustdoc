@@ -4,9 +4,9 @@ expression: local_items
 ---
 [
     (
-        "0:0:1778",
+        "0:0:1779",
         [
-            "integration                                        0:0:1778             [Module: (integration)]",
+            "integration                                        0:0:1779             [Module: (integration)]",
         ],
     ),
     (
@@ -31,6 +31,12 @@ expression: local_items
         "0:13-0:3:1774",
         [
             "integration::S                                     0:3:1774             [Struct]",
+        ],
+    ),
+    (
+        "0:14:1778",
+        [
+            "integration::a::c::ATraitNeverImplementedForTypes  0:14:1778            [Trait: (ATraitNeverImplementedForTypes)]",
         ],
     ),
     (
@@ -64,23 +70,23 @@ expression: local_items
         ],
     ),
     (
-        "a:2:32574:2039-0:3:1774",
+        "a:2:32574:2040-0:3:1774",
         [
-            "core::marker::Unpin                                2:32574:2039         [Trait]",
+            "core::marker::Unpin                                2:32574:2040         [Trait]",
             "integration::S                                     0:3:1774             [Struct]",
         ],
     ),
     (
-        "a:2:42204:2420-0:3:1774",
+        "a:2:42204:2421-0:3:1774",
         [
-            "core::panic::unwind_safe::UnwindSafe               2:42204:2420         [Trait]",
+            "core::panic::unwind_safe::UnwindSafe               2:42204:2421         [Trait]",
             "integration::S                                     0:3:1774             [Struct]",
         ],
     ),
     (
-        "a:2:42205:2749-0:3:1774",
+        "a:2:42205:2750-0:3:1774",
         [
-            "core::panic::unwind_safe::RefUnwindSafe            2:42205:2749         [Trait]",
+            "core::panic::unwind_safe::RefUnwindSafe            2:42205:2750         [Trait]",
             "integration::S                                     0:3:1774             [Struct]",
         ],
     ),

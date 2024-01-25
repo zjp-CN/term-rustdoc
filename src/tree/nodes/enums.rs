@@ -29,7 +29,8 @@ impl Show for DEnum {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let variant = names_node!(@single self map "No Variants!"
+        let variant = names_node!(@single
+            self map "No Variants!".show(),
             "Variants" variants "[variant]"
         );
         let leaves = [variant, self.impls.show_prettier(map)];

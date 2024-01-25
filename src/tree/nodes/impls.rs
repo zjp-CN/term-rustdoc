@@ -67,7 +67,8 @@ impl Show for DImpl {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let leaves = names_node!(self map "No Implementations!":
+        let leaves = names_node!(
+            self map "No Implementations!".show(),
             "Inherent Impls" inherent "[inhrt]",
             "Trait Impls"    trait_   "[trait]",
             "Auto Impls"     auto     "[auto]",

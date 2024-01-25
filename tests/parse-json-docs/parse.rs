@@ -7,9 +7,15 @@ fn parse_module() {
     let parsed = DModule::new(doc);
     snap!("DModule", parsed);
     shot!(parsed.show(), @r###"
-    [mod] 0:0:1778
+    [mod] 0:0:1779
     ├── [mod] 0:10:1776
     │   └── [mod] 0:11:415
+    │       └── Traits
+    │           └── [trait] 0:14:1778
+    │               ├── Associated Types
+    │               ├── Associated Constants
+    │               ├── Associated Functions
+    │               └── Implementors
     ├── Structs
     │   └── [struct] 0:3:1774
     │       ├── Fields
@@ -19,10 +25,10 @@ fn parse_module() {
     │           │   └── 0:6
     │           ├── Auto Impls
     │           │   ├── a:2:2957:254-0:3:1774
-    │           │   ├── a:2:42204:2420-0:3:1774
-    │           │   ├── a:2:32574:2039-0:3:1774
+    │           │   ├── a:2:42204:2421-0:3:1774
+    │           │   ├── a:2:32574:2040-0:3:1774
     │           │   ├── a:2:32492:244-0:3:1774
-    │           │   └── a:2:42205:2749-0:3:1774
+    │           │   └── a:2:42205:2750-0:3:1774
     │           └── Blanket Impls
     │               ├── b:2:2745-0:3:1774
     │               ├── b:2:3504-0:3:1774
@@ -43,6 +49,9 @@ fn parse_module() {
     [mod] integration
     ├── [mod] integration::a
     │   └── [mod] integration::a::c
+    │       └── Traits
+    │           └── [trait] integration::a::c::ATraitNeverImplementedForTypes
+    │               └── No Associated Items Or Implementors!
     ├── Structs
     │   └── [struct] integration::S
     │       ├── No field

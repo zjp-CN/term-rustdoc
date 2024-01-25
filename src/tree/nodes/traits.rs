@@ -58,12 +58,14 @@ impl Show for DTrait {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let leaves = names_node!(self map "No Associated Items!":
+        let root = node!("[trait] {}", map.path(&self.id, ItemKind::Trait));
+        let leaves = names_node!(
+            self map root.with_leaves(["No Associated Items Or Implementors!".show()]),
             "Associated Types"     types     "[assoc type]",
             "Associated Constants" constants "[assoc constant]",
             "Associated Functions" functions "[fn]",
             "Implementors" implementations "",
         );
-        node!("[trait] {}", map.path(&self.id, ItemKind::Trait)).with_leaves(leaves)
+        root.with_leaves(leaves)
     }
 }

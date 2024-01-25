@@ -11,5 +11,7 @@ pub mod a {
     pub mod c {
         pub use crate::S;
         pub use crate::S as S1;
+
+        pub trait ATraitNeverImplementedForTypes {}
     }
 }

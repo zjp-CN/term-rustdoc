@@ -66,7 +66,8 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
 /// ### Usage 1
 ///
 /// ````rust,ignore
-/// let leaves = names_node!(self map "No Implementations!":
+/// let node = "No Implementations!".show();
+/// let leaves = names_node!(self map node:
 ///     "Inherent Impls" inherent "[inhrt]",
 ///     "Trait Impls"    trait_   "[trait]",
 ///     "Auto Impls"     auto     "[auto]",
@@ -86,10 +87,10 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
 /// ````
 macro_rules! names_node {
     (
-        $self:ident $map:ident $root:literal :
+        $self:ident $map:ident $root:expr ,
         $( $node:literal $field:ident $icon:literal , )+ $(,)?
     ) => {{
-        if $( $self.$field.is_empty() )&&+ { return $root.show() }
+        if $( $self.$field.is_empty() )&&+ { return $root }
         ::std::iter::empty()
             $(
                 .chain(names_node!(@chain $node $field $icon $self $map))
@@ -102,9 +103,9 @@ macro_rules! names_node {
             ))
         })
     };
-    (@single $self:ident $map:ident $root:literal $node:literal $field:ident $icon:literal) => {
+    (@single $self:ident $map:ident $root:expr , $node:literal $field:ident $icon:literal) => {
         if $self.$field.is_empty() {
-            $root.show()
+            $root
         } else {
             $node.show().with_leaves($crate::tree::impls::show::show_names(
                 &*$self.$field, icon!($icon), $map

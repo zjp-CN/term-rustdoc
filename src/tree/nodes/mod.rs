@@ -1,5 +1,4 @@
 mod impls;
-use std::ops::Not;
 
 pub use impls::DImpl;
 
@@ -26,6 +25,7 @@ use crate::tree::{
     IdToID, IndexMap, ID,
 };
 use rustdoc_types::{Crate, Id, Item, ItemEnum, ItemKind, MacroKind, Module};
+use std::ops::Not;
 
 /// Module tree with structural items.
 /// All the items only carry ids without actual data.
@@ -134,24 +134,22 @@ impl Show for DModule {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         node!("[mod] {}", map.path(&self.id, ItemKind::Module)).with_leaves(
-            self.modules
-                .iter()
-                .map(|m| m.show_prettier(map))
-                $(
-                    .chain( impl_show!(@pretty $field $node self map) )
-                )+
+            self.modules.iter().map(|m| m.show_prettier(map))
+            $(
+                .chain( impl_show!(@pretty $field $node self map) )
+            )+
         )
     }
 }
     };
-    (@pretty $field:ident $node:literal $self:ident $map:ident) => {
-        $self.$field.is_empty().not().then(|| {
-            $node.show().with_leaves($self.$field.iter().map(|val| val.show_prettier($map)))
-        })
-    };
     (@show $field:ident $node:literal $fty:ident $self:ident $map:ident) => {
         $self.$field.is_empty().not().then(|| {
             $node.show().with_leaves($self.$field.iter().map($fty::show))
+        })
+    };
+    (@pretty $field:ident $node:literal $self:ident $map:ident) => {
+        $self.$field.is_empty().not().then(|| {
+            $node.show().with_leaves($self.$field.iter().map(|val| val.show_prettier($map)))
         })
     };
 }

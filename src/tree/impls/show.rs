@@ -42,7 +42,7 @@ impl Show for str {
         DocTree::new(self.into())
     }
 
-    /// Just as [`<str as Show>::show`] does.
+    /// Just as `<str as Show>::show` does.
     fn show_prettier(&self, _: &IDMap) -> DocTree {
         self.show()
     }

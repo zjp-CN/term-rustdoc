@@ -10,6 +10,7 @@ mod stats;
 pub use id::{IDMap, IDs, IdAsStr, IdToID, IndexMap, PathMap, SliceToIds, ID};
 pub use impls::show::{DocTree, GlyphPalette, Show};
 pub use nodes::{
-    DConstant, DEnum, DFunction, DImpl, DModule, DStatic, DStruct, DTrait, DTypeAlias, DUnion,
+    DConstant, DEnum, DFunction, DImpl, DMacroAttr, DMacroDecl, DMacroDerv, DMacroFunc, DModule,
+    DStatic, DStruct, DTrait, DTypeAlias, DUnion,
 };
 pub use stats::{ImplCount, ImplCounts, ImplKind, ItemCount};

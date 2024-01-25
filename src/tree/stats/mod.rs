@@ -1,4 +1,4 @@
-use super::{DMacroKind, DModule};
+use super::DModule;
 
 mod impls;
 use impls::acc_sum;
@@ -31,22 +31,10 @@ impl DModule {
                     .expect("the count exceeds the maximum of u32");
             )+ };
         }
-        len!(self . modules structs unions enums functions traits constants statics type_alias imports);
-        let [mut decl, mut func, mut attr, mut derv]: [u32; 4] = Default::default();
-        for m in &self.macros {
-            match m.kind {
-                DMacroKind::Declarative => decl += 1,
-                DMacroKind::ProcFunction => func += 1,
-                DMacroKind::ProcAttribute => attr += 1,
-                DMacroKind::ProcDerive => derv += 1,
-            }
-        }
+        len!(self . modules structs unions enums functions traits constants statics type_alias imports macros_decl macros_func macros_attr macros_derv);
         ItemCount {
-            modules, structs, unions, enums, functions, traits, constants, statics, type_alias, imports,
-            macros_decl: decl,
-            macros_func: func,
-            macros_attr: attr,
-            macros_derv: derv,
+            modules, structs, unions, enums, functions, traits, constants, statics,
+            type_alias, imports, macros_decl, macros_func, macros_attr, macros_derv,
         }
     }
 

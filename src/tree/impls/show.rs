@@ -1,4 +1,8 @@
-use crate::{tree::ID, util::XString};
+use crate::{
+    tree::{IDMap, IdAsStr, ID},
+    util::XString,
+};
+use rustdoc_types::ItemKind;
 pub use termtree::{GlyphPalette, Tree};
 
 macro_rules! icon {
@@ -30,7 +34,7 @@ pub trait Show {
     fn show(&self) -> DocTree;
 
     /// A fancier form with more item tags/icons before subnodes and other improvements.
-    fn show_prettier(&self) -> DocTree;
+    fn show_prettier(&self, map: &IDMap) -> DocTree;
 }
 
 impl Show for str {
@@ -38,26 +42,28 @@ impl Show for str {
         DocTree::new(self.into())
     }
 
-    /// Just as [`Show::show`] does.
-    fn show_prettier(&self) -> DocTree {
+    /// Just as [`<str as Show>::show`] does.
+    fn show_prettier(&self, _: &IDMap) -> DocTree {
         self.show()
     }
 }
 
-impl Show for ID {
-    fn show(&self) -> DocTree {
-        self.as_str().show()
-    }
-
-    /// Just as [`Show::show`] does.
-    fn show_prettier(&self) -> DocTree {
-        self.show()
-    }
+macro_rules! node {
+    ($xstring:expr) => { $crate::tree::impls::show::DocTree::new($xstring.into()) };
+    ($e:literal $(, $($t:tt)*)?) => {
+        DocTree::new($crate::util::xformat!( $e $(, $($t)*)? ))
+    };
 }
 
-pub fn show_ids_with(ids: &[ID], glyph: GlyphPalette) -> impl '_ + Iterator<Item = DocTree> {
-    show_ids(ids).map(move |tree| tree.with_glyphs(glyph))
+pub fn show_paths<'id, S: 'id + ?Sized + IdAsStr>(
+    ids: impl 'id + IntoIterator<Item = &'id S>,
+    kind: ItemKind,
+    glyph: GlyphPalette,
+    map: &'id IDMap,
+) -> impl 'id + Iterator<Item = DocTree> {
+    map.path_node(ids, kind)
+        .map(move |node| Tree::new(node).with_glyphs(glyph))
 }
 pub fn show_ids(ids: &[ID]) -> impl '_ + Iterator<Item = DocTree> {
-    ids.iter().map(ID::show)
+    ids.iter().map(|id| id.as_str().show())
 }

@@ -1,8 +1,8 @@
 use crate::tree::{
-    impls::show::{show_ids, show_ids_with, DocTree, Show},
-    DImpl, IDs, IndexMap, SliceToIds, ID,
+    impls::show::{show_ids, show_paths, DocTree, Show},
+    DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
 };
-use rustdoc_types::Union;
+use rustdoc_types::{ItemKind, Union};
 
 pub struct DUnion {
     pub id: ID,
@@ -27,14 +27,15 @@ impl Show for DUnion {
         ])
     }
 
-    fn show_prettier(&self) -> DocTree {
-        format!("[union] {}", self.id)
-            .show_prettier()
-            .with_leaves([
-                "Fields"
-                    .show_prettier()
-                    .with_leaves(show_ids_with(&self.fields, icon!("[field]"))),
-                self.impls.show_prettier(),
-            ])
+    fn show_prettier(&self, map: &IDMap) -> DocTree {
+        node!("[union] {}", map.path(&self.id, ItemKind::Union)).with_leaves([
+            "Fields".show().with_leaves(show_paths(
+                &*self.fields,
+                ItemKind::StructField,
+                icon!("[field]"),
+                map,
+            )),
+            self.impls.show_prettier(map),
+        ])
     }
 }

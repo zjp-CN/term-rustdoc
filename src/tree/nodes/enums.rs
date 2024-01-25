@@ -1,8 +1,8 @@
 use crate::tree::{
-    impls::show::{show_ids, show_ids_with, DocTree, Show},
-    DImpl, IDs, IndexMap, SliceToIds, ID,
+    impls::show::{show_ids, show_paths, DocTree, Show},
+    DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
 };
-use rustdoc_types::Enum;
+use rustdoc_types::{Enum, ItemKind};
 
 pub struct DEnum {
     pub id: ID,
@@ -28,12 +28,15 @@ impl Show for DEnum {
         ])
     }
 
-    fn show_prettier(&self) -> DocTree {
-        "[enum]".show_prettier().with_leaves([
-            "Variants"
-                .show_prettier()
-                .with_leaves(show_ids_with(&self.variants, icon!("[variant]"))),
-            self.impls.show_prettier(),
+    fn show_prettier(&self, map: &IDMap) -> DocTree {
+        node!("[enum] {}", map.path(&self.id, ItemKind::Enum)).with_leaves([
+            "Variants".show().with_leaves(show_paths(
+                &*self.variants,
+                ItemKind::Variant,
+                icon!("[variant]"),
+                map,
+            )),
+            self.impls.show_prettier(map),
         ])
     }
 }

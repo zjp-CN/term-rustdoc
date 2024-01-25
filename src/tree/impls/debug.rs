@@ -31,7 +31,8 @@ impl Debug for DModule {
         base.field("id", &self.id);
         skip_fmt!(
             base, self . modules structs unions enums
-            functions traits constants statics type_alias imports macros
+            functions traits constants statics type_alias imports
+            macros_decl macros_func macros_attr macros_derv
         );
         base.finish()
     }

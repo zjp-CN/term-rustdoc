@@ -1,8 +1,8 @@
 use crate::tree::{
-    impls::show::{show_ids, show_ids_with, DocTree, Show},
-    IDs, IdToID, IndexMap, ID,
+    impls::show::{show_ids, show_paths, DocTree, Show},
+    IDMap, IDs, IdToID, IndexMap, ID,
 };
-use rustdoc_types::{Id, ItemEnum};
+use rustdoc_types::{Id, ItemEnum, ItemKind};
 
 #[derive(Default)]
 pub struct DImpl {
@@ -62,26 +62,36 @@ impl Show for DImpl {
                 .with_leaves(show_ids(&self.inherent)),
             "Trait Impls".show().with_leaves(show_ids(&self.trait_)),
             "Auto Impls".show().with_leaves(show_ids(&self.auto)),
-            "Blanket Impls"
-                .show()
-                .with_leaves(show_ids(&self.blanket)),
+            "Blanket Impls".show().with_leaves(show_ids(&self.blanket)),
         ])
     }
 
-    fn show_prettier(&self) -> DocTree {
+    fn show_prettier(&self, map: &IDMap) -> DocTree {
         "Implementations".show().with_leaves([
-            "Inherent Impls"
-                .show()
-                .with_leaves(show_ids_with(&self.inherent, icon!("[inhrt]"))),
-            "Trait Impls"
-                .show()
-                .with_leaves(show_ids_with(&self.trait_, icon!("[trait]"))),
-            "Auto Impls"
-                .show()
-                .with_leaves(show_ids_with(&self.auto, icon!("[auto]"))),
-            "Blanket Impls"
-                .show()
-                .with_leaves(show_ids_with(&self.blanket, icon!("[blkt]"))),
+            "Inherent Impls".show().with_leaves(show_paths(
+                &*self.inherent,
+                ItemKind::Impl,
+                icon!("[inhrt]"),
+                map,
+            )),
+            "Trait Impls".show().with_leaves(show_paths(
+                &*self.trait_,
+                ItemKind::Impl,
+                icon!("[trait]"),
+                map,
+            )),
+            "Auto Impls".show().with_leaves(show_paths(
+                &*self.auto,
+                ItemKind::Impl,
+                icon!("[auto]"),
+                map,
+            )),
+            "Blanket Impls".show().with_leaves(show_paths(
+                &*self.blanket,
+                ItemKind::Impl,
+                icon!("[blkt]"),
+                map,
+            )),
         ])
     }
 }

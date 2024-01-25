@@ -1,8 +1,8 @@
 use crate::tree::{
-    impls::show::{show_ids, show_ids_with, DocTree, Show},
-    IDs, IdToID, IndexMap, SliceToIds, ID,
+    impls::show::{show_ids, show_paths, DocTree, Show},
+    IDMap, IDs, IdToID, IndexMap, SliceToIds, ID,
 };
-use rustdoc_types::{ItemEnum, Trait};
+use rustdoc_types::{ItemEnum, ItemKind, Trait};
 
 pub struct DTrait {
     pub id: ID,
@@ -44,9 +44,7 @@ impl DTrait {
 impl Show for DTrait {
     fn show(&self) -> DocTree {
         format!("[trait] {}", self.id).show().with_leaves([
-            "Associated Types"
-                .show()
-                .with_leaves(show_ids(&self.types)),
+            "Associated Types".show().with_leaves(show_ids(&self.types)),
             "Associated Constants"
                 .show()
                 .with_leaves(show_ids(&self.constants)),
@@ -59,22 +57,32 @@ impl Show for DTrait {
         ])
     }
 
-    fn show_prettier(&self) -> DocTree {
-        format!("[trait] {}", self.id)
-            .show_prettier()
-            .with_leaves([
-                "Associated Types"
-                    .show()
-                    .with_leaves(show_ids_with(&self.types, icon!("[assoc type]"))),
-                "Associated Constants"
-                    .show()
-                    .with_leaves(show_ids_with(&self.constants, icon!("[assoc const]"))),
-                "Associated Functions"
-                    .show()
-                    .with_leaves(show_ids_with(&self.functions, icon!("[fn]"))),
-                "Implementors"
-                    .show()
-                    .with_leaves(show_ids_with(&self.implementations, icon!())),
-            ])
+    fn show_prettier(&self, map: &IDMap) -> DocTree {
+        node!("[trait] {}", map.path(&self.id, ItemKind::Trait)).with_leaves([
+            "Associated Types".show().with_leaves(show_paths(
+                &*self.types,
+                ItemKind::AssocType,
+                icon!("[assoc type]"),
+                map,
+            )),
+            "Associated Constants".show().with_leaves(show_paths(
+                &*self.constants,
+                ItemKind::AssocConst,
+                icon!("[assoc const]"),
+                map,
+            )),
+            "Associated Functions".show().with_leaves(show_paths(
+                &*self.functions,
+                ItemKind::Function,
+                icon!("[fn]"),
+                map,
+            )),
+            "Implementors".show().with_leaves(show_paths(
+                &*self.implementations,
+                ItemKind::Impl,
+                icon!(),
+                map,
+            )),
+        ])
     }
 }

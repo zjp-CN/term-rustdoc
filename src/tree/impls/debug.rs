@@ -85,15 +85,6 @@ impl Debug for DTrait {
     }
 }
 
-impl Debug for DTypeAlias {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut base = f.debug_struct("DTypeAlias");
-        base.field("id", &self.id);
-        skip_fmt!(option: base, self.source_path);
-        base.finish()
-    }
-}
-
 impl Debug for ItemCount {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut base = f.debug_struct("ItemCount");

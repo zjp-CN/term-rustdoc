@@ -14,9 +14,6 @@ pub use enums::DEnum;
 mod traits;
 pub use traits::DTrait;
 
-mod type_alias;
-pub use type_alias::DTypeAlias;
-
 mod imports;
 
 use super::IDMap;
@@ -41,8 +38,8 @@ pub struct DModule {
     pub structs: Vec<DStruct>,
     pub unions: Vec<DUnion>,
     pub enums: Vec<DEnum>,
-    pub functions: Vec<DFunction>,
     pub traits: Vec<DTrait>,
+    pub functions: Vec<DFunction>,
     pub constants: Vec<DConstant>,
     pub statics: Vec<DStatic>,
     pub type_alias: Vec<DTypeAlias>,
@@ -102,11 +99,11 @@ impl DModule {
             Struct(item) => self.structs.push(DStruct::new(id, item, index)),
             Union(item) => self.unions.push(DUnion::new(id, item, index)),
             Enum(item) => self.enums.push(DEnum::new(id, item, index)),
-            Function(_) => self.functions.push(DFunction::new(id)),
             Trait(item) => self.traits.push(DTrait::new(id, item, index)),
+            Function(_) => self.functions.push(DFunction::new(id)),
             Constant(_) => self.constants.push(DConstant::new(id)),
             Static(_) => self.statics.push(DStatic::new(id)),
-            TypeAlias(item) => self.type_alias.push(DTypeAlias::new(id, item)),
+            TypeAlias(_) => self.type_alias.push(DTypeAlias::new(id)),
             Macro(_) => self.macros_decl.push(DMacroDecl::new(id)),
             ProcMacro(proc) => match proc.kind {
                 MacroKind::Bang => self.macros_func.push(DMacroFunc::new(id)),
@@ -120,7 +117,7 @@ impl DModule {
 }
 
 macro_rules! impl_show {
-    ($( $field:ident => $node:literal => $fty:ident ,)+ ) => {
+    ($( $field:ident => $node:literal => $fty:ident , )+ ) => {
 /// To a recursive tree displayed with ids as nodes.
 impl Show for DModule {
     fn show(&self) -> DocTree {
@@ -163,6 +160,7 @@ impl_show! {
     constants   => "Constants"            => DConstant,
     statics     => "Statics"              => DStatic,
     macros_decl => "Macros - Declarative" => DMacroDecl,
+    type_alias  => "Type Alias"           => DTypeAlias,
     macros_func => "Macros - Function"    => DMacroFunc,
     macros_attr => "Macros - Attribute"   => DMacroAttr,
     macros_derv => "Macros - Derive"      => DMacroDerv,
@@ -170,7 +168,7 @@ impl_show! {
 
 /// generate id wrapper types for simple items
 macro_rules! gen_simple_items {
-    ($($name:ident => $show:literal => $kind:ident , )+ ) => {$(
+    ($( $name:ident => $show:literal => $kind:ident , )+ ) => {$(
         #[derive(Debug)] pub struct $name { pub id: ID, }
         impl $name { pub fn new(id: ID) -> Self { Self { id } } }
         impl Show for $name {
@@ -183,9 +181,10 @@ macro_rules! gen_simple_items {
 }
 
 gen_simple_items! {
-    DFunction  => "[fn] {}"         => Function ,
-    DStatic    => "[static] {}"     => Static,
+    DFunction  => "[fn] {}"         => Function,
     DConstant  => "[constant] {}"   => Constant,
+    DStatic    => "[static] {}"     => Static,
+    DTypeAlias => "[type alias] {}" => TypeAlias,
     DMacroDecl => "[macro decl] {}" => Macro,
     DMacroFunc => "[macro func] {}" => Macro,
     DMacroAttr => "[macro attr] {}" => ProcAttribute,

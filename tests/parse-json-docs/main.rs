@@ -128,22 +128,33 @@ fn basic_info() -> Result<()> {
     snap!(paths, @r###"
     [
         "integration                                        [Module]",
+        "integration::ACONSTANT                             [Constant]",
+        "integration::ASTATIC                               [Constant]",
+        "integration::ATrait                                [Trait]",
         "integration::AUnitStruct                           [Struct]",
-        "integration::Trait                                 [Trait]",
+        "integration::FieldsNamedStruct                     [Struct]",
+        "integration::a_decl_macro                          [Macro]",
+        "integration::func_with_1arg                        [Function]",
+        "integration::func_with_1arg_and_ret                [Function]",
+        "integration::func_with_no_args                     [Function]",
         "integration::submod1                               [Module]",
+        "integration::submod1::AUnitEnum                    [Enum]",
+        "integration::submod1::AUnitEnum::A                 [Variant]",
+        "integration::submod1::AUnitEnum::B                 [Variant]",
+        "integration::submod1::AUnitEnum::C                 [Variant]",
         "integration::submod1::submod2                      [Module]",
         "integration::submod1::submod2::ATraitNeverImplementedForTypes [Trait]",
     ]
     "###);
 
     // item counts
-    shot!(doc.paths.len(), @"1975");
-    shot!(js.local_path().count(), @"6");
-    shot!(doc.index.len(), @"108");
-    shot!(js.local_index().count(), @"21");
+    shot!(doc.paths.len(), @"1987");
+    shot!(js.local_path().count(), @"17");
+    shot!(doc.index.len(), @"155");
+    shot!(js.local_index().count(), @"68");
 
     // data sizes
-    shot!(ByteSize(json.len() as _), @"331.6 KB");
+    shot!(ByteSize(json.len() as _), @"361.7 KB");
 
     Ok(())
 }
@@ -182,7 +193,7 @@ fn compression() -> Result<()> {
         "[raw json text => xz] {}",
         reduced_size(json_size, compress(json.as_bytes())?)
     );
-    shot!(json_compression, @"[raw json text => xz] 331.6 KB => 41.6 KB (-87%)");
+    shot!(json_compression, @"[raw json text => xz] 361.7 KB => 43.6 KB (-88%)");
 
     let [bin_size, xz_size] = compress_bin(doc)?;
     let bin_compression = format!(
@@ -194,9 +205,9 @@ fn compression() -> Result<()> {
         reduced_size(json_size, xz_size)
     );
     shot!(bin_compression, @r###"
-    [raw json text => bb] 331.6 KB => 167.7 KB (-49%)
-    [binary bytes  => xz] 167.7 KB => 40.0 KB (-76%)
-    [raw json text => xz] 331.6 KB => 40.0 KB (-88%) 
+    [raw json text => bb] 361.7 KB => 174.3 KB (-52%)
+    [binary bytes  => xz] 174.3 KB => 41.6 KB (-76%)
+    [raw json text => xz] 361.7 KB => 41.6 KB (-89%) 
     "###);
 
     Ok(())

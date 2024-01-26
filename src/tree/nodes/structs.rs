@@ -68,7 +68,7 @@ impl Show for DStruct {
         let len = self.fields.len();
         match (len, self.contain_private_fields) {
             (0, true) => node.extend([private_fields()]),
-            (0, false) => node.extend(["No field".show()]),
+            (0, false) => node.extend(["No fields!".show()]),
             (_, true) => node.extend([
                 fields_root(len).with_leaves(show_names(&*self.fields, icon!("[field]"), map)),
                 private_fields(),

@@ -67,23 +67,24 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
 ///
 /// ````rust,ignore
 /// let node = "No Implementations!".show();
-/// let leaves = names_node!(self map node:
+/// let leaves = names_node!(self map node,
 ///     "Inherent Impls" inherent "[inhrt]",
 ///     "Trait Impls"    trait_   "[trait]",
 ///     "Auto Impls"     auto     "[auto]",
 ///     "Blanket Impls"  blanket  "[blkt]",
 /// );
-/// node.with_leaves(leaves);
+/// node.with_leaves(leaves)
 /// ````
 ///
 /// ### Usage 2
 ///
 /// ````rust,ignore
-/// let fields = names_node!(@single self map "No Fields!"
+/// let root = node!("[union] {}", map.path(&self.id, ItemKind::Union));
+/// let fields = names_node!(@single
+///     self map root.with_leaves(["No Fields!".show()]),
 ///     "Fields" fields "[field]"
 /// );
-/// node!("[union] {}", map.path(&self.id, ItemKind::Union))
-///     .with_leaves([fields, self.impls.show_prettier(map)])
+/// root.with_leaves([fields, self.impls.show_prettier(map)])
 /// ````
 macro_rules! names_node {
     (

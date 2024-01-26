@@ -2,7 +2,6 @@ use crate::tree::{
     impls::show::{show_ids, show_names, DocTree, Show},
     DImpl, IDMap, IDs, IdToID, IndexMap, SliceToIds, ID,
 };
-use crate::util::xformat;
 use rustdoc_types::{ItemKind, Struct, StructKind};
 
 pub struct DStruct {
@@ -49,8 +48,8 @@ fn private_fields() -> DocTree {
     "/* private fields */".show()
 }
 
-fn fields_root(len: usize) -> DocTree {
-    xformat!("{len} field{}", if len > 1 { "s" } else { "" }).show()
+fn fields_root() -> DocTree {
+    "Fields".show()
 }
 
 impl Show for DStruct {
@@ -65,20 +64,18 @@ impl Show for DStruct {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         let mut node = node!("[struct] {}", map.path(&self.id, ItemKind::Struct));
-        let len = self.fields.len();
-        match (len, self.contain_private_fields) {
-            (0, true) => node.extend([private_fields()]),
-            (0, false) => node.extend(["No fields!".show()]),
-            (_, true) => node.extend([
-                fields_root(len).with_leaves(show_names(&*self.fields, icon!("[field]"), map)),
-                private_fields(),
-            ]),
-            (_, false) => node.extend([fields_root(len).with_leaves(show_names(
+        match (self.fields.len(), self.contain_private_fields) {
+            (0, true) => node.push(private_fields()),
+            (0, false) => node.push("No fields!".show()),
+            (_, true) => node.push(fields_root().with_leaves(
+                show_names(&*self.fields, icon!("[field]"), map).chain([private_fields()]),
+            )),
+            (_, false) => node.push(fields_root().with_leaves(show_names(
                 &*self.fields,
                 icon!("[field]"),
                 map,
-            ))]),
-        }
+            ))),
+        };
         node.push(self.impls.show_prettier(map));
         node
     }

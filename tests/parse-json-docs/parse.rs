@@ -157,11 +157,11 @@ fn parse_module() {
     │   │           ├── [blkt] T: Into<U>
     │   │           └── [blkt] T: Borrow<T>
     │   └── [struct] integration::FieldsNamedStruct
-    │       ├── 3 fields
+    │       ├── Fields
     │       │   ├── [field] field1
     │       │   ├── [field] field2
-    │       │   └── [field] field3
-    │       ├── /* private fields */
+    │       │   ├── [field] field3
+    │       │   └── /* private fields */
     │       └── Implementations
     │           ├── Inherent Impls
     │           │   └── [inhrt] 0:22

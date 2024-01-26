@@ -7,11 +7,11 @@ fn parse_module() {
     let parsed = DModule::new(doc);
     snap!("DModule", parsed);
     shot!(parsed.show(), @r###"
-    [mod] 0:0:1779
+    [mod] 0:0:1780
     ├── [mod] 0:10:1776
-    │   └── [mod] 0:11:415
+    │   └── [mod] 0:11:1777
     │       └── Traits
-    │           └── [trait] 0:14:1778
+    │           └── [trait] 0:14:1779
     │               ├── Associated Types
     │               ├── Associated Constants
     │               ├── Associated Functions
@@ -25,10 +25,10 @@ fn parse_module() {
     │           │   └── 0:6
     │           ├── Auto Impls
     │           │   ├── a:2:2957:254-0:3:1774
-    │           │   ├── a:2:42204:2421-0:3:1774
-    │           │   ├── a:2:32574:2040-0:3:1774
+    │           │   ├── a:2:42204:2422-0:3:1774
+    │           │   ├── a:2:32574:2041-0:3:1774
     │           │   ├── a:2:32492:244-0:3:1774
-    │           │   └── a:2:42205:2750-0:3:1774
+    │           │   └── a:2:42205:2751-0:3:1774
     │           └── Blanket Impls
     │               ├── b:2:2745-0:3:1774
     │               ├── b:2:3504-0:3:1774
@@ -47,23 +47,23 @@ fn parse_module() {
     "###);
     shot!(parsed.show_prettier(&IDMap::from_crate(doc)), @r###"
     [mod] integration
-    ├── [mod] integration::a
-    │   └── [mod] integration::a::c
+    ├── [mod] integration::submod1
+    │   └── [mod] integration::submod1::submod2
     │       └── Traits
-    │           └── [trait] integration::a::c::ATraitNeverImplementedForTypes
+    │           └── [trait] integration::submod1::submod2::ATraitNeverImplementedForTypes
     │               └── No Associated Items Or Implementors!
     ├── Structs
-    │   └── [struct] integration::S
+    │   └── [struct] integration::AUnitStruct
     │       ├── No field
     │       └── Implementations
     │           ├── Trait Impls
-    │           │   └── [trait] S: Trait
+    │           │   └── [trait] AUnitStruct: Trait
     │           ├── Auto Impls
-    │           │   ├── [auto] S: Sync
-    │           │   ├── [auto] S: UnwindSafe
-    │           │   ├── [auto] S: Unpin
-    │           │   ├── [auto] S: Send
-    │           │   └── [auto] S: RefUnwindSafe
+    │           │   ├── [auto] AUnitStruct: Sync
+    │           │   ├── [auto] AUnitStruct: UnwindSafe
+    │           │   ├── [auto] AUnitStruct: Unpin
+    │           │   ├── [auto] AUnitStruct: Send
+    │           │   └── [auto] AUnitStruct: RefUnwindSafe
     │           └── Blanket Impls
     │               ├── [blkt] T: TryInto<U>
     │               ├── [blkt] T: Any
@@ -75,7 +75,7 @@ fn parse_module() {
     └── Traits
         └── [trait] integration::Trait
             └── Implementors
-                └──  S: Trait
+                └──  AUnitStruct: Trait
     "###);
 
     snap!(parsed.current_items_counts(), @r###"

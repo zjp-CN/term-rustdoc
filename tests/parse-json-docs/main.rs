@@ -128,11 +128,11 @@ fn basic_info() -> Result<()> {
     snap!(paths, @r###"
     [
         "integration                                        [Module]",
-        "integration::S                                     [Struct]",
+        "integration::AUnitStruct                           [Struct]",
         "integration::Trait                                 [Trait]",
-        "integration::a                                     [Module]",
-        "integration::a::c                                  [Module]",
-        "integration::a::c::ATraitNeverImplementedForTypes  [Trait]",
+        "integration::submod1                               [Module]",
+        "integration::submod1::submod2                      [Module]",
+        "integration::submod1::submod2::ATraitNeverImplementedForTypes [Trait]",
     ]
     "###);
 
@@ -143,7 +143,7 @@ fn basic_info() -> Result<()> {
     shot!(js.local_index().count(), @"21");
 
     // data sizes
-    shot!(ByteSize(json.len() as _), @"331.4 KB");
+    shot!(ByteSize(json.len() as _), @"331.6 KB");
 
     Ok(())
 }
@@ -182,7 +182,7 @@ fn compression() -> Result<()> {
         "[raw json text => xz] {}",
         reduced_size(json_size, compress(json.as_bytes())?)
     );
-    shot!(json_compression, @"[raw json text => xz] 331.4 KB => 41.6 KB (-87%)");
+    shot!(json_compression, @"[raw json text => xz] 331.6 KB => 41.6 KB (-87%)");
 
     let [bin_size, xz_size] = compress_bin(doc)?;
     let bin_compression = format!(
@@ -194,9 +194,9 @@ fn compression() -> Result<()> {
         reduced_size(json_size, xz_size)
     );
     shot!(bin_compression, @r###"
-    [raw json text => bb] 331.4 KB => 167.4 KB (-49%)
-    [binary bytes  => xz] 167.4 KB => 40.1 KB (-76%)
-    [raw json text => xz] 331.4 KB => 40.1 KB (-88%) 
+    [raw json text => bb] 331.6 KB => 167.7 KB (-49%)
+    [binary bytes  => xz] 167.7 KB => 40.0 KB (-76%)
+    [raw json text => xz] 331.6 KB => 40.0 KB (-88%) 
     "###);
 
     Ok(())

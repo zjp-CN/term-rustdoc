@@ -1,16 +1,16 @@
-/// struct S
-pub struct S;
+/// Documentation for struct AStruct
+pub struct AUnitStruct;
 
 pub trait Trait {}
-impl Trait for S {}
+impl Trait for AUnitStruct {}
 
-struct S2;
-impl Trait for S2 {}
+struct PrivateUnitStruct;
+impl Trait for PrivateUnitStruct {}
 
-pub mod a {
-    pub mod c {
-        pub use crate::S;
-        pub use crate::S as S1;
+pub mod submod1 {
+    pub mod submod2 {
+        pub use crate::AUnitStruct;
+        pub use crate::AUnitStruct as AStructAlias;
 
         pub trait ATraitNeverImplementedForTypes {}
     }

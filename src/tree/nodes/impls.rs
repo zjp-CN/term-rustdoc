@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
-    IDMap, IDs, IdToID, IndexMap, ID,
+    IDMap, IDs, IdToID, IndexMap, Tag, ID,
 };
 use rustdoc_types::{Id, ItemEnum};
 
@@ -68,11 +68,11 @@ impl Show for DImpl {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         let leaves = names_node!(
-            self map "No Implementations!".show(),
-            "Inherent Impls" inherent "[inhrt]",
-            "Trait Impls"    trait_   "[trait]",
-            "Auto Impls"     auto     "[auto]",
-            "Blanket Impls"  blanket  "[blkt]",
+            self map Tag::NoImpls.show(),
+            InherentImpls inherent ImplInherent,
+            TraitImpls    trait_   ImplTrait,
+            AutoImpls     auto     ImplAuto,
+            BlanketImpls  blanket  ImplBlanket,
         );
         "Implementations".show().with_leaves(leaves)
     }

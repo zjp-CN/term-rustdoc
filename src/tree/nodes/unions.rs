@@ -29,10 +29,10 @@ impl Show for DUnion {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         let fields = names_node!(@single
-            self map "No Fields!".show(),
-            "Fields" fields "[field]"
+            self map NoFields,
+            Fields fields Field
         );
-        node!("[union] {}", map.path(&self.id, ItemKind::Union))
+        node!(Union: map.path(&self.id, ItemKind::Union))
             .with_leaves([fields, self.impls.show_prettier(map)])
     }
 }

@@ -8,7 +8,7 @@ mod nodes;
 mod stats;
 
 pub use id::{IDMap, IDs, IdAsStr, IdToID, IndexMap, PathMap, SliceToIds, ID};
-pub use impls::show::{DocTree, GlyphPalette, Show};
+pub use impls::show::{DocTree, Show, Tag};
 pub use nodes::{
     DConstant, DEnum, DFunction, DImpl, DMacroAttr, DMacroDecl, DMacroDerv, DMacroFunc, DModule,
     DStatic, DStruct, DTrait, DTypeAlias, DUnion,

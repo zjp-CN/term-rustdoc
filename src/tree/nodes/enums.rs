@@ -30,10 +30,10 @@ impl Show for DEnum {
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         let variant = names_node!(@single
-            self map "No Variants!".show(),
-            "Variants" variants "[variant]"
+            self map NoVariants,
+            Variants variants Variant
         );
         let leaves = [variant, self.impls.show_prettier(map)];
-        node!("[enum] {}", map.path(&self.id, ItemKind::Enum)).with_leaves(leaves)
+        node!(Enum: map.path(&self.id, ItemKind::Enum)).with_leaves(leaves)
     }
 }

@@ -105,14 +105,14 @@ fn parse_module() {
         └── 0:32:1799
     "###);
     shot!(parsed.show_prettier(&IDMap::from_crate(doc)), @r###"
-    [mod] integration
-    ├── [mod] integration::submod1
-    │   ├── [mod] integration::submod1::submod2
+    integration
+    ├── [Mod] integration::submod1
+    │   ├── [Mod] integration::submod1::submod2
     │   │   └── Traits
-    │   │       └── [trait] integration::submod1::submod2::ATraitNeverImplementedForTypes
+    │   │       └── [Trait] integration::submod1::submod2::ATraitNeverImplementedForTypes
     │   │           └── No Associated Items Or Implementors!
     │   └── Enums
-    │       └── [enum] integration::submod1::AUnitEnum
+    │       └── [Enum] integration::submod1::AUnitEnum
     │           ├── Variants
     │           │   ├── [variant] A
     │           │   ├── [variant] B
@@ -137,8 +137,8 @@ fn parse_module() {
     │                   ├── [blkt] T: Into<U>
     │                   └── [blkt] T: Borrow<T>
     ├── Structs
-    │   ├── [struct] integration::AUnitStruct
-    │   │   ├── No fields!
+    │   ├── [Struct] integration::AUnitStruct
+    │   │   ├── No Fields!
     │   │   └── Implementations
     │   │       ├── Trait Impls
     │   │       │   └── [trait] AUnitStruct: ATrait
@@ -156,7 +156,7 @@ fn parse_module() {
     │   │           ├── [blkt] T: From<T>
     │   │           ├── [blkt] T: Into<U>
     │   │           └── [blkt] T: Borrow<T>
-    │   └── [struct] integration::FieldsNamedStruct
+    │   └── [Struct] integration::FieldsNamedStruct
     │       ├── Fields
     │       │   ├── [field] field1
     │       │   ├── [field] field2
@@ -182,16 +182,16 @@ fn parse_module() {
     │               ├── [blkt] T: Into<U>
     │               └── [blkt] T: Borrow<T>
     ├── Traits
-    │   └── [trait] integration::ATrait
+    │   └── [Trait] integration::ATrait
     │       └── Implementors
-    │           └──  AUnitStruct: ATrait
+    │           └── AUnitStruct: ATrait
     ├── Functions
-    │   ├── [fn] func_with_no_args
-    │   ├── [fn] func_with_1arg
-    │   └── [fn] func_with_1arg_and_ret
+    │   ├── [Fn] func_with_no_args
+    │   ├── [Fn] func_with_1arg
+    │   └── [Fn] func_with_1arg_and_ret
     ├── Constants
-    │   ├── [constant] ACONSTANT
-    │   └── [constant] ASTATIC
+    │   ├── [Const] ACONSTANT
+    │   └── [Const] ASTATIC
     └── Macros - Declarative
         └── [macro decl] a_decl_macro
     "###);

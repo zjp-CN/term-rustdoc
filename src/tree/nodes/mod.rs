@@ -116,7 +116,7 @@ impl DModule {
 }
 
 macro_rules! impl_show {
-    ($( $field:ident => $node:literal => $fty:ident , )+ ) => {
+    ($( $field:ident => $node:ident => $fty:ident , )+ ) => {
 /// To a recursive tree displayed with ids as nodes.
 impl Show for DModule {
     fn show(&self) -> DocTree {
@@ -129,7 +129,7 @@ impl Show for DModule {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        node!("[mod] {}", map.path(&self.id, ItemKind::Module)).with_leaves(
+        node!(Module: map.path(&self.id, ItemKind::Module)).with_leaves(
             self.modules.iter().map(|m| m.show_prettier(map))
             $(
                 .chain( impl_show!(@pretty $field $node self map) )
@@ -138,57 +138,57 @@ impl Show for DModule {
     }
 }
     };
-    (@show $field:ident $node:literal $fty:ident $self:ident $map:ident) => {
+    (@show $field:ident $node:ident $fty:ident $self:ident $map:ident) => {
         $self.$field.is_empty().not().then(|| {
-            $node.show().with_leaves($self.$field.iter().map($fty::show))
+            $crate::tree::Tag::$node.show().with_leaves($self.$field.iter().map($fty::show))
         })
     };
-    (@pretty $field:ident $node:literal $self:ident $map:ident) => {
+    (@pretty $field:ident $node:ident $self:ident $map:ident) => {
         $self.$field.is_empty().not().then(|| {
-            $node.show().with_leaves($self.$field.iter().map(|val| val.show_prettier($map)))
+            $crate::tree::Tag::$node.show().with_leaves($self.$field.iter().map(|val| val.show_prettier($map)))
         })
     };
 }
 
 impl_show! {
-    structs     => "Structs"              => DStruct,
-    unions      => "Unions"               => DUnion,
-    enums       => "Enums"                => DEnum,
-    traits      => "Traits"               => DTrait,
-    functions   => "Functions"            => DFunction,
-    constants   => "Constants"            => DConstant,
-    statics     => "Statics"              => DStatic,
-    type_alias  => "Type Alias"           => DTypeAlias,
-    macros_decl => "Macros - Declarative" => DMacroDecl,
-    macros_func => "Macros - Function"    => DMacroFunc,
-    macros_attr => "Macros - Attribute"   => DMacroAttr,
-    macros_derv => "Macros - Derive"      => DMacroDerv,
+    structs     => Structs    => DStruct,
+    unions      => Unions     => DUnion,
+    enums       => Enums      => DEnum,
+    traits      => Traits     => DTrait,
+    functions   => Functions  => DFunction,
+    constants   => Constants  => DConstant,
+    statics     => Statics    => DStatic,
+    type_alias  => TypeAliass => DTypeAlias,
+    macros_decl => MacroDecls => DMacroDecl,
+    macros_func => MacroFuncs => DMacroFunc,
+    macros_attr => MacroAttrs => DMacroAttr,
+    macros_derv => MacroDervs => DMacroDerv,
 }
 
 /// generate id wrapper types for simple items
 macro_rules! gen_simple_items {
-    ($( $name:ident => $show:literal => $kind:ident , )+ ) => {$(
+    ($( $name:ident => $tag:ident => $kind:ident , )+ ) => {$(
         #[derive(Debug)] pub struct $name { pub id: ID, }
         impl $name { pub fn new(id: ID) -> Self { Self { id } } }
         impl Show for $name {
             fn show(&self) -> DocTree { self.id.show() }
             fn show_prettier(&self, map: &IDMap) -> DocTree {
                 // node!($show, map.path(&self.id, ItemKind::$kind))
-                node!($show, map.name(&self.id))
+                node!($tag: map.name(&self.id))
             }
         }
     )+};
 }
 
 gen_simple_items! {
-    DFunction  => "[fn] {}"         => Function,
-    DConstant  => "[constant] {}"   => Constant,
-    DStatic    => "[static] {}"     => Static,
-    DTypeAlias => "[type alias] {}" => TypeAlias,
-    DMacroDecl => "[macro decl] {}" => Macro,
-    DMacroFunc => "[macro func] {}" => Macro,
-    DMacroAttr => "[macro attr] {}" => ProcAttribute,
-    DMacroDerv => "[macro derv] {}" => ProcDerive,
+    DFunction  => Function  => Function,
+    DConstant  => Constant  => Constant,
+    DStatic    => Static    => Static,
+    DTypeAlias => TypeAlias => TypeAlias,
+    DMacroDecl => MacroDecl => Macro,
+    DMacroFunc => MacroFunc => Macro,
+    DMacroAttr => MacroAttr => ProcAttribute,
+    DMacroDerv => MacroDerv => ProcDerive,
 }
 
 // TODO:

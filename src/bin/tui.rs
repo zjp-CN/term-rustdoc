@@ -6,7 +6,7 @@ use crossterm::{
     execute,
     terminal::{self, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{backend::CrosstermBackend, Terminal};
+use ratatui::{backend::CrosstermBackend, widgets::Paragraph, Terminal};
 use std::{io, panic};
 
 pub struct Tui {
@@ -24,8 +24,9 @@ impl Tui {
         Ok(Tui { terminal, events })
     }
 
-    pub fn draw(&mut self, app: &mut App) -> Result<()> {
-        self.terminal.draw(|frame| crate::ui::render(app, frame))?;
+    pub fn draw(&mut self, app: &mut App, widgets: Option<Paragraph<'_>>) -> Result<()> {
+        self.terminal
+            .draw(|frame| crate::ui::render(app, widgets, frame))?;
         Ok(())
     }
 }

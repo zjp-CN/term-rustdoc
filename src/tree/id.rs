@@ -162,7 +162,6 @@ impl IDMap<'_> {
 fn item_name(item: &Item) -> Option<XString> {
     match &item.inner {
         ItemEnum::Impl(item) => {
-            dbg!(&item);
             let implementor = item
                 .blanket_impl
                 .as_ref()

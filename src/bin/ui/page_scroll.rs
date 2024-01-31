@@ -27,11 +27,11 @@ impl Page {
         };
         let maybe_outside = outline.start + nrows;
         // don't let the last row leave the bottom
-        if maybe_outside + height > len {
+        if maybe_outside > len {
             return;
         }
         // set new positions for first row to be displayed
-        outline.start = (outline.start + nrows).min(len);
+        outline.start = (outline.start + nrows).min(len.saturating_sub(height));
     }
 
     pub fn scrollup_outline(&mut self, offset: ScrollOffset) {

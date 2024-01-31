@@ -1,0 +1,94 @@
+---
+source: tests/parse-json-docs/parse.rs
+expression: tree
+---
+integration
+├── [Mod] integration::submod1
+│   ├── [Mod] integration::submod1::submod2
+│   │   └── Traits
+│   │       └── [Trait] integration::submod1::submod2::ATraitNeverImplementedForTypes
+│   │           └── No Associated Items Or Implementors!
+│   └── Enums
+│       └── [Enum] integration::submod1::AUnitEnum
+│           ├── Variants
+│           │   ├── [variant] A
+│           │   ├── [variant] B
+│           │   └── [variant] C
+│           └── Implementations
+│               ├── Inherent Impls
+│               │   └── [inhrt] 0:15
+│               ├── Trait Impls
+│               │   └── [trait] AUnitEnum: Debug
+│               ├── Auto Impls
+│               │   ├── [auto] AUnitEnum: Sync
+│               │   ├── [auto] AUnitEnum: UnwindSafe
+│               │   ├── [auto] AUnitEnum: Unpin
+│               │   ├── [auto] AUnitEnum: Send
+│               │   └── [auto] AUnitEnum: RefUnwindSafe
+│               └── Blanket Impls
+│                   ├── [blkt] T: TryInto<U>
+│                   ├── [blkt] T: Any
+│                   ├── [blkt] T: BorrowMut<T>
+│                   ├── [blkt] T: TryFrom<U>
+│                   ├── [blkt] T: From<T>
+│                   ├── [blkt] T: Into<U>
+│                   └── [blkt] T: Borrow<T>
+├── Structs
+│   ├── [Struct] integration::AUnitStruct
+│   │   ├── No Fields!
+│   │   └── Implementations
+│   │       ├── Trait Impls
+│   │       │   └── [trait] AUnitStruct: ATrait
+│   │       ├── Auto Impls
+│   │       │   ├── [auto] AUnitStruct: Sync
+│   │       │   ├── [auto] AUnitStruct: UnwindSafe
+│   │       │   ├── [auto] AUnitStruct: Unpin
+│   │       │   ├── [auto] AUnitStruct: Send
+│   │       │   └── [auto] AUnitStruct: RefUnwindSafe
+│   │       └── Blanket Impls
+│   │           ├── [blkt] T: TryInto<U>
+│   │           ├── [blkt] T: Any
+│   │           ├── [blkt] T: BorrowMut<T>
+│   │           ├── [blkt] T: TryFrom<U>
+│   │           ├── [blkt] T: From<T>
+│   │           ├── [blkt] T: Into<U>
+│   │           └── [blkt] T: Borrow<T>
+│   └── [Struct] integration::FieldsNamedStruct
+│       ├── Fields
+│       │   ├── [field] field1
+│       │   ├── [field] field2
+│       │   ├── [field] field3
+│       │   └── /* private fields */
+│       └── Implementations
+│           ├── Inherent Impls
+│           │   └── [inhrt] 0:22
+│           ├── Trait Impls
+│           │   └── [trait] FieldsNamedStruct: Default
+│           ├── Auto Impls
+│           │   ├── [auto] FieldsNamedStruct: Sync
+│           │   ├── [auto] FieldsNamedStruct: UnwindSafe
+│           │   ├── [auto] FieldsNamedStruct: Unpin
+│           │   ├── [auto] FieldsNamedStruct: Send
+│           │   └── [auto] FieldsNamedStruct: RefUnwindSafe
+│           └── Blanket Impls
+│               ├── [blkt] T: TryInto<U>
+│               ├── [blkt] T: Any
+│               ├── [blkt] T: BorrowMut<T>
+│               ├── [blkt] T: TryFrom<U>
+│               ├── [blkt] T: From<T>
+│               ├── [blkt] T: Into<U>
+│               └── [blkt] T: Borrow<T>
+├── Traits
+│   └── [Trait] integration::ATrait
+│       └── Implementors
+│           └── AUnitStruct: ATrait
+├── Functions
+│   ├── [Fn] func_with_no_args
+│   ├── [Fn] func_with_1arg
+│   └── [Fn] func_with_1arg_and_ret
+├── Constants
+│   ├── [Const] ACONSTANT
+│   └── [Const] ASTATIC
+└── Macros - Declarative
+    └── [macro decl] a_decl_macro
+

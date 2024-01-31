@@ -41,6 +41,11 @@ pulldown-cmark = "0.9"
 
 [dev-dependencies]
 insta = "1"
+similar-asserts = "1.5"
+
+# quicker diffing in tests of insta/similar-asserts
+[profile.dev.package.similar]
+opt-level = 3
 
 [workspace]
 members = ["./tests/integration/"]

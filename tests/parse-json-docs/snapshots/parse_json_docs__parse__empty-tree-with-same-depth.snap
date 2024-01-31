@@ -1,0 +1,94 @@
+---
+source: tests/parse-json-docs/parse.rs
+expression: empty
+---
+
+├── [Mod] 
+│   ├── [Mod] 
+│   │   └── 
+│   │       └── [Trait] 
+│   │           └── 
+│   └── 
+│       └── [Enum] 
+│           ├── 
+│           │   ├── [variant] 
+│           │   ├── [variant] 
+│           │   └── [variant] 
+│           └── 
+│               ├── 
+│               │   └── [inhrt] 
+│               ├── 
+│               │   └── [trait] 
+│               ├── 
+│               │   ├── [auto] 
+│               │   ├── [auto] 
+│               │   ├── [auto] 
+│               │   ├── [auto] 
+│               │   └── [auto] 
+│               └── 
+│                   ├── [blkt] 
+│                   ├── [blkt] 
+│                   ├── [blkt] 
+│                   ├── [blkt] 
+│                   ├── [blkt] 
+│                   ├── [blkt] 
+│                   └── [blkt] 
+├── 
+│   ├── [Struct] 
+│   │   ├── 
+│   │   └── 
+│   │       ├── 
+│   │       │   └── [trait] 
+│   │       ├── 
+│   │       │   ├── [auto] 
+│   │       │   ├── [auto] 
+│   │       │   ├── [auto] 
+│   │       │   ├── [auto] 
+│   │       │   └── [auto] 
+│   │       └── 
+│   │           ├── [blkt] 
+│   │           ├── [blkt] 
+│   │           ├── [blkt] 
+│   │           ├── [blkt] 
+│   │           ├── [blkt] 
+│   │           ├── [blkt] 
+│   │           └── [blkt] 
+│   └── [Struct] 
+│       ├── 
+│       │   ├── [field] 
+│       │   ├── [field] 
+│       │   ├── [field] 
+│       │   └── 
+│       └── 
+│           ├── 
+│           │   └── [inhrt] 
+│           ├── 
+│           │   └── [trait] 
+│           ├── 
+│           │   ├── [auto] 
+│           │   ├── [auto] 
+│           │   ├── [auto] 
+│           │   ├── [auto] 
+│           │   └── [auto] 
+│           └── 
+│               ├── [blkt] 
+│               ├── [blkt] 
+│               ├── [blkt] 
+│               ├── [blkt] 
+│               ├── [blkt] 
+│               ├── [blkt] 
+│               └── [blkt] 
+├── 
+│   └── [Trait] 
+│       └── 
+│           └── 
+├── 
+│   ├── [Fn] 
+│   ├── [Fn] 
+│   └── [Fn] 
+├── 
+│   ├── [Const] 
+│   └── [Const] 
+└── 
+    └── [macro decl] 
+

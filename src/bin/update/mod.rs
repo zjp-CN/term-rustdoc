@@ -16,6 +16,8 @@ pub fn update(app: &mut App, page: &mut Page, key_event: KeyEvent) {
         KeyCode::End => page.scroll_end_outline(),
         KeyCode::PageUp => page.scrollup_outline(ScrollOffset::HalfScreen),
         KeyCode::PageDown => page.scrolldown_outline(ScrollOffset::HalfScreen),
+        KeyCode::Up => page.move_backward_cursor_outline(),
+        KeyCode::Down => page.move_forward_cursor_outline(),
         _ => {}
     };
 }

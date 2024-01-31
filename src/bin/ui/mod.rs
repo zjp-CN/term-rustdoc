@@ -46,7 +46,7 @@ struct Scrollable<Lines> {
     /// The start of row to be displayed
     start: usize,
     /// The row position where cursor was last time
-    cursor: usize,
+    cursor: u16,
     /// The selected text across lines
     select: Option<Selected>,
     area: Rect,
@@ -73,10 +73,9 @@ impl<Lines: Default> Scrollable<Lines> {
 }
 
 impl<Lines> Scrollable<Lines> {
-    /// Current cursor on screen.
-    /// This should not be greater than area.height.
-    pub fn cursor(&self) -> u16 {
-        self.cursor.saturating_sub(self.start) as u16
+    /// The index the current cursor on screen points to.
+    pub fn idx_of_current_cursor(&self) -> usize {
+        self.cursor as usize + self.start
     }
 }
 
@@ -86,9 +85,9 @@ impl<Lines: AsRef<[TreeLine]>> Widget for &mut Scrollable<Lines> {
         write_lines(self.lines.as_ref(), self.start, area, buf);
 
         // render the current row
-        if let Some(cur) = self.lines().get(self.cursor) {
+        if let Some(cur) = self.lines().get(self.idx_of_current_cursor()) {
             let Rect { x, width, .. } = area;
-            render_current_line(cur, buf, x, self.cursor(), width);
+            render_current_line(cur, buf, x, self.cursor, width);
         }
     }
 }

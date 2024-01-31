@@ -14,26 +14,23 @@ fn main() -> Result<()> {
 
     let mut tui = tui::Tui::new(1000)?;
     let mut app = app::App::default();
-    let outline = app.set_doc()?;
 
-    let (len, mut outline) = app::cache_outline(&outline);
-    let mut rows = 0u16;
+    let outline = app.set_doc()?;
+    let mut page = ui::Page::new(outline);
 
     // Start the main loop.
     while !app.should_quit {
         // Render the user interface.
-        tui.draw(&mut app, Some(outline.clone()))?;
+        tui.draw(&mut app, &mut page)?;
         // Handle events.
         match tui.events.next()? {
             Event::Key(key_event) => update(&mut app, key_event),
             Event::Mouse(mouse_event) => match mouse_event.kind {
                 MouseEventKind::ScrollDown | MouseEventKind::Down(MouseButton::Left) => {
-                    rows = (rows + 5).min(len);
-                    outline = outline.scroll((rows, 0));
+                    page.scrolldown_outline();
                 }
                 MouseEventKind::ScrollUp | MouseEventKind::Down(MouseButton::Right) => {
-                    rows = rows.saturating_sub(5);
-                    outline = outline.scroll((rows, 0));
+                    page.scrollup_outline();
                 }
                 _ => (),
             },

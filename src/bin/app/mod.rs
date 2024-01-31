@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Block, Paragraph},
 };
 use rustdoc_types::Crate;
-use term_rustdoc::tree::{DModule, IDMap, Show};
+use term_rustdoc::tree::{DModule, IDMap, Show, TreeLines};
 
 #[derive(Default)]
 pub struct App {
@@ -29,11 +29,12 @@ impl App {
         self.should_quit = true;
     }
 
-    pub fn set_doc(&mut self) -> Result<String> {
-        let doc = serde_json::from_reader(std::fs::File::open("target/deps/doc/tokio.json")?)?;
+    pub fn set_doc(&mut self) -> Result<TreeLines> {
+        let doc =
+            serde_json::from_reader(std::fs::File::open("target/deps/doc/integration.json")?)?;
         let doc = RustDoc { doc };
         let (dmod, map) = doc.dmodule_idmap();
-        let outline = dmod.show_prettier(&map).to_string();
+        let outline = dmod.show_prettier(&map).into_treelines();
         self.doc = Some(doc);
         Ok(outline)
     }

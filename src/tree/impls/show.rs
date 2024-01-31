@@ -53,6 +53,9 @@ impl DocTree {
     pub fn push(&mut self, node: Self) {
         self.tree.push(node.tree);
     }
+    pub fn into_treelines(self) -> TreeLines {
+        TreeLines::new(self).0
+    }
 }
 
 /// Display a node as a tree component in multiple forms.
@@ -319,9 +322,10 @@ impl fmt::Display for TextTag {
     }
 }
 
+/// Onwed [`ratatui::text::Span`], mainly being a small styled string.
 pub struct Text {
-    text: XString,
-    style: Style,
+    pub text: XString,
+    pub style: Style,
 }
 
 pub struct TreeLine {
@@ -374,6 +378,13 @@ impl TreeLine {
 
     fn set_glyph(&mut self, glyph: XString) {
         self.glyph.text = glyph;
+    }
+
+    pub fn glyph_name(&self) -> [(&str, Style); 2] {
+        [
+            (&self.glyph.text, self.glyph.style),
+            (&self.name.text, self.name.style),
+        ]
     }
 }
 
@@ -437,6 +448,21 @@ impl TreeLines {
         }
         buf.shrink_to_fit();
         buf
+    }
+}
+
+impl AsRef<[TreeLine]> for TreeLines {
+    fn as_ref(&self) -> &[TreeLine] {
+        self.lines()
+    }
+}
+
+impl Default for TreeLines {
+    fn default() -> Self {
+        TreeLines {
+            tree: Rc::new([]),
+            collapse: None,
+        }
     }
 }
 

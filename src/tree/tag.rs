@@ -1,6 +1,8 @@
 use super::DocTree;
-use ratatui::style::{Color, Style};
+use ratatui::style::{Color::*, Modifier, Style};
 use termtree::GlyphPalette;
+
+const BOLD: Modifier = Modifier::BOLD;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Tag {
@@ -58,34 +60,83 @@ pub enum Tag {
     MacroDervs,
 }
 
+// for each normal item/list element
+fn fg(r: u8, g: u8, b: u8) -> Style {
+    Style::default().fg(Rgb(r, g, b))
+}
+
+// fn bg(r: u8, g: u8, b: u8) -> Style {
+//     Style::default().bg(Rgb(r, g, b))
+// }
+
+// for the title of a list of items
+fn bfg(r: u8, g: u8, b: u8) -> Style {
+    Style::default()
+        .fg(Rgb(r, g, b))
+        .add_modifier(Modifier::BOLD)
+}
+
+// for data structure name
+fn bufg(r: u8, g: u8, b: u8) -> Style {
+    Style::default()
+        .fg(Rgb(r, g, b))
+        .add_modifier(Modifier::BOLD | Modifier::UNDERLINED)
+}
+
 impl Tag {
     pub fn style(self) -> Style {
         let style = Style::default();
         match self {
-            Tag::Module => style.fg(Color::LightRed),
-            Tag::Struct => style.fg(Color::Green),
-            Tag::Union => style.fg(Color::LightCyan),
-            Tag::Enum => style.fg(Color::Cyan),
-            Tag::Trait => style.fg(Color::Magenta),
-            Tag::Function => style.fg(Color::Rgb(60, 194, 200)),
-            Tag::Constant => style.fg(Color::Rgb(255, 138, 37)),
-            Tag::Static => style.fg(Color::Rgb(147, 72, 209)),
-            Tag::TypeAlias => style.fg(Color::Rgb(36, 14, 156)),
-            Tag::Import => style.fg(Color::Rgb(37, 143, 195)),
-            Tag::MacroDecl => style.fg(Color::Rgb(0, 180, 0)),
-            Tag::MacroFunc => style.fg(Color::Rgb(67, 227, 67)),
-            Tag::MacroAttr => style.fg(Color::Rgb(106, 233, 106)),
-            Tag::MacroDerv => style.fg(Color::Rgb(33, 222, 33)),
-            Tag::Unknown => style.fg(Color::DarkGray),
-            Tag::InherentImpls => style,
-            Tag::TraitImpls => style,
-            Tag::AutoImpls => style,
-            Tag::BlanketImpls => style,
+            // Tag::Module => bfg(159, 234, 115), // #9FEA73
+            Tag::Module => bfg(213, 245, 85),     // #D5F555
+            Tag::Structs => bfg(60, 148, 165),    // #3C94A5
+            Tag::Struct => bufg(60, 148, 165),    // #3C94A5
+            Tag::Fields => bfg(137, 199, 210),    // #89C7D2
+            Tag::Field => fg(137, 199, 210),      // #89C7D2
+            Tag::NoFields => fg(137, 199, 210),   // #89C7D2
+            Tag::Unions => bufg(183, 64, 168),    // #B740A8
+            Tag::Union => fg(183, 64, 168),       // #B740A8
+            Tag::Enums => bfg(61, 176, 181),      // #3DB0B5
+            Tag::Enum => bufg(61, 176, 181),      // #3DB0B5
+            Tag::Variants => bfg(141, 218, 187),  // #8DDABB
+            Tag::Variant => fg(141, 218, 187),    // #8DDABB
+            Tag::NoVariants => fg(141, 218, 187), // #8DDABB
+            Tag::Traits => bfg(255, 140, 41),     // #FF8C29
+            Tag::Trait => bufg(255, 140, 41),     // #FF8C29
+            Tag::Functions => bfg(214, 83, 76),   // #D6534C
+            Tag::Function => fg(214, 83, 76),     // #D6534C
+            Tag::Constants => bfg(232, 218, 104), // #E8DA68
+            Tag::Constant => fg(232, 218, 104),   // #E8DA68
+            Tag::Statics => bfg(43, 43, 175),     // #2B2BAF
+            Tag::Static => bfg(43, 43, 175),      // #2B2BAF
+            Tag::TypeAliass => bfg(144, 99, 200), // #9063C8
+            Tag::TypeAlias => fg(144, 99, 200),   // #9063C8
+            Tag::Import => fg(212, 61, 141),      // #D43D8D
+            Tag::MacroDecls => bfg(15, 129, 29),  // #0F811D
+            Tag::MacroDecl => fg(15, 129, 29),    // #0F811D
+            Tag::MacroFuncs => bfg(96, 215, 117), // #60D775
+            Tag::MacroFunc => fg(96, 215, 117),   // #60D775
+            Tag::MacroAttrs => bfg(159, 233, 27), // #9FE91B
+            Tag::MacroAttr => fg(159, 233, 27),   // #9FE91B
+            Tag::MacroDervs => bfg(98, 152, 0),   // #629800
+            Tag::MacroDerv => fg(98, 152, 0),     // #629800
+            Tag::Unknown => style.fg(DarkGray),
+            Tag::InherentImpls => bfg(243, 101, 134), // #F36586
+            Tag::ImplInherent => fg(243, 101, 134),   // #F36586
+            Tag::TraitImpls => bfg(255, 195, 144),    // #FFC390
+            Tag::ImplTrait => fg(255, 195, 144),      // #FFC390
+            // Tag::ImplTrait => c(255, 140, 41), // #FF8C29
+            Tag::AutoImpls => bfg(255, 140, 41), // #FF8C29
+            Tag::ImplAuto => fg(255, 140, 41),   // #FF8C29
+            // Tag::AutoImpls => style.fg(Rgb(177, 84, 5)),     // #B15405
+            Tag::BlanketImpls => bfg(222, 186, 0), // #DEBA00
+            Tag::ImplBlanket => fg(222, 186, 0),   // #DEBA00
             _ => style,
         }
     }
 
     pub fn glyph(self) -> GlyphPalette {
+        // return Default::default();
         match self {
             Tag::Module => icon!("[Mod]"),
             Tag::Struct => icon!("[Struct]"),
@@ -138,7 +189,7 @@ impl Tag {
             Tag::Functions => "Functions",
             Tag::Constants => "Constants",
             Tag::Statics => "Statics",
-            Tag::TypeAliass => "Statics",
+            Tag::TypeAliass => "Type Alias",
             Tag::MacroDecls => "Macros - Declarative",
             Tag::MacroFuncs => "Macros - Function",
             Tag::MacroAttrs => "Macros - Attribute",

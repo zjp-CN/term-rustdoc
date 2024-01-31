@@ -2,7 +2,7 @@ use crate::{
     tree::{DocTree, Tag},
     util::XString,
 };
-use ratatui::style::Style;
+use ratatui::style::{Color, Style};
 use std::{
     fmt::{self, Write},
     rc::Rc,
@@ -78,6 +78,7 @@ impl TreeLine {
 
     fn set_glyph(&mut self, glyph: XString) {
         self.glyph.text = glyph;
+        self.glyph.style = Style::default().fg(Color::Gray);
     }
 
     pub fn glyph_name(&self) -> [(&str, Style); 2] {

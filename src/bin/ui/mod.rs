@@ -2,6 +2,11 @@ use crate::app::App;
 use ratatui::prelude::{Buffer, Frame, Rect, Widget};
 use term_rustdoc::tree::{Text, TreeLine, TreeLines};
 
+/// scroll up/down behavior and with what offset
+mod page_scroll;
+
+pub use page_scroll::ScrollOffset;
+
 pub fn render(app: &mut App, page: &mut Page, f: &mut Frame) {
     f.render_widget(page, f.size());
 }
@@ -14,24 +19,13 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(outline: TreeLines) -> Self {
+    pub fn new(outline: TreeLines, full: Rect) -> Self {
         Page {
             outline: Outline {
-                display: Scrollable::new(outline),
+                display: Scrollable::new(outline, full),
             },
             ..Default::default()
         }
-    }
-
-    pub fn scrolldown_outline(&mut self) {
-        let len = self.outline.display.len();
-        let start = &mut self.outline.display.start;
-        *start = (*start + 5).min(len);
-    }
-
-    pub fn scrollup_outline(&mut self) {
-        let start = &mut self.outline.display.start;
-        *start = start.saturating_sub(5);
     }
 }
 
@@ -52,6 +46,7 @@ struct Scrollable<Lines> {
     cursor: Option<u16>,
     /// The selected text across lines
     select: Option<Selected>,
+    area: Rect,
 }
 
 impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
@@ -65,9 +60,10 @@ impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
 }
 
 impl<Lines: Default> Scrollable<Lines> {
-    fn new(lines: Lines) -> Self {
+    fn new(lines: Lines, full: Rect) -> Self {
         Self {
             lines,
+            area: full,
             ..Default::default()
         }
     }

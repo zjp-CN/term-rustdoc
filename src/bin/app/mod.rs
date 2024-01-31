@@ -25,8 +25,7 @@ impl App {
     }
 
     pub fn set_doc(&mut self) -> Result<TreeLines> {
-        let doc =
-            serde_json::from_reader(std::fs::File::open("target/deps/doc/integration.json")?)?;
+        let doc = serde_json::from_reader(std::fs::File::open("target/deps/doc/tokio.json")?)?;
         let doc = RustDoc { doc };
         let (dmod, map) = doc.dmodule_idmap();
         let outline = dmod.show_prettier(&map).into_treelines();

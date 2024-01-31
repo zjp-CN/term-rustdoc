@@ -74,6 +74,6 @@ impl Show for DImpl {
             AutoImpls     auto     ImplAuto,
             BlanketImpls  blanket  ImplBlanket,
         );
-        "Implementations".show().with_leaves(leaves)
+        Tag::Implementations.show().with_leaves(leaves)
     }
 }

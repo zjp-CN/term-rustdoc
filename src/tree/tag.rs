@@ -22,6 +22,7 @@ pub enum Tag {
     MacroDerv,
     Unknown,
     NoImpls,
+    Implementations,
     ImplInherent,
     InherentImpls,
     ImplTrait,
@@ -85,9 +86,9 @@ fn bufg(r: u8, g: u8, b: u8) -> Style {
 
 impl Tag {
     pub fn style(self) -> Style {
-        let style = Style::default();
+        // fg(159, 234, 115), // #9FEA73
+        // fg(Rgb(177, 84, 5)),     // #B15405
         match self {
-            // Tag::Module => bfg(159, 234, 115), // #9FEA73
             Tag::Module => bfg(213, 245, 85),     // #D5F555
             Tag::Structs => bfg(60, 148, 165),    // #3C94A5
             Tag::Struct => bufg(60, 148, 165),    // #3C94A5
@@ -120,18 +121,17 @@ impl Tag {
             Tag::MacroAttr => fg(159, 233, 27),   // #9FE91B
             Tag::MacroDervs => bfg(98, 152, 0),   // #629800
             Tag::MacroDerv => fg(98, 152, 0),     // #629800
-            Tag::Unknown => style.fg(DarkGray),
+            Tag::Unknown | Tag::FieldsPrivate => Style::default().fg(DarkGray),
+            Tag::Implementations => Style::default().fg(White),
             Tag::InherentImpls => bfg(243, 101, 134), // #F36586
             Tag::ImplInherent => fg(243, 101, 134),   // #F36586
             Tag::TraitImpls => bfg(255, 195, 144),    // #FFC390
             Tag::ImplTrait => fg(255, 195, 144),      // #FFC390
-            // Tag::ImplTrait => c(255, 140, 41), // #FF8C29
-            Tag::AutoImpls => bfg(255, 140, 41), // #FF8C29
-            Tag::ImplAuto => fg(255, 140, 41),   // #FF8C29
-            // Tag::AutoImpls => style.fg(Rgb(177, 84, 5)),     // #B15405
-            Tag::BlanketImpls => bfg(222, 186, 0), // #DEBA00
-            Tag::ImplBlanket => fg(222, 186, 0),   // #DEBA00
-            _ => style,
+            Tag::AutoImpls => bfg(255, 140, 41),      // #FF8C29
+            Tag::ImplAuto => fg(255, 140, 41),        // #FF8C29
+            Tag::BlanketImpls => bfg(222, 186, 0),    // #DEBA00
+            Tag::ImplBlanket => fg(222, 186, 0),      // #DEBA00
+            _ => Style::default(),
         }
     }
 
@@ -151,10 +151,10 @@ impl Tag {
             Tag::MacroFunc => icon!("[macro func]"),
             Tag::MacroAttr => icon!("[macro attr]"),
             Tag::MacroDerv => icon!("[macro derv]"),
-            Tag::ImplInherent => icon!("[inhrt]"),
-            Tag::ImplTrait => icon!("[trait]"),
-            Tag::ImplAuto => icon!("[auto]"),
-            Tag::ImplBlanket => icon!("[blkt]"),
+            // Tag::ImplInherent => icon!("[inhrt]"),
+            // Tag::ImplTrait => icon!("[trait]"),
+            // Tag::ImplAuto => icon!("[auto]"),
+            // Tag::ImplBlanket => icon!("[blkt]"),
             Tag::Field => icon!("[field]"),
             Tag::Variant => icon!("[variant]"),
             Tag::AssocType => icon!("[assoc type]"),
@@ -167,6 +167,7 @@ impl Tag {
     /// Show as a simple heading node with no need for contexts.
     pub fn show(self) -> DocTree {
         let text = match self {
+            Tag::Implementations => "Implementations",
             Tag::NoImpls => "No Implementations!",
             Tag::InherentImpls => "Inherent Impls",
             Tag::TraitImpls => "Trait Impls",

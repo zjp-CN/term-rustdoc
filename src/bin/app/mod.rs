@@ -1,9 +1,4 @@
 use crate::Result;
-use ratatui::{
-    style::{Color, Style},
-    text::Line,
-    widgets::{Block, Paragraph},
-};
 use rustdoc_types::Crate;
 use term_rustdoc::tree::{DModule, IDMap, Show, TreeLines};
 
@@ -38,18 +33,4 @@ impl App {
         self.doc = Some(doc);
         Ok(outline)
     }
-}
-
-pub fn cache_outline(doc: &str) -> (u16, Paragraph<'_>) {
-    let lines = doc.lines().map(Line::from).collect::<Vec<_>>();
-    (
-        (lines.len() - 5) as u16,
-        Paragraph::new(lines)
-            .block(
-                Block::default()
-                    .title("DModule Tree for tokio crate")
-                    .style(Style::default().fg(Color::Yellow)),
-            )
-            .style(Style::default().fg(Color::Reset)),
-    )
 }

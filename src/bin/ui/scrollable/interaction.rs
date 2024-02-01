@@ -68,4 +68,19 @@ impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
         // still be careful to cross the screen's top
         self.cursor = self.cursor.saturating_sub(1);
     }
+
+    pub fn move_top_cursor(&mut self) {
+        self.cursor = 0;
+    }
+
+    pub fn move_bottom_cursor(&mut self) {
+        self.cursor = (self.area.height as usize)
+            .min(self.len())
+            .saturating_sub(1) as u16;
+    }
+
+    pub fn move_middle_cursor(&mut self) {
+        self.move_bottom_cursor();
+        self.cursor /= 2;
+    }
 }

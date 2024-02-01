@@ -40,4 +40,16 @@ impl Page {
     pub fn move_backward_cursor(&mut self) {
         self.outline().move_backward_cursor();
     }
+
+    pub fn move_top_cursor(&mut self) {
+        self.outline().move_top_cursor();
+    }
+
+    pub fn move_bottom_cursor(&mut self) {
+        self.outline().move_bottom_cursor();
+    }
+
+    pub fn move_middle_cursor(&mut self) {
+        self.outline().move_middle_cursor();
+    }
 }

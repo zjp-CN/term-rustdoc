@@ -18,6 +18,9 @@ pub fn update(app: &mut App, page: &mut Page, key_event: KeyEvent) {
         KeyCode::PageDown => page.scrolldown(ScrollOffset::HalfScreen),
         KeyCode::Up => page.move_backward_cursor(),
         KeyCode::Down => page.move_forward_cursor(),
+        KeyCode::Char('L') => page.move_bottom_cursor(),
+        KeyCode::Char('H') => page.move_top_cursor(),
+        KeyCode::Char('M') => page.move_middle_cursor(),
         _ => {}
     };
 }

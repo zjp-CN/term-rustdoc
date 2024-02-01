@@ -30,6 +30,19 @@ pub struct Text {
     pub style: Style,
 }
 
+impl Text {
+    pub fn new(text: XString, style: Style) -> Self {
+        Self { text, style }
+    }
+
+    pub fn new_text(text: XString) -> Self {
+        Text {
+            text,
+            style: Style::default(),
+        }
+    }
+}
+
 pub struct TreeLine {
     pub glyph: Text,
     pub tag: Tag,

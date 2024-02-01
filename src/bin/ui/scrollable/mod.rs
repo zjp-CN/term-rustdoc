@@ -81,7 +81,7 @@ impl<Lines: Default + AsRef<[TreeLine]>> Scrollable<Lines, TreeLine> {
     }
 }
 
-impl<L: fmt::Debug, Lines: AsRef<[L]>> fmt::Debug for Scrollable<Lines, L> {
+impl<L, Lines: AsRef<[L]>> fmt::Debug for Scrollable<Lines, L> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("Scrollable");
         s.field("lines.len", &self.len())

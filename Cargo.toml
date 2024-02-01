@@ -38,6 +38,7 @@ crossterm = "0.27"
 textwrap = "0.16"
 syntect = "5.1"
 pulldown-cmark = "0.9"
+unicode-width = "0.1"
 
 [dev-dependencies]
 insta = "1"

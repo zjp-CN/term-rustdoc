@@ -1,4 +1,5 @@
-use crate::app::App;
+use crate::{app::App, Result};
+use color_eyre::eyre::eyre;
 use ratatui::{
     prelude::{Buffer, Frame, Rect, Widget},
     style::Color,
@@ -22,13 +23,13 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(outline: TreeLines, full: Rect) -> Self {
-        Page {
+    pub fn new(outline: TreeLines, full: Rect) -> Result<Self> {
+        Ok(Page {
             outline: Outline {
-                display: Scrollable::new(outline, full),
+                display: Scrollable::new(outline, full)?,
             },
             ..Default::default()
-        }
+        })
     }
 }
 
@@ -47,8 +48,11 @@ struct Scrollable<Lines> {
     start: usize,
     /// The row position where cursor was last time
     cursor: u16,
+    /// The maximum width among all lines
+    max_windth: u16,
     /// The selected text across lines
     select: Option<Selected>,
+    /// The widget area, usually not the full screen
     area: Rect,
 }
 
@@ -62,13 +66,20 @@ impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
     }
 }
 
-impl<Lines: Default> Scrollable<Lines> {
-    fn new(lines: Lines, full: Rect) -> Self {
-        Self {
+impl<Lines: Default + AsRef<[TreeLine]>> Scrollable<Lines> {
+    fn new(lines: Lines, full: Rect) -> Result<Self> {
+        let w = lines.as_ref().iter().map(TreeLine::width).max();
+        let max_windth = w.ok_or_else(|| eyre!("The documentation is empty with no items."))?;
+        warn!(
+            full.width,
+            max_windth, "outline width exceeds the area width, so lines may be truncated"
+        );
+        Ok(Self {
             lines,
+            max_windth,
             area: full,
             ..Default::default()
-        }
+        })
     }
 }
 

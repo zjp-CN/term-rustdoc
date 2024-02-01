@@ -4,6 +4,9 @@ mod tui;
 mod ui;
 mod update;
 
+#[macro_use]
+extern crate tracing;
+
 use crate::update::update;
 use color_eyre::eyre::Result;
 use crossterm::event::MouseEventKind;
@@ -17,7 +20,7 @@ fn main() -> Result<()> {
     let mut app = app::App::default();
 
     let outline = app.set_doc()?;
-    let mut page = ui::Page::new(outline, tui.full_area()?);
+    let mut page = ui::Page::new(outline, tui.full_area()?)?;
 
     // Start the main loop.
     while !app.should_quit {

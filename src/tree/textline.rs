@@ -8,6 +8,7 @@ use std::{
     rc::Rc,
 };
 use termtree::Tree;
+use unicode_width::UnicodeWidthStr;
 
 /// Tagged text including headings and nodes.
 pub struct TextTag {
@@ -81,11 +82,20 @@ impl TreeLine {
         self.glyph.style = Style::default().fg(Color::Gray);
     }
 
+    /// texts and styles of glyph and name
     pub fn glyph_name(&self) -> [(&str, Style); 2] {
         [
             (&self.glyph.text, self.glyph.style),
             (&self.name.text, self.name.style),
         ]
+    }
+
+    /// unicode width including glyph and name
+    pub fn width(&self) -> u16 {
+        let (g, n) = (&*self.glyph.text, &*self.name.text);
+        (g.width_cjk() + n.width_cjk())
+            .try_into()
+            .unwrap_or_else(|_| panic!("The total width exceeds u16::MAX in `{g}{n}`"))
     }
 }
 

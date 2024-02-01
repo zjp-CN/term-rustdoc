@@ -1,15 +1,19 @@
-use crate::Result;
+use crate::{err, Result};
 use rustdoc_types::Crate;
+use std::rc::Rc;
 use term_rustdoc::tree::{DModule, IDMap, Show, TreeLines};
 
 #[derive(Default)]
 pub struct App {
-    doc: Option<RustDoc>,
+    doc: Option<CrateDoc>,
     pub should_quit: bool,
 }
 
-struct RustDoc {
-    doc: Crate,
+pub type CrateDoc = Rc<RustDoc>;
+
+#[derive(Clone)]
+pub struct RustDoc {
+    pub doc: Crate,
 }
 
 impl RustDoc {
@@ -29,7 +33,13 @@ impl App {
         let doc = RustDoc { doc };
         let (dmod, map) = doc.dmodule_idmap();
         let outline = dmod.show_prettier(&map).into_treelines();
-        self.doc = Some(doc);
+        self.doc = Some(Rc::new(doc));
         Ok(outline)
+    }
+
+    pub fn rustdoc(&self) -> Result<Rc<RustDoc>> {
+        self.doc
+            .clone()
+            .ok_or_else(|| err!("There is no crate documentation."))
     }
 }

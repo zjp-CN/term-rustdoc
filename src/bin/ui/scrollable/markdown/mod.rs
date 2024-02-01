@@ -1,5 +1,5 @@
 use super::Scrollable;
-use crate::Result;
+use crate::{app::CrateDoc, Result};
 use ratatui::layout::Rect;
 use std::{fmt, ops::Deref};
 use term_rustdoc::tree::Text as StyledText;
@@ -22,6 +22,7 @@ impl AsRef<[StyledText]> for StyledLine {
 #[derive(Default)]
 pub struct StyledLines {
     lines: Vec<StyledLine>,
+    doc: Option<CrateDoc>,
 }
 
 impl fmt::Debug for StyledLines {
@@ -41,13 +42,16 @@ impl Deref for StyledLines {
 }
 
 impl StyledLines {
-    pub fn new(doc: &str) -> Self {
-        parse::md(doc)
+    pub fn new(doc: Option<CrateDoc>) -> Self {
+        StyledLines {
+            doc,
+            ..Default::default()
+        }
     }
 }
 
 impl ScrollText {
-    pub fn new_text(doc: &str, area: Rect) -> Result<Self> {
+    pub fn new_text(doc: Option<CrateDoc>, area: Rect) -> Result<Self> {
         // TODO:max_windth and text wrap for markdown
         Ok(Scrollable {
             lines: StyledLines::new(doc),

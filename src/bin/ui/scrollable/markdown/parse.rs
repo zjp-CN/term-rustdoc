@@ -1,4 +1,4 @@
-use super::{StyledLine, StyledLines, StyledText};
+use super::{StyledLine, StyledText};
 use ratatui::style::{Color, Modifier, Style};
 use syntect::{
     easy::HighlightLines,
@@ -15,14 +15,14 @@ thread_local! {
     );
 }
 
-pub fn md(doc: &str) -> StyledLines {
+pub fn md(doc: &str) -> Vec<StyledLine> {
     let mut lines = Vec::with_capacity(128);
     SYNTHEME.with(|(ps, ts)| {
         let syntax = ps.find_syntax_by_extension("md").unwrap();
         let mut h = HighlightLines::new(syntax, &ts.themes["base16-ocean.dark"]);
         for line in LinesWithEndings::from(doc) {
             let mut one_line = Vec::with_capacity(4);
-            for (style, text) in h.highlight_line(line, &ps).unwrap() {
+            for (style, text) in h.highlight_line(line, ps).unwrap() {
                 one_line.push(StyledText::new(text.into(), convert_style(style)));
             }
             one_line.push(StyledText::new_text(XString::new_inline("\n")));
@@ -31,7 +31,7 @@ pub fn md(doc: &str) -> StyledLines {
         }
     });
     lines.shrink_to_fit();
-    StyledLines { lines }
+    lines
 }
 
 fn convert_style(style: syntect::highlighting::Style) -> Style {

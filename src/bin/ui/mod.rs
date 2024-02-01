@@ -34,10 +34,13 @@ impl Page {
             .split(full);
         outline.display.area = layout[0];
 
-        // ScrollText::
+        let content = Content {
+            display: ScrollText::new_text(None, layout[1])?,
+        };
 
         let page = Page {
             outline,
+            content,
             ..Default::default()
         };
         info!(?page);

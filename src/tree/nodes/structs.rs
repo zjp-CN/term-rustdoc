@@ -2,7 +2,7 @@ use crate::tree::{
     impls::show::{show_ids, show_names, DocTree, Show},
     DImpl, IDMap, IDs, IdToID, IndexMap, SliceToIds, Tag, ID,
 };
-use rustdoc_types::{ItemKind, Struct, StructKind};
+use rustdoc_types::{Struct, StructKind};
 
 pub struct DStruct {
     pub id: ID,
@@ -63,7 +63,7 @@ impl Show for DStruct {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let mut node = node!(Struct: map.path(&self.id, ItemKind::Struct));
+        let mut node = node!(Struct: map, &self.id);
         match (self.fields.len(), self.contain_private_fields) {
             (0, true) => node.push(private_fields()),
             (0, false) => node.push(Tag::NoFields.show()),

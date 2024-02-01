@@ -2,7 +2,7 @@ use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
     DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
 };
-use rustdoc_types::{Enum, ItemKind};
+use rustdoc_types::Enum;
 
 pub struct DEnum {
     pub id: ID,
@@ -34,6 +34,6 @@ impl Show for DEnum {
             Variants variants Variant
         );
         let leaves = [variant, self.impls.show_prettier(map)];
-        node!(Enum: map.path(&self.id, ItemKind::Enum)).with_leaves(leaves)
+        node!(Enum: map, &self.id).with_leaves(leaves)
     }
 }

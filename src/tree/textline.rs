@@ -14,6 +14,7 @@ use unicode_width::UnicodeWidthStr;
 pub struct TextTag {
     pub text: XString,
     pub tag: Tag,
+    pub id: Option<XString>,
 }
 
 /// Show text only, which is used as a plain text Tree display.
@@ -48,6 +49,7 @@ pub struct TreeLine {
     pub tag: Tag,
     /// Identation level with range of 0..=u8::MAX
     pub level: u8,
+    // pub id: Option< XString>,
     pub name: Text,
 }
 

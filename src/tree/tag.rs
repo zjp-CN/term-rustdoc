@@ -158,7 +158,7 @@ impl Tag {
         }
     }
 
-    /// Show as a simple heading node with no need for contexts.
+    /// Show as a simple heading node with no need for contexts/ids.
     pub fn show(self) -> DocTree {
         let text = match self {
             Tag::Implementations => "Implementations",
@@ -197,9 +197,10 @@ impl Tag {
                 return DocTree::new(
                     "A Tag shouldn't be here. Check out the log.".into(),
                     Tag::Unknown,
+                    None,
                 );
             }
         };
-        DocTree::new(text.into(), self)
+        DocTree::new(text.into(), self, None)
     }
 }

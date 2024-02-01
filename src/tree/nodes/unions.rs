@@ -2,7 +2,7 @@ use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
     DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
 };
-use rustdoc_types::{ItemKind, Union};
+use rustdoc_types::Union;
 
 pub struct DUnion {
     pub id: ID,
@@ -32,7 +32,6 @@ impl Show for DUnion {
             self map NoFields,
             Fields fields Field
         );
-        node!(Union: map.path(&self.id, ItemKind::Union))
-            .with_leaves([fields, self.impls.show_prettier(map)])
+        node!(Union: map, &self.id).with_leaves([fields, self.impls.show_prettier(map)])
     }
 }

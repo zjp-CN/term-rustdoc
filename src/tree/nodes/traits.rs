@@ -2,7 +2,7 @@ use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
     IDMap, IDs, IdToID, IndexMap, SliceToIds, Tag, ID,
 };
-use rustdoc_types::{ItemEnum, ItemKind, Trait};
+use rustdoc_types::{ItemEnum, Trait};
 
 pub struct DTrait {
     pub id: ID,
@@ -58,7 +58,7 @@ impl Show for DTrait {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let root = node!(Trait: map.path(&self.id, ItemKind::Trait));
+        let root = node!(Trait: map, &self.id);
         let leaves = names_node!(
             self map root.with_leaves([Tag::NoAssocOrImpls.show()]),
             AssocTypes   types     AssocType,

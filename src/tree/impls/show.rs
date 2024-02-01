@@ -38,9 +38,9 @@ impl fmt::Display for DocTree {
 }
 
 impl DocTree {
-    pub fn new(text: XString, tag: Tag) -> Self {
+    pub fn new(text: XString, tag: Tag, id: Option<XString>) -> Self {
         Self {
-            tree: Tree::new(TextTag { text, tag }).with_glyphs(tag.glyph()),
+            tree: Tree::new(TextTag { text, tag, id }).with_glyphs(tag.glyph()),
         }
     }
     pub fn with_leaves(mut self, leaves: impl IntoIterator<Item = Self>) -> Self {
@@ -66,7 +66,7 @@ pub trait Show {
 
 impl Show for str {
     fn show(&self) -> DocTree {
-        DocTree::new(self.into(), Tag::Unknown)
+        DocTree::new(self.into(), Tag::Unknown, None)
     }
 
     /// Just as `<str as Show>::show` does.
@@ -76,8 +76,23 @@ impl Show for str {
 }
 
 macro_rules! node {
-    ($tag:ident : $xstring:expr) => {
-        $crate::tree::DocTree::new($xstring, $crate::tree::Tag::$tag)
+    // map.path(&self.id, ItemKind::Struct)
+    ($tag:ident : $map:ident, $id:expr) => {
+        $crate::tree::DocTree::new(
+            $map.path($id, ::rustdoc_types::ItemKind::$tag),
+            $crate::tree::Tag::$tag,
+            Some($id.into()),
+        )
+    };
+    ($tag:ident : $map:ident, $kind:ident, $id:expr) => {
+        $crate::tree::DocTree::new(
+            $map.path($id, ::rustdoc_types::ItemKind::$kind),
+            $crate::tree::Tag::$tag,
+            Some($id.into()),
+        )
+    };
+    (@name $tag:ident : $map:ident, $id:expr) => {
+        $crate::tree::DocTree::new($map.name($id), $crate::tree::Tag::$tag, Some($id.into()))
     };
 }
 
@@ -87,7 +102,7 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
     map: &'id IDMap,
 ) -> impl 'id + Iterator<Item = DocTree> {
     ids.into_iter()
-        .map(move |id| DocTree::new(map.name(id), tag))
+        .map(move |id| DocTree::new(map.name(id), tag, Some(id.id_str().into())))
 }
 
 /// ### Usage 1

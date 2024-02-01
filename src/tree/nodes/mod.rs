@@ -20,7 +20,7 @@ use crate::tree::{
     impls::show::{DocTree, Show},
     IdToID, IndexMap, ID,
 };
-use rustdoc_types::{Crate, Id, Item, ItemEnum, ItemKind, MacroKind, Module};
+use rustdoc_types::{Crate, Id, Item, ItemEnum, MacroKind, Module};
 use std::ops::Not;
 
 /// Module tree with structural items.
@@ -129,7 +129,7 @@ impl Show for DModule {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        node!(Module: map.path(&self.id, ItemKind::Module)).with_leaves(
+        node!(Module: map, &self.id).with_leaves(
             self.modules.iter().map(|m| m.show_prettier(map))
             $(
                 .chain( impl_show!(@pretty $field $node self map) )
@@ -174,7 +174,7 @@ macro_rules! gen_simple_items {
             fn show(&self) -> DocTree { self.id.show() }
             fn show_prettier(&self, map: &IDMap) -> DocTree {
                 // node!($show, map.path(&self.id, ItemKind::$kind))
-                node!($tag: map.name(&self.id))
+                node!(@name $tag: map, &self.id)
             }
         }
     )+};

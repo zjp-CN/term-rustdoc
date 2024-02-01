@@ -5,9 +5,15 @@ use crate::{
 use std::fmt;
 use termtree::Tree;
 
+/// Construct a glyph possibly with custom ident text.
+/// This is a macro because GlyphPalette needs &'static str.
 macro_rules! icon {
-    () => { ::termtree::GlyphPalette::new() };
-    ("") => { ::termtree::GlyphPalette::new() };
+    () => {
+        ::termtree::GlyphPalette::new()
+    };
+    ("") => {
+        ::termtree::GlyphPalette::new()
+    };
     ($s:literal) => {
         ::termtree::GlyphPalette {
             item_indent: ::constcat::concat!("── ", $s, " "),
@@ -17,11 +23,6 @@ macro_rules! icon {
             last_skip: " ",
             skip_indent: "   ",
         }
-    };
-    ($( $name:ident = $s:literal ),+ $(,)?) => {
-        $(
-            pub const $name: ::termtree::GlyphPalette = icon!($s);
-        )+
     };
 }
 

@@ -93,12 +93,12 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
 /// ### Usage 1
 ///
 /// ````rust,ignore
-/// let node = "No Implementations!".show();
+/// let node = Tag::Implementations.show();
 /// let leaves = names_node!(self map node,
-///     "Inherent Impls" inherent "[inhrt]",
-///     "Trait Impls"    trait_   "[trait]",
-///     "Auto Impls"     auto     "[auto]",
-///     "Blanket Impls"  blanket  "[blkt]",
+///     InherentImpls inherent ImplInherent,
+///     TraitImpls    trait_   ImplTrait,
+///     AutoImpls     auto     ImplAuto,
+///     BlanketImpls  blanket  ImplBlanket,
 /// );
 /// node.with_leaves(leaves)
 /// ````
@@ -106,9 +106,9 @@ pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
 /// ### Usage 2
 ///
 /// ````rust,ignore
-/// let root = node!("[union] {}", map.path(&self.id, ItemKind::Union));
+/// let root = node!(Union: map.path(&self.id, ItemKind::Union));
 /// let fields = names_node!(@single
-///     self map root.with_leaves(["No Fields!".show()]),
+///     self map root.with_leaves([Tag::NoFields.show()]),
 ///     "Fields" fields "[field]"
 /// );
 /// root.with_leaves([fields, self.impls.show_prettier(map)])

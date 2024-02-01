@@ -36,7 +36,7 @@ pub fn md(doc: &str) -> Vec<StyledLine> {
 
 fn convert_style(style: syntect::highlighting::Style) -> Style {
     let fg = style.foreground;
-    let bg = style.background;
+    // let bg = style.background;
     let fg = Some(Color::Rgb(fg.r, fg.g, fg.b));
     let add_modifier = match style.font_style {
         FontStyle::BOLD => Modifier::BOLD,
@@ -44,11 +44,13 @@ fn convert_style(style: syntect::highlighting::Style) -> Style {
         FontStyle::ITALIC => Modifier::ITALIC,
         _ => Modifier::empty(),
     };
+    // FIXME: Don't set underline_color, because it will conflict
+    // with underline style on outline.
+    // FIXME: bg seems needless
     Style {
         fg,
-        bg: Some(Color::Rgb(bg.r, bg.g, bg.b)),
-        underline_color: fg,
+        // bg: Some(Color::Rgb(bg.r, bg.g, bg.b)),
         add_modifier,
-        sub_modifier: Modifier::empty(),
+        ..Default::default()
     }
 }

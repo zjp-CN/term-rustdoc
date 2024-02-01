@@ -33,7 +33,7 @@ fn render_line(line: &[StyledText], buf: &mut Buffer, mut x: u16, y: u16, width:
     for StyledText { text, style } in line {
         used_width += text.width_cjk();
         // stop rendering once it hits the end of width
-        if used_width > width {
+        if used_width >= width {
             return;
         }
         let (x_pos, _) = buf.set_stringn(x, y, text, width, *style);

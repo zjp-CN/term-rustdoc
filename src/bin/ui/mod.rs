@@ -1,5 +1,4 @@
-use crate::{app::App, Result};
-use color_eyre::eyre::eyre;
+use crate::{app::App, err, Result};
 use ratatui::{
     prelude::{Buffer, Frame, Rect, Widget},
     style::Color,
@@ -69,11 +68,13 @@ impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
 impl<Lines: Default + AsRef<[TreeLine]>> Scrollable<Lines> {
     fn new(lines: Lines, full: Rect) -> Result<Self> {
         let w = lines.as_ref().iter().map(TreeLine::width).max();
-        let max_windth = w.ok_or_else(|| eyre!("The documentation is empty with no items."))?;
-        warn!(
-            full.width,
-            max_windth, "outline width exceeds the area width, so lines may be truncated"
-        );
+        let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
+        if full.width < max_windth {
+            warn!(
+                full.width,
+                max_windth, "outline width exceeds the area width, so lines may be truncated"
+            );
+        }
         Ok(Self {
             lines,
             max_windth,

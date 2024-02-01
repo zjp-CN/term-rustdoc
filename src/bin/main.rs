@@ -1,5 +1,6 @@
 mod app;
 mod event;
+mod logger;
 mod tui;
 mod ui;
 mod update;
@@ -8,13 +9,14 @@ mod update;
 extern crate tracing;
 
 use crate::update::update;
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{eyre as err, Result};
 use crossterm::event::MouseEventKind;
 use event::Event;
 use ui::ScrollOffset;
 
 fn main() -> Result<()> {
     tui::install_hooks()?;
+    logger::init()?;
 
     let mut tui = tui::Tui::new(1000)?;
     let mut app = app::App::default();

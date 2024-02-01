@@ -1,3 +1,29 @@
+# Roadmap
+
+- [ ] item outline
+  - [ ] folding by level
+  - [ ] folding by item type
+- [ ] doc content
+  - [ ] text wrapping
+  - [ ] syntax highlighting in codeblocks
+  - [ ] recognize rustdoc syntax attributes on codeblocks
+    - [ ] in links
+    - [ ] in codeblock (default to rust, hide lines, etc)
+- [ ] navigation
+  - [ ] markdown outline
+  - [ ] item's associated items/fields outline
+- [ ] configuration
+  - [ ] theme
+  - [ ] keybind
+- [ ] search
+  - [ ] by item name
+  - [ ] by all documentation contents
+  - [ ] by function/method signature
+    - [ ] on concrete types
+    - [ ] on generic types
+    - [ ] on trait bounds
+
+# Misc/Basics
 
 * [data access policy on crates.io ](https://crates.io/data-access)
   * <index.crates.io> can be accessed without rate limits to query crates' history versions, features and dependencies

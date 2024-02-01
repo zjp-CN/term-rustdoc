@@ -58,9 +58,12 @@ pub struct Selected {
     col_end: u16,
 }
 
+/// Scrollable tree view but stored in lines.
+type ScrollTreeLines = Scrollable<TreeLines>;
+
 #[derive(Default, Debug)]
 struct Outline {
-    display: Scrollable<TreeLines>,
+    display: ScrollTreeLines,
 }
 
 #[derive(Default, Debug)]
@@ -70,5 +73,5 @@ struct Content {
 
 #[derive(Default, Debug)]
 struct Navigation {
-    display: Scrollable<TreeLines>,
+    display: ScrollTreeLines,
 }

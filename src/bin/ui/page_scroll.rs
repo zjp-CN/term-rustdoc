@@ -1,5 +1,4 @@
-use super::{Page, Scrollable};
-use term_rustdoc::tree::TreeLines;
+use super::{Page, ScrollTreeLines};
 
 /// Scroll by fixed rows or half/full screen
 pub enum ScrollOffset {
@@ -10,7 +9,7 @@ pub enum ScrollOffset {
 
 /// Scrolling
 impl Page {
-    fn outline(&mut self) -> &mut Scrollable<TreeLines> {
+    fn outline(&mut self) -> &mut ScrollTreeLines {
         &mut self.outline.display
     }
 

@@ -60,25 +60,22 @@ impl<Lines: Default> Default for Scrollable<Lines> {
     }
 }
 
-impl<Lines: Deref<Target = [TreeLine]>> Scrollable<Lines> {
-    pub fn new(lines: Lines, full: Rect) -> Result<Self> {
+impl<Lines: Default + Deref<Target = [TreeLine]>> Scrollable<Lines> {
+    pub fn new(lines: Lines, area: Rect) -> Result<Self> {
         let w = lines.as_ref().iter().map(TreeLine::width).max();
         let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
-        if full.width < max_windth {
+        if area.width < max_windth {
             warn!(
-                full.width,
+                area.width,
                 max_windth, "Outline width exceeds the area width, so lines may be truncated."
             );
         }
 
-        let (start, cursor, select) = Default::default();
         Ok(Self {
             lines,
             max_windth,
-            area: full,
-            start,
-            cursor,
-            select,
+            area,
+            ..Default::default()
         })
     }
 }

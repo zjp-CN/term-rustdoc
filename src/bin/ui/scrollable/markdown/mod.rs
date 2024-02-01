@@ -1,12 +1,12 @@
 use super::Scrollable;
 use ratatui::layout::Rect;
-use std::fmt;
+use std::{fmt, ops::Deref};
 use term_rustdoc::tree::Text as StyledText;
 
 mod parse;
 
 /// Scrollable text area for displaying markdown.
-pub type ScrollText = Scrollable<StyledLines, StyledLine>;
+pub type ScrollText = Scrollable<StyledLines>;
 
 pub struct StyledLine {
     line: Vec<StyledText>,
@@ -31,8 +31,10 @@ impl fmt::Debug for StyledLines {
     }
 }
 
-impl AsRef<[StyledLine]> for StyledLines {
-    fn as_ref(&self) -> &[StyledLine] {
+impl Deref for StyledLines {
+    type Target = [StyledLine];
+
+    fn deref(&self) -> &Self::Target {
         &self.lines
     }
 }

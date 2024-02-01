@@ -1,9 +1,10 @@
 use super::Scrollable;
 use crate::ui::ScrollOffset;
+use std::ops::Deref;
 use term_rustdoc::tree::TreeLine;
 
 /// Scrolling
-impl<Lines: AsRef<[TreeLine]>> Scrollable<Lines, TreeLine> {
+impl<Lines: Deref<Target = [TreeLine]>> Scrollable<Lines> {
     pub fn scrolldown(&mut self, offset: ScrollOffset) {
         let height = self.area.height as usize;
         let len = self.len();
@@ -48,7 +49,7 @@ impl<Lines: AsRef<[TreeLine]>> Scrollable<Lines, TreeLine> {
 }
 
 /// Cursor movement
-impl<Lines: AsRef<[TreeLine]>> Scrollable<Lines, TreeLine> {
+impl<Lines: Deref<Target = [TreeLine]>> Scrollable<Lines> {
     pub fn move_forward_cursor(&mut self) {
         let height = self.area.height;
         let reach_sceen_bottom = (self.cursor + 1) == height;

@@ -176,9 +176,11 @@ impl TreeLines {
     }
 }
 
-impl AsRef<[TreeLine]> for TreeLines {
-    fn as_ref(&self) -> &[TreeLine] {
-        self.lines()
+impl std::ops::Deref for TreeLines {
+    type Target = [TreeLine];
+
+    fn deref(&self) -> &Self::Target {
+        &self.tree
     }
 }
 

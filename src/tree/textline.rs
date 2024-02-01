@@ -49,7 +49,8 @@ pub struct TreeLine {
     pub tag: Tag,
     /// Identation level with range of 0..=u8::MAX
     pub level: u8,
-    // pub id: Option< XString>,
+    /// Node/Item id from Crate
+    pub id: Option<XString>,
     pub name: Text,
 }
 
@@ -77,6 +78,7 @@ impl TreeLine {
     pub fn new(tt: TextTag, level: u8) -> Self {
         let text = tt.text;
         let tag = tt.tag;
+        let id = tt.id;
         let style = tag.style();
         let name = Text { text, style };
 
@@ -89,6 +91,7 @@ impl TreeLine {
             glyph,
             tag,
             level,
+            id,
             name,
         }
     }

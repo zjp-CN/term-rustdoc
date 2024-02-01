@@ -6,7 +6,7 @@ use crossterm::{
     execute,
     terminal::{self, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{backend::CrosstermBackend, layout::Rect, Terminal};
+use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{io, panic};
 
 pub struct Tui {
@@ -28,10 +28,6 @@ impl Tui {
         self.terminal
             .draw(|frame| crate::ui::render(app, widgets, frame))?;
         Ok(())
-    }
-
-    pub fn full_area(&self) -> Result<Rect> {
-        Ok(self.terminal.size()?)
     }
 }
 

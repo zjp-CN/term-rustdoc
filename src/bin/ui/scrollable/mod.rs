@@ -61,22 +61,23 @@ impl<Lines: Default> Default for Scrollable<Lines> {
 }
 
 impl<Lines: Default + Deref<Target = [TreeLine]>> Scrollable<Lines> {
-    pub fn new(lines: Lines, area: Rect) -> Result<Self> {
+    pub fn new(lines: Lines) -> Result<Self> {
         let w = lines.as_ref().iter().map(TreeLine::width).max();
         let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
-        if area.width < max_windth {
-            warn!(
-                area.width,
-                max_windth, "Outline width exceeds the area width, so lines may be truncated."
-            );
-        }
 
         Ok(Self {
             lines,
             max_windth,
-            area,
             ..Default::default()
         })
+    }
+
+    /// Get the item id the current cursor points to.
+    /// Non-item node doesn't have an id.
+    pub fn get_id(&self) -> Option<&str> {
+        self.lines()
+            .get(self.cursor as usize + self.start)
+            .and_then(|l| l.id.as_deref())
     }
 }
 

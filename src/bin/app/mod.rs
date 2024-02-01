@@ -1,4 +1,4 @@
-use crate::{err, Result};
+use crate::Result;
 use rustdoc_types::Crate;
 use std::rc::Rc;
 use term_rustdoc::tree::{DModule, IDMap, Show, TreeLines};
@@ -37,9 +37,7 @@ impl App {
         Ok(outline)
     }
 
-    pub fn rustdoc(&self) -> Result<Rc<RustDoc>> {
-        self.doc
-            .clone()
-            .ok_or_else(|| err!("There is no crate documentation."))
+    pub fn rustdoc(&self) -> Option<CrateDoc> {
+        self.doc.clone()
     }
 }

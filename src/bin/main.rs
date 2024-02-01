@@ -22,7 +22,7 @@ fn main() -> Result<()> {
     let mut app = app::App::default();
 
     let outline = app.set_doc()?;
-    let mut page = ui::Page::new(outline, tui.full_area()?)?;
+    let mut page = ui::Page::new(outline, app.rustdoc())?;
 
     // Start the main loop.
     while !app.should_quit {

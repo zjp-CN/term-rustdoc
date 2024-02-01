@@ -1,10 +1,10 @@
-use super::Scrollable;
-use ratatui::prelude::{Buffer, Color, Rect, Widget};
-use std::ops::Deref;
+use super::ScrollTreeLines;
+use ratatui::prelude::{Buffer, Color, Rect};
 use term_rustdoc::tree::TreeLine;
 
-impl<Lines: Deref<Target = [TreeLine]>> Widget for &mut Scrollable<Lines> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+impl ScrollTreeLines {
+    pub fn render(&mut self, buf: &mut Buffer) {
+        let area = self.area;
         // render tree by each line
         write_lines(self.lines.as_ref(), self.start, area, buf);
 

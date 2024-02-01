@@ -1,5 +1,8 @@
 use self::scrollable::{ScrollText, ScrollTreeLines, Scrollable};
-use crate::{app::App, Result};
+use crate::{
+    app::{App, CrateDoc},
+    Result,
+};
 use ratatui::prelude::*;
 use term_rustdoc::tree::TreeLines;
 
@@ -22,35 +25,48 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(outline: TreeLines, full: Rect) -> Result<Self> {
-        let mut outline = Outline {
-            display: Scrollable::new(outline, full)?,
+    pub fn new(outline: TreeLines, doc: Option<CrateDoc>) -> Result<Self> {
+        let mut page = Page {
+            outline: Outline {
+                display: Scrollable::new(outline)?,
+            },
+            content: Content {
+                display: ScrollText::new_text(doc)?,
+            },
+            ..Default::default()
         };
-        let outline_width = outline.display.max_windth;
+        info!(?page);
+        page.update_content();
+        Ok(page)
+    }
 
+    fn update_area(&mut self, full: Rect) {
+        let outline_width = self.outline.display.max_windth;
         let layout = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Length(outline_width), Constraint::Min(0)])
             .split(full);
-        outline.display.area = layout[0];
+        let (outline_area, content_area) = (layout[0], layout[1]);
 
-        let content = Content {
-            display: ScrollText::new_text(None, layout[1])?,
-        };
+        self.outline.display.area = outline_area;
+        let outline_max_width = self.outline.display.max_windth;
+        if outline_area.width < outline_max_width {
+            warn!(
+                outline_area.width,
+                outline_max_width,
+                "Outline width exceeds the area width, so lines may be truncated."
+            );
+        }
 
-        let page = Page {
-            outline,
-            content,
-            ..Default::default()
-        };
-        info!(?page);
-        Ok(page)
+        self.content.display.area = content_area;
     }
 }
 
 impl Widget for &mut Page {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        self.outline.display.render(area, buf);
+        self.update_area(area);
+        self.outline.display.render(buf);
+        self.content.display.render(buf);
     }
 }
 

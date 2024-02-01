@@ -1,10 +1,11 @@
 use super::Scrollable;
 use crate::{app::CrateDoc, Result};
-use ratatui::layout::Rect;
-use std::{fmt, ops::Deref};
+use rustdoc_types::Id;
+use std::{cell::RefCell, fmt, ops::Deref};
 use term_rustdoc::tree::Text as StyledText;
 
 mod parse;
+mod render;
 
 /// Scrollable text area for displaying markdown.
 pub type ScrollText = Scrollable<StyledLines>;
@@ -13,8 +14,10 @@ pub struct StyledLine {
     line: Vec<StyledText>,
 }
 
-impl AsRef<[StyledText]> for StyledLine {
-    fn as_ref(&self) -> &[StyledText] {
+impl Deref for StyledLine {
+    type Target = [StyledText];
+
+    fn deref(&self) -> &Self::Target {
         &self.line
     }
 }
@@ -23,6 +26,7 @@ impl AsRef<[StyledText]> for StyledLine {
 pub struct StyledLines {
     lines: Vec<StyledLine>,
     doc: Option<CrateDoc>,
+    idbuf: RefCell<String>,
 }
 
 impl fmt::Debug for StyledLines {
@@ -48,14 +52,40 @@ impl StyledLines {
             ..Default::default()
         }
     }
+
+    fn get<T>(&self, id: &str, f: impl FnOnce(&Id) -> T) -> T {
+        let mut idbuf = self.idbuf.take();
+        idbuf.clear();
+        idbuf.push_str(id);
+        let id = Id(idbuf);
+        let res = f(&id);
+        self.idbuf.replace(id.0);
+        res
+    }
+
+    pub fn update_doc(&mut self, id: &str) {
+        if let Some(doc) = &self.doc {
+            if let Some(doc) = self.get(id, |id| {
+                doc.doc.index.get(id).and_then(|item| item.docs.as_deref())
+            }) {
+                self.lines = parse::md(doc);
+                return;
+            }
+        }
+        self.reset_doc();
+    }
+
+    /// FIXME: cache queried doc to save parsing
+    pub fn reset_doc(&mut self) {
+        self.lines = Vec::new();
+    }
 }
 
 impl ScrollText {
-    pub fn new_text(doc: Option<CrateDoc>, area: Rect) -> Result<Self> {
+    pub fn new_text(doc: Option<CrateDoc>) -> Result<Self> {
         // TODO:max_windth and text wrap for markdown
         Ok(Scrollable {
             lines: StyledLines::new(doc),
-            area,
             ..Default::default()
         })
     }

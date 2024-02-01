@@ -4,6 +4,7 @@ use ratatui::prelude::Rect;
 use std::fmt;
 use term_rustdoc::tree::TreeLine;
 
+mod interaction;
 mod render;
 
 /// A text panel that can be scrolled and select texts when the cursor is inside of it.
@@ -29,7 +30,7 @@ impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
     }
 
     pub fn len(&self) -> usize {
-        self.lines().len()
+        self.lines.as_ref().len()
     }
 }
 

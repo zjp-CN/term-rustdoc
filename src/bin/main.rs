@@ -33,10 +33,10 @@ fn main() -> Result<()> {
             Event::Key(key_event) => update(&mut app, &mut page, key_event),
             Event::Mouse(mouse_event) => match mouse_event.kind {
                 MouseEventKind::ScrollDown => {
-                    page.scrolldown_outline(ScrollOffset::Fixed(5));
+                    page.scrolldown(ScrollOffset::Fixed(5));
                 }
                 MouseEventKind::ScrollUp => {
-                    page.scrollup_outline(ScrollOffset::Fixed(5));
+                    page.scrollup(ScrollOffset::Fixed(5));
                 }
                 _ => (),
             },

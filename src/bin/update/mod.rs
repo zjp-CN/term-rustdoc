@@ -12,12 +12,12 @@ pub fn update(app: &mut App, page: &mut Page, key_event: KeyEvent) {
                 app.quit()
             }
         }
-        KeyCode::Home => page.scroll_home_outline(),
-        KeyCode::End => page.scroll_end_outline(),
-        KeyCode::PageUp => page.scrollup_outline(ScrollOffset::HalfScreen),
-        KeyCode::PageDown => page.scrolldown_outline(ScrollOffset::HalfScreen),
-        KeyCode::Up => page.move_backward_cursor_outline(),
-        KeyCode::Down => page.move_forward_cursor_outline(),
+        KeyCode::Home => page.scroll_home(),
+        KeyCode::End => page.scroll_end(),
+        KeyCode::PageUp => page.scrollup(ScrollOffset::HalfScreen),
+        KeyCode::PageDown => page.scrolldown(ScrollOffset::HalfScreen),
+        KeyCode::Up => page.move_backward_cursor(),
+        KeyCode::Down => page.move_forward_cursor(),
         _ => {}
     };
 }

@@ -2,8 +2,6 @@ use super::DocTree;
 use ratatui::style::{Color::*, Modifier, Style};
 use termtree::GlyphPalette;
 
-const BOLD: Modifier = Modifier::BOLD;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Tag {
     Module,
@@ -65,10 +63,6 @@ pub enum Tag {
 fn fg(r: u8, g: u8, b: u8) -> Style {
     Style::default().fg(Rgb(r, g, b))
 }
-
-// fn bg(r: u8, g: u8, b: u8) -> Style {
-//     Style::default().bg(Rgb(r, g, b))
-// }
 
 // for the title of a list of items
 fn bfg(r: u8, g: u8, b: u8) -> Style {
@@ -195,11 +189,16 @@ impl Tag {
             Tag::MacroFuncs => "Macros - Function",
             Tag::MacroAttrs => "Macros - Attribute",
             Tag::MacroDervs => "Macros - Derive",
-            // _ => format!("error for Tag `{self:?}`").leak(),
-            _ => unimplemented!(
-                "Tag `{self:?}` should reply on contexts like \
+            _ => {
+                error!(
+                    "Tag `{self:?}` should reply on contexts like \
                  name/path/type instead of plain text"
-            ),
+                );
+                return DocTree::new(
+                    "A Tag shouldn't be here. Check out the log.".into(),
+                    Tag::Unknown,
+                );
+            }
         };
         DocTree::new(text.into(), self)
     }

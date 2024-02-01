@@ -1,15 +1,20 @@
 use super::Selected;
 use crate::{err, Result};
 use ratatui::prelude::Rect;
-use std::fmt;
-use term_rustdoc::tree::TreeLine;
+use std::{fmt, marker::PhantomData};
+use term_rustdoc::tree::{TreeLine, TreeLines};
 
 mod interaction;
+mod markdown;
 mod render;
 
+pub use self::markdown::ScrollText;
+
+/// Scrollable tree view but stored in lines.
+pub type ScrollTreeLines = Scrollable<TreeLines, TreeLine>;
+
 /// A text panel that can be scrolled and select texts when the cursor is inside of it.
-#[derive(Default)]
-pub struct Scrollable<Lines> {
+pub struct Scrollable<Lines, L> {
     /// Styled texts on each line
     pub lines: Lines,
     /// The start of row to be displayed
@@ -22,10 +27,18 @@ pub struct Scrollable<Lines> {
     pub select: Option<Selected>,
     /// The widget area, usually not the full screen
     pub area: Rect,
+    _ph: PhantomData<L>,
 }
 
-impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
-    pub fn lines(&self) -> &[TreeLine] {
+impl<Lines, L> Scrollable<Lines, L> {
+    /// The index the current cursor on screen points to.
+    pub fn idx_of_current_cursor(&self) -> usize {
+        self.cursor as usize + self.start
+    }
+}
+
+impl<L, Lines: AsRef<[L]>> Scrollable<Lines, L> {
+    pub fn lines(&self) -> &[L] {
         self.lines.as_ref()
     }
 
@@ -34,7 +47,22 @@ impl<Line: AsRef<[TreeLine]>> Scrollable<Line> {
     }
 }
 
-impl<Lines: Default + AsRef<[TreeLine]>> Scrollable<Lines> {
+impl<Lines: Default, L> Default for Scrollable<Lines, L> {
+    fn default() -> Self {
+        let (lines, start, cursor, max_windth, select, area, _ph) = Default::default();
+        Scrollable {
+            lines,
+            start,
+            cursor,
+            max_windth,
+            select,
+            area,
+            _ph,
+        }
+    }
+}
+
+impl<Lines: Default + AsRef<[TreeLine]>> Scrollable<Lines, TreeLine> {
     pub fn new(lines: Lines, full: Rect) -> Result<Self> {
         let w = lines.as_ref().iter().map(TreeLine::width).max();
         let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
@@ -53,14 +81,7 @@ impl<Lines: Default + AsRef<[TreeLine]>> Scrollable<Lines> {
     }
 }
 
-impl<Lines> Scrollable<Lines> {
-    /// The index the current cursor on screen points to.
-    pub fn idx_of_current_cursor(&self) -> usize {
-        self.cursor as usize + self.start
-    }
-}
-
-impl<Lines: AsRef<[TreeLine]>> fmt::Debug for Scrollable<Lines> {
+impl<L: fmt::Debug, Lines: AsRef<[L]>> fmt::Debug for Scrollable<Lines, L> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("Scrollable");
         s.field("lines.len", &self.len())

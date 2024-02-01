@@ -1,7 +1,7 @@
-use self::scrollable::Scrollable;
+use self::scrollable::{ScrollText, ScrollTreeLines, Scrollable};
 use crate::{app::App, Result};
 use ratatui::prelude::*;
-use term_rustdoc::tree::{TreeLine, TreeLines};
+use term_rustdoc::tree::TreeLines;
 
 /// scroll up/down behavior and with what offset
 mod page_scroll;
@@ -58,9 +58,6 @@ pub struct Selected {
     col_end: u16,
 }
 
-/// Scrollable tree view but stored in lines.
-type ScrollTreeLines = Scrollable<TreeLines>;
-
 #[derive(Default, Debug)]
 struct Outline {
     display: ScrollTreeLines,
@@ -68,7 +65,7 @@ struct Outline {
 
 #[derive(Default, Debug)]
 struct Content {
-    display: Scrollable<Vec<TreeLine>>,
+    display: ScrollText,
 }
 
 #[derive(Default, Debug)]

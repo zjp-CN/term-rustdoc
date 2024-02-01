@@ -24,6 +24,7 @@ impl fmt::Display for TextTag {
 }
 
 /// Onwed [`ratatui::text::Span`], mainly being a small styled string.
+#[derive(Debug)]
 pub struct Text {
     pub text: XString,
     pub style: Style,

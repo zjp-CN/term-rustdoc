@@ -2,7 +2,7 @@ use super::Scrollable;
 use ratatui::prelude::{Buffer, Color, Rect, Widget};
 use term_rustdoc::tree::TreeLine;
 
-impl<Lines: AsRef<[TreeLine]>> Widget for &mut Scrollable<Lines> {
+impl<Lines: AsRef<[TreeLine]>> Widget for &mut Scrollable<Lines, TreeLine> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // render tree by each line
         write_lines(self.lines.as_ref(), self.start, area, buf);

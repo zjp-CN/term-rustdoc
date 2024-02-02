@@ -10,8 +10,8 @@ impl ScrollTreeLines {
 
         // render the current row
         if let Some(cur) = self.lines().get(self.idx_of_current_cursor()) {
-            let Rect { x, width, .. } = area;
-            render_current_line(cur, buf, x, self.cursor, width);
+            let Rect { x, y, width, .. } = area;
+            render_current_line(cur, buf, x, y + self.cursor, width);
         }
     }
 }

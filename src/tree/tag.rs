@@ -125,7 +125,11 @@ impl Tag {
             Tag::ImplAuto => fg(255, 140, 41),        // #FF8C29
             Tag::BlanketImpls => bfg(222, 186, 0),    // #DEBA00
             Tag::ImplBlanket => fg(222, 186, 0),      // #DEBA00
-            _ => Style::default(),
+            Tag::Implementors => bfg(111, 162, 255),  // #6FA2FF
+            Tag::Implementor => fg(111, 162, 255),    // #6FA2FF
+            // black fg on gray bg in bg/fg inversion
+            // If not set, black fg on black bg.
+            _ => Style::default().fg(Gray),
         }
     }
 

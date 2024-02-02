@@ -4,8 +4,8 @@ use crate::{
     Result,
 };
 use ratatui::{
-    prelude::{Buffer, Constraint, Direction, Frame, Layout, Rect, Widget},
-    widgets::{Block, Borders},
+    prelude::{Buffer, Color, Constraint, Direction, Frame, Layout, Rect, Style, Widget},
+    widgets::{Block, BorderType, Borders},
 };
 use term_rustdoc::tree::TreeLines;
 
@@ -20,11 +20,20 @@ pub fn render(_app: &mut App, page: &mut Page, f: &mut Frame) {
     f.render_widget(page, f.size());
 }
 
+#[derive(Debug)]
+enum Component {
+    Outline,
+    Content,
+    Navigation,
+}
+
 #[derive(Default, Debug)]
 pub struct Page {
     outline: Outline,
     content: Content,
     navi: Navigation,
+    current: Option<Component>,
+    area: Rect,
 }
 
 impl Page {
@@ -32,7 +41,10 @@ impl Page {
         let mut page = Page {
             outline: Outline {
                 display: Scrollable::new(outline)?,
-                ..Default::default()
+                border: Surround {
+                    block: Block::new().style(Style::new().fg(Color::Red)),
+                    ..Default::default()
+                },
             },
             content: Content {
                 display: ScrollText::new_text(doc)?,
@@ -45,24 +57,73 @@ impl Page {
         Ok(page)
     }
 
+    pub fn set_current_component(&mut self, x: u16, y: u16) {
+        fn contain(x: u16, y: u16, area: Rect) -> bool {
+            (x >= area.x)
+                && (x < area.x + area.width)
+                && (y >= area.y)
+                && (y < area.y + area.height)
+        }
+        macro_rules! set {
+            (outline) => { set!(#Outline 0 1 2) };
+            (content) => { set!(#Content 1 0 2) };
+            (navi) => { set!(#Navigation 2 0 1) };
+            (#$var:ident $a:tt $b:tt $c:tt) => {{
+                let block = (
+                    &mut self.outline.border.block,
+                    &mut self.content.border.block,
+                    &mut self.navi.border.block,
+                );
+                *block.$a = block.$a.clone().style(SET);
+                *block.$b = block.$b.clone().style(NEW);
+                *block.$c = block.$c.clone().style(NEW);
+                Some(Component::$var)
+            }};
+        }
+        const SET: Style = Style::new().bg(Color::Rgb(0, 5, 18)); // #000551
+        const NEW: Style = Style::new();
+        // Block area covers border and its inner
+        self.current = if contain(x, y, self.outline.border.area) {
+            set!(outline)
+        } else if contain(x, y, self.content.border.area) {
+            set!(content)
+        } else if contain(x, y, self.navi.border.area) {
+            set!(navi)
+        } else {
+            None
+        };
+        info!(?self.current);
+    }
+
+    fn layout(&self) -> Layout {
+        let outline_width = self.outline.display.max_windth;
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Length(outline_width), Constraint::Min(0)])
+    }
+
     /// This is called in Widget's render method because inner widgets don't implement
     /// Widget, since the areas they draw are updated only from here, not from Widget trait.
     fn update_area(&mut self, full: Rect) {
+        // skip updating since the size is the same
+        if self.area == full {
+            return;
+        }
+
         // layout
-        let outline_width = self.outline.display.max_windth;
-        let layout = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Length(outline_width), Constraint::Min(0)])
-            .split(full);
+        self.area = full;
+        let layout = self.layout().split(full);
 
         // border
         self.outline.border = Surround {
-            block: Block::new(),
+            block: Block::new().borders(Borders::empty()),
             area: layout[0],
         };
         let outline_area = self.outline.border.inner();
         self.content.border = Surround {
-            block: Block::new().borders(Borders::LEFT),
+            block: Block::new()
+                .borders(Borders::LEFT)
+                .border_type(BorderType::Thick),
             area: layout[1],
         };
         let content_area = self.content.border.inner();

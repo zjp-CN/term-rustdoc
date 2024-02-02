@@ -10,7 +10,7 @@ extern crate tracing;
 
 use crate::update::update;
 use color_eyre::eyre::{eyre as err, Result};
-use crossterm::event::MouseEventKind;
+use crossterm::event::{MouseButton, MouseEventKind};
 use event::Event;
 use ui::ScrollOffset;
 
@@ -37,6 +37,10 @@ fn main() -> Result<()> {
                 }
                 MouseEventKind::ScrollUp => {
                     page.scrollup(ScrollOffset::Fixed(5));
+                }
+                MouseEventKind::Down(MouseButton::Left) => {
+                    let (x, y) = (mouse_event.column, mouse_event.row);
+                    page.set_current_component(x, y);
                 }
                 _ => (),
             },

@@ -115,7 +115,7 @@ impl Surround {
     }
 
     fn render(&self, buf: &mut Buffer) {
-        self.block.clone().render(self.area, buf);
+        (&self.block).render(self.area, buf);
     }
 }
 

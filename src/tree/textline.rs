@@ -1,6 +1,6 @@
 use self::fold::Fold;
 use crate::{
-    tree::{DModule, DocTree, IDMap, Show, Tag},
+    tree::{DModule, DocTree, Show, Tag},
     util::XString,
 };
 use ratatui::style::{Color, Style};
@@ -10,6 +10,8 @@ use std::{
 };
 use termtree::Tree;
 use unicode_width::UnicodeWidthStr;
+
+use super::CrateDoc;
 
 mod fold;
 
@@ -127,15 +129,19 @@ impl TreeLine {
     }
 }
 
+/// Outline tree for crate's public items with support of various folding.
 pub struct TreeLines {
+    pub krate: CrateDoc,
     lines: Rc<[TreeLine]>,
-    tree: Rc<DModule>,
+    pub tree: Rc<DModule>,
     fold: Option<Fold>,
 }
 
 impl TreeLines {
-    pub fn new(dmod: DModule, map: &IDMap) -> (Self, Tree<Empty>) {
-        let doc_tree = dmod.show_prettier(map);
+    /// This also returns an identical ZST tree as the outline layout and tree glyph.
+    pub fn new(krate: CrateDoc) -> (Self, Tree<Empty>) {
+        let (dmod, idmap) = krate.dmodule_idmap();
+        let doc_tree = dmod.show_prettier(&idmap);
         let dmod_tree = Rc::new(dmod);
         let (mut lines, layout) = TreeLine::flatten(doc_tree);
         let tree_glyph = glyph(&layout);
@@ -153,6 +159,7 @@ impl TreeLines {
 
         (
             TreeLines {
+                krate,
                 lines: lines.into(),
                 tree: dmod_tree,
                 fold: None,
@@ -211,6 +218,7 @@ impl std::ops::Deref for TreeLines {
 impl Default for TreeLines {
     fn default() -> Self {
         TreeLines {
+            krate: CrateDoc::default(),
             lines: Rc::new([]),
             tree: Rc::new(DModule::default()),
             fold: None,

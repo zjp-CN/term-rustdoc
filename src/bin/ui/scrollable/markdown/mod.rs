@@ -1,8 +1,8 @@
 use super::Scrollable;
-use crate::{app::CrateDoc, Result};
+use crate::Result;
 use rustdoc_types::Id;
 use std::{cell::RefCell, fmt, ops::Deref};
-use term_rustdoc::tree::Text as StyledText;
+use term_rustdoc::tree::{CrateDoc, Text as StyledText};
 
 mod parse;
 mod render;

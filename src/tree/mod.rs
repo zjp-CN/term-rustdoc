@@ -9,6 +9,9 @@ mod stats;
 mod tag;
 mod textline;
 
+use rustdoc_types::Crate;
+use std::rc::Rc;
+
 pub use id::{IDMap, IDs, IdAsStr, IdToID, IndexMap, PathMap, SliceToIds, ID};
 pub use impls::show::{DocTree, Show};
 pub use nodes::{
@@ -18,3 +21,36 @@ pub use nodes::{
 pub use stats::{ImplCount, ImplCounts, ImplKind, ItemCount};
 pub use tag::Tag;
 pub use textline::{Text, TextTag, TreeLine, TreeLines};
+
+#[derive(Clone)]
+pub struct CrateDoc {
+    pub doc: Rc<Crate>,
+}
+
+impl CrateDoc {
+    pub fn new(doc: Crate) -> CrateDoc {
+        CrateDoc { doc: Rc::new(doc) }
+    }
+
+    pub fn dmodule_idmap(&self) -> (DModule, IDMap<'_>) {
+        (DModule::new(&self.doc), IDMap::from_crate(&self.doc))
+    }
+}
+
+impl Default for CrateDoc {
+    fn default() -> Self {
+        let (crate_version, includes_private, index, paths, external_crates, format_version) =
+            Default::default();
+        CrateDoc {
+            doc: Rc::new(Crate {
+                root: rustdoc_types::Id(String::new()),
+                crate_version,
+                includes_private,
+                index,
+                paths,
+                external_crates,
+                format_version,
+            }),
+        }
+    }
+}

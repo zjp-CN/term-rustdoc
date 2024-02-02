@@ -1,13 +1,10 @@
 use self::scrollable::{ScrollText, ScrollTreeLines, Scrollable};
-use crate::{
-    app::{App, CrateDoc},
-    Result,
-};
+use crate::{app::App, Result};
 use ratatui::{
     prelude::{Buffer, Color, Constraint, Direction, Frame, Layout, Rect, Style, Widget},
     widgets::{Block, BorderType, Borders},
 };
-use term_rustdoc::tree::TreeLines;
+use term_rustdoc::tree::{CrateDoc, TreeLines};
 
 /// scroll up/down behavior and with what offset
 mod page_scroll;

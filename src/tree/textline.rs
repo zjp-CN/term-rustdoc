@@ -109,10 +109,14 @@ impl TreeLine {
         ]
     }
 
-    /// unicode width including glyph and name
+    /// non-cjk unicode width including glyph and name
+    ///
+    /// reason for non-cjk:
+    /// * path or name usually doesn't contain CJK
+    /// * CJK width counts glyph width more, leading to wasteful space in outline
     pub fn width(&self) -> u16 {
         let (g, n) = (&*self.glyph.text, &*self.name.text);
-        (g.width_cjk() + n.width_cjk())
+        (g.width() + n.width())
             .try_into()
             .unwrap_or_else(|_| panic!("The total width exceeds u16::MAX in `{g}{n}`"))
     }

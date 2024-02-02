@@ -27,6 +27,7 @@ macro_rules! icon {
 }
 
 /// Doc node in a display tree.
+#[derive(Clone)]
 pub struct DocTree {
     pub tree: Tree<TextTag>,
 }
@@ -49,9 +50,6 @@ impl DocTree {
     }
     pub fn push(&mut self, node: Self) {
         self.tree.push(node.tree);
-    }
-    pub fn into_treelines(self) -> TreeLines {
-        TreeLines::new(self).0
     }
 }
 

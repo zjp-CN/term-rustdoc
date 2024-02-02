@@ -1,5 +1,6 @@
+use self::fold::Fold;
 use crate::{
-    tree::{DocTree, Tag},
+    tree::{DModule, DocTree, IDMap, Show, Tag},
     util::XString,
 };
 use ratatui::style::{Color, Style};
@@ -10,7 +11,10 @@ use std::{
 use termtree::Tree;
 use unicode_width::UnicodeWidthStr;
 
+mod fold;
+
 /// Tagged text including headings and nodes.
+#[derive(Clone)]
 pub struct TextTag {
     pub text: XString,
     pub tag: Tag,
@@ -25,7 +29,7 @@ impl fmt::Display for TextTag {
 }
 
 /// Onwed [`ratatui::text::Span`], mainly being a small styled string.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Text {
     pub text: XString,
     pub style: Style,
@@ -44,6 +48,7 @@ impl Text {
     }
 }
 
+#[derive(Clone)]
 pub struct TreeLine {
     pub glyph: Text,
     pub tag: Tag,
@@ -123,13 +128,16 @@ impl TreeLine {
 }
 
 pub struct TreeLines {
-    tree: Rc<[TreeLine]>,
-    collapse: Option<usize>,
+    lines: Rc<[TreeLine]>,
+    tree: Rc<DModule>,
+    fold: Option<Fold>,
 }
 
 impl TreeLines {
-    pub fn new(tree: DocTree) -> (Self, Tree<Empty>) {
-        let (mut lines, layout) = TreeLine::flatten(tree);
+    pub fn new(dmod: DModule, map: &IDMap) -> (Self, Tree<Empty>) {
+        let doc_tree = dmod.show_prettier(map);
+        let dmod_tree = Rc::new(dmod);
+        let (mut lines, layout) = TreeLine::flatten(doc_tree);
         let tree_glyph = glyph(&layout);
 
         let (len_nodes, len_glyph) = (lines.len(), tree_glyph.len());
@@ -145,20 +153,16 @@ impl TreeLines {
 
         (
             TreeLines {
-                tree: lines.into(),
-                collapse: None,
+                lines: lines.into(),
+                tree: dmod_tree,
+                fold: None,
             },
             layout,
         )
     }
 
-    pub fn lines(&self) -> &[TreeLine] {
-        &self.tree
-    }
-
-    #[allow(clippy::len_without_is_empty)]
-    pub fn len(&self) -> usize {
-        self.tree.len()
+    pub fn all_lines(&self) -> &[TreeLine] {
+        &self.lines
     }
 
     /// This should exactly be the same as DocTree's display.
@@ -173,7 +177,7 @@ impl TreeLines {
             }
         }
         let mut buf = String::with_capacity(self.len() * 50);
-        for l in &*self.tree {
+        for l in &*self.lines {
             let plain = DisplayPlain {
                 glyph: &l.glyph.text,
                 name: &l.name.text,
@@ -183,21 +187,33 @@ impl TreeLines {
         buf.shrink_to_fit();
         buf
     }
+
+    pub fn modules_tree(&self) -> Rc<DModule> {
+        self.tree.clone()
+    }
 }
 
+/// NOTE: `TreeLines` derefs to slices to be shown, so
+/// if folding is set, derefs to incomplete `&[TreeLine]`;
+/// if no item is satisfied in fold filtering, derefs to complete `&[TreeLine]`;
+/// otherwise, derefs to complete `&[TreeLine]`
 impl std::ops::Deref for TreeLines {
     type Target = [TreeLine];
 
     fn deref(&self) -> &Self::Target {
-        &self.tree
+        self.fold
+            .as_ref()
+            .and_then(Fold::lines)
+            .unwrap_or(&self.lines)
     }
 }
 
 impl Default for TreeLines {
     fn default() -> Self {
         TreeLines {
-            tree: Rc::new([]),
-            collapse: None,
+            lines: Rc::new([]),
+            tree: Rc::new(DModule::default()),
+            fold: None,
         }
     }
 }

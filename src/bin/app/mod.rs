@@ -1,7 +1,7 @@
 use crate::Result;
 use rustdoc_types::Crate;
 use std::rc::Rc;
-use term_rustdoc::tree::{DModule, IDMap, Show, TreeLines};
+use term_rustdoc::tree::{DModule, IDMap, TreeLines};
 
 #[derive(Default)]
 pub struct App {
@@ -32,7 +32,7 @@ impl App {
         let doc = serde_json::from_reader(std::fs::File::open("target/deps/doc/tokio.json")?)?;
         let doc = RustDoc { doc };
         let (dmod, map) = doc.dmodule_idmap();
-        let outline = dmod.show_prettier(&map).into_treelines();
+        let outline = TreeLines::new(dmod, &map).0;
         self.doc = Some(Rc::new(doc));
         Ok(outline)
     }

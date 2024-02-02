@@ -63,16 +63,18 @@ impl StyledLines {
         res
     }
 
-    pub fn update_doc(&mut self, id: &str) {
+    /// only returns true if a new doc is fetched
+    pub fn update_doc(&mut self, id: &str) -> bool {
         if let Some(doc) = &self.doc {
             if let Some(doc) = self.get(id, |id| {
                 doc.doc.index.get(id).and_then(|item| item.docs.as_deref())
             }) {
                 self.lines = parse::md(doc);
-                return;
+                return true;
             }
         }
         self.reset_doc();
+        false
     }
 
     /// FIXME: cache queried doc to save parsing

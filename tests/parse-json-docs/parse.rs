@@ -10,7 +10,7 @@ fn parse_module() {
     snap!("DModule", dmod);
     shot!("show-id", dmod.show());
 
-    let idmap = IDMap::from_crate(doc);
+    let idmap = IDMap::new(doc);
     let tree = dmod.show_prettier(&idmap);
     let display = tree.to_string();
     shot!("show-prettier", display);

@@ -33,7 +33,11 @@ impl CrateDoc {
     }
 
     pub fn dmodule_idmap(&self) -> (DModule, IDMap<'_>) {
-        (DModule::new(&self.doc), IDMap::from_crate(&self.doc))
+        (DModule::new(&self.doc), IDMap::new(&self.doc))
+    }
+
+    pub fn idmap(&self) -> IDMap {
+        IDMap::new(&self.doc)
     }
 }
 

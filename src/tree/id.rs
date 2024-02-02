@@ -96,10 +96,10 @@ pub struct IDMap<'krate> {
 }
 
 impl IDMap<'_> {
-    pub fn from_crate(krate: &Crate) -> IDMap<'_> {
+    pub fn new(doc: &Crate) -> IDMap<'_> {
         IDMap {
-            index: &krate.index,
-            paths: &krate.paths,
+            index: &doc.index,
+            paths: &doc.paths,
             id_buffer: Default::default(),
         }
     }

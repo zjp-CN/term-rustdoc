@@ -1,16 +1,17 @@
 use crate::{shot, snap, INTEGRATION};
 use similar_asserts::assert_eq;
-use term_rustdoc::tree::{CrateDoc, IDMap, Show, TreeLines};
+use term_rustdoc::tree::{CrateDoc, Show, TreeLines};
 
 #[test]
 fn parse_module() {
     let doc = &INTEGRATION.doc;
     let (treelines, empty) = TreeLines::new(CrateDoc::new(doc.clone()));
-    let dmod = treelines.modules_tree();
+    let doc = treelines.doc();
+    let dmod = doc.dmodule();
     snap!("DModule", dmod);
     shot!("show-id", dmod.show());
 
-    let idmap = IDMap::new(doc);
+    let idmap = doc.idmap();
     let tree = dmod.show_prettier(&idmap);
     let display = tree.to_string();
     shot!("show-prettier", display);
@@ -20,7 +21,6 @@ fn parse_module() {
     snap!("flatten-tree", treelines.all_lines());
     shot!("empty-tree-with-same-depth", empty);
 
-    let dmod = treelines.modules_tree();
     snap!(dmod.current_items_counts(), @r###"
     ItemCount {
         modules: 1,

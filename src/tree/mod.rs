@@ -22,31 +22,43 @@ pub use stats::{ImplCount, ImplCounts, ImplKind, ItemCount};
 pub use tag::Tag;
 pub use textline::{Text, TextTag, TreeLine, TreeLines};
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct CrateDoc {
-    pub doc: Rc<Crate>,
+    doc: Rc<Inner>,
+}
+
+struct Inner {
+    krate: Crate,
+    dmod: DModule,
 }
 
 impl CrateDoc {
     pub fn new(doc: Crate) -> CrateDoc {
-        CrateDoc { doc: Rc::new(doc) }
+        let dmod = DModule::new(&doc);
+        CrateDoc {
+            doc: Rc::new(Inner { krate: doc, dmod }),
+        }
     }
 
-    pub fn dmodule_idmap(&self) -> (DModule, IDMap<'_>) {
-        (DModule::new(&self.doc), IDMap::new(&self.doc))
+    pub fn dmodule(&self) -> &DModule {
+        &self.doc.dmod
     }
 
     pub fn idmap(&self) -> IDMap {
-        IDMap::new(&self.doc)
+        IDMap::new(&self.doc.krate)
+    }
+
+    pub fn doc(&self) -> &Crate {
+        &self.doc.krate
     }
 }
 
-impl Default for CrateDoc {
+impl Default for Inner {
     fn default() -> Self {
         let (crate_version, includes_private, index, paths, external_crates, format_version) =
             Default::default();
-        CrateDoc {
-            doc: Rc::new(Crate {
+        Inner {
+            krate: Crate {
                 root: rustdoc_types::Id(String::new()),
                 crate_version,
                 includes_private,
@@ -54,7 +66,8 @@ impl Default for CrateDoc {
                 paths,
                 external_crates,
                 format_version,
-            }),
+            },
+            dmod: DModule::default(),
         }
     }
 }

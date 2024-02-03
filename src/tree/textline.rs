@@ -1,6 +1,6 @@
 use self::fold::Fold;
 use crate::{
-    tree::{DModule, DocTree, Show, Tag},
+    tree::{DocTree, Show, Tag},
     util::XString,
 };
 use ratatui::style::{Color, Style};
@@ -131,18 +131,15 @@ impl TreeLine {
 
 /// Outline tree for crate's public items with support of various folding.
 pub struct TreeLines {
-    pub krate: CrateDoc,
+    doc: CrateDoc,
     lines: Rc<[TreeLine]>,
-    pub tree: Rc<DModule>,
     fold: Option<Fold>,
 }
 
 impl TreeLines {
     /// This also returns an identical ZST tree as the outline layout and tree glyph.
-    pub fn new(krate: CrateDoc) -> (Self, Tree<Empty>) {
-        let (dmod, idmap) = krate.dmodule_idmap();
-        let doc_tree = dmod.show_prettier(&idmap);
-        let dmod_tree = Rc::new(dmod);
+    pub fn new(doc: CrateDoc) -> (Self, Tree<Empty>) {
+        let doc_tree = doc.dmodule().show_prettier(&doc.idmap());
         let (mut lines, layout) = TreeLine::flatten(doc_tree);
         let tree_glyph = glyph(&layout);
 
@@ -159,9 +156,8 @@ impl TreeLines {
 
         (
             TreeLines {
-                krate,
+                doc,
                 lines: lines.into(),
-                tree: dmod_tree,
                 fold: None,
             },
             layout,
@@ -195,32 +191,24 @@ impl TreeLines {
         buf
     }
 
-    pub fn modules_tree(&self) -> Rc<DModule> {
-        self.tree.clone()
+    pub fn doc(&self) -> CrateDoc {
+        self.doc.clone()
     }
 }
 
-/// NOTE: `TreeLines` derefs to slices to be shown, so
-/// if folding is set, derefs to incomplete `&[TreeLine]`;
-/// if no item is satisfied in fold filtering, derefs to complete `&[TreeLine]`;
-/// otherwise, derefs to complete `&[TreeLine]`
 impl std::ops::Deref for TreeLines {
     type Target = [TreeLine];
 
     fn deref(&self) -> &Self::Target {
-        self.fold
-            .as_ref()
-            .and_then(Fold::lines)
-            .unwrap_or(&self.lines)
+        &self.lines
     }
 }
 
 impl Default for TreeLines {
     fn default() -> Self {
         TreeLines {
-            krate: CrateDoc::default(),
+            doc: CrateDoc::default(),
             lines: Rc::new([]),
-            tree: Rc::new(DModule::default()),
             fold: None,
         }
     }

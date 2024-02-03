@@ -1,6 +1,6 @@
 ---
 source: tests/parse-json-docs/parse.rs
-expression: tree
+expression: display
 ---
 integration
 ├── [Mod] integration::submod1
@@ -16,43 +16,43 @@ integration
 │           │   └── [variant] C
 │           └── Implementations
 │               ├── Inherent Impls
-│               │   └── [inhrt] 0:15
+│               │   └── 0:15
 │               ├── Trait Impls
-│               │   └── [trait] AUnitEnum: Debug
+│               │   └── AUnitEnum: Debug
 │               ├── Auto Impls
-│               │   ├── [auto] AUnitEnum: Sync
-│               │   ├── [auto] AUnitEnum: UnwindSafe
-│               │   ├── [auto] AUnitEnum: Unpin
-│               │   ├── [auto] AUnitEnum: Send
-│               │   └── [auto] AUnitEnum: RefUnwindSafe
+│               │   ├── AUnitEnum: Sync
+│               │   ├── AUnitEnum: UnwindSafe
+│               │   ├── AUnitEnum: Unpin
+│               │   ├── AUnitEnum: Send
+│               │   └── AUnitEnum: RefUnwindSafe
 │               └── Blanket Impls
-│                   ├── [blkt] T: TryInto<U>
-│                   ├── [blkt] T: Any
-│                   ├── [blkt] T: BorrowMut<T>
-│                   ├── [blkt] T: TryFrom<U>
-│                   ├── [blkt] T: From<T>
-│                   ├── [blkt] T: Into<U>
-│                   └── [blkt] T: Borrow<T>
+│                   ├── T: TryInto<U>
+│                   ├── T: Any
+│                   ├── T: BorrowMut<T>
+│                   ├── T: TryFrom<U>
+│                   ├── T: From<T>
+│                   ├── T: Into<U>
+│                   └── T: Borrow<T>
 ├── Structs
 │   ├── [Struct] integration::AUnitStruct
 │   │   ├── No Fields!
 │   │   └── Implementations
 │   │       ├── Trait Impls
-│   │       │   └── [trait] AUnitStruct: ATrait
+│   │       │   └── AUnitStruct: ATrait
 │   │       ├── Auto Impls
-│   │       │   ├── [auto] AUnitStruct: Sync
-│   │       │   ├── [auto] AUnitStruct: UnwindSafe
-│   │       │   ├── [auto] AUnitStruct: Unpin
-│   │       │   ├── [auto] AUnitStruct: Send
-│   │       │   └── [auto] AUnitStruct: RefUnwindSafe
+│   │       │   ├── AUnitStruct: Sync
+│   │       │   ├── AUnitStruct: UnwindSafe
+│   │       │   ├── AUnitStruct: Unpin
+│   │       │   ├── AUnitStruct: Send
+│   │       │   └── AUnitStruct: RefUnwindSafe
 │   │       └── Blanket Impls
-│   │           ├── [blkt] T: TryInto<U>
-│   │           ├── [blkt] T: Any
-│   │           ├── [blkt] T: BorrowMut<T>
-│   │           ├── [blkt] T: TryFrom<U>
-│   │           ├── [blkt] T: From<T>
-│   │           ├── [blkt] T: Into<U>
-│   │           └── [blkt] T: Borrow<T>
+│   │           ├── T: TryInto<U>
+│   │           ├── T: Any
+│   │           ├── T: BorrowMut<T>
+│   │           ├── T: TryFrom<U>
+│   │           ├── T: From<T>
+│   │           ├── T: Into<U>
+│   │           └── T: Borrow<T>
 │   └── [Struct] integration::FieldsNamedStruct
 │       ├── Fields
 │       │   ├── [field] field1
@@ -61,23 +61,23 @@ integration
 │       │   └── /* private fields */
 │       └── Implementations
 │           ├── Inherent Impls
-│           │   └── [inhrt] 0:22
+│           │   └── 0:22
 │           ├── Trait Impls
-│           │   └── [trait] FieldsNamedStruct: Default
+│           │   └── FieldsNamedStruct: Default
 │           ├── Auto Impls
-│           │   ├── [auto] FieldsNamedStruct: Sync
-│           │   ├── [auto] FieldsNamedStruct: UnwindSafe
-│           │   ├── [auto] FieldsNamedStruct: Unpin
-│           │   ├── [auto] FieldsNamedStruct: Send
-│           │   └── [auto] FieldsNamedStruct: RefUnwindSafe
+│           │   ├── FieldsNamedStruct: Sync
+│           │   ├── FieldsNamedStruct: UnwindSafe
+│           │   ├── FieldsNamedStruct: Unpin
+│           │   ├── FieldsNamedStruct: Send
+│           │   └── FieldsNamedStruct: RefUnwindSafe
 │           └── Blanket Impls
-│               ├── [blkt] T: TryInto<U>
-│               ├── [blkt] T: Any
-│               ├── [blkt] T: BorrowMut<T>
-│               ├── [blkt] T: TryFrom<U>
-│               ├── [blkt] T: From<T>
-│               ├── [blkt] T: Into<U>
-│               └── [blkt] T: Borrow<T>
+│               ├── T: TryInto<U>
+│               ├── T: Any
+│               ├── T: BorrowMut<T>
+│               ├── T: TryFrom<U>
+│               ├── T: From<T>
+│               ├── T: Into<U>
+│               └── T: Borrow<T>
 ├── Traits
 │   └── [Trait] integration::ATrait
 │       └── Implementors

@@ -1,6 +1,6 @@
 ---
 source: tests/parse-json-docs/parse.rs
-expression: flatten_tree
+expression: treelines.all_lines()
 ---
 [
     TreeLine {
@@ -64,7 +64,7 @@ expression: flatten_tree
         name.text: "C",
     },
     TreeLine {
-        tag: Unknown,
+        tag: Implementations,
         level: 4,
         name.text: "Implementations",
     },
@@ -174,7 +174,7 @@ expression: flatten_tree
         name.text: "No Fields!",
     },
     TreeLine {
-        tag: Unknown,
+        tag: Implementations,
         level: 3,
         name.text: "Implementations",
     },
@@ -289,7 +289,7 @@ expression: flatten_tree
         name.text: "/* private fields */",
     },
     TreeLine {
-        tag: Unknown,
+        tag: Implementations,
         level: 3,
         name.text: "Implementations",
     },

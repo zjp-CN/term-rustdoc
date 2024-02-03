@@ -5,17 +5,16 @@ use rustdoc_types::{
 };
 use std::{borrow::Borrow, cell::RefCell, collections::HashMap};
 
-// NOTE: potentially small improvements on id by using CompactString,
-// but this requires the HashMaps to be indexed by other id types:
-// * IndexMap<CompactString, Value, FxHash> can improve the hashing speed and
-//   get the value from multiple type keys via Equivalent trait
-// * so does the tiny improvement really matter?
-// #[repr(transparent)]
-// pub struct ID {
-//     pub id: XString,
-// }
-pub type ID = String;
+/// basic impls for ID
+mod impls;
+
 pub type IDs = Box<[ID]>;
+
+#[derive(Clone, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(transparent)]
+pub struct ID {
+    pub id: XString,
+}
 
 pub trait IdToID: Sized {
     fn to_ID(&self) -> ID;
@@ -24,31 +23,35 @@ pub trait IdToID: Sized {
 
 impl IdToID for Id {
     fn to_ID(&self) -> ID {
-        self.0.clone()
+        self.0.to_ID()
     }
 
     fn into_ID(self) -> ID {
-        self.0
+        String::into_ID(self.0)
     }
 }
 
 impl IdToID for String {
     fn to_ID(&self) -> ID {
-        self.clone()
+        ID {
+            id: self.as_str().into(),
+        }
     }
 
     fn into_ID(self) -> ID {
-        self
+        ID {
+            id: XString::from_string_buffer(self),
+        }
     }
 }
 
 impl IdToID for &str {
     fn to_ID(&self) -> ID {
-        (*self).to_owned()
+        ID::new(self)
     }
 
     fn into_ID(self) -> ID {
-        self.to_owned()
+        ID::new(self)
     }
 }
 

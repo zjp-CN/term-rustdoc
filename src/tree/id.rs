@@ -94,13 +94,15 @@ pub struct IDMap {
 }
 
 impl IDMap {
-    pub fn new(doc: Crate) -> IDMap {
-        let dmod = DModule::new(&doc);
-        IDMap {
-            krate: doc,
-            dmod,
+    pub fn new(krate: Crate) -> IDMap {
+        let mut map = IDMap {
+            krate,
+            // placeholder for DModule: we'll construct it at once
+            dmod: DModule::default(),
             id_buffer: RefCell::new(String::with_capacity(24)),
-        }
+        };
+        map.dmod = DModule::new(&map);
+        map
     }
 
     pub fn dmodule(&self) -> &DModule {

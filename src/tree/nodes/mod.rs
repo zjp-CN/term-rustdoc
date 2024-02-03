@@ -49,10 +49,10 @@ pub struct DModule {
 }
 
 impl DModule {
-    pub fn new(doc: &Crate) -> Self {
+    pub fn new(map: &IDMap) -> Self {
         // root module/crate name
-        let (id, root) = doc
-            .index
+        let index = map.indexmap();
+        let (id, root) = index
             .iter()
             .find_map(|(id, item)| {
                 if item.crate_id == 0 {
@@ -68,7 +68,9 @@ impl DModule {
                 None
             })
             .expect("root module not found");
-        Self::new_inner(id, root, &doc.index)
+        let mut dmod = Self::new_inner(id, root, index);
+        dmod.sort_by_name(map);
+        dmod
     }
 
     fn new_inner(id: ID, inner_items: &[Id], index: &IndexMap) -> Self {
@@ -139,6 +141,7 @@ impl Show for DModule {
 }
 
 impl DModule {
+    /// The main tree view as public items in module tree.
     pub fn item_tree(&self, map: &IDMap) -> DocTree {
         node!(Module: map, &self.id).with_leaves(
             self.modules.iter().map(|m| m.item_tree(map))
@@ -148,6 +151,13 @@ impl DModule {
                 }))
             )+
         )
+    }
+
+    /// sort items in their item types by name
+    fn sort_by_name(&mut self, map: &IDMap) {
+        self.modules.sort_unstable_by(|a, b| map.name(&a.id).cmp(&map.name(&b.id)));
+        self.modules.iter_mut().for_each(|m| m.sort_by_name(map));
+        $(self.$field.sort_unstable_by(|a, b| map.name(&a.id).cmp(&map.name(&b.id)));)+
     }
 }
     };

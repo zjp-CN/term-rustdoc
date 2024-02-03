@@ -1,8 +1,8 @@
 # Roadmap
 
 - [ ] item outline
-  - [ ] folding by level
   - [ ] folding by item type
+  - [ ] folding by features
 - [ ] doc content
   - [ ] text wrapping
   - [ ] syntax highlighting in codeblocks
@@ -22,6 +22,7 @@
     - [ ] on concrete types
     - [ ] on generic types
     - [ ] on trait bounds
+  - [ ] by crate features
 
 # Misc/Basics
 

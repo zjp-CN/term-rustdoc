@@ -1,4 +1,4 @@
-use super::DModule;
+use super::{DModule, DocTree, Show};
 use crate::util::{xformat, CompactStringExt, XString};
 use rustdoc_types::{
     Crate, GenericArg, GenericArgs, Id, Item, ItemEnum, ItemKind, ItemSummary, Path, Type,
@@ -85,6 +85,8 @@ impl<T: IdAsStr> IdAsStr for &T {
     }
 }
 
+/// This is usually used behind a shared reference.
+/// For owned version, use [`CrateDoc`][super::CrateDoc] instead.
 pub struct IDMap {
     krate: Crate,
     dmod: DModule,
@@ -105,7 +107,7 @@ impl IDMap {
         &self.dmod
     }
 
-    pub fn doc(&self) -> &Crate {
+    pub fn raw_crate_doc(&self) -> &Crate {
         &self.krate
     }
 }
@@ -146,7 +148,7 @@ impl IDMap {
         let id = Id(buf);
         let val = f(&id);
 
-        // put the buffer back to be used next time
+        // put the buffer back to use next time
         self.id_buffer.replace(id.0);
 
         val
@@ -158,6 +160,20 @@ impl IDMap {
 
     pub fn pathmap(&self) -> &PathMap {
         &self.krate.paths
+    }
+}
+
+/// DModule related.
+impl IDMap {
+    pub fn dmodule_show_prettier(&self) -> DocTree {
+        self.dmod.show_prettier(self)
+    }
+}
+
+// Documentation on an item.
+impl IDMap {
+    pub fn get_doc(&self, id: &str) -> Option<&str> {
+        self.get_item(id).and_then(|item| item.docs.as_deref())
     }
 }
 

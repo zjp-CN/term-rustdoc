@@ -1,7 +1,6 @@
 use super::Scrollable;
 use crate::Result;
-use rustdoc_types::Id;
-use std::{cell::RefCell, fmt, ops::Deref};
+use std::{fmt, ops::Deref};
 use term_rustdoc::tree::{CrateDoc, Text as StyledText};
 
 mod parse;
@@ -26,7 +25,6 @@ impl Deref for StyledLine {
 pub struct StyledLines {
     lines: Vec<StyledLine>,
     doc: Option<CrateDoc>,
-    idbuf: RefCell<String>,
 }
 
 impl fmt::Debug for StyledLines {
@@ -53,25 +51,10 @@ impl StyledLines {
         }
     }
 
-    fn get<T>(&self, id: &str, f: impl FnOnce(&Id) -> T) -> T {
-        let mut idbuf = self.idbuf.take();
-        idbuf.clear();
-        idbuf.push_str(id);
-        let id = Id(idbuf);
-        let res = f(&id);
-        self.idbuf.replace(id.0);
-        res
-    }
-
     /// only returns true if a new doc is fetched
     pub fn update_doc(&mut self, id: &str) -> bool {
         if let Some(doc) = &self.doc {
-            if let Some(doc) = self.get(id, |id| {
-                doc.doc()
-                    .index
-                    .get(id)
-                    .and_then(|item| item.docs.as_deref())
-            }) {
+            if let Some(doc) = doc.get_doc(id) {
                 self.lines = parse::md(doc);
                 return true;
             }

@@ -10,7 +10,7 @@ mod tag;
 mod textline;
 
 use rustdoc_types::Crate;
-use std::rc::Rc;
+use std::{ops::Deref, rc::Rc};
 
 pub use id::{IDMap, IDs, IdAsStr, IdToID, IndexMap, PathMap, SliceToIds, ID};
 pub use impls::show::{DocTree, Show};
@@ -22,6 +22,10 @@ pub use stats::{ImplCount, ImplCounts, ImplKind, ItemCount};
 pub use tag::Tag;
 pub use textline::{Text, TextTag, TreeLine, TreeLines};
 
+/// This should be the main data structure to refer to documentation
+/// and the items tree structure in public modules.
+///
+/// It's cheap to clone and use a ID buffer to avoid the cost of generating a new string in query.
 #[derive(Clone, Default)]
 pub struct CrateDoc {
     inner: Rc<IDMap>,
@@ -33,20 +37,12 @@ impl CrateDoc {
             inner: Rc::new(IDMap::new(doc)),
         }
     }
+}
 
-    pub fn doc(&self) -> &Crate {
-        self.inner.doc()
-    }
+impl Deref for CrateDoc {
+    type Target = IDMap;
 
-    pub fn dmodule(&self) -> &DModule {
-        self.inner.dmodule()
-    }
-
-    pub fn idmap(&self) -> &IDMap {
+    fn deref(&self) -> &Self::Target {
         &self.inner
-    }
-
-    pub fn dmodule_show_prettier(&self) -> DocTree {
-        self.dmodule().show_prettier(&self.inner)
     }
 }

@@ -14,7 +14,6 @@ pub struct ItemCount {
     pub constants: u32,
     pub statics: u32,
     pub type_alias: u32,
-    pub imports: u32,
     pub macros_decl: u32,
     pub macros_func: u32,
     pub macros_attr: u32,
@@ -31,10 +30,10 @@ impl DModule {
                     .expect("the count exceeds the maximum of u32");
             )+ };
         }
-        len!(self . modules structs unions enums functions traits constants statics type_alias imports macros_decl macros_func macros_attr macros_derv);
+        len!(self . modules structs unions enums functions traits constants statics type_alias macros_decl macros_func macros_attr macros_derv);
         ItemCount {
             modules, structs, unions, enums, functions, traits, constants, statics,
-            type_alias, imports, macros_decl, macros_func, macros_attr, macros_derv,
+            type_alias, macros_decl, macros_func, macros_attr, macros_derv,
         }
     }
 

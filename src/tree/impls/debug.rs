@@ -31,7 +31,7 @@ impl Debug for DModule {
         base.field("id", &self.id);
         skip_fmt!(
             base, self . modules structs unions enums
-            functions traits constants statics type_alias imports
+            functions traits constants statics type_alias
             macros_decl macros_func macros_attr macros_derv
         );
         base.finish()
@@ -90,7 +90,7 @@ impl Debug for ItemCount {
         let mut base = f.debug_struct("ItemCount");
         skip_fmt!(
             0: base, self . modules structs unions enums functions
-            traits constants statics type_alias imports
+            traits constants statics type_alias
             macros_decl macros_func macros_attr macros_derv
         );
         base.finish()

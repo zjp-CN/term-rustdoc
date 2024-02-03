@@ -42,7 +42,6 @@ pub struct DModule {
     pub constants: Vec<DConstant>,
     pub statics: Vec<DStatic>,
     pub type_alias: Vec<DTypeAlias>,
-    pub imports: Vec<()>,
     pub macros_decl: Vec<DMacroDecl>,
     pub macros_func: Vec<DMacroFunc>,
     pub macros_attr: Vec<DMacroAttr>,
@@ -109,6 +108,7 @@ impl DModule {
                 MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
                 MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
             },
+            Import(import) => imports::parse_import(id, import, index, self),
             // Primitive(_) => todo!(),
             _ => (),
         }

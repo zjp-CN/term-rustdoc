@@ -20,7 +20,6 @@ impl Add for ItemCount {
             constants: self.constants + rhs.constants,
             statics: self.statics + rhs.statics,
             type_alias: self.type_alias + rhs.type_alias,
-            imports: self.imports + rhs.imports,
             macros_decl: self.macros_decl + rhs.macros_decl,
             macros_func: self.macros_func + rhs.macros_func,
             macros_attr: self.macros_attr + rhs.macros_attr,
@@ -86,7 +85,6 @@ impl AddAssign for ItemCount {
         self.constants += rhs.constants;
         self.statics += rhs.statics;
         self.type_alias += rhs.type_alias;
-        self.imports += rhs.imports;
         self.macros_decl += rhs.macros_decl;
         self.macros_func += rhs.macros_func;
         self.macros_attr += rhs.macros_attr;

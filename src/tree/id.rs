@@ -179,7 +179,24 @@ impl IDMap {
 // Documentation on an item.
 impl IDMap {
     pub fn get_doc(&self, id: &str) -> Option<&str> {
-        self.get_item(id).and_then(|item| item.docs.as_deref())
+        self.get_item(id).and_then(|item| match &item.inner {
+            ItemEnum::Import(item) => {
+                if let Some(inner_id) = item.id.as_ref() {
+                    if let Some(reexport_item) = self.get_item(&inner_id.0) {
+                        if matches!(reexport_item.inner, ItemEnum::Import(_)) {
+                            error!(
+                                "Reexport item with Id({id}) shouldn't \
+                                 recursively contains another Import.\n{item:?} "
+                            );
+                        } else {
+                            return reexport_item.docs.as_deref();
+                        }
+                    }
+                }
+                None
+            }
+            _ => item.docs.as_deref(),
+        })
     }
 }
 
@@ -233,6 +250,7 @@ fn item_name(item: &Item) -> Option<XString> {
             let trait_ = item.trait_.as_ref().and_then(resolved_path_name)?;
             Some(xformat!("{implementor}: {trait_}"))
         }
+        ItemEnum::Import(item) => Some(item.name.as_str().into()),
         _ => None,
     }
 }

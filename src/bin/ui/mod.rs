@@ -107,6 +107,10 @@ impl Page {
             return;
         }
 
+        self.update_area_inner(full);
+    }
+
+    fn update_area_inner(&mut self, full: Rect) {
         // layout
         self.area = full;
         let layout = self.layout().split(full);
@@ -143,6 +147,17 @@ impl Page {
 
         self.content.display.area = content_area;
         // self.content.display.cursor = content_area.y;
+    }
+}
+
+impl Page {
+    pub fn outline_fold(&mut self) {
+        let outline = self.outline();
+        if let Some(id) = outline.get_id() {
+            outline.lines.expand_current_module_only(id.into());
+            outline.update_maxwidth();
+            self.update_area_inner(self.area);
+        }
     }
 }
 

@@ -19,11 +19,11 @@ macro_rules! current {
 
 /// Scrolling
 impl Page {
-    fn outline(&mut self) -> &mut ScrollTreeLines {
+    pub(super) fn outline(&mut self) -> &mut ScrollTreeLines {
         &mut self.outline.display
     }
 
-    fn content(&mut self) -> &mut ScrollText {
+    pub(super) fn content(&mut self) -> &mut ScrollText {
         &mut self.content.display
     }
 

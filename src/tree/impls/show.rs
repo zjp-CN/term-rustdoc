@@ -17,11 +17,13 @@ macro_rules! icon {
     ($s:literal) => {
         ::termtree::GlyphPalette {
             item_indent: ::constcat::concat!("── ", $s, " "),
-            middle_item: "├",
-            last_item: "└",
-            middle_skip: "│",
-            last_skip: " ",
-            skip_indent: "   ",
+            ..Default::default()
+        }
+    };
+    (@fold $s:literal) => {
+        ::termtree::GlyphPalette {
+            item_indent: ::constcat::concat!("─➤ ", $s, " "),
+            ..Default::default()
         }
     };
 }
@@ -73,6 +75,7 @@ impl Show for str {
     }
 }
 
+/// @name is for short name; no @ is for name with absolute path
 macro_rules! node {
     // map.path(&self.id, ItemKind::Struct)
     ($tag:ident : $map:ident, $id:expr) => {

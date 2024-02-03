@@ -62,7 +62,7 @@ impl<Lines: Default> Default for Scrollable<Lines> {
 
 impl<Lines: Default + Deref<Target = [TreeLine]>> Scrollable<Lines> {
     pub fn new(lines: Lines) -> Result<Self> {
-        let w = lines.as_ref().iter().map(TreeLine::width).max();
+        let w = lines.iter().map(TreeLine::width).max();
         let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
 
         Ok(Self {
@@ -78,6 +78,10 @@ impl<Lines: Default + Deref<Target = [TreeLine]>> Scrollable<Lines> {
         self.lines()
             .get(self.cursor as usize + self.start)
             .and_then(|l| l.id.as_deref())
+    }
+
+    pub fn update_maxwidth(&mut self) {
+        self.max_windth = self.lines.iter().map(TreeLine::width).max().unwrap();
     }
 }
 

@@ -5,6 +5,7 @@ use termtree::GlyphPalette;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Tag {
     Module,
+    ModuleFolded,
     Struct,
     Union,
     Enum,
@@ -83,6 +84,8 @@ impl Tag {
         // fg(159, 234, 115), // #9FEA73
         // fg(Rgb(177, 84, 5)),     // #B15405
         match self {
+            Tag::ModuleFolded => bufg(213, 245, 85), // #D5F555
+
             Tag::Module => bfg(213, 245, 85),     // #D5F555
             Tag::Structs => bfg(60, 148, 165),    // #3C94A5
             Tag::Struct => bufg(60, 148, 165),    // #3C94A5
@@ -133,8 +136,8 @@ impl Tag {
     }
 
     pub fn glyph(self) -> GlyphPalette {
-        // return Default::default();
         match self {
+            Tag::ModuleFolded => icon!(@fold "[Mod]"),
             Tag::Module => icon!("[Mod]"),
             Tag::Struct => icon!("[Struct]"),
             Tag::Union => icon!("[Union]"),

@@ -159,6 +159,18 @@ impl DModule {
         self.modules.iter_mut().for_each(|m| m.sort_by_name(map));
         $(self.$field.sort_unstable_by(|a, b| map.name(&a.id).cmp(&map.name(&b.id)));)+
     }
+
+    /// NOTE: this method doesn't include nested modules; only returns one-level items with mod root.
+    pub fn item_tree_only_in_one_specified_mod(&self, map: &IDMap) -> DocTree {
+        node!(Module: map, &self.id).with_leaves(
+            std::iter::empty()
+            $(
+                .chain(self.$field.iter().map(|item| {
+                    node!(@name $tag : map, &item.id)
+                }))
+            )+
+        )
+    }
 }
     };
     (@show $field:ident $node:ident $fty:ident $self:ident $map:ident) => {

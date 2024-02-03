@@ -1,6 +1,6 @@
 use self::fold::Fold;
 use crate::{
-    tree::{DocTree, Tag},
+    tree::{CrateDoc, DocTree, Tag},
     util::XString,
 };
 use ratatui::style::{Color, Style};
@@ -10,8 +10,6 @@ use std::{
 };
 use termtree::Tree;
 use unicode_width::UnicodeWidthStr;
-
-use super::CrateDoc;
 
 mod fold;
 
@@ -133,32 +131,20 @@ impl TreeLine {
 pub struct TreeLines {
     doc: CrateDoc,
     lines: Rc<[TreeLine]>,
-    fold: Option<Fold>,
+    fold: Fold,
 }
 
 impl TreeLines {
     /// This also returns an identical ZST tree as the outline layout and tree glyph.
     pub fn new_with(doc: CrateDoc, init: impl FnOnce(&CrateDoc) -> DocTree) -> (Self, Tree<Empty>) {
-        let doc_tree = init(&doc);
-        let (mut lines, layout) = TreeLine::flatten(doc_tree);
-        let tree_glyph = glyph(&layout);
-
-        let (len_nodes, len_glyph) = (lines.len(), tree_glyph.len());
-        assert_eq!(
-            len_nodes, len_glyph,
-            "the amount of nodes is {len_nodes}, but that of glyph is {len_glyph}"
-        );
-
-        lines
-            .iter_mut()
-            .zip(tree_glyph)
-            .for_each(|(l, g)| l.set_glyph(g));
+        let doctree = init(&doc);
+        let (lines, layout) = doctree.cache_lines();
 
         (
             TreeLines {
                 doc,
-                lines: lines.into(),
-                fold: None,
+                lines,
+                fold: Fold::default(),
             },
             layout,
         )
@@ -202,6 +188,25 @@ impl TreeLines {
     }
 }
 
+impl DocTree {
+    fn cache_lines(self) -> (Rc<[TreeLine]>, Tree<Empty>) {
+        let (mut lines, layout) = TreeLine::flatten(self);
+        let tree_glyph = glyph(&layout);
+
+        let (len_nodes, len_glyph) = (lines.len(), tree_glyph.len());
+        assert_eq!(
+            len_nodes, len_glyph,
+            "the amount of nodes is {len_nodes}, but that of glyph is {len_glyph}"
+        );
+
+        lines
+            .iter_mut()
+            .zip(tree_glyph)
+            .for_each(|(l, g)| l.set_glyph(g));
+        (lines.into(), layout)
+    }
+}
+
 impl std::ops::Deref for TreeLines {
     type Target = [TreeLine];
 
@@ -215,7 +220,7 @@ impl Default for TreeLines {
         TreeLines {
             doc: CrateDoc::default(),
             lines: Rc::new([]),
-            fold: None,
+            fold: Fold::default(),
         }
     }
 }
@@ -230,6 +235,12 @@ impl fmt::Display for Empty {
     }
 }
 
+/// Since the text is written into `flatten` vec, and glyph into `Tree<Empty>`,
+/// you need to write the glyph back into `flatten` vec.
+///
+/// This is because to generate the whole tree's stripe glyph without node text,
+/// we only have to know the whole tree structure. (Actually, it's possible to
+/// write our own glyph generation version based on levels :)
 fn empty_tree_and_flatten(
     leaves: Vec<Tree<TextTag>>,
     level: &mut u8,

@@ -1,4 +1,5 @@
 #![feature(iter_intersperse)]
+#![allow(unused)]
 
 #[macro_use]
 extern crate tracing;

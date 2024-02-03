@@ -1,5 +1,5 @@
 use crate::{
-    tree::{IDMap, IdAsStr, Tag, TextTag, TreeLines, ID},
+    tree::{IDMap, IdAsStr, Tag, TextTag, ID},
     util::XString,
 };
 use std::fmt;

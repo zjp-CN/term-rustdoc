@@ -139,7 +139,7 @@ pub struct TreeLines {
 impl TreeLines {
     /// This also returns an identical ZST tree as the outline layout and tree glyph.
     pub fn new(doc: CrateDoc) -> (Self, Tree<Empty>) {
-        let doc_tree = doc.dmodule().show_prettier(&doc.idmap());
+        let doc_tree = doc.dmodule_show_prettier();
         let (mut lines, layout) = TreeLine::flatten(doc_tree);
         let tree_glyph = glyph(&layout);
 

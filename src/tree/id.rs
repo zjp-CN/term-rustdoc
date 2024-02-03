@@ -1,3 +1,4 @@
+use super::DModule;
 use crate::util::{xformat, CompactStringExt, XString};
 use rustdoc_types::{
     Crate, GenericArg, GenericArgs, Id, Item, ItemEnum, ItemKind, ItemSummary, Path, Type,
@@ -84,27 +85,58 @@ impl<T: IdAsStr> IdAsStr for &T {
     }
 }
 
+pub struct IDMap {
+    krate: Crate,
+    dmod: DModule,
+    id_buffer: RefCell<String>,
+}
+
+impl IDMap {
+    pub fn new(doc: Crate) -> IDMap {
+        let dmod = DModule::new(&doc);
+        IDMap {
+            krate: doc,
+            dmod,
+            id_buffer: RefCell::new(String::with_capacity(24)),
+        }
+    }
+
+    pub fn dmodule(&self) -> &DModule {
+        &self.dmod
+    }
+
+    pub fn doc(&self) -> &Crate {
+        &self.krate
+    }
+}
+
+impl Default for IDMap {
+    fn default() -> Self {
+        let (crate_version, includes_private, index, paths, external_crates, format_version) =
+            Default::default();
+        IDMap {
+            krate: Crate {
+                root: rustdoc_types::Id(String::new()),
+                crate_version,
+                includes_private,
+                index,
+                paths,
+                external_crates,
+                format_version,
+            },
+            dmod: DModule::default(),
+            id_buffer: RefCell::default(),
+        }
+    }
+}
+
 // Crate.index
 pub type IndexMap = HashMap<Id, Item>;
 // Crate.paths
 pub type PathMap = HashMap<Id, ItemSummary>;
 
-pub struct IDMap<'krate> {
-    pub index: &'krate IndexMap,
-    pub paths: &'krate PathMap,
-    id_buffer: RefCell<String>,
-}
-
-impl IDMap<'_> {
-    pub fn new(doc: &Crate) -> IDMap<'_> {
-        IDMap {
-            index: &doc.index,
-            paths: &doc.paths,
-            id_buffer: Default::default(),
-        }
-    }
-
-    /// Use [`rustdoc_types::Id`] in a buffered way in hot querys.
+impl IDMap {
+    /// Use  in a buffered way in hot querys.
     pub fn use_id<T>(&self, id: &str, f: impl FnOnce(&Id) -> T) -> T {
         // idbuf always serves as Id used in a query
         let mut buf = self.id_buffer.take();
@@ -119,12 +151,20 @@ impl IDMap<'_> {
 
         val
     }
+
+    pub fn indexmap(&self) -> &IndexMap {
+        &self.krate.index
+    }
+
+    pub fn pathmap(&self) -> &PathMap {
+        &self.krate.paths
+    }
 }
 
 /// Get the shortest item name only based on IndexMap.
-impl IDMap<'_> {
+impl IDMap {
     pub fn get_item(&self, id: &str) -> Option<&Item> {
-        self.use_id(id, |id| self.index.get(id))
+        self.use_id(id, |id| self.indexmap().get(id))
     }
 
     // fn use_item(&self, id: &Id, f: impl FnOnce(&Item) -> XString) -> Option<XString> {
@@ -228,9 +268,9 @@ fn generic_arg_name(arg: &GenericArg) -> Option<XString> {
 }
 
 /// Get the external item path only based on PathMap.
-impl IDMap<'_> {
+impl IDMap {
     pub fn get_path(&self, id: &str) -> Option<&ItemSummary> {
-        self.use_id(id, |id| self.paths.get(id))
+        self.use_id(id, |id| self.pathmap().get(id))
     }
 
     // fn use_path(&self, id: &Id, f: impl FnOnce(&ItemSummary) -> XString) -> Option<XString> {

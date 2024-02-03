@@ -24,50 +24,29 @@ pub use textline::{Text, TextTag, TreeLine, TreeLines};
 
 #[derive(Clone, Default)]
 pub struct CrateDoc {
-    doc: Rc<Inner>,
-}
-
-struct Inner {
-    krate: Crate,
-    dmod: DModule,
+    inner: Rc<IDMap>,
 }
 
 impl CrateDoc {
     pub fn new(doc: Crate) -> CrateDoc {
-        let dmod = DModule::new(&doc);
         CrateDoc {
-            doc: Rc::new(Inner { krate: doc, dmod }),
+            inner: Rc::new(IDMap::new(doc)),
         }
-    }
-
-    pub fn dmodule(&self) -> &DModule {
-        &self.doc.dmod
-    }
-
-    pub fn idmap(&self) -> IDMap {
-        IDMap::new(&self.doc.krate)
     }
 
     pub fn doc(&self) -> &Crate {
-        &self.doc.krate
+        self.inner.doc()
     }
-}
 
-impl Default for Inner {
-    fn default() -> Self {
-        let (crate_version, includes_private, index, paths, external_crates, format_version) =
-            Default::default();
-        Inner {
-            krate: Crate {
-                root: rustdoc_types::Id(String::new()),
-                crate_version,
-                includes_private,
-                index,
-                paths,
-                external_crates,
-                format_version,
-            },
-            dmod: DModule::default(),
-        }
+    pub fn dmodule(&self) -> &DModule {
+        self.inner.dmodule()
+    }
+
+    pub fn idmap(&self) -> &IDMap {
+        &self.inner
+    }
+
+    pub fn dmodule_show_prettier(&self) -> DocTree {
+        self.dmodule().show_prettier(&self.inner)
     }
 }

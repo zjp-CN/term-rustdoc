@@ -11,8 +11,7 @@ fn parse_module() {
     snap!("DModule", dmod);
     shot!("show-id", dmod.show());
 
-    let idmap = doc.idmap();
-    let tree = dmod.show_prettier(&idmap);
+    let tree = doc.dmodule_show_prettier();
     let display = tree.to_string();
     shot!("show-prettier", display);
 

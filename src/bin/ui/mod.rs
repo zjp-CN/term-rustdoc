@@ -17,6 +17,9 @@ pub fn render(_app: &mut App, page: &mut Page, f: &mut Frame) {
     f.render_widget(page, f.size());
 }
 
+const SET: Style = Style::new().bg(Color::Rgb(6, 0, 101)); // #060065
+const NEW: Style = Style::new();
+
 #[derive(Debug)]
 enum Component {
     Outline,
@@ -38,10 +41,7 @@ impl Page {
         let mut page = Page {
             outline: Outline {
                 display: Scrollable::new(outline)?,
-                border: Surround {
-                    block: Block::new().style(Style::new().fg(Color::Red)),
-                    ..Default::default()
-                },
+                ..Default::default()
             },
             content: Content {
                 display: ScrollText::new_text(doc)?,
@@ -77,8 +77,6 @@ impl Page {
                 Some(Component::$var)
             }};
         }
-        const SET: Style = Style::new().bg(Color::Rgb(0, 5, 18)); // #000551
-        const NEW: Style = Style::new();
         // Block area covers border and its inner
         self.current = if contain(x, y, self.outline.border.area) {
             set!(outline)
@@ -113,7 +111,11 @@ impl Page {
 
         // border
         self.outline.border = Surround {
-            block: Block::new().borders(Borders::empty()),
+            block: if matches!(self.current, None | Some(Component::Outline)) {
+                Block::new().style(SET)
+            } else {
+                Block::new()
+            },
             area: layout[0],
         };
         let outline_area = self.outline.border.inner();

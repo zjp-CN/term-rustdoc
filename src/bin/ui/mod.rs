@@ -47,6 +47,8 @@ impl Page {
                 display: ScrollText::new_text(doc)?,
                 ..Default::default()
             },
+            // page scrolling like HOME/END will check the current Component
+            current: Some(Component::Outline),
             ..Default::default()
         };
         info!(?page);

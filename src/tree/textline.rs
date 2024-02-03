@@ -1,6 +1,6 @@
 use self::fold::Fold;
 use crate::{
-    tree::{DocTree, Show, Tag},
+    tree::{DocTree, Tag},
     util::XString,
 };
 use ratatui::style::{Color, Style};

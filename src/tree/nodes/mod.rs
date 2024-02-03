@@ -20,7 +20,7 @@ use crate::tree::{
     impls::show::{DocTree, Show},
     IdToID, IndexMap, ID,
 };
-use rustdoc_types::{Crate, Id, Item, ItemEnum, MacroKind, Module};
+use rustdoc_types::{Id, Item, ItemEnum, MacroKind, Module};
 use std::ops::Not;
 
 /// Module tree with structural items.

@@ -1,5 +1,5 @@
-use super::{Rc, Tag, TreeLine, TreeLines};
-use crate::tree::{DocTree, ID};
+use super::TreeLines;
+use crate::tree::ID;
 
 /// how to fold the text tree
 enum Kind {

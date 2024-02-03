@@ -116,7 +116,7 @@ impl DModule {
 }
 
 macro_rules! impl_show {
-    ($( $field:ident => $node:ident => $fty:ident , )+ ) => {
+    ($( $field:ident => $tag:ident => $node:ident => $fty:ident , )+ ) => {
 /// To a recursive tree displayed with ids as nodes.
 impl Show for DModule {
     fn show(&self) -> DocTree {
@@ -137,6 +137,19 @@ impl Show for DModule {
         )
     }
 }
+
+impl DModule {
+    pub fn item_tree(&self, map: &IDMap) -> DocTree {
+        node!(Module: map, &self.id).with_leaves(
+            self.modules.iter().map(|m| m.item_tree(map))
+            $(
+                .chain(self.$field.iter().map(|item| {
+                    node!(@name $tag : map, &item.id)
+                }))
+            )+
+        )
+    }
+}
     };
     (@show $field:ident $node:ident $fty:ident $self:ident $map:ident) => {
         $self.$field.is_empty().not().then(|| {
@@ -151,18 +164,18 @@ impl Show for DModule {
 }
 
 impl_show! {
-    structs     => Structs    => DStruct,
-    unions      => Unions     => DUnion,
-    enums       => Enums      => DEnum,
-    traits      => Traits     => DTrait,
-    functions   => Functions  => DFunction,
-    constants   => Constants  => DConstant,
-    statics     => Statics    => DStatic,
-    type_alias  => TypeAliass => DTypeAlias,
-    macros_decl => MacroDecls => DMacroDecl,
-    macros_func => MacroFuncs => DMacroFunc,
-    macros_attr => MacroAttrs => DMacroAttr,
-    macros_derv => MacroDervs => DMacroDerv,
+    structs     => Struct    => Structs    => DStruct,
+    unions      => Union     => Unions     => DUnion,
+    enums       => Enum      => Enums      => DEnum,
+    traits      => Trait     => Traits     => DTrait,
+    functions   => Function  => Functions  => DFunction,
+    constants   => Constant  => Constants  => DConstant,
+    statics     => Static    => Statics    => DStatic,
+    type_alias  => TypeAlias => TypeAliass => DTypeAlias,
+    macros_decl => MacroDecl => MacroDecls => DMacroDecl,
+    macros_func => MacroFunc => MacroFuncs => DMacroFunc,
+    macros_attr => MacroAttr => MacroAttrs => DMacroAttr,
+    macros_derv => MacroDerv => MacroDervs => DMacroDerv,
 }
 
 /// generate id wrapper types for simple items

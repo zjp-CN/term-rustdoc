@@ -138,8 +138,8 @@ pub struct TreeLines {
 
 impl TreeLines {
     /// This also returns an identical ZST tree as the outline layout and tree glyph.
-    pub fn new(doc: CrateDoc) -> (Self, Tree<Empty>) {
-        let doc_tree = doc.dmodule_show_prettier();
+    pub fn new_with(doc: CrateDoc, init: impl FnOnce(&CrateDoc) -> DocTree) -> (Self, Tree<Empty>) {
+        let doc_tree = init(&doc);
         let (mut lines, layout) = TreeLine::flatten(doc_tree);
         let tree_glyph = glyph(&layout);
 
@@ -162,6 +162,12 @@ impl TreeLines {
             },
             layout,
         )
+    }
+
+    pub fn new(doc: CrateDoc) -> Self {
+        // item tree is more concise and convenient for user
+        // because it directly can offer item's doc
+        Self::new_with(doc, |doc| doc.dmodule().item_tree(doc)).0
     }
 
     pub fn all_lines(&self) -> &[TreeLine] {

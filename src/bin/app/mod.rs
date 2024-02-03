@@ -16,7 +16,7 @@ impl App {
     pub fn set_doc(&mut self) -> Result<TreeLines> {
         let doc = serde_json::from_reader(std::fs::File::open("target/deps/doc/tokio.json")?)?;
         let doc = CrateDoc::new(doc);
-        let outline = TreeLines::new(doc.clone()).0;
+        let outline = TreeLines::new(doc.clone());
         self.doc = Some(doc);
         Ok(outline)
     }

@@ -5,7 +5,9 @@ use term_rustdoc::tree::{CrateDoc, Show, TreeLines};
 #[test]
 fn parse_module() {
     let doc = &INTEGRATION.doc;
-    let (treelines, empty) = TreeLines::new(CrateDoc::new(doc.clone()));
+    let (treelines, empty) = TreeLines::new_with(CrateDoc::new(doc.clone()), |doc| {
+        doc.dmodule_show_prettier()
+    });
     let doc = treelines.doc();
     let dmod = doc.dmodule();
     snap!("DModule", dmod);
@@ -19,6 +21,9 @@ fn parse_module() {
     assert_eq!(expected: display, actual: display_new);
     snap!("flatten-tree", treelines.all_lines());
     shot!("empty-tree-with-same-depth", empty);
+
+    // item tree
+    shot!("item-tree", dmod.item_tree(&doc));
 
     snap!(dmod.current_items_counts(), @r###"
     ItemCount {

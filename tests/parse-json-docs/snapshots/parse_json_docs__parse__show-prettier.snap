@@ -5,6 +5,45 @@ expression: display
 integration
 ├── [Mod] integration::submod1
 │   ├── [Mod] integration::submod1::submod2
+│   │   ├── Structs
+│   │   │   ├── [Struct] 0:13-0:3:1774
+│   │   │   │   ├── No Fields!
+│   │   │   │   └── Implementations
+│   │   │   │       ├── Trait Impls
+│   │   │   │       │   └── AUnitStruct: ATrait
+│   │   │   │       ├── Auto Impls
+│   │   │   │       │   ├── AUnitStruct: Sync
+│   │   │   │       │   ├── AUnitStruct: UnwindSafe
+│   │   │   │       │   ├── AUnitStruct: Unpin
+│   │   │   │       │   ├── AUnitStruct: Send
+│   │   │   │       │   └── AUnitStruct: RefUnwindSafe
+│   │   │   │       └── Blanket Impls
+│   │   │   │           ├── T: TryInto<U>
+│   │   │   │           ├── T: Any
+│   │   │   │           ├── T: BorrowMut<T>
+│   │   │   │           ├── T: TryFrom<U>
+│   │   │   │           ├── T: From<T>
+│   │   │   │           ├── T: Into<U>
+│   │   │   │           └── T: Borrow<T>
+│   │   │   └── [Struct] 0:12-0:3:1774
+│   │   │       ├── No Fields!
+│   │   │       └── Implementations
+│   │   │           ├── Trait Impls
+│   │   │           │   └── AUnitStruct: ATrait
+│   │   │           ├── Auto Impls
+│   │   │           │   ├── AUnitStruct: Sync
+│   │   │           │   ├── AUnitStruct: UnwindSafe
+│   │   │           │   ├── AUnitStruct: Unpin
+│   │   │           │   ├── AUnitStruct: Send
+│   │   │           │   └── AUnitStruct: RefUnwindSafe
+│   │   │           └── Blanket Impls
+│   │   │               ├── T: TryInto<U>
+│   │   │               ├── T: Any
+│   │   │               ├── T: BorrowMut<T>
+│   │   │               ├── T: TryFrom<U>
+│   │   │               ├── T: From<T>
+│   │   │               ├── T: Into<U>
+│   │   │               └── T: Borrow<T>
 │   │   └── Traits
 │   │       └── [Trait] integration::submod1::submod2::ATraitNeverImplementedForTypes
 │   │           └── No Associated Items Or Implementors!
@@ -83,9 +122,9 @@ integration
 │       └── Implementors
 │           └── AUnitStruct: ATrait
 ├── Functions
-│   ├── [Fn] func_with_no_args
 │   ├── [Fn] func_with_1arg
-│   └── [Fn] func_with_1arg_and_ret
+│   ├── [Fn] func_with_1arg_and_ret
+│   └── [Fn] func_with_no_args
 ├── Constants
 │   ├── [Const] ACONSTANT
 │   └── [Const] ASTATIC

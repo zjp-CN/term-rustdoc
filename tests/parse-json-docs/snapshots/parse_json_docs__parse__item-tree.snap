@@ -5,14 +5,16 @@ expression: dmod.item_tree(&doc)
 integration
 ├── [Mod] integration::submod1
 │   ├── [Mod] integration::submod1::submod2
+│   │   ├── [Struct] AStructAlias
+│   │   ├── [Struct] AUnitStruct
 │   │   └── [Trait] ATraitNeverImplementedForTypes
 │   └── [Enum] AUnitEnum
 ├── [Struct] AUnitStruct
 ├── [Struct] FieldsNamedStruct
 ├── [Trait] ATrait
-├── [Fn] func_with_no_args
 ├── [Fn] func_with_1arg
 ├── [Fn] func_with_1arg_and_ret
+├── [Fn] func_with_no_args
 ├── [Const] ACONSTANT
 ├── [Const] ASTATIC
 └── [macro decl] a_decl_macro

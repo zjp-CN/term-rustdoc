@@ -17,7 +17,7 @@ pub fn render(_app: &mut App, page: &mut Page, f: &mut Frame) {
     f.render_widget(page, f.size());
 }
 
-const SET: Style = Style::new().bg(Color::Rgb(6, 0, 101)); // #060065
+const SET: Style = Style::new().bg(Color::Rgb(0, 36, 81)); // #002451
 const NEW: Style = Style::new();
 
 #[derive(Debug)]

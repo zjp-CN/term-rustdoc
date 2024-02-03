@@ -165,8 +165,14 @@ impl IDMap {
 
 /// DModule related.
 impl IDMap {
+    /// FIXME: show_prettier should be renamed
     pub fn dmodule_show_prettier(&self) -> DocTree {
         self.dmod.show_prettier(self)
+    }
+
+    /// This is the default tree view for most cases.
+    pub fn dmodule_item_tree(&self) -> DocTree {
+        self.dmod.item_tree(self)
     }
 }
 

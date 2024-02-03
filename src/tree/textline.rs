@@ -167,7 +167,7 @@ impl TreeLines {
     pub fn new(doc: CrateDoc) -> Self {
         // item tree is more concise and convenient for user
         // because it directly can offer item's doc
-        Self::new_with(doc, |doc| doc.dmodule().item_tree(doc)).0
+        Self::new_with(doc, |doc| doc.dmodule_item_tree()).0
     }
 
     pub fn all_lines(&self) -> &[TreeLine] {

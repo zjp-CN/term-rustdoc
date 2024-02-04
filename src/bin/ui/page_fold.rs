@@ -18,6 +18,13 @@ impl Page {
         self.update_after_folding_outline();
     }
 
+    pub fn outline_fold_expand_toggle(&mut self) {
+        if let Some(id) = self.outline().get_id().map(Into::into) {
+            self.outline().lines.expand_toggle(id);
+            self.update_after_folding_outline();
+        }
+    }
+
     fn update_after_folding_outline(&mut self) {
         self.outline().update_maxwidth();
         self.update_area_inner(self.area);

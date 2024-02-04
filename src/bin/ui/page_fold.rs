@@ -18,8 +18,8 @@ impl Page {
         self.update_after_folding_outline();
     }
 
-    pub fn outline_fold_expand_first_level_modules_only(&mut self) {
-        self.outline().lines.expand_first_level_modules_only();
+    pub fn outline_fold_expand_to_first_level_modules(&mut self) {
+        self.outline().lines.expand_to_first_level_modules();
         self.update_after_folding_outline();
     }
 

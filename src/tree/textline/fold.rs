@@ -84,7 +84,7 @@ impl TreeLines {
         });
     }
 
-    pub fn expand_first_level_modules_only(&mut self) {
+    pub fn expand_to_first_level_modules(&mut self) {
         self.fold.kind = Kind::ExpandToFirstLevelModules;
         let dmod = &self.dmodule().modules;
         self.fold.expand = dmod.iter().map(|m| m.id.clone()).collect();

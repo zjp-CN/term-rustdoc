@@ -59,7 +59,7 @@ impl<Ls: Lines> Scrollable<Ls> {
     /// This also moves the cursor in two ways:
     /// * coerce the cursor to the bottom line if it lies outside the height
     /// * coerce the cursor to last position if the screen contains the previous state
-    pub fn check_if_can_return_to_previous_cursor(&mut self) {
+    pub fn check_if_can_return_to_previous_cursor(&mut self) -> bool {
         if self.cursor.y >= self.area.height {
             error!(
                 "This is a bug because cursor is beyond height of drawing area. \
@@ -74,8 +74,10 @@ impl<Ls: Lines> Scrollable<Ls> {
                 .find_map(|(pos, line)| line.is_identical(&self.cursor.state).then_some(pos))
             {
                 self.cursor.y = pos as u16;
+                return true;
             }
         }
+        false
     }
 
     /// Remember the cursor postion which may be called after cursor movement or before scrolling.

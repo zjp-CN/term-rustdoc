@@ -23,6 +23,7 @@ macro_rules! icon {
     (@fold $s:literal) => {
         ::termtree::GlyphPalette {
             item_indent: ::constcat::concat!("─➤ ", $s, " "),
+            last_item: "╰",
             ..Default::default()
         }
     };

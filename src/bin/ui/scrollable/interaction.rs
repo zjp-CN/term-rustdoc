@@ -1,9 +1,8 @@
-use super::{LineState, Scrollable};
+use super::{LineState, Lines, Scrollable};
 use crate::ui::ScrollOffset;
-use std::ops::Deref;
 
 /// Scrolling
-impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
+impl<Ls: Lines> Scrollable<Ls> {
     pub fn scrolldown(&mut self, offset: ScrollOffset) {
         let height = self.area.height as usize;
         let len = self.total_len();
@@ -56,7 +55,7 @@ impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
 }
 
 /// Cursor state
-impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
+impl<Ls: Lines> Scrollable<Ls> {
     /// Check the cursor position and its state after redrawing.
     ///
     /// This also moves the cursor in two ways:
@@ -89,7 +88,7 @@ impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
 }
 
 /// Cursor movement
-impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
+impl<Ls: Lines> Scrollable<Ls> {
     pub fn move_forward_cursor(&mut self) {
         let height = self.area.height;
         let reach_sceen_bottom = (self.cursor.y + 1) == height;

@@ -1,22 +1,21 @@
 use super::Selected;
 use crate::{err, Result};
 use ratatui::prelude::Rect;
-use std::{fmt, ops::Deref};
-use term_rustdoc::{
-    tree::{TreeLine, TreeLines},
-    util::XString,
-};
+use std::fmt;
+use term_rustdoc::tree::{TreeLine, TreeLines};
 
+mod generics;
 mod interaction;
 mod markdown;
 mod render;
 
+use self::generics::{LineState, Lines};
 pub use self::markdown::ScrollText;
 
 /// Scrollable tree view but stored in lines.
-pub type ScrollTreeLines = Scrollable<TreeLines, TreeLine>;
+pub type ScrollTreeLines = Scrollable<TreeLines>;
 
-pub struct Cursor<Line: LineState> {
+pub struct Cursor<State> {
     /// The row position because scrollable area only highlights row.
     ///
     /// This should be less than area's height at any time.
@@ -25,10 +24,10 @@ pub struct Cursor<Line: LineState> {
     ///
     /// This is mainly used to improve the cursor UX when scrolling
     /// or folding redraw the screen and the same line is available.
-    pub state: Line::State,
+    pub state: State,
 }
 
-impl<Line: LineState> Default for Cursor<Line> {
+impl<State: Default> Default for Cursor<State> {
     fn default() -> Self {
         Self {
             y: 0,
@@ -38,13 +37,13 @@ impl<Line: LineState> Default for Cursor<Line> {
 }
 
 /// A text panel that can be scrolled and select texts when the cursor is inside of it.
-pub struct Scrollable<Lines, State: LineState> {
+pub struct Scrollable<Ls: Lines> {
     /// Styled texts on each line
-    pub lines: Lines,
+    pub lines: Ls,
     /// The start of row to be displayed
     pub start: usize,
     /// The row position where cursor was last time
-    pub cursor: Cursor<State>,
+    pub cursor: Cursor<<Ls::Line as LineState>::State>,
     /// The maximum width among all lines
     pub max_windth: u16,
     /// The selected text across lines
@@ -53,41 +52,23 @@ pub struct Scrollable<Lines, State: LineState> {
     pub area: Rect,
 }
 
-pub trait LineState {
-    type State: PartialEq + Default;
-    fn state(&self) -> Self::State;
-    fn is_identical(&self, state: &Self::State) -> bool;
-}
-
-impl LineState for TreeLine {
-    type State = Option<XString>;
-
-    fn state(&self) -> Self::State {
-        self.id.clone()
-    }
-
-    fn is_identical(&self, state: &Self::State) -> bool {
-        self.id == *state
-    }
-}
-
-impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
+impl<Ls: Lines> Scrollable<Ls> {
     /// The whole lines including non-visible lines.
-    pub fn all_lines(&self) -> &[L] {
+    pub fn all_lines(&self) -> &[Ls::Line] {
         &self.lines
     }
 
     /// The visible lines to be rendered.
     ///
     /// The slice length should be able to cast to u16 without surprising behavior.
-    pub fn visible_lines(&self) -> Option<&[L]> {
+    pub fn visible_lines(&self) -> Option<&[Ls::Line]> {
         let total_len = self.lines.len();
         let end = (self.start + self.area.height as usize).min(total_len);
         self.lines.get(self.start..end)
     }
 
     /// The line that current cursor on screen points to.
-    pub fn get_line_of_current_cursor(&self) -> Option<&L> {
+    pub fn get_line_of_current_cursor(&self) -> Option<&Ls::Line> {
         self.visible_lines().and_then(|lines| {
             let line = lines.get(self.cursor.y as usize);
             if line.is_none() && self.total_len() != 0 {
@@ -102,8 +83,12 @@ impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
     }
 }
 
-impl<Lines: Default, L: LineState> Default for Scrollable<Lines, L> {
-    fn default() -> Self {
+impl<Ls> Default for Scrollable<Ls>
+where
+    Ls: Default + Lines,
+    <Ls::Line as LineState>::State: Default,
+{
+    fn default() -> Self where {
         let (lines, start, cursor, max_windth, select, area) = Default::default();
         Scrollable {
             lines,
@@ -116,8 +101,11 @@ impl<Lines: Default, L: LineState> Default for Scrollable<Lines, L> {
     }
 }
 
-impl<Lines: Default + Deref<Target = [TreeLine]>> Scrollable<Lines, TreeLine> {
-    pub fn new(lines: Lines) -> Result<Self> {
+impl<Ls> Scrollable<Ls>
+where
+    Ls: Default + Lines<Line = TreeLine>,
+{
+    pub fn new(lines: Ls) -> Result<Self> {
         let w = lines.iter().map(TreeLine::width).max();
         let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
 
@@ -141,7 +129,7 @@ impl<Lines: Default + Deref<Target = [TreeLine]>> Scrollable<Lines, TreeLine> {
     }
 }
 
-impl<L: LineState, Lines: Deref<Target = [L]>> fmt::Debug for Scrollable<Lines, L> {
+impl<Ls: Lines> fmt::Debug for Scrollable<Ls> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("Scrollable");
         s.field("lines.len", &self.total_len())

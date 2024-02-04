@@ -10,7 +10,7 @@ mod parse;
 mod render;
 
 /// Scrollable text area for displaying markdown.
-pub type ScrollText = Scrollable<StyledLines, StyledLine>;
+pub type ScrollText = Scrollable<StyledLines>;
 
 pub struct StyledLine {
     line: Vec<StyledText>,

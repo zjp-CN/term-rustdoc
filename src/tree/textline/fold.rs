@@ -1,5 +1,5 @@
 use super::TreeLines;
-use crate::tree::{DModule, IDMap, ID};
+use crate::tree::{DModule, DocTree, IDMap, ID};
 
 /// how to fold the text tree
 #[derive(Default)]
@@ -51,8 +51,23 @@ impl TreeLines {
         self.fold.kind = Kind::ExpandFirstLevelModules;
         let dmod = &self.dmodule().modules;
         self.fold.mods = dmod.iter().map(|m| m.id.clone()).collect();
-        // FIXME: folding icon doesn't show up
-        self.update_cached_lines();
+        self.update_cached_lines(|dmod, map, mods| {
+            let mut root = dmod.item_tree_only_in_one_specified_mod(map);
+            for m in &dmod.modules {
+                let tree = if mods.contains(&m.id) {
+                    let mut tree = m.item_tree_only_in_one_specified_mod(map);
+                    for submod in &m.modules {
+                        let leaf = node!(ModuleFolded: map, Module, &submod.id);
+                        tree.push(leaf);
+                    }
+                    tree
+                } else {
+                    node!(ModuleFolded: map, Module, &m.id)
+                };
+                root.push(tree);
+            }
+            root
+        });
     }
 
     // FIXME: support nested submods please...
@@ -67,10 +82,21 @@ impl TreeLines {
         }
         self.fold.mods.clear();
         self.fold.mods.push(id);
-        self.update_cached_lines();
+        self.update_cached_lines(|dmod, map, mods| {
+            let mut root = node!(Module: map, &dmod.id);
+            for m in &dmod.modules {
+                let tree = if mods.contains(&m.id) {
+                    m.item_tree_only_in_one_specified_mod(map)
+                } else {
+                    node!(ModuleFolded: map, Module, &m.id)
+                };
+                root.push(tree);
+            }
+            root
+        });
     }
 
-    fn update_cached_lines(&mut self) {
+    fn update_cached_lines(&mut self, f: impl FnOnce(&DModule, &IDMap, &[ID]) -> DocTree) {
         let map = self.idmap();
         let dmod = &self.dmodule();
         let mods = &self.fold.mods;
@@ -79,15 +105,7 @@ impl TreeLines {
             self.lines = self.dmodule().item_tree(map).cache_lines().0;
             return;
         }
-        let mut root = node!(Module: map, &dmod.id);
-        for m in dmod.modules.iter() {
-            let tree = if mods.contains(&m.id) {
-                m.item_tree_only_in_one_specified_mod(map)
-            } else {
-                node!(ModuleFolded: map, Module, &m.id)
-            };
-            root.tree.push(tree.tree);
-        }
+        let root = f(dmod, map, mods);
         self.lines = root.cache_lines().0;
     }
 }

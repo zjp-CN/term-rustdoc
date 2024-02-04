@@ -123,19 +123,21 @@ macro_rules! impl_show {
 impl Show for DModule {
     fn show(&self) -> DocTree {
         format!("[mod] {}", self.id).show().with_leaves(
-            self.modules.iter().map(DModule::show)
+            std::iter::empty()
             $(
                 .chain( impl_show!(@show $field $node $fty self map) )
             )+
+            .chain(self.modules.iter().map(DModule::show))
         )
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
         node!(Module: map, &self.id).with_leaves(
-            self.modules.iter().map(|m| m.show_prettier(map))
+            std::iter::empty()
             $(
                 .chain( impl_show!(@pretty $field $node self map) )
             )+
+            .chain(self.modules.iter().map(|m| m.show_prettier(map)))
         )
     }
 }
@@ -144,12 +146,13 @@ impl DModule {
     /// The main tree view as public items in module tree.
     pub fn item_tree(&self, map: &IDMap) -> DocTree {
         node!(Module: map, &self.id).with_leaves(
-            self.modules.iter().map(|m| m.item_tree(map))
+            std::iter::empty()
             $(
                 .chain(self.$field.iter().map(|item| {
                     node!(@name $tag : map, &item.id)
                 }))
             )+
+            .chain(self.modules.iter().map(|m| m.item_tree(map)))
         )
     }
 

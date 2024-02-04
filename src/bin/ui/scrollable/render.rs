@@ -4,34 +4,31 @@ use term_rustdoc::tree::TreeLine;
 
 impl ScrollTreeLines {
     pub fn render(&mut self, buf: &mut Buffer) {
+        // if no visible lines, we won't render anything
+        let Some(visible) = self.visible_lines() else {
+            return;
+        };
+
         let area = self.area;
+
         // render tree by each line
-        write_lines(self.lines.as_ref(), self.start, area, buf);
+        write_lines(visible, area, buf);
 
         // render the current row
-        if let Some(cur) = self.lines().get(self.idx_of_current_cursor()) {
+        if let Some(current_line) = self.get_line_of_current_cursor() {
             let Rect { x, y, width, .. } = area;
-            render_current_line(cur, buf, x, y + self.cursor, width);
+            render_current_line(current_line, buf, x, y + self.cursor.y, width);
         }
     }
 }
 
-fn write_lines(lines: &[TreeLine], row_start: usize, rect: Rect, buf: &mut Buffer) {
-    if lines.is_empty() {
-        return;
-    }
+fn write_lines(lines: &[TreeLine], rect: Rect, buf: &mut Buffer) {
     let Rect {
-        x,
-        mut y,
-        width,
-        height,
+        x, mut y, width, ..
     } = rect;
-    let row_end = (row_start + height as usize).min(lines.len());
-    if let Some(lines) = lines.get(row_start..row_end) {
-        for line in lines {
-            render_line(line, buf, x, y, width);
-            y += 1;
-        }
+    for line in lines {
+        render_line(line, buf, x, y, width);
+        y += 1;
     }
 }
 

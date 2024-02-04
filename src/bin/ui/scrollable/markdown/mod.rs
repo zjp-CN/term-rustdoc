@@ -1,13 +1,16 @@
-use super::Scrollable;
+use super::{LineState, Scrollable};
 use crate::Result;
 use std::{fmt, ops::Deref};
-use term_rustdoc::tree::{CrateDoc, Text as StyledText};
+use term_rustdoc::{
+    tree::{CrateDoc, Text as StyledText},
+    util::XString,
+};
 
 mod parse;
 mod render;
 
 /// Scrollable text area for displaying markdown.
-pub type ScrollText = Scrollable<StyledLines>;
+pub type ScrollText = Scrollable<StyledLines, StyledLine>;
 
 pub struct StyledLine {
     line: Vec<StyledText>,
@@ -18,6 +21,18 @@ impl Deref for StyledLine {
 
     fn deref(&self) -> &Self::Target {
         &self.line
+    }
+}
+
+impl LineState for StyledLine {
+    type State = Vec<XString>;
+
+    fn state(&self) -> Self::State {
+        self.iter().map(|st| st.text.clone()).collect()
+    }
+
+    fn is_identical(&self, state: &Self::State) -> bool {
+        self.iter().zip(state).all(|(st, s)| st.text == s)
     }
 }
 

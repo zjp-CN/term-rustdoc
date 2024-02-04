@@ -6,6 +6,8 @@ use ratatui::{
 };
 use term_rustdoc::tree::{CrateDoc, TreeLines};
 
+/// fold/expand a tree view
+mod page_fold;
 /// scroll up/down behavior and with what offset
 mod page_scroll;
 /// Scrollable widget
@@ -110,6 +112,9 @@ impl Page {
         self.update_area_inner(full);
     }
 
+    /// Force update Page inner layout.
+    ///
+    /// `full` usually should be the full screen area or Page area.
     fn update_area_inner(&mut self, full: Rect) {
         // layout
         self.area = full;
@@ -147,17 +152,6 @@ impl Page {
 
         self.content.display.area = content_area;
         // self.content.display.cursor = content_area.y;
-    }
-}
-
-impl Page {
-    pub fn outline_fold(&mut self) {
-        let outline = self.outline();
-        if let Some(id) = outline.get_id() {
-            outline.lines.expand_current_module_only(id.into());
-            outline.update_maxwidth();
-            self.update_area_inner(self.area);
-        }
     }
 }
 

@@ -3,12 +3,6 @@ source: tests/parse-json-docs/parse.rs
 expression: dmod.item_tree(&doc)
 ---
 integration
-├── [Mod] integration::submod1
-│   ├── [Mod] integration::submod1::submod2
-│   │   ├── [Struct] AStructAlias
-│   │   ├── [Struct] AUnitStruct
-│   │   └── [Trait] ATraitNeverImplementedForTypes
-│   └── [Enum] AUnitEnum
 ├── [Struct] AUnitStruct
 ├── [Struct] FieldsNamedStruct
 ├── [Trait] ATrait
@@ -17,5 +11,11 @@ integration
 ├── [Fn] func_with_no_args
 ├── [Const] ACONSTANT
 ├── [Const] ASTATIC
-└── [macro decl] a_decl_macro
+├── [macro decl] a_decl_macro
+└── [Mod] integration::submod1
+    ├── [Enum] AUnitEnum
+    └── [Mod] integration::submod1::submod2
+        ├── [Struct] AStructAlias
+        ├── [Struct] AUnitStruct
+        └── [Trait] ATraitNeverImplementedForTypes
 

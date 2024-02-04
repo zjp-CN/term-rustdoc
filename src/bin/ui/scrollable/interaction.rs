@@ -18,7 +18,6 @@ impl<Ls: Lines> Scrollable<Ls> {
         }
         // set new positions for first row to be displayed
         self.set_cursor_state();
-        // let previous = self.start;
         self.start = (self.start + nrows).min(len.saturating_sub(height));
         self.check_if_can_return_to_previous_cursor();
     }
@@ -32,7 +31,6 @@ impl<Ls: Lines> Scrollable<Ls> {
         };
         // set new positions for first row to be displayed
         self.set_cursor_state();
-        // let previous = self.start;
         self.start = self.start.saturating_sub(nrows);
         self.check_if_can_return_to_previous_cursor();
     }
@@ -80,6 +78,7 @@ impl<Ls: Lines> Scrollable<Ls> {
         }
     }
 
+    /// Remember the cursor postion which may be called after cursor movement or before scrolling.
     fn set_cursor_state(&mut self) {
         if let Some(l) = self.get_line_of_current_cursor() {
             self.cursor.state = l.state();
@@ -127,5 +126,12 @@ impl<Ls: Lines> Scrollable<Ls> {
         self.move_bottom_cursor();
         self.cursor.y /= 2;
         self.set_cursor_state();
+    }
+
+    pub fn set_cursor(&mut self, y: u16) {
+        if y < self.area.height {
+            self.cursor.y = y;
+            self.set_cursor_state();
+        }
     }
 }

@@ -58,6 +58,7 @@ impl Page {
         Ok(page)
     }
 
+    /// Responde to mouse click from left button.
     pub fn set_current_component(&mut self, x: u16, y: u16) {
         fn contain(x: u16, y: u16, area: Rect) -> bool {
             (x >= area.x)
@@ -83,6 +84,8 @@ impl Page {
         }
         // Block area covers border and its inner
         self.current = if contain(x, y, self.outline.border.area) {
+            self.outline().set_cursor(y);
+            self.update_content();
             set!(outline)
         } else if contain(x, y, self.content.border.area) {
             set!(content)

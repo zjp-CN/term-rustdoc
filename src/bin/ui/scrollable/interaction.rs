@@ -9,7 +9,7 @@ impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
         let len = self.total_len();
         let nrows = match offset {
             ScrollOffset::Fixed(n) => n,
-            ScrollOffset::HalfScreen => height / 2,
+            ScrollOffset::HalfScreen => height.saturating_sub(1) / 2,
             ScrollOffset::FullScreen => height,
         };
         let maybe_outside = self.start + nrows;
@@ -28,7 +28,7 @@ impl<L: LineState, Lines: Deref<Target = [L]>> Scrollable<Lines, L> {
         let height = self.area.height as usize;
         let nrows = match offset {
             ScrollOffset::Fixed(n) => n,
-            ScrollOffset::HalfScreen => height / 2,
+            ScrollOffset::HalfScreen => height.saturating_sub(1) / 2,
             ScrollOffset::FullScreen => height,
         };
         // set new positions for first row to be displayed

@@ -1,3 +1,5 @@
+use rustdoc_types::ItemEnum;
+
 use super::TreeLines;
 use crate::tree::{DModule, DocTree, IDMap, ID};
 
@@ -7,11 +9,20 @@ enum Kind {
     /// Expand all public items in all modules.
     #[default]
     ExpandAll,
-    ExpandFirstLevelModules,
-    /// Always focus on current module with other modules including parents folded.
+    /// Expand level zero and one items.
+    ///
+    /// Level zero refers to items directly under root module.
+    ///
+    /// Level one refers to items from level-zero modules.
+    ///
+    /// Items from these two outermost levels may be the most important APIs.
+    ExpandToFirstLevelModules,
+    /// Always focus on current module.
+    ///
+    /// NOTE: this allows all (sub)modules to expand (but with non-module items hidden),
+    /// because it's helpful for users to not only know the current one, but also quickly
+    /// jump into any other one.
     CurrentModule,
-    /// Always focus on current module with parents also expanded.
-    RememberParentModules,
     /// Firstly, fold all modules. Once a module is opened, remember it till it's closed.
     RememberExpandedModules,
 }
@@ -48,7 +59,7 @@ impl TreeLines {
     }
 
     pub fn expand_first_level_modules_only(&mut self) {
-        self.fold.kind = Kind::ExpandFirstLevelModules;
+        self.fold.kind = Kind::ExpandToFirstLevelModules;
         let dmod = &self.dmodule().modules;
         self.fold.mods = dmod.iter().map(|m| m.id.clone()).collect();
         self.update_cached_lines(|dmod, map, mods| {
@@ -70,13 +81,30 @@ impl TreeLines {
         });
     }
 
-    // FIXME: support nested submods please...
     pub fn expand_current_module_only(&mut self, id: ID) {
         self.fold.kind = Kind::CurrentModule;
-        if !self.dmodule().modules.iter().any(|m| m.id == id) {
+        if !self.dmodule().modules.iter().any(|m| {
+            // only Module or reexported item as Module can be in list
+            self.idmap()
+                .get_item(&id)
+                .map(|item| match &item.inner {
+                    ItemEnum::Module(_) => true,
+                    ItemEnum::Import(reepxort) => {
+                        if let Some(id) = &reepxort.id {
+                            if let Some(item) = self.idmap().get_item(&id.0) {
+                                return matches!(item.inner, ItemEnum::Module(_));
+                            }
+                        }
+                        false
+                    }
+                    _ => false,
+                })
+                .unwrap_or(false)
+        }) {
             error!(
-                "ID({id}) is not a non-module item `{}`",
-                self.idmap().name(&id)
+                "ID({id}) is not a non-module item `{}` {:?}",
+                self.idmap().name(&id),
+                self.idmap().get_item(&id)
             );
             return;
         }
@@ -84,14 +112,7 @@ impl TreeLines {
         self.fold.mods.push(id);
         self.update_cached_lines(|dmod, map, mods| {
             let mut root = node!(Module: map, &dmod.id);
-            for m in &dmod.modules {
-                let tree = if mods.contains(&m.id) {
-                    m.item_tree_only_in_one_specified_mod(map)
-                } else {
-                    node!(ModuleFolded: map, Module, &m.id)
-                };
-                root.push(tree);
-            }
+            modules_traversal(dmod, map, &mut root, &mut |m| mods.contains(&m.id));
             root
         });
     }
@@ -107,5 +128,27 @@ impl TreeLines {
         }
         let root = f(dmod, map, mods);
         self.lines = root.cache_lines().0;
+    }
+}
+
+fn modules_traversal(
+    dmod: &DModule,
+    map: &IDMap,
+    parent: &mut DocTree,
+    should_stop: &mut impl FnMut(&DModule) -> bool,
+) {
+    for m in &dmod.modules {
+        if should_stop(m) {
+            // use long path because it's helpful to instantly know where it is
+            let mut node = m.item_tree_only_in_one_specified_mod(map);
+            parent.push(node);
+            // NOTE: Stop traverlling down inside but still travel in other modules.
+            // This is because it's not helpful to only show/know target modules.
+        } else {
+            // use short name for non-target modules
+            let mut node = node!(@name ModuleFolded: map, &m.id);
+            modules_traversal(m, map, &mut node, should_stop);
+            parent.push(node);
+        };
     }
 }

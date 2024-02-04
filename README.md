@@ -1,8 +1,12 @@
 # Roadmap
 
-- [ ] item outline
-  - [ ] folding by item type
-  - [ ] folding by features
+- [x] item outline
+  - [x] expand / fold (based on module tree)
+    - [x] expand zero level items (i.e. items in root module with sub modules folded)
+    - [x] expand to first level items
+    - [x] focus on the latest module only (but with all other level modules folded)
+    - [x] expand all public items
+  - [ ] features related
 - [ ] doc content
   - [ ] text wrapping
   - [ ] syntax highlighting in codeblocks

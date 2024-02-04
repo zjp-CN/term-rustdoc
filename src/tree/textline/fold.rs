@@ -7,6 +7,7 @@ enum Kind {
     /// Expand all public items in all modules.
     #[default]
     ExpandAll,
+    ExpandFirstLevelModules,
     /// Always focus on current module with other modules including parents folded.
     CurrentModule,
     /// Always focus on current module with parents also expanded.
@@ -42,11 +43,19 @@ impl TreeLines {
 
     pub fn expand_all(&mut self) {
         self.fold.kind = Kind::ExpandAll;
+        self.fold.mods.clear();
+        self.lines = self.dmodule().item_tree(self.idmap()).cache_lines().0;
+    }
+
+    pub fn expand_first_level_modules_only(&mut self) {
+        self.fold.kind = Kind::ExpandFirstLevelModules;
         let dmod = &self.dmodule().modules;
         self.fold.mods = dmod.iter().map(|m| m.id.clone()).collect();
+        // FIXME: folding icon doesn't show up
         self.update_cached_lines();
     }
 
+    // FIXME: support nested submods please...
     pub fn expand_current_module_only(&mut self, id: ID) {
         self.fold.kind = Kind::CurrentModule;
         if !self.dmodule().modules.iter().any(|m| m.id == id) {

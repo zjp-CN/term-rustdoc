@@ -1,11 +1,21 @@
 use super::Page;
 
 impl Page {
-    pub fn outline_fold(&mut self) {
+    pub fn outline_fold_expand_all(&mut self) {
+        self.outline().lines.expand_all();
+        self.update_after_folding_outline();
+    }
+
+    pub fn outline_fold_expand_current_module_only(&mut self) {
         if let Some(id) = self.outline().get_id().map(Into::into) {
             self.outline().lines.expand_current_module_only(id);
             self.update_after_folding_outline();
         }
+    }
+
+    pub fn outline_fold_expand_first_level_modules_only(&mut self) {
+        self.outline().lines.expand_first_level_modules_only();
+        self.update_after_folding_outline();
     }
 
     fn update_after_folding_outline(&mut self) {

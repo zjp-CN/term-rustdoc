@@ -21,7 +21,9 @@ pub fn update(app: &mut App, page: &mut Page, key_event: KeyEvent) {
         KeyCode::Char('L') => page.move_bottom_cursor(),
         KeyCode::Char('H') => page.move_top_cursor(),
         KeyCode::Char('M') => page.move_middle_cursor(),
-        KeyCode::Char('m') => page.outline_fold(),
+        KeyCode::Char('m') => page.outline_fold_expand_current_module_only(),
+        KeyCode::Char('/') => page.outline_fold_expand_all(),
+        KeyCode::Char('1') => page.outline_fold_expand_first_level_modules_only(),
         _ => {}
     };
 }

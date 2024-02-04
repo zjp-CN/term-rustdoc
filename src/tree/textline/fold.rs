@@ -9,6 +9,8 @@ enum Kind {
     /// Expand all public items in all modules.
     #[default]
     ExpandAll,
+    /// Only expand items under root module with sub modules folded.
+    ExpandZero,
     /// Expand level zero and one items.
     ///
     /// Level zero refers to items directly under root module.
@@ -65,6 +67,21 @@ impl TreeLines {
         self.fold.kind = Kind::ExpandAll;
         self.fold.expand.clear();
         traversal_id(self.doc().dmodule(), &mut self.fold.expand);
+    }
+
+    pub fn expand_zero_level(&mut self) {
+        self.fold.kind = Kind::ExpandZero;
+        self.fold.expand.clear();
+        self.fold.expand.insert(self.dmodule().id.clone());
+        self.update_cached_lines(|dmod, map, _| {
+            let mut root = dmod.item_tree_only_in_one_specified_mod(map);
+            root.tree.extend(
+                dmod.modules
+                    .iter()
+                    .map(|m| node!(ModuleFolded: map, Module, &m.id).tree),
+            );
+            root
+        });
     }
 
     pub fn expand_first_level_modules_only(&mut self) {

@@ -13,6 +13,11 @@ impl Page {
         }
     }
 
+    pub fn outline_fold_expand_zero_level(&mut self) {
+        self.outline().lines.expand_zero_level();
+        self.update_after_folding_outline();
+    }
+
     pub fn outline_fold_expand_first_level_modules_only(&mut self) {
         self.outline().lines.expand_first_level_modules_only();
         self.update_after_folding_outline();

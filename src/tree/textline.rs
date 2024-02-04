@@ -153,8 +153,12 @@ impl TreeLines {
     pub fn new(doc: CrateDoc) -> Self {
         // item tree is more concise and convenient for user
         // because it directly can offer item's doc
-        let mut lines = Self::new_with(doc, |doc| doc.dmodule_item_tree()).0;
-        lines._expand_all();
+        let mut lines = TreeLines {
+            doc,
+            ..Default::default()
+        };
+        // default to zero level items by folding sub modules
+        lines.expand_zero_level();
         lines
     }
 

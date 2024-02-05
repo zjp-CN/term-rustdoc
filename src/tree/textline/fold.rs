@@ -4,7 +4,7 @@ use rustc_hash::FxHashSet as HashSet;
 use rustdoc_types::{ItemEnum, Module};
 
 /// how to fold the text tree
-#[derive(Default)]
+#[derive(Default, PartialEq, Eq)]
 enum Kind {
     /// Expand all public items in all modules.
     #[default]
@@ -112,8 +112,6 @@ impl TreeLines {
     /// Expand a folded module or fold an expanded one.
     ///
     /// This pushs a module ID to a without setting any fold kind.
-    ///
-    /// FIXME: poor interaction with CurrentModule bahavior
     pub fn expand_toggle(&mut self, id: ID) {
         fn modules_traversal(
             dmod: &DModule,
@@ -131,6 +129,17 @@ impl TreeLines {
                     parent.push(node);
                 };
             }
+        }
+
+        if self.fold.kind == Kind::CurrentModule {
+            /// FIXME: poor interaction with CurrentModule bahavior
+            ///
+            /// To fix this, we have to remember all the modules' id and an extra
+            /// expand-vs-fold state.
+            ///
+            /// This is a smallUX improvement, but for now, just forbid toggling
+            /// when expanding CurrentModule.
+            return;
         }
 
         if !self.check_id(&id) {
@@ -202,6 +211,7 @@ impl TreeLines {
 }
 
 impl TreeLines {
+    /// check if the id is a module (or reexported as module)
     fn check_id(&self, id: &ID) -> bool {
         if !self.dmodule().modules.iter().any(|m| {
             // only Module or reexported item as Module can be in list

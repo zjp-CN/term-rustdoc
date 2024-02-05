@@ -75,10 +75,10 @@ impl TreeLines {
         self.fold.expand.insert(self.dmodule().id.clone());
         self.update_cached_lines(|dmod, map, _| {
             let mut root = dmod.item_tree_only_in_one_specified_mod(map);
-            root.tree.extend(
+            root.extend(
                 dmod.modules
                     .iter()
-                    .map(|m| node!(ModuleFolded: map, Module, &m.id).tree),
+                    .map(|m| node!(ModuleFolded: map, Module, &m.id)),
             );
             root
         });
@@ -112,6 +112,8 @@ impl TreeLines {
     /// Expand a folded module or fold an expanded one.
     ///
     /// This pushs a module ID to a without setting any fold kind.
+    ///
+    /// FIXME: poor interaction with CurrentModule bahavior
     pub fn expand_toggle(&mut self, id: ID) {
         fn modules_traversal(
             dmod: &DModule,
@@ -156,10 +158,10 @@ impl TreeLines {
         }
         self.fold.expand.clear();
         self.fold.expand.insert(id);
-        self.expand_these();
+        self._expand_current_module_only();
     }
 
-    fn expand_these(&mut self) {
+    fn _expand_current_module_only(&mut self) {
         fn modules_traversal(
             dmod: &DModule,
             map: &IDMap,
@@ -170,6 +172,11 @@ impl TreeLines {
                 if should_stop(m) {
                     // use long path because it's helpful to instantly know where it is
                     let mut node = m.item_tree_only_in_one_specified_mod(map);
+                    node.extend(
+                        m.modules
+                            .iter()
+                            .map(|m| node!(@name ModuleFolded: map, &m.id)),
+                    );
                     parent.push(node);
                     // NOTE: Stop traverlling down inside but still travel in other modules.
                     // This is because it's not helpful to only show/know target modules.
@@ -183,6 +190,11 @@ impl TreeLines {
         }
         self.update_cached_lines(|dmod, map, mods| {
             let mut root = node!(Module: map, &dmod.id);
+            if mods.contains(&dmod.id) {
+                // item tree already contains the root module, thus only mv the leaves
+                let iter = dmod.item_tree_only_in_one_specified_mod(map).tree.leaves;
+                root.tree.extend(iter);
+            }
             modules_traversal(dmod, map, &mut root, &mut |m| mods.contains(&m.id));
             root
         });

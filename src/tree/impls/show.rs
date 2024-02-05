@@ -41,6 +41,12 @@ impl fmt::Display for DocTree {
     }
 }
 
+impl std::iter::Extend<DocTree> for DocTree {
+    fn extend<T: IntoIterator<Item = DocTree>>(&mut self, iter: T) {
+        self.tree.extend(iter.into_iter().map(|t| t.tree));
+    }
+}
+
 impl DocTree {
     pub fn new(text: XString, tag: Tag, id: Option<XString>) -> Self {
         Self {

@@ -39,6 +39,9 @@ textwrap = "0.16"
 syntect = "5.1"
 pulldown-cmark = "0.10"
 unicode-width = "0.1"
+itertools = "0.12"
+smallvec = "1.13"
+icu_segmenter = "1"
 
 [dev-dependencies]
 insta = "1"

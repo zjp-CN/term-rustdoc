@@ -1,4 +1,11 @@
+#![allow(unused, clippy::single_match)]
+use self::{
+    meta_tag::{LinkTag, MetaTag},
+    word::{Block, Blocks, Line, Links, Word},
+};
 use super::{StyledLine, StyledText};
+use icu_segmenter::LineSegmenter;
+use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};
 use syntect::{
     easy::HighlightLines,
@@ -8,11 +15,45 @@ use syntect::{
 };
 use term_rustdoc::util::XString;
 
+mod code_block;
+#[macro_use]
+mod element;
+mod entry_point;
+mod list;
+mod meta_tag;
+mod word;
+
 thread_local! {
     static SYNTHEME: (SyntaxSet, ThemeSet) = (
         SyntaxSet::load_defaults_newlines(),
         ThemeSet::load_defaults(),
     );
+    static SEGMENTER: LineSegmenter = LineSegmenter::new_auto();
+}
+
+/// Split a `&str` into segmented words without considering trailling whitespaces.
+///
+/// This is used in as-is words like intra-codes.
+fn segment_str(text: &str, mut f: impl FnMut(&str)) {
+    SEGMENTER.with(|seg| {
+        seg.segment_str(text)
+            .tuple_windows()
+            .for_each(|(start, end)| f(&text[start..end]));
+    })
+}
+
+/// Split a `&str` into segmented and trailling-whitespace-aware words.
+///
+/// This is used in context where text wrapping is applied like in normal texts.
+pub fn segment_words(text: &str, mut f: impl FnMut(&str, bool)) {
+    SEGMENTER.with(|seg| {
+        for (start, end) in seg.segment_str(text).tuple_windows() {
+            let word_with_potential_trail_whitespace = &text[start..end];
+            let word = word_with_potential_trail_whitespace.trim_end_matches(' ');
+            let trailling_whitespace = word_with_potential_trail_whitespace.len() != word.len();
+            f(word, trailling_whitespace);
+        }
+    });
 }
 
 pub fn md(doc: &str) -> Vec<StyledLine> {

@@ -14,8 +14,9 @@ use std::{
 };
 use term_rustdoc::util::{xformat, CompactStringExt, XString};
 
-mod parse;
 mod generate_doc_json;
+mod parse;
+mod syntect_set;
 
 static INTEGRATION: LazyLock<JsonDoc> = LazyLock::new(|| {
     tracing_subscriber::fmt::init();

@@ -1,3 +1,5 @@
+use crate::ui::scrollable::markdown::{fallback::StyledLine, StyledText};
+
 use super::MetaTag;
 use ratatui::style::Style;
 use std::fmt::{self, Write};
@@ -78,5 +80,27 @@ impl Fragment for Word {
     /// imaginary extra width after the non-line-end word that the wrapping algorithm accepts
     fn penalty_width(&self) -> f64 {
         0.0
+    }
+}
+
+impl From<Word> for StyledText {
+    fn from(word: Word) -> Self {
+        StyledText::new_plain(word.word.clone(), word.style)
+    }
+}
+
+impl From<Word> for StyledLine {
+    fn from(word: Word) -> Self {
+        StyledLine {
+            line: vec![word.into()],
+        }
+    }
+}
+
+impl From<&[Word]> for StyledLine {
+    fn from(value: &[Word]) -> Self {
+        StyledLine {
+            line: value.iter().cloned().map(StyledText::from).collect(),
+        }
     }
 }

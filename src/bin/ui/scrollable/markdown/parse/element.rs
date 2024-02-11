@@ -65,12 +65,12 @@ where
     pub fn parse_paragraph(self) {
         let Element {
             doc,
-            iter: mut para,
-            mut block,
-            mut links,
+            iter,
+            block,
+            links,
         } = self;
         // FIXME: We can remove some branches on List/Item. But for now, let's keep it simple.
-        super::list::parse(&mut 0, None, para, block, doc, links);
+        super::list::parse(&mut 0, None, iter, block, doc, links);
         // while let Some((event, range)) = para.next() {
         //     match event {
         //         Event::Text(text) => block.push_normal_words(&text),
@@ -116,10 +116,10 @@ where
     /// TODO: support local/external crate item links
     pub fn parse_link(self, link: &str) {
         let Element {
-            doc,
             mut iter,
-            mut block,
-            mut links,
+            block,
+            links,
+            ..
         } = self;
         let idx = links.push_link(link.into());
         let tag = MetaTag::Link(LinkTag::ReferenceLink(idx));
@@ -165,11 +165,7 @@ where
     /// Images are like links, e.g. `![ref]` are valid syntax, or `![styled text](...)`.
     /// But when parsing them, don't show further styles and just truncate the img line if too long.
     pub fn parse_image(self, link: &str) {
-        let Element {
-            mut iter,
-            mut block,
-            ..
-        } = self;
+        let Element { iter, block, .. } = self;
         let tag = MetaTag::Image;
         let style = Style {
             fg: Some(Color::Rgb(192, 192, 192)), // #C0C0C0
@@ -178,9 +174,8 @@ where
         let mut img = String::with_capacity(32);
         img.push_str("![");
         for (event, _) in iter {
-            match event {
-                Event::Text(words) => img.push_str(&words),
-                _ => (),
+            if let Event::Text(words) = event {
+                img.push_str(&words)
             }
         }
         img.push_str("](");

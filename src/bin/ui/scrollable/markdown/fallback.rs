@@ -1,6 +1,9 @@
-use super::StyledText;
+use super::{parse, StyledText};
 use crate::{
-    ui::scrollable::{generics::LineState, Scrollable},
+    ui::{
+        scrollable::{generics::LineState, Scrollable},
+        Page,
+    },
     Result,
 };
 use std::{fmt, ops::Deref};
@@ -37,6 +40,8 @@ impl LineState for StyledLine {
 
 #[derive(Default)]
 pub struct StyledLines {
+    /// use syntect's highlighting, but without text wrapped
+    syntect: bool,
     lines: Vec<StyledLine>,
     doc: Option<CrateDoc>,
 }
@@ -69,7 +74,14 @@ impl StyledLines {
     pub fn update_doc(&mut self, id: &str) -> bool {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
-                self.lines = super::parse::md(doc);
+                self.lines = if self.syntect {
+                    super::parse::md(doc)
+                } else {
+                    let mut lines = Vec::with_capacity(128);
+                    parse::parse_doc(doc, 100.0, &mut lines);
+                    lines.shrink_to_fit();
+                    lines
+                };
                 return true;
             }
         }
@@ -81,7 +93,30 @@ impl StyledLines {
     pub fn reset_doc(&mut self) {
         self.lines = Vec::new();
     }
+
+    pub fn toggle_sytect(&mut self) {
+        self.syntect = !self.syntect;
+    }
 }
+
+impl Page {
+    pub fn toggle_sytect(&mut self) {
+        self.content().lines.toggle_sytect();
+        if let Some(id) = self.outline.display.get_id() {
+            self.content.display.lines.update_doc(id);
+        }
+    }
+}
+
+// impl StyledLines {
+//     pub fn append_new_line(&mut self) {
+//         self.lines.push(StyledLine { line: Vec::new() });
+//     }
+//
+//     pub fn append_line<L: Into<StyledLine>>(&mut self, line: L) {
+//         self.lines.push(line.into());
+//     }
+// }
 
 impl ScrollText {
     pub fn new_text(doc: Option<CrateDoc>) -> Result<Self> {

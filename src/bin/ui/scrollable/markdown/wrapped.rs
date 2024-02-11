@@ -12,7 +12,7 @@ pub struct StyledText {
 }
 
 impl StyledText {
-    pub fn new_plain(text: &str, style: Style) -> Self {
+    pub fn new_plain<T: Into<XString>>(text: T, style: Style) -> Self {
         StyledText {
             text: Text {
                 text: text.into(),

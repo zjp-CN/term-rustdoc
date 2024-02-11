@@ -1,5 +1,5 @@
 use super::word::Word;
-use std::fmt;
+use std::{fmt, ops::Deref};
 
 /// A line to be rendered on screen, containing multiple words.
 ///
@@ -33,5 +33,13 @@ impl fmt::Display for Line {
                 write!(f, "{}", word.word)
             }
         })
+    }
+}
+
+impl Deref for Line {
+    type Target = [Word];
+
+    fn deref(&self) -> &Self::Target {
+        &self.words
     }
 }

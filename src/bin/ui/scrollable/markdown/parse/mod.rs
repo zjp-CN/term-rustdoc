@@ -8,7 +8,6 @@ use syntect::{
     parsing::SyntaxSet,
     util::LinesWithEndings,
 };
-use term_rustdoc::util::XString;
 
 mod code_block;
 #[macro_use]
@@ -63,6 +62,10 @@ pub fn segment_words(text: &str, mut f: impl FnMut(&str, bool)) {
     });
 }
 
+pub fn parse_doc(doc: &str, width: f64, slines: &mut Vec<StyledLine>) {
+    entry_point::parse(doc).write_styled_lines(width, slines);
+}
+
 pub fn md(doc: &str) -> Vec<StyledLine> {
     let mut lines = Vec::with_capacity(128);
     SYNTHEME.with(|(ps, ts)| {
@@ -71,7 +74,7 @@ pub fn md(doc: &str) -> Vec<StyledLine> {
         for line in LinesWithEndings::from(doc) {
             let mut one_line = Vec::with_capacity(4);
             for (style, text) in h.highlight_line(line, ps).unwrap() {
-                one_line.push(StyledText::new_plain(text.into(), convert_style(style)));
+                one_line.push(StyledText::new_plain(text, convert_style(style)));
             }
             one_line.push(StyledText::new_plain("\n", Default::default()));
             one_line.shrink_to_fit();

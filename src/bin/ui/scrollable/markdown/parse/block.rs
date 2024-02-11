@@ -160,3 +160,17 @@ impl Block {
         }
     }
 }
+
+impl Block {
+    pub fn lines(&self) -> &[Line] {
+        &self.lines
+    }
+
+    pub fn links(&self) -> &[usize] {
+        &self.links
+    }
+
+    pub fn footnotes(&self) -> &[XString] {
+        &self.footnotes
+    }
+}

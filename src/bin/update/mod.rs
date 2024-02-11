@@ -26,6 +26,7 @@ pub fn update(app: &mut App, page: &mut Page, key_event: KeyEvent) {
         KeyCode::Char('0') => page.outline_fold_expand_zero_level(),
         KeyCode::Char('1') => page.outline_fold_expand_to_first_level_modules(),
         KeyCode::Enter => page.outline_fold_expand_toggle(),
+        KeyCode::Char(' ') => page.toggle_sytect(),
         _ => {}
     };
 }

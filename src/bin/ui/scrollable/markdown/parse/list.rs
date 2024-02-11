@@ -1,9 +1,9 @@
 use super::{
     element::{parse_intra_code, Element, EventRange},
     meta_tag::{LinkTag, MetaTag},
-    word::{Block, Blocks, Line, Links, Word},
+    {Block, Line, Links, Word},
 };
-use pulldown_cmark::{Event, Tag, TagEnd};
+use pulldown_cmark::{Event, Tag};
 use ratatui::style::{Color, Style};
 use term_rustdoc::util::{xformat, XString};
 

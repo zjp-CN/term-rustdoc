@@ -1,7 +1,3 @@
-use self::{
-    meta_tag::{LinkTag, MetaTag},
-    word::{Block, Blocks, Line, Links, Word},
-};
 use super::fallback::StyledLine;
 use icu_segmenter::LineSegmenter;
 use itertools::Itertools;
@@ -20,7 +16,19 @@ mod element;
 mod entry_point;
 mod list;
 mod meta_tag;
+
+mod block;
+mod blocks;
+mod line;
 mod word;
+
+pub use self::{
+    block::Block,
+    blocks::{Blocks, Links},
+    line::Line,
+    meta_tag::{LinkTag, MetaTag},
+    word::Word,
+};
 
 thread_local! {
     static SYNTHEME: (SyntaxSet, ThemeSet) = (

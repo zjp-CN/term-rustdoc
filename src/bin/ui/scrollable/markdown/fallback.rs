@@ -1,12 +1,10 @@
+use super::StyledText;
 use crate::{
     ui::scrollable::{generics::LineState, Scrollable},
     Result,
 };
 use std::{fmt, ops::Deref};
-use term_rustdoc::{
-    tree::{CrateDoc, Text as StyledText},
-    util::XString,
-};
+use term_rustdoc::{tree::CrateDoc, util::XString};
 
 /// Scrollable text area for displaying markdown.
 pub type ScrollText = Scrollable<StyledLines>;
@@ -27,11 +25,13 @@ impl LineState for StyledLine {
     type State = Vec<XString>;
 
     fn state(&self) -> Self::State {
-        self.iter().map(|st| st.text.clone()).collect()
+        self.iter().map(|st| st.text()).collect()
     }
 
     fn is_identical(&self, state: &Self::State) -> bool {
-        self.iter().zip(state).all(|(st, s)| st.text == s)
+        self.iter()
+            .zip(state)
+            .all(|(st, s)| st.as_str() == s.as_str())
     }
 }
 

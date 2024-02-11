@@ -1,4 +1,4 @@
-use super::fallback::StyledLine;
+use super::{fallback::StyledLine, wrapped::StyledText};
 use icu_segmenter::LineSegmenter;
 use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};
@@ -8,7 +8,7 @@ use syntect::{
     parsing::SyntaxSet,
     util::LinesWithEndings,
 };
-use term_rustdoc::{tree::Text as StyledText, util::XString};
+use term_rustdoc::util::XString;
 
 mod code_block;
 #[macro_use]
@@ -71,9 +71,9 @@ pub fn md(doc: &str) -> Vec<StyledLine> {
         for line in LinesWithEndings::from(doc) {
             let mut one_line = Vec::with_capacity(4);
             for (style, text) in h.highlight_line(line, ps).unwrap() {
-                one_line.push(StyledText::new(text.into(), convert_style(style)));
+                one_line.push(StyledText::new_plain(text.into(), convert_style(style)));
             }
-            one_line.push(StyledText::new_text(XString::new_inline("\n")));
+            one_line.push(StyledText::new_plain("\n", Default::default()));
             one_line.shrink_to_fit();
             lines.push(StyledLine { line: one_line });
         }

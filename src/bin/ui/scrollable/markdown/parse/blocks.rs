@@ -1,7 +1,6 @@
 use super::block::Block;
-use rustc_hash::FxHashMap;
-use std::{fmt, hash::BuildHasherDefault};
-use term_rustdoc::util::XString;
+use std::fmt;
+use term_rustdoc::util::{hashmap, HashMap, XString};
 
 /// The whole documentation for an item.
 #[derive(Debug, Default)]
@@ -37,7 +36,7 @@ impl Blocks {
             blocks: Vec::with_capacity(16),
             links: Links {
                 links: Vec::with_capacity(8),
-                footnotes: FxHashMap::with_capacity_and_hasher(1, BuildHasherDefault::default()),
+                footnotes: hashmap(1),
             },
         }
     }
@@ -54,7 +53,7 @@ impl Blocks {
 #[derive(Default, Debug)]
 pub struct Links {
     links: Vec<XString>,
-    footnotes: FxHashMap<XString, Block>,
+    footnotes: HashMap<XString, Block>,
 }
 
 impl Links {

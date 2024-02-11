@@ -1,28 +1,35 @@
-use super::{
-    list::task_maker, segment_str, Block, Color, LinkTag, Links, MetaTag, Modifier, Style, Word,
-};
-use pulldown_cmark::{Event, Tag, TagEnd};
+use super::{segment_str, Block, Color, LinkTag, Links, MetaTag, Modifier, Style, Word};
+use pulldown_cmark::{Event, Tag};
 use std::ops::Range;
 
 macro_rules! ele {
     ($iter:ident, $tag:ident, $range:ident) => {
         $iter
             .by_ref()
-            .take_while(|(e, r)| !(*e == Event::End(TagEnd::$tag) && *r == $range))
+            .take_while(|(e, r)| {
+                !(*e == ::pulldown_cmark::Event::End(::pulldown_cmark::TagEnd::$tag)
+                    && *r == $range)
+            })
             .collect::<Vec<_>>()
             .into_iter()
     };
     (#heading $iter:ident, $level:ident, $range:ident) => {
         $iter
             .by_ref()
-            .take_while(|(e, r)| !(*e == Event::End(TagEnd::Heading($level)) && *r == $range))
+            .take_while(|(e, r)| {
+                !(*e == ::pulldown_cmark::Event::End(::pulldown_cmark::TagEnd::Heading($level))
+                    && *r == $range)
+            })
             .collect::<Vec<_>>()
             .into_iter()
     };
     (#list $iter:ident, $ordered:expr, $range:ident) => {
         $iter
             .by_ref()
-            .take_while(|(e, r)| !(*e == Event::End(TagEnd::List($ordered)) && *r == $range))
+            .take_while(|(e, r)| {
+                !(*e == ::pulldown_cmark::Event::End(::pulldown_cmark::TagEnd::List($ordered))
+                    && *r == $range)
+            })
             .collect::<Vec<_>>()
             .into_iter()
     };

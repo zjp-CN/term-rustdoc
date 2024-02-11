@@ -1,16 +1,11 @@
-use super::{meta_tag::LinkTag, segment_str, segment_words, MetaTag};
-use ratatui::style::{Color, Modifier, Style};
+use super::{segment_words, MetaTag};
+use ratatui::style::{Color, Style};
 use rustc_hash::FxHashMap;
 use std::{
-    cell::RefCell,
     fmt::{self, Write},
     hash::BuildHasherDefault,
-    rc::Rc,
 };
-use term_rustdoc::{
-    tree::{Text, ID},
-    util::XString,
-};
+use term_rustdoc::util::XString;
 use textwrap::core::Fragment;
 use unicode_width::UnicodeWidthStr;
 

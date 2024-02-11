@@ -1,9 +1,8 @@
-#![allow(unused, clippy::single_match)]
 use self::{
     meta_tag::{LinkTag, MetaTag},
     word::{Block, Blocks, Line, Links, Word},
 };
-use super::{StyledLine, StyledText};
+use super::fallback::StyledLine;
 use icu_segmenter::LineSegmenter;
 use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};
@@ -13,7 +12,7 @@ use syntect::{
     parsing::SyntaxSet,
     util::LinesWithEndings,
 };
-use term_rustdoc::util::XString;
+use term_rustdoc::{tree::Text as StyledText, util::XString};
 
 mod code_block;
 #[macro_use]

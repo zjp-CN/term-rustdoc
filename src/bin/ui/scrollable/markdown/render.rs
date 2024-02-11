@@ -1,5 +1,6 @@
-use super::{ScrollText, StyledLine, StyledText};
+use super::fallback::{ScrollText, StyledLine};
 use ratatui::prelude::{Buffer, Rect};
+use term_rustdoc::tree::Text as StyledText;
 use unicode_width::UnicodeWidthStr;
 
 impl ScrollText {

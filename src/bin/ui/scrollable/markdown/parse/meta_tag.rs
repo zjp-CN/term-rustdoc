@@ -1,10 +1,4 @@
-use itertools::Itertools;
-use pulldown_cmark::{Event, LinkType, Tag, TagEnd};
-use ratatui::style::{Color, Modifier, Style};
-use term_rustdoc::{
-    tree::{Text, ID},
-    util::XString,
-};
+use term_rustdoc::{tree::ID, util::XString};
 
 /// Extra meaning not so relevant to style in current word.
 #[derive(Default, Clone, Debug)]

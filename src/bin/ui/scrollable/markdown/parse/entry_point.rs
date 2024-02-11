@@ -1,10 +1,5 @@
-use super::{
-    code_block, element::Element, list, segment_str, Block, Blocks, Line, LinkTag, Links, MetaTag,
-    Word,
-};
-use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag, TagEnd};
-use ratatui::style::{Color, Modifier, Style};
-use std::ops::Range;
+use super::{code_block, element::Element, list, Block, Blocks, MetaTag, Word};
+use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use term_rustdoc::util::XString;
 
 pub fn parse(doc: &str) -> Blocks {
@@ -24,7 +19,7 @@ pub fn parse(doc: &str) -> Blocks {
         match event {
             Event::Start(Tag::Paragraph) => {
                 let mut block = Block::default();
-                let mut para = ele!(iter, Paragraph, range);
+                let para = ele!(iter, Paragraph, range);
                 Element::new(doc, &mut block, blocks.links(), para).parse_paragraph();
                 blocks.push(block);
             }
@@ -57,7 +52,7 @@ pub fn parse(doc: &str) -> Blocks {
             Event::Start(Tag::BlockQuote) => {
                 if let Some((Event::Start(Tag::Paragraph), range)) = iter.next() {
                     let mut block = Block::default();
-                    let mut para = ele!(iter, Paragraph, range);
+                    let para = ele!(iter, Paragraph, range);
                     Element::new(doc, &mut block, blocks.links(), para).parse_paragraph();
                     block.set_quote_block();
                     blocks.push(block);
@@ -66,7 +61,7 @@ pub fn parse(doc: &str) -> Blocks {
             Event::Start(Tag::FootnoteDefinition(key)) => {
                 if let Some((Event::Start(Tag::Paragraph), range)) = iter.next() {
                     let mut block = Block::default();
-                    let mut para = ele!(iter, Paragraph, range);
+                    let para = ele!(iter, Paragraph, range);
                     Element::new(doc, &mut block, blocks.links(), para).parse_paragraph();
                     block.set_foot_note();
                     blocks.links().push_footnote(&key, block);

@@ -16,6 +16,15 @@ pub struct StyledLine {
     pub line: Vec<StyledText>,
 }
 
+impl fmt::Debug for StyledLine {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for word in &self.line {
+            word.fmt(f)?;
+        }
+        Ok(())
+    }
+}
+
 impl Deref for StyledLine {
     type Target = [StyledText];
 

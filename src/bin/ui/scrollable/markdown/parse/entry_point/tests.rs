@@ -24,7 +24,9 @@ let a = 1;
     2. `b`
 "#;
     snap!(markdown_iter(doc).collect::<Vec<_>>());
-    shot!(parse(doc), @r###"
+    let parsed = parse(doc);
+    snap!("parse_markdown-parsed", parsed);
+    shot!(parsed, @r###"
     # h1 `code`
 
     aaa b c d e. xxx z.
@@ -42,6 +44,10 @@ let a = 1;
       2. `b`
 
     "###);
+
+    let mut lines = Vec::new();
+    parsed.write_styled_lines(7.0, &mut lines);
+    snap!("parse_markdown-StyledLines", lines);
 }
 
 #[test]
@@ -64,4 +70,10 @@ fn parse_markdown_links() {
     ## h2 c `h`
 
     "###);
+}
+
+#[test]
+fn parse_markdown_intra_code() {
+    let doc = "A `code` in a line.";
+    dbg!(markdown_iter(doc).collect::<Vec<_>>(), parse(doc));
 }

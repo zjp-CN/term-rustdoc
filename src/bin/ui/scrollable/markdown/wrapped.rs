@@ -1,6 +1,6 @@
 use ratatui::style::Style;
 use smallvec::SmallVec;
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt, rc::Rc};
 use term_rustdoc::{
     tree::Text,
     util::{hashmap, HashMap, XString},
@@ -9,6 +9,12 @@ use term_rustdoc::{
 pub struct StyledText {
     text: Text,
     interaction: Option<Interaction>,
+}
+
+impl fmt::Debug for StyledText {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <str as fmt::Debug>::fmt(self.as_str(), f)
+    }
 }
 
 impl StyledText {

@@ -1,0 +1,347 @@
+---
+source: src/bin/ui/scrollable/markdown/parse/entry_point/tests.rs
+expression: parsed
+---
+Blocks {
+    blocks: [
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "# ",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                1,
+                            ),
+                        },
+                        Word {
+                            word: "h1",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                1,
+                            ),
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "`",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                1,
+                            ),
+                        },
+                        Word {
+                            word: "code",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                1,
+                            ),
+                        },
+                        Word {
+                            word: "`",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                1,
+                            ),
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "aaa",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "b",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "c",
+                            style.add_modifier: ITALIC,
+                        },
+                        Word {
+                            word: "",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "d",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "e",
+                            style.add_modifier: BOLD,
+                        },
+                        Word {
+                            word: ".",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "xxx",
+                            style.add_modifier: CROSSED_OUT,
+                        },
+                        Word {
+                            word: "",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "z.",
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "1",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "c",
+                            style.add_modifier: ITALIC,
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "ss",
+                            style.add_modifier: ITALIC,
+                        },
+                        Word {
+                            word: "",
+                            style.add_modifier: ITALIC,
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "d",
+                            style.add_modifier: ITALIC,
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "sadsad",
+                            style.add_modifier: ITALIC,
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "xxx",
+                            style.add_modifier: ITALIC,
+                        },
+                        Word {
+                            word: "",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "`",
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: "yyyy",
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: "`",
+                            tag: InlineCode,
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "let",
+                            tag: CodeBlock(
+                                "rust",
+                            ),
+                        },
+                        Word {
+                            word: " a ",
+                            tag: CodeBlock(
+                                "rust",
+                            ),
+                        },
+                        Word {
+                            word: "=",
+                            tag: CodeBlock(
+                                "rust",
+                            ),
+                        },
+                        Word {
+                            word: " ",
+                            tag: CodeBlock(
+                                "rust",
+                            ),
+                        },
+                        Word {
+                            word: "1",
+                            tag: CodeBlock(
+                                "rust",
+                            ),
+                        },
+                        Word {
+                            word: ";",
+                            tag: CodeBlock(
+                                "rust",
+                            ),
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "rrr",
+                            tag: QuoteBlock,
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "sss",
+                            tag: QuoteBlock,
+                        },
+                        Word {
+                            word: "",
+                            tag: QuoteBlock,
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "tt",
+                            tag: QuoteBlock,
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "",
+                        },
+                        Word {
+                            word: "* ",
+                            tag: ListItem,
+                        },
+                        Word {
+                            word: "[x]",
+                        },
+                        Word {
+                            word: "",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "done!",
+                        },
+                    ],
+                },
+                Line {
+                    words: [
+                        Word {
+                            word: "  ",
+                        },
+                        Word {
+                            word: "* ",
+                            tag: ListItem,
+                        },
+                        Word {
+                            word: "nested",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "list",
+                        },
+                    ],
+                },
+                Line {
+                    words: [
+                        Word {
+                            word: "",
+                        },
+                        Word {
+                            word: "* ",
+                            tag: ListItem,
+                        },
+                        Word {
+                            word: "[ ]",
+                        },
+                        Word {
+                            word: "",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "undone",
+                        },
+                    ],
+                },
+                Line {
+                    words: [
+                        Word {
+                            word: "  ",
+                        },
+                        Word {
+                            word: "1. ",
+                            tag: ListItemN(
+                                1,
+                            ),
+                        },
+                        Word {
+                            word: "a",
+                            style.add_modifier: ITALIC,
+                        },
+                    ],
+                },
+                Line {
+                    words: [
+                        Word {
+                            word: "  ",
+                        },
+                        Word {
+                            word: "2. ",
+                            tag: ListItemN(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "`",
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: "b",
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: "`",
+                            tag: InlineCode,
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [],
+        },
+    ],
+    links: Links {
+        links: [],
+        footnotes: {},
+    },
+}

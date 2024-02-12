@@ -102,9 +102,16 @@ impl From<Word> for StyledLine {
 }
 
 impl From<&[Word]> for StyledLine {
-    fn from(value: &[Word]) -> Self {
+    fn from(mut words: &[Word]) -> Self {
+        if words.is_empty() {
+            return StyledLine { line: Vec::new() };
+        }
+        if words[0].word.is_empty() {
+            // skip the meaningless whitespace in the beginning of a line
+            words = &words[1..];
+        }
         StyledLine {
-            line: value.iter().cloned().map(StyledText::from).collect(),
+            line: words.iter().cloned().map(StyledText::from).collect(),
         }
     }
 }

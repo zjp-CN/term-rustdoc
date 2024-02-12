@@ -78,7 +78,7 @@ impl StyledLines {
                     super::parse::md(doc)
                 } else {
                     let mut lines = Vec::with_capacity(128);
-                    parse::parse_doc(doc, 100.0, &mut lines);
+                    parse::parse_doc(doc, 80.0, &mut lines);
                     lines.shrink_to_fit();
                     lines
                 };

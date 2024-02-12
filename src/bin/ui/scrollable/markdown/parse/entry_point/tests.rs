@@ -25,7 +25,7 @@ let a = 1;
 "#;
     snap!(markdown_iter(doc).collect::<Vec<_>>());
     shot!(parse(doc), @r###"
-    h1 `code`
+    # h1 `code`
 
     aaa b c d e. xxx z.
 
@@ -61,7 +61,7 @@ fn parse_markdown_links() {
 
     `f`.
 
-    h2 c `h`
+    ## h2 c `h`
 
     "###);
 }

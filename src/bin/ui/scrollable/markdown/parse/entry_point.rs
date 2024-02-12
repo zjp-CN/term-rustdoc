@@ -29,7 +29,16 @@ pub fn parse(doc: &str) -> Blocks {
             Event::Start(Tag::Heading { level, .. }) => {
                 let heading = ele!(#heading iter, level, range);
                 let mut block = Block::default();
+                let mut sharps = XString::default();
+                let level = level as u8;
+                (0..level).for_each(|_| sharps.push('#'));
+                sharps.push(' ');
+                block.push_a_word(Word {
+                    word: sharps,
+                    ..Default::default()
+                });
                 Element::new(doc, &mut block, blocks.links(), heading).parse_paragraph();
+                block.set_heading(level);
                 blocks.push(block);
             }
             Event::Rule => blocks.push(Block::from_iter([Word {

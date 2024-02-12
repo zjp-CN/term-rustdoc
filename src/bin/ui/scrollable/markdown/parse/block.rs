@@ -1,6 +1,6 @@
 use super::{line::Line, word::Word};
 use super::{segment_words, MetaTag};
-use ratatui::style::{Color, Style};
+use ratatui::style::{Color, Modifier, Style};
 use std::fmt;
 use term_rustdoc::util::XString;
 
@@ -66,16 +66,6 @@ impl Block {
         self.lines.last_mut().unwrap()
     }
 
-    /// Append a normal **and** the exact word to the last line.
-    pub fn push_a_normal_and_exact_word(&mut self, word: &str) {
-        let word = Word {
-            word: word.into(),
-            ..Default::default()
-        };
-        let last_line = self.last_line();
-        last_line.words.push(word);
-    }
-
     /// Append normal words segmented from the input to the last line.
     pub fn push_normal_words(&mut self, words: &str) {
         let last_line = self.last_line();
@@ -121,21 +111,13 @@ impl Block {
         self.links.shrink_to_fit();
     }
 
-    pub fn heading(level: u8, text: &str) -> Block {
-        Block {
-            lines: Vec::from([Line {
-                words: Vec::from([Word {
-                    word: text.into(),
-                    style: Style {
-                        fg: Some(Color::LightCyan),
-                        ..Default::default()
-                    },
-                    tag: MetaTag::Heading(level),
-                    trailling_whitespace: false,
-                }]),
-            }]),
-            links: Vec::new(),
-            footnotes: Vec::new(),
+    pub fn set_heading(&mut self, level: u8) {
+        for line in &mut self.lines {
+            for word in &mut line.words {
+                word.tag = MetaTag::Heading(level);
+                word.style.fg = Some(Color::LightCyan);
+                word.style.add_modifier = Modifier::BOLD;
+            }
         }
     }
 

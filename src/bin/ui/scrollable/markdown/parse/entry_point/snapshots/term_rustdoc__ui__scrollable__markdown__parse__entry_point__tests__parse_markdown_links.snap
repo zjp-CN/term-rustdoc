@@ -1,0 +1,186 @@
+---
+source: src/bin/ui/scrollable/markdown/parse/entry_point/tests.rs
+expression: "markdown_iter(doc).collect::<Vec<_>>()"
+---
+[
+    (
+        Start(
+            Paragraph,
+        ),
+        1..22,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Inline,
+                dest_url: Borrowed(
+                    "b",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "",
+                ),
+            },
+        ),
+        1..7,
+    ),
+    (
+        Text(
+            Borrowed(
+                "a",
+            ),
+        ),
+        2..3,
+    ),
+    (
+        End(
+            Link,
+        ),
+        1..7,
+    ),
+    (
+        Text(
+            Borrowed(
+                ", ",
+            ),
+        ),
+        7..9,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Shortcut,
+                dest_url: Borrowed(
+                    "d",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "c",
+                ),
+            },
+        ),
+        9..12,
+    ),
+    (
+        Text(
+            Borrowed(
+                "c",
+            ),
+        ),
+        10..11,
+    ),
+    (
+        End(
+            Link,
+        ),
+        9..12,
+    ),
+    (
+        Text(
+            Borrowed(
+                ", ",
+            ),
+        ),
+        12..14,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Reference,
+                dest_url: Borrowed(
+                    "d",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "c",
+                ),
+            },
+        ),
+        14..20,
+    ),
+    (
+        Text(
+            Borrowed(
+                "e",
+            ),
+        ),
+        15..16,
+    ),
+    (
+        End(
+            Link,
+        ),
+        14..20,
+    ),
+    (
+        Text(
+            Borrowed(
+                ".",
+            ),
+        ),
+        20..21,
+    ),
+    (
+        End(
+            Paragraph,
+        ),
+        1..22,
+    ),
+    (
+        Start(
+            Paragraph,
+        ),
+        31..41,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Reference,
+                dest_url: Borrowed(
+                    "d",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "c",
+                ),
+            },
+        ),
+        31..39,
+    ),
+    (
+        Code(
+            Borrowed(
+                "f",
+            ),
+        ),
+        32..35,
+    ),
+    (
+        End(
+            Link,
+        ),
+        31..39,
+    ),
+    (
+        Text(
+            Borrowed(
+                ".",
+            ),
+        ),
+        39..40,
+    ),
+    (
+        End(
+            Paragraph,
+        ),
+        31..41,
+    ),
+]

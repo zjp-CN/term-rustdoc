@@ -1,5 +1,5 @@
 ---
-source: src/bin/ui/scrollable/markdown/parse/entry_point.rs
+source: src/bin/ui/scrollable/markdown/parse/entry_point/tests.rs
 expression: "markdown_iter(doc).collect::<Vec<_>>()"
 ---
 [

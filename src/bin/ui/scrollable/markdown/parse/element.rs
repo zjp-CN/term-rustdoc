@@ -132,6 +132,9 @@ where
                 Event::Text(words) => {
                     block.push_words(&words, style, tag.clone());
                 }
+                Event::Code(code) => {
+                    parse_intra_code(&code, block);
+                }
                 Event::Start(Tag::Emphasis) => {
                     let style = style.add_modifier(Modifier::ITALIC);
                     // we use for-loop here to discard further nested styles
@@ -254,7 +257,6 @@ pub fn parse_intra_code(code: &str, block: &mut Block) {
     segment_str(code, |s| {
         block.push_a_word(word(s));
     });
-    let mut end = word("`");
-    end.trailling_whitespace = true;
+    let end = word("`");
     block.push_a_word(end);
 }

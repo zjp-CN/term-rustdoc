@@ -87,45 +87,5 @@ fn markdown_iter(
     .into_offset_iter()
 }
 
-#[test]
-fn parse_markdown() {
-    let doc = r#"
-# h1
-
-aaa b *c* d **e**. ~xxx~ z.
-
-1 *c **ss** d sadsad xxx* `yyyy`
-
-```
-let a = 1;
-```
-
-> rrr sss 
-> tt
-
-- [x] done!
-    - nested list
-- [ ] undone
-    1. *a*
-    2. `b`
-"#;
-    insta::assert_debug_snapshot!(markdown_iter(doc).collect::<Vec<_>>());
-    insta::assert_display_snapshot!(parse(doc), @r###"
-    h1
-
-    aaa b c d e. xxx z.
-
-    1 c ss d sadsad xxx `yyyy`
-
-    let a = 1;
-
-    rrr sss tt
-
-    * [x] done!
-      * nested list
-    * [ ] undone
-      1. a
-      2. `b`
-
-    "###);
-}
+#[cfg(test)]
+mod tests;

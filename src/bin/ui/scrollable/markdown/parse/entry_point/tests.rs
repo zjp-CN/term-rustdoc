@@ -57,7 +57,7 @@ fn parse_markdown_links() {
     shot!(parse(doc), @r###"
     a, c, e.
 
-    `f` .
+    `f`.
 
     "###);
 }

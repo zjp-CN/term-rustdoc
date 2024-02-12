@@ -55,18 +55,22 @@ impl Blocks {
         let penalties = Default::default();
         for block in &self.blocks {
             write_block_as_styled_lines(block, width, penalties, slines);
-            write_empty_styled_line(slines);
-            block.links().iter().copied().for_each(|idx| {
-                if let Some(word) = self.links.get_link(idx) {
-                    write_styled_line(slines, word);
-                }
-            });
-            write_empty_styled_line(slines);
-            block.footnotes().iter().for_each(|key| {
-                if let Some(block) = self.links.get_footnote(key) {
-                    write_block_as_styled_lines(block, width, penalties, slines);
-                }
-            });
+            if !block.links().is_empty() {
+                write_empty_styled_line(slines);
+                block.links().iter().copied().for_each(|idx| {
+                    if let Some(word) = self.links.get_link(idx) {
+                        write_styled_line(slines, word);
+                    }
+                });
+            }
+            if !block.footnotes().is_empty() {
+                write_empty_styled_line(slines);
+                block.footnotes().iter().for_each(|key| {
+                    if let Some(block) = self.links.get_footnote(key) {
+                        write_block_as_styled_lines(block, width, penalties, slines);
+                    }
+                });
+            }
             write_empty_styled_line(slines);
         }
     }

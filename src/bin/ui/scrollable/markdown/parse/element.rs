@@ -122,6 +122,7 @@ where
             ..
         } = self;
         let idx = links.push_link(link.into());
+        block.push_link(idx);
         let tag = MetaTag::Link(LinkTag::ReferenceLink(idx));
         let style = LINK;
         while let Some((event, range)) = iter.next() {

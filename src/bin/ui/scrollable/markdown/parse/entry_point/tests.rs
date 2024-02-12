@@ -73,7 +73,9 @@ fn parse_markdown_links() {
 ## h2 [c] [`h`][c]
 ";
     snap!(markdown_iter(doc).collect::<Vec<_>>());
-    shot!(parse(doc), @r###"
+    let blocks = parse(doc);
+    snap!("parse_markdown_links-parsed", blocks);
+    shot!(blocks, @r###"
     a, c, e.
 
     `f`.

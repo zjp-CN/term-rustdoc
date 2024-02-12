@@ -7,7 +7,7 @@ pub enum MetaTag {
     Normal,
     Link(LinkTag),
     InlineCode,
-    InlineHTML,
+    // InlineHTML,
     ListItem,
     ListItemN(u8),
 
@@ -32,6 +32,7 @@ pub enum MetaTag {
 /// Links { inner: Vec<XString> }
 /// the usize is used only in the doc to refer to the link position in vec to highlight it
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub enum LinkTag {
     /// local crate item can be referred by item ID
     LocalItemLink(ID),

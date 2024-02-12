@@ -40,15 +40,19 @@ pub fn parse<'doc, I>(
                 trailling_whitespace: true,
                 ..Default::default()
             }),
-            Event::FootnoteReference(key) => block.push_a_word(Word {
-                word: "[^_]".into(),
-                style: Style {
-                    fg: Some(Color::LightMagenta),
-                    ..Default::default()
-                },
-                tag: MetaTag::Link(LinkTag::Footnote((&*key).into())),
-                trailling_whitespace: false,
-            }),
+            Event::FootnoteReference(key) => {
+                let key = XString::new(&key);
+                block.push_a_word(Word {
+                    word: "[^_]".into(),
+                    style: Style {
+                        fg: Some(Color::LightMagenta),
+                        ..Default::default()
+                    },
+                    tag: MetaTag::Link(LinkTag::Footnote(key.clone())),
+                    trailling_whitespace: false,
+                });
+                block.push_footnote(key);
+            }
             Event::Start(Tag::Image { dest_url, .. }) => {
                 Element::new(doc, block, links, ele!(iter, Image, range)).parse_image(&dest_url);
             }

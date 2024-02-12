@@ -155,4 +155,18 @@ impl Block {
     pub fn footnotes(&self) -> &[XString] {
         &self.footnotes
     }
+
+    pub fn push_link(&mut self, idx: usize) {
+        // if the same idx exists, no need to store again
+        if !self.links.iter().any(|l| *l == idx) {
+            self.links.push(idx);
+        }
+    }
+
+    pub fn push_footnote(&mut self, key: XString) {
+        // if the same key exists, no need to store again
+        if !self.footnotes.iter().any(|f| *f == key) {
+            self.footnotes.push(key);
+        }
+    }
 }

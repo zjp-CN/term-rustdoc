@@ -107,6 +107,7 @@ pub struct Links {
 
 impl Links {
     pub fn push_link(&mut self, link: XString) -> usize {
+        // check if the same link exists; if exists, use that idx
         self.links
             .iter()
             .position(|l| *l == link)

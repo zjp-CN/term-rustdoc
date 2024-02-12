@@ -1,0 +1,157 @@
+---
+source: src/bin/ui/scrollable/markdown/parse/entry_point/tests.rs
+expression: blocks
+---
+Blocks {
+    blocks: [
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "a",
+                            style.add_modifier: UNDERLINED,
+                            tag: Link(
+                                ReferenceLink(
+                                    0,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: ",",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "c",
+                            style.add_modifier: UNDERLINED,
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: ",",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "e",
+                            style.add_modifier: UNDERLINED,
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: ".",
+                        },
+                    ],
+                },
+            ],
+            links: [
+                0,
+                1,
+            ],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "`",
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: "f",
+                            style.add_modifier: UNDERLINED,
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: "`",
+                            tag: InlineCode,
+                        },
+                        Word {
+                            word: ".",
+                        },
+                    ],
+                },
+            ],
+            links: [
+                1,
+            ],
+            footnotes: [],
+        },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "## ",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "h2",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "c",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "`",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "h",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "`",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                    ],
+                },
+            ],
+            links: [
+                1,
+            ],
+            footnotes: [],
+        },
+    ],
+    links: Links {
+        links: [
+            "b",
+            "d",
+        ],
+        footnotes: {},
+    },
+}

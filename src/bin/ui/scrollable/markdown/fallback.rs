@@ -40,7 +40,10 @@ impl LineState for StyledLine {
 
 #[derive(Default)]
 pub struct StyledLines {
-    /// use syntect's highlighting, but without text wrapped
+    /// Use syntect's highlighting, but with no text wrapped, which means contents won't be shown
+    /// if they exceed the area width.
+    ///
+    /// To switch between non-wrapping and wrapping behavior, press `<space>` shortcut.
     syntect: bool,
     lines: Vec<StyledLine>,
     doc: Option<CrateDoc>,
@@ -74,13 +77,13 @@ impl StyledLines {
     pub fn update_doc(&mut self, id: &str, width: Option<f64>) -> bool {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
-                self.lines = if self.syntect || width.is_none() {
-                    super::parse::md(doc)
-                } else {
+                self.lines = if let Some(width) = (!self.syntect).then_some(width).flatten() {
                     let mut lines = Vec::with_capacity(128);
-                    parse::parse_doc(doc, width.unwrap(), &mut lines);
+                    parse::parse_doc(doc, width, &mut lines);
                     lines.shrink_to_fit();
                     lines
+                } else {
+                    parse::md(doc)
                 };
                 return true;
             }
@@ -102,21 +105,9 @@ impl StyledLines {
 impl Page {
     pub fn toggle_sytect(&mut self) {
         self.content().lines.toggle_sytect();
-        if let Some(id) = self.outline.display.get_id() {
-            self.content.display.update_doc(id);
-        }
+        self.update_content();
     }
 }
-
-// impl StyledLines {
-//     pub fn append_new_line(&mut self) {
-//         self.lines.push(StyledLine { line: Vec::new() });
-//     }
-//
-//     pub fn append_line<L: Into<StyledLine>>(&mut self, line: L) {
-//         self.lines.push(line.into());
-//     }
-// }
 
 impl ScrollText {
     pub fn new_text(doc: Option<CrateDoc>) -> Result<Self> {

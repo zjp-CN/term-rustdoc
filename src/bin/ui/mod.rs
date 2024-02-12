@@ -155,6 +155,8 @@ impl Page {
 
         self.content.display.area = content_area;
         self.content.display.max_windth = content_area.width;
+        // auto update content when screen size changes
+        self.update_content();
         // self.content.display.cursor = content_area.y;
     }
 }

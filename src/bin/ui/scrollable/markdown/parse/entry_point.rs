@@ -7,14 +7,7 @@ pub fn parse(doc: &str) -> Blocks {
         return Blocks::default();
     }
     let mut blocks = Blocks::new();
-    let mut iter = Parser::new_ext(
-        doc,
-        Options::ENABLE_FOOTNOTES
-            | Options::ENABLE_STRIKETHROUGH
-            | Options::ENABLE_TABLES
-            | Options::ENABLE_TASKLISTS,
-    )
-    .into_offset_iter();
+    let mut iter = markdown_iter(doc);
     while let Some((event, range)) = iter.by_ref().next() {
         match event {
             Event::Start(Tag::Paragraph) => {
@@ -34,7 +27,8 @@ pub fn parse(doc: &str) -> Blocks {
                 }
             }
             Event::Start(Tag::Heading { level, .. }) => {
-                while let Some(event) = ele!(#heading iter, level, range).next() {
+                let heading = ele!(#heading iter, level, range);
+                for event in heading {
                     if let (Event::Text(text), _) = event {
                         blocks.push(Block::heading(level as u8, &text));
                     }
@@ -80,9 +74,24 @@ pub fn parse(doc: &str) -> Blocks {
     blocks
 }
 
+fn markdown_iter(
+    doc: &str,
+) -> pulldown_cmark::OffsetIter<'_, pulldown_cmark::DefaultBrokenLinkCallback> {
+    Parser::new_ext(
+        doc,
+        Options::ENABLE_FOOTNOTES
+            | Options::ENABLE_STRIKETHROUGH
+            | Options::ENABLE_TABLES
+            | Options::ENABLE_TASKLISTS,
+    )
+    .into_offset_iter()
+}
+
 #[test]
 fn parse_markdown() {
     let doc = r#"
+# h1
+
 aaa b *c* d **e**. ~xxx~ z.
 
 1 *c **ss** d sadsad xxx* `yyyy`
@@ -100,8 +109,10 @@ let a = 1;
     1. *a*
     2. `b`
 "#;
-    parse(doc);
+    insta::assert_debug_snapshot!(markdown_iter(doc).collect::<Vec<_>>());
     insta::assert_display_snapshot!(parse(doc), @r###"
+    h1
+
     aaa b c d e. xxx z.
 
     1 c ss d sadsad xxx `yyyy`

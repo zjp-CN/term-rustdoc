@@ -183,4 +183,101 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
         ),
         31..41,
     ),
+    (
+        Start(
+            Heading {
+                level: H2,
+                id: None,
+                classes: [],
+                attrs: [],
+            },
+        ),
+        42..61,
+    ),
+    (
+        Text(
+            Borrowed(
+                "h2 ",
+            ),
+        ),
+        45..48,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Shortcut,
+                dest_url: Borrowed(
+                    "d",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "c",
+                ),
+            },
+        ),
+        48..51,
+    ),
+    (
+        Text(
+            Borrowed(
+                "c",
+            ),
+        ),
+        49..50,
+    ),
+    (
+        End(
+            Link,
+        ),
+        48..51,
+    ),
+    (
+        Text(
+            Borrowed(
+                " ",
+            ),
+        ),
+        51..52,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Reference,
+                dest_url: Borrowed(
+                    "d",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "c",
+                ),
+            },
+        ),
+        52..60,
+    ),
+    (
+        Code(
+            Borrowed(
+                "h",
+            ),
+        ),
+        53..56,
+    ),
+    (
+        End(
+            Link,
+        ),
+        52..60,
+    ),
+    (
+        End(
+            Heading(
+                H2,
+            ),
+        ),
+        42..61,
+    ),
 ]

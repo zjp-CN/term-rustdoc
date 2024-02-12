@@ -28,11 +28,9 @@ pub fn parse(doc: &str) -> Blocks {
             }
             Event::Start(Tag::Heading { level, .. }) => {
                 let heading = ele!(#heading iter, level, range);
-                for event in heading {
-                    if let (Event::Text(text), _) = event {
-                        blocks.push(Block::heading(level as u8, &text));
-                    }
-                }
+                let mut block = Block::default();
+                Element::new(doc, &mut block, blocks.links(), heading).parse_paragraph();
+                blocks.push(block);
             }
             Event::Rule => blocks.push(Block::from_iter([Word {
                 tag: MetaTag::Rule,

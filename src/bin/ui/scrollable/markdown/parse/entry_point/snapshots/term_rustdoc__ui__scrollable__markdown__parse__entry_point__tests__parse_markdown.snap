@@ -12,15 +12,23 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 attrs: [],
             },
         ),
-        1..6,
+        1..13,
     ),
     (
         Text(
             Borrowed(
-                "h1",
+                "h1 ",
             ),
         ),
-        3..5,
+        3..6,
+    ),
+    (
+        Code(
+            Borrowed(
+                "code",
+            ),
+        ),
+        6..12,
     ),
     (
         End(
@@ -28,13 +36,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 H1,
             ),
         ),
-        1..6,
+        1..13,
     ),
     (
         Start(
             Paragraph,
         ),
-        7..35,
+        14..42,
     ),
     (
         Text(
@@ -42,13 +50,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "aaa b ",
             ),
         ),
-        7..13,
+        14..20,
     ),
     (
         Start(
             Emphasis,
         ),
-        13..16,
+        20..23,
     ),
     (
         Text(
@@ -56,13 +64,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "c",
             ),
         ),
-        14..15,
+        21..22,
     ),
     (
         End(
             Emphasis,
         ),
-        13..16,
+        20..23,
     ),
     (
         Text(
@@ -70,13 +78,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 " d ",
             ),
         ),
-        16..19,
+        23..26,
     ),
     (
         Start(
             Strong,
         ),
-        19..24,
+        26..31,
     ),
     (
         Text(
@@ -84,13 +92,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "e",
             ),
         ),
-        21..22,
+        28..29,
     ),
     (
         End(
             Strong,
         ),
-        19..24,
+        26..31,
     ),
     (
         Text(
@@ -98,13 +106,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ". ",
             ),
         ),
-        24..26,
+        31..33,
     ),
     (
         Start(
             Strikethrough,
         ),
-        26..31,
+        33..38,
     ),
     (
         Text(
@@ -112,13 +120,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "xxx",
             ),
         ),
-        27..30,
+        34..37,
     ),
     (
         End(
             Strikethrough,
         ),
-        26..31,
+        33..38,
     ),
     (
         Text(
@@ -126,19 +134,19 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 " z.",
             ),
         ),
-        31..34,
+        38..41,
     ),
     (
         End(
             Paragraph,
         ),
-        7..35,
+        14..42,
     ),
     (
         Start(
             Paragraph,
         ),
-        36..69,
+        43..76,
     ),
     (
         Text(
@@ -146,13 +154,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "1 ",
             ),
         ),
-        36..38,
+        43..45,
     ),
     (
         Start(
             Emphasis,
         ),
-        38..61,
+        45..68,
     ),
     (
         Text(
@@ -160,13 +168,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "c ",
             ),
         ),
-        39..41,
+        46..48,
     ),
     (
         Start(
             Strong,
         ),
-        41..47,
+        48..54,
     ),
     (
         Text(
@@ -174,13 +182,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "ss",
             ),
         ),
-        43..45,
+        50..52,
     ),
     (
         End(
             Strong,
         ),
-        41..47,
+        48..54,
     ),
     (
         Text(
@@ -188,13 +196,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 " d sadsad xxx",
             ),
         ),
-        47..60,
+        54..67,
     ),
     (
         End(
             Emphasis,
         ),
-        38..61,
+        45..68,
     ),
     (
         Text(
@@ -202,7 +210,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 " ",
             ),
         ),
-        61..62,
+        68..69,
     ),
     (
         Code(
@@ -210,13 +218,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "yyyy",
             ),
         ),
-        62..68,
+        69..75,
     ),
     (
         End(
             Paragraph,
         ),
-        36..69,
+        43..76,
     ),
     (
         Start(
@@ -228,7 +236,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ),
             ),
         ),
-        70..88,
+        77..95,
     ),
     (
         Text(
@@ -236,25 +244,25 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "let a = 1;\n",
             ),
         ),
-        74..85,
+        81..92,
     ),
     (
         End(
             CodeBlock,
         ),
-        70..88,
+        77..95,
     ),
     (
         Start(
             BlockQuote,
         ),
-        90..106,
+        97..113,
     ),
     (
         Start(
             Paragraph,
         ),
-        92..106,
+        99..113,
     ),
     (
         Text(
@@ -262,11 +270,11 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "rrr sss",
             ),
         ),
-        92..99,
+        99..106,
     ),
     (
         SoftBreak,
-        100..101,
+        107..108,
     ),
     (
         Text(
@@ -274,19 +282,19 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "tt",
             ),
         ),
-        103..105,
+        110..112,
     ),
     (
         End(
             Paragraph,
         ),
-        92..106,
+        99..113,
     ),
     (
         End(
             BlockQuote,
         ),
-        90..106,
+        97..113,
     ),
     (
         Start(
@@ -294,19 +302,19 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 None,
             ),
         ),
-        107..172,
+        114..179,
     ),
     (
         Start(
             Item,
         ),
-        107..137,
+        114..144,
     ),
     (
         TaskListMarker(
             true,
         ),
-        109..112,
+        116..119,
     ),
     (
         Text(
@@ -314,7 +322,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "done!",
             ),
         ),
-        113..118,
+        120..125,
     ),
     (
         Start(
@@ -322,13 +330,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 None,
             ),
         ),
-        121..137,
+        128..144,
     ),
     (
         Start(
             Item,
         ),
-        121..137,
+        128..144,
     ),
     (
         Text(
@@ -336,13 +344,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "nested list",
             ),
         ),
-        125..136,
+        132..143,
     ),
     (
         End(
             Item,
         ),
-        121..137,
+        128..144,
     ),
     (
         End(
@@ -350,25 +358,25 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 false,
             ),
         ),
-        121..137,
+        128..144,
     ),
     (
         End(
             Item,
         ),
-        107..137,
+        114..144,
     ),
     (
         Start(
             Item,
         ),
-        137..172,
+        144..179,
     ),
     (
         TaskListMarker(
             false,
         ),
-        139..142,
+        146..149,
     ),
     (
         Text(
@@ -376,7 +384,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "undone",
             ),
         ),
-        143..149,
+        150..156,
     ),
     (
         Start(
@@ -386,19 +394,19 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ),
             ),
         ),
-        152..172,
+        159..179,
     ),
     (
         Start(
             Item,
         ),
-        152..161,
+        159..168,
     ),
     (
         Start(
             Emphasis,
         ),
-        157..160,
+        164..167,
     ),
     (
         Text(
@@ -406,25 +414,25 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "a",
             ),
         ),
-        158..159,
+        165..166,
     ),
     (
         End(
             Emphasis,
         ),
-        157..160,
+        164..167,
     ),
     (
         End(
             Item,
         ),
-        152..161,
+        159..168,
     ),
     (
         Start(
             Item,
         ),
-        163..172,
+        170..179,
     ),
     (
         Code(
@@ -432,13 +440,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "b",
             ),
         ),
-        168..171,
+        175..178,
     ),
     (
         End(
             Item,
         ),
-        163..172,
+        170..179,
     ),
     (
         End(
@@ -446,13 +454,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 true,
             ),
         ),
-        152..172,
+        159..179,
     ),
     (
         End(
             Item,
         ),
-        137..172,
+        144..179,
     ),
     (
         End(
@@ -460,6 +468,6 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 false,
             ),
         ),
-        107..172,
+        114..179,
     ),
 ]

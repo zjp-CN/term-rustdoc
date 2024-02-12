@@ -4,7 +4,7 @@ use insta::{assert_debug_snapshot as snap, assert_display_snapshot as shot};
 #[test]
 fn parse_markdown() {
     let doc = r#"
-# h1
+# h1 `code`
 
 aaa b *c* d **e**. ~xxx~ z.
 
@@ -25,7 +25,7 @@ let a = 1;
 "#;
     snap!(markdown_iter(doc).collect::<Vec<_>>());
     shot!(parse(doc), @r###"
-    h1
+    h1 `code`
 
     aaa b c d e. xxx z.
 
@@ -52,12 +52,16 @@ fn parse_markdown_links() {
 [c]: d
 
 [`f`][c].
+
+## h2 [c] [`h`][c]
 ";
     snap!(markdown_iter(doc).collect::<Vec<_>>());
     shot!(parse(doc), @r###"
     a, c, e.
 
     `f`.
+
+    h2 c `h`
 
     "###);
 }

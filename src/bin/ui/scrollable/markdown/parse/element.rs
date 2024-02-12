@@ -123,17 +123,14 @@ where
         } = self;
         let idx = links.push_link(link.into());
         let tag = MetaTag::Link(LinkTag::ReferenceLink(idx));
-        let style = Style {
-            fg: Some(Color::Rgb(30, 144, 255)), // #1E90FF
-            ..Default::default()
-        };
+        let style = LINK;
         while let Some((event, range)) = iter.next() {
             match event {
                 Event::Text(words) => {
                     block.push_words(&words, style, tag.clone());
                 }
                 Event::Code(code) => {
-                    parse_intra_code(&code, block);
+                    parse_intra_code_in_link(&code, block);
                 }
                 Event::Start(Tag::Emphasis) => {
                     let style = style.add_modifier(Modifier::ITALIC);
@@ -241,14 +238,27 @@ where
     }
 }
 
+const LINK: Style = Style {
+    fg: Some(Color::Rgb(30, 144, 255)), // #1E90FF
+    add_modifier: Modifier::UNDERLINED,
+    bg: None,
+    underline_color: None,
+    sub_modifier: Modifier::empty(),
+};
+
+const INTRA_CODE: Style = Style {
+    fg: Some(Color::Rgb(255, 184, 162)), // #FFB8A2
+    bg: None,
+    underline_color: None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+
 pub fn parse_intra_code(code: &str, block: &mut Block) {
     fn word(s: &str) -> Word {
         Word {
             word: s.into(),
-            style: Style {
-                fg: Some(Color::Rgb(255, 184, 162)), // #FFB8A2
-                ..Default::default()
-            },
+            style: INTRA_CODE,
             tag: MetaTag::InlineCode,
             trailling_whitespace: false,
         }
@@ -259,4 +269,29 @@ pub fn parse_intra_code(code: &str, block: &mut Block) {
     });
     let end = word("`");
     block.push_a_word(end);
+}
+
+pub fn parse_intra_code_in_link(code: &str, block: &mut Block) {
+    fn word(s: &str, style: Style) -> Word {
+        Word {
+            word: s.into(),
+            style,
+            tag: MetaTag::InlineCode,
+            trailling_whitespace: false,
+        }
+    }
+    let tick = word("`", INTRA_CODE);
+    block.push_a_word(tick.clone());
+    segment_str(code, |s| {
+        let word = word(
+            s,
+            Style {
+                fg: Some(Color::Rgb(30, 144, 255)), // #1E90FF
+                add_modifier: Modifier::UNDERLINED,
+                ..Default::default()
+            },
+        );
+        block.push_a_word(word);
+    });
+    block.push_a_word(tick);
 }

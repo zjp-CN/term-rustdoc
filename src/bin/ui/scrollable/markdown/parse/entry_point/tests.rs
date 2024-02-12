@@ -50,6 +50,17 @@ let a = 1;
     snap!("parse_markdown-StyledLines", lines);
 }
 
+/// This test is used to quickly test text wrapping.
+#[test]
+fn parse_markdown_dbg() {
+    let doc = r#"
+"#;
+    const WIDTH: f64 = 70.0;
+    let mut slines = Vec::new();
+    parse(doc).write_styled_lines(WIDTH, &mut slines);
+    dbg!(slines);
+}
+
 #[test]
 fn parse_markdown_links() {
     let doc = "

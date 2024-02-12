@@ -372,12 +372,81 @@ Blocks {
             ],
             footnotes: [],
         },
+        Block {
+            lines: [
+                Line {
+                    words: [
+                        Word {
+                            word: "m",
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                Footnote(
+                                    "n",
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "^",
+                            tag: Link(
+                                Footnote(
+                                    "n",
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "n",
+                            tag: Link(
+                                Footnote(
+                                    "n",
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                Footnote(
+                                    "n",
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: ".",
+                        },
+                    ],
+                },
+            ],
+            links: [],
+            footnotes: [
+                "n",
+            ],
+        },
     ],
     links: Links {
         links: [
             "b",
             "d",
         ],
-        footnotes: {},
+        footnotes: {
+            "n": Block {
+                lines: [
+                    Line {
+                        words: [
+                            Word {
+                                word: "[^n]: ",
+                                tag: FootnoteSource,
+                            },
+                            Word {
+                                word: "blah",
+                                tag: FootnoteSource,
+                            },
+                        ],
+                    },
+                ],
+                links: [],
+                footnotes: [],
+            },
+        },
     },
 }

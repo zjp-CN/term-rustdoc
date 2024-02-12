@@ -278,6 +278,14 @@ const INTRA_CODE: Style = Style {
     sub_modifier: Modifier::empty(),
 };
 
+pub const FOOTNOTE: Style = Style {
+    fg: Some(Color::LightMagenta),
+    bg: None,
+    underline_color: None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+
 pub fn parse_intra_code(code: &str, block: &mut Block) {
     fn word(s: &str) -> Word {
         Word {

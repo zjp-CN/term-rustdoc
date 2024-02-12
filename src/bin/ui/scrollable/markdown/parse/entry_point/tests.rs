@@ -71,6 +71,10 @@ fn parse_markdown_links() {
 [`f`][c].
 
 ## h2 [c] [`h`][c]
+
+m[^n].
+
+[^n]: blah
 ";
     snap!(markdown_iter(doc).collect::<Vec<_>>());
     let blocks = parse(doc);
@@ -82,7 +86,13 @@ fn parse_markdown_links() {
 
     ## h2 [c][1] [`h`][1]
 
+    m[^n].
+
     "###);
+
+    let mut lines = Vec::new();
+    blocks.write_styled_lines(50.0, &mut lines);
+    snap!("parse_markdown_links-StyledLines", lines);
 }
 
 #[test]

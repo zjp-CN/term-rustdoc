@@ -1,6 +1,10 @@
-use super::{code_block, element::Element, list, Block, Blocks, MetaTag, Word};
+use super::{
+    code_block,
+    element::{Element, FOOTNOTE},
+    list, Block, Blocks, MetaTag, Word,
+};
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
-use term_rustdoc::util::XString;
+use term_rustdoc::util::{xformat, XString};
 
 pub fn parse(doc: &str) -> Blocks {
     if doc.is_empty() {
@@ -62,6 +66,12 @@ pub fn parse(doc: &str) -> Blocks {
             Event::Start(Tag::FootnoteDefinition(key)) => {
                 if let Some((Event::Start(Tag::Paragraph), range)) = iter.next() {
                     let mut block = Block::default();
+                    block.push_a_word(Word {
+                        word: xformat!("[^{key}]: "),
+                        style: FOOTNOTE,
+                        tag: MetaTag::FootnoteSource,
+                        trailling_whitespace: false,
+                    });
                     let para = ele!(iter, Paragraph, range);
                     Element::new(doc, &mut block, blocks.links(), para).parse_paragraph();
                     block.set_foot_note();

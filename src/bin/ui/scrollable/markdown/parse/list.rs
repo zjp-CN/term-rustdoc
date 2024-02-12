@@ -1,7 +1,7 @@
 use super::{
-    element::{parse_intra_code, Element, EventRange},
+    element::{parse_intra_code, Element, EventRange, FOOTNOTE},
     meta_tag::{LinkTag, MetaTag},
-    {Block, Line, Links, Word},
+    Block, Line, Links, Word,
 };
 use pulldown_cmark::{Event, Tag};
 use ratatui::style::{Color, Style};
@@ -42,15 +42,18 @@ pub fn parse<'doc, I>(
             }),
             Event::FootnoteReference(key) => {
                 let key = XString::new(&key);
-                block.push_a_word(Word {
-                    word: "[^_]".into(),
-                    style: Style {
-                        fg: Some(Color::LightMagenta),
-                        ..Default::default()
-                    },
-                    tag: MetaTag::Link(LinkTag::Footnote(key.clone())),
+                let tag = MetaTag::Link(LinkTag::Footnote(key.clone()));
+                let footnote = |word| Word {
+                    word,
+                    style: FOOTNOTE,
+                    tag: tag.clone(),
                     trailling_whitespace: false,
-                });
+                };
+                // push [^key] where each word can be wrapped
+                block.push_a_word(footnote("[".into()));
+                block.push_a_word(footnote("^".into()));
+                block.push_a_word(footnote(key.clone()));
+                block.push_a_word(footnote("]".into()));
                 block.push_footnote(key);
             }
             Event::Start(Tag::Image { dest_url, .. }) => {
@@ -83,7 +86,7 @@ pub fn parse<'doc, I>(
     }
 }
 
-pub fn task_maker(done: bool, block: &mut Block) {
+fn task_maker(done: bool, block: &mut Block) {
     let task = if done {
         Word {
             word: "[x]".into(),

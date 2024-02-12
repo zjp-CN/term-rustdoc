@@ -85,7 +85,11 @@ impl Fragment for Word {
 
 impl From<Word> for StyledText {
     fn from(word: Word) -> Self {
-        StyledText::new_plain(word.word.clone(), word.style)
+        let mut text = word.word.clone();
+        if word.trailling_whitespace {
+            text.push(' ');
+        }
+        StyledText::new_plain(text, word.style)
     }
 }
 

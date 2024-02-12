@@ -9,8 +9,47 @@ Blocks {
                 Line {
                     words: [
                         Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    0,
+                                ),
+                            ),
+                        },
+                        Word {
                             word: "a",
-                            style.add_modifier: UNDERLINED,
+                            tag: Link(
+                                ReferenceLink(
+                                    0,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    0,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    0,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "0",
+                            tag: Link(
+                                ReferenceLink(
+                                    0,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
                             tag: Link(
                                 ReferenceLink(
                                     0,
@@ -22,8 +61,47 @@ Blocks {
                             trailling_whitespace: true,
                         },
                         Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
                             word: "c",
-                            style.add_modifier: UNDERLINED,
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "1",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
                             tag: Link(
                                 ReferenceLink(
                                     1,
@@ -35,8 +113,47 @@ Blocks {
                             trailling_whitespace: true,
                         },
                         Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
                             word: "e",
-                            style.add_modifier: UNDERLINED,
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "1",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
                             tag: Link(
                                 ReferenceLink(
                                     1,
@@ -60,17 +177,56 @@ Blocks {
                 Line {
                     words: [
                         Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
                             word: "`",
                             tag: InlineCode,
                         },
                         Word {
                             word: "f",
-                            style.add_modifier: UNDERLINED,
                             tag: InlineCode,
                         },
                         Word {
                             word: "`",
                             tag: InlineCode,
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "1",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    1,
+                                ),
+                            ),
                         },
                         Word {
                             word: ".",
@@ -103,7 +259,42 @@ Blocks {
                             trailling_whitespace: true,
                         },
                         Word {
+                            word: "[",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
                             word: "c",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "1",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "]",
                             style.add_modifier: BOLD,
                             tag: Heading(
                                 2,
@@ -116,6 +307,13 @@ Blocks {
                                 2,
                             ),
                             trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "[",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
                         },
                         Word {
                             word: "`",
@@ -133,6 +331,34 @@ Blocks {
                         },
                         Word {
                             word: "`",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "1",
+                            style.add_modifier: BOLD,
+                            tag: Heading(
+                                2,
+                            ),
+                        },
+                        Word {
+                            word: "]",
                             style.add_modifier: BOLD,
                             tag: Heading(
                                 2,

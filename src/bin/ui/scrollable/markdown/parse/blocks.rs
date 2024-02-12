@@ -2,7 +2,7 @@ use super::{block::Block, LinkTag, MetaTag, Word};
 use crate::ui::scrollable::markdown::fallback::StyledLine;
 use ratatui::style::{Color, Style};
 use std::fmt;
-use term_rustdoc::util::{hashmap, HashMap, XString};
+use term_rustdoc::util::{hashmap, xformat, HashMap, XString};
 use textwrap::wrap_algorithms::{wrap_optimal_fit, Penalties};
 
 /// The whole documentation for an item.
@@ -59,6 +59,10 @@ impl Blocks {
                 write_empty_styled_line(slines);
                 block.links().iter().copied().for_each(|idx| {
                     if let Some(word) = self.links.get_link(idx) {
+                        let word = Word {
+                            word: xformat!("[{idx}]: {}", word.word),
+                            ..word
+                        };
                         write_styled_line(slines, word);
                     }
                 });

@@ -76,11 +76,11 @@ fn parse_markdown_links() {
     let blocks = parse(doc);
     snap!("parse_markdown_links-parsed", blocks);
     shot!(blocks, @r###"
-    a, c, e.
+    [a][0], [c][1], [e][1].
 
-    `f`.
+    [`f`][1].
 
-    ## h2 c `h`
+    ## h2 [c][1] [`h`][1]
 
     "###);
 }

@@ -1,6 +1,7 @@
 use super::{segment_str, Block, Color, LinkTag, Links, MetaTag, Modifier, Style, Word};
 use pulldown_cmark::{Event, Tag};
 use std::ops::Range;
+use term_rustdoc::util::{ToCompactString, XString};
 
 macro_rules! ele {
     ($iter:ident, $tag:ident, $range:ident) => {
@@ -125,6 +126,13 @@ where
         block.push_link(idx);
         let tag = MetaTag::Link(LinkTag::ReferenceLink(idx));
         let style = LINK;
+        let alink = |word| Word {
+            word,
+            style,
+            tag: tag.clone(),
+            trailling_whitespace: false,
+        };
+        block.push_a_word(alink(XString::new_inline("[")));
         while let Some((event, range)) = iter.next() {
             match event {
                 Event::Text(words) => {
@@ -161,6 +169,10 @@ where
                 _ => (),
             }
         }
+        block.push_a_word(alink(XString::new_inline("]")));
+        block.push_a_word(alink(XString::new_inline("[")));
+        block.push_a_word(alink(idx.to_compact_string()));
+        block.push_a_word(alink(XString::new_inline("]")));
     }
 
     /// Images are like links, e.g. `![ref]` are valid syntax, or `![styled text](...)`.
@@ -241,7 +253,7 @@ where
 
 const LINK: Style = Style {
     fg: Some(Color::Rgb(30, 144, 255)), // #1E90FF
-    add_modifier: Modifier::UNDERLINED,
+    add_modifier: Modifier::empty(),
     bg: None,
     underline_color: None,
     sub_modifier: Modifier::empty(),
@@ -284,14 +296,7 @@ pub fn parse_intra_code_in_link(code: &str, block: &mut Block) {
     let tick = word("`", INTRA_CODE);
     block.push_a_word(tick.clone());
     segment_str(code, |s| {
-        let word = word(
-            s,
-            Style {
-                fg: Some(Color::Rgb(30, 144, 255)), // #1E90FF
-                add_modifier: Modifier::UNDERLINED,
-                ..Default::default()
-            },
-        );
+        let word = word(s, LINK);
         block.push_a_word(word);
     });
     block.push_a_word(tick);

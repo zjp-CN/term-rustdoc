@@ -154,6 +154,7 @@ impl Page {
         }
 
         self.content.display.area = content_area;
+        self.content.display.max_windth = content_area.width;
         // self.content.display.cursor = content_area.y;
     }
 }

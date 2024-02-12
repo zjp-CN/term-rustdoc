@@ -109,7 +109,7 @@ impl Page {
     /// update content's StyledLines aftet setting the cursor
     pub fn update_content(&mut self) {
         if let Some(id) = self.outline.display.get_id() {
-            if self.content.display.lines.update_doc(id) {
+            if self.content.display.update_doc(id) {
                 // Only reset start after the update.
                 // TODO: would it be better to remember the
                 // view position if doc is able to be cached?

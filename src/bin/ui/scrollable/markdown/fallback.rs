@@ -71,14 +71,14 @@ impl StyledLines {
     }
 
     /// only returns true if a new doc is fetched
-    pub fn update_doc(&mut self, id: &str) -> bool {
+    pub fn update_doc(&mut self, id: &str, width: Option<f64>) -> bool {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
-                self.lines = if self.syntect {
+                self.lines = if self.syntect || width.is_none() {
                     super::parse::md(doc)
                 } else {
                     let mut lines = Vec::with_capacity(128);
-                    parse::parse_doc(doc, 80.0, &mut lines);
+                    parse::parse_doc(doc, width.unwrap(), &mut lines);
                     lines.shrink_to_fit();
                     lines
                 };
@@ -103,7 +103,7 @@ impl Page {
     pub fn toggle_sytect(&mut self) {
         self.content().lines.toggle_sytect();
         if let Some(id) = self.outline.display.get_id() {
-            self.content.display.lines.update_doc(id);
+            self.content.display.update_doc(id);
         }
     }
 }
@@ -120,10 +120,19 @@ impl Page {
 
 impl ScrollText {
     pub fn new_text(doc: Option<CrateDoc>) -> Result<Self> {
-        // TODO:max_windth and text wrap for markdown
         Ok(Scrollable {
             lines: StyledLines::new(doc),
             ..Default::default()
         })
+    }
+
+    fn wrapping_width(&self) -> Option<f64> {
+        // wrapping width should less than area width
+        (self.max_windth > 1).then(|| self.max_windth.saturating_sub(1) as f64)
+    }
+
+    pub fn update_doc(&mut self, id: &str) -> bool {
+        let width = self.wrapping_width();
+        self.lines.update_doc(id, width)
     }
 }

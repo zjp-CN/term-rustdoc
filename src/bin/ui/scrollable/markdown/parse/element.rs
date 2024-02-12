@@ -262,7 +262,7 @@ where
     }
 }
 
-const LINK: Style = Style {
+pub const LINK: Style = Style {
     fg: Some(Color::Rgb(30, 144, 255)), // #1E90FF
     add_modifier: Modifier::empty(),
     bg: None,

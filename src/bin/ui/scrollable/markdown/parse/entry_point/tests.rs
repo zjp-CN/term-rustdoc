@@ -64,9 +64,11 @@ fn parse_markdown_dbg() {
 #[test]
 fn parse_markdown_links() {
     let doc = "
-[a](b), [c], [e][c].
+[a](b), [c], [e][c]. [long]
 
 [c]: d
+
+[long]: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 [`f`][c].
 
@@ -80,7 +82,7 @@ m[^n].
     let blocks = parse(doc);
     snap!("parse_markdown_links-parsed", blocks);
     shot!(blocks, @r###"
-    [a][0], [c][1], [e][1].
+    [a][0], [c][1], [e][1]. [long][2]
 
     [`f`][1].
 
@@ -91,7 +93,7 @@ m[^n].
     "###);
 
     let mut lines = Vec::new();
-    blocks.write_styled_lines(50.0, &mut lines);
+    blocks.write_styled_lines(20.0, &mut lines);
     snap!("parse_markdown_links-StyledLines", lines);
 }
 

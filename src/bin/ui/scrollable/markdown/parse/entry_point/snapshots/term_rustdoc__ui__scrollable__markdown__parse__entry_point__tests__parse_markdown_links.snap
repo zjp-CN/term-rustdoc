@@ -7,7 +7,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
         Start(
             Paragraph,
         ),
-        1..22,
+        1..29,
     ),
     (
         Start(
@@ -121,22 +121,53 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
     (
         Text(
             Borrowed(
-                ".",
+                ". ",
             ),
         ),
-        20..21,
+        20..22,
+    ),
+    (
+        Start(
+            Link {
+                link_type: Shortcut,
+                dest_url: Borrowed(
+                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                ),
+                title: Borrowed(
+                    "",
+                ),
+                id: Borrowed(
+                    "long",
+                ),
+            },
+        ),
+        22..28,
+    ),
+    (
+        Text(
+            Borrowed(
+                "long",
+            ),
+        ),
+        23..27,
+    ),
+    (
+        End(
+            Link,
+        ),
+        22..28,
     ),
     (
         End(
             Paragraph,
         ),
-        1..22,
+        1..29,
     ),
     (
         Start(
             Paragraph,
         ),
-        31..41,
+        94..104,
     ),
     (
         Start(
@@ -153,7 +184,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ),
             },
         ),
-        31..39,
+        94..102,
     ),
     (
         Code(
@@ -161,13 +192,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "f",
             ),
         ),
-        32..35,
+        95..98,
     ),
     (
         End(
             Link,
         ),
-        31..39,
+        94..102,
     ),
     (
         Text(
@@ -175,13 +206,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ".",
             ),
         ),
-        39..40,
+        102..103,
     ),
     (
         End(
             Paragraph,
         ),
-        31..41,
+        94..104,
     ),
     (
         Start(
@@ -192,7 +223,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 attrs: [],
             },
         ),
-        42..61,
+        105..124,
     ),
     (
         Text(
@@ -200,7 +231,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "h2 ",
             ),
         ),
-        45..48,
+        108..111,
     ),
     (
         Start(
@@ -217,7 +248,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ),
             },
         ),
-        48..51,
+        111..114,
     ),
     (
         Text(
@@ -225,13 +256,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "c",
             ),
         ),
-        49..50,
+        112..113,
     ),
     (
         End(
             Link,
         ),
-        48..51,
+        111..114,
     ),
     (
         Text(
@@ -239,7 +270,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 " ",
             ),
         ),
-        51..52,
+        114..115,
     ),
     (
         Start(
@@ -256,7 +287,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ),
             },
         ),
-        52..60,
+        115..123,
     ),
     (
         Code(
@@ -264,13 +295,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "h",
             ),
         ),
-        53..56,
+        116..119,
     ),
     (
         End(
             Link,
         ),
-        52..60,
+        115..123,
     ),
     (
         End(
@@ -278,13 +309,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 H2,
             ),
         ),
-        42..61,
+        105..124,
     ),
     (
         Start(
             Paragraph,
         ),
-        62..69,
+        125..132,
     ),
     (
         Text(
@@ -292,7 +323,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "m",
             ),
         ),
-        62..63,
+        125..126,
     ),
     (
         FootnoteReference(
@@ -300,7 +331,7 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "n",
             ),
         ),
-        63..67,
+        126..130,
     ),
     (
         Text(
@@ -308,13 +339,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ".",
             ),
         ),
-        67..68,
+        130..131,
     ),
     (
         End(
             Paragraph,
         ),
-        62..69,
+        125..132,
     ),
     (
         Start(
@@ -324,13 +355,13 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 ),
             ),
         ),
-        70..81,
+        133..144,
     ),
     (
         Start(
             Paragraph,
         ),
-        76..81,
+        139..144,
     ),
     (
         Text(
@@ -338,18 +369,18 @@ expression: "markdown_iter(doc).collect::<Vec<_>>()"
                 "blah",
             ),
         ),
-        76..80,
+        139..143,
     ),
     (
         End(
             Paragraph,
         ),
-        76..81,
+        139..144,
     ),
     (
         End(
             FootnoteDefinition,
         ),
-        70..81,
+        133..144,
     ),
 ]

@@ -162,6 +162,55 @@ Blocks {
                         },
                         Word {
                             word: ".",
+                            trailling_whitespace: true,
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    2,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "long",
+                            tag: Link(
+                                ReferenceLink(
+                                    2,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    2,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "[",
+                            tag: Link(
+                                ReferenceLink(
+                                    2,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "2",
+                            tag: Link(
+                                ReferenceLink(
+                                    2,
+                                ),
+                            ),
+                        },
+                        Word {
+                            word: "]",
+                            tag: Link(
+                                ReferenceLink(
+                                    2,
+                                ),
+                            ),
                         },
                     ],
                 },
@@ -169,6 +218,7 @@ Blocks {
             links: [
                 0,
                 1,
+                2,
             ],
             footnotes: [],
         },
@@ -427,6 +477,7 @@ Blocks {
         links: [
             "b",
             "d",
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         ],
         footnotes: {
             "n": Block {

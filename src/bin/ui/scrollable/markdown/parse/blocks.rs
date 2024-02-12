@@ -1,4 +1,4 @@
-use super::{block::Block, LinkTag, MetaTag, Word};
+use super::{block::Block, element::LINK, LinkTag, MetaTag, Word};
 use crate::ui::scrollable::markdown::fallback::StyledLine;
 use ratatui::style::{Color, Style};
 use std::fmt;
@@ -59,11 +59,31 @@ impl Blocks {
                 write_empty_styled_line(slines);
                 block.links().iter().copied().for_each(|idx| {
                     if let Some(word) = self.links.get_link(idx) {
-                        let word = Word {
-                            word: xformat!("[{idx}]: {}", word.word),
-                            ..word
+                        let anchor = Word {
+                            word: xformat!("[{idx}]:"),
+                            style: LINK,
+                            tag: MetaTag::Link(LinkTag::ReferenceLink(idx)),
+                            trailling_whitespace: true,
                         };
-                        write_styled_line(slines, word);
+                        let width = width as usize;
+                        let mut link = &word.word[..];
+                        if link.len() + anchor.word.len() + 1 > width {
+                            // when the link is too long, split it to multiple lines
+                            write_styled_line(slines, anchor);
+                            while !link.is_empty() {
+                                let end = width.min(link.len());
+                                let line = Word {
+                                    word: link[..end].into(),
+                                    style: LINK,
+                                    tag: MetaTag::Link(LinkTag::ReferenceLink(idx)),
+                                    trailling_whitespace: false,
+                                };
+                                write_styled_line(slines, line);
+                                link = &link[end..];
+                            }
+                        } else {
+                            write_styled_line(slines, &[anchor, word][..]);
+                        }
                     }
                 });
             }

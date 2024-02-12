@@ -203,51 +203,62 @@ where
         });
     }
 
-    /// an emphasis element can contain nested styles or other elements, but we only extract texts and
-    /// apply italic style for them no matter what other styles are
-    pub fn parse_emphasis(self) {
-        for (event, _) in self.iter {
-            if let Event::Text(text) = event {
-                self.block.push_words(
-                    &text,
-                    Style {
-                        add_modifier: Modifier::ITALIC,
-                        ..Default::default()
-                    },
-                    MetaTag::Normal,
-                );
+    // Used in `parse_{emphasis,strong,strike_through}`.
+    //
+    // FIXME: the nested styles are simplified as follows:
+    // * only one kind style is applied to Text
+    // * intra_code and links are not applied
+    // but we could support real nested styles because add_modifier is additive
+    fn parse_nested_styles(self, style: Style) {
+        let Element {
+            doc,
+            mut iter,
+            block,
+            links,
+        } = self;
+        while let Some((event, range)) = iter.next() {
+            match event {
+                Event::Text(text) => {
+                    block.push_words(&text, style, MetaTag::Normal);
+                }
+                Event::Code(code) => parse_intra_code(&code, block),
+                Event::Start(Tag::Link { dest_url, .. }) => {
+                    let iter = ele!(iter, Link, range);
+                    Element::new(doc, block, links, iter).parse_link(&dest_url);
+                }
+                Event::SoftBreak | Event::HardBreak => block.push_a_word(Word {
+                    word: "".into(),
+                    style,
+                    tag: MetaTag::Normal,
+                    trailling_whitespace: true,
+                }),
+                _ => (),
             }
         }
+    }
+
+    pub fn parse_emphasis(self) {
+        let style = Style {
+            add_modifier: Modifier::ITALIC,
+            ..Default::default()
+        };
+        self.parse_nested_styles(style);
     }
 
     pub fn parse_strong(self) {
-        for (event, _) in self.iter {
-            if let Event::Text(text) = event {
-                self.block.push_words(
-                    &text,
-                    Style {
-                        add_modifier: Modifier::BOLD,
-                        ..Default::default()
-                    },
-                    MetaTag::Normal,
-                );
-            }
-        }
+        let style = Style {
+            add_modifier: Modifier::BOLD,
+            ..Default::default()
+        };
+        self.parse_nested_styles(style);
     }
 
     pub fn parse_strike_through(self) {
-        for (event, _) in self.iter {
-            if let Event::Text(text) = event {
-                self.block.push_words(
-                    &text,
-                    Style {
-                        add_modifier: Modifier::CROSSED_OUT,
-                        ..Default::default()
-                    },
-                    MetaTag::Normal,
-                );
-            }
-        }
+        let style = Style {
+            add_modifier: Modifier::CROSSED_OUT,
+            ..Default::default()
+        };
+        self.parse_nested_styles(style);
     }
 }
 

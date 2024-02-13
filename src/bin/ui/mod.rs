@@ -59,7 +59,7 @@ impl Page {
     }
 
     /// Responde to mouse click from left button.
-    pub fn set_current_component(&mut self, x: u16, y: u16) {
+    pub fn set_current_component(&mut self, y: u16, x: u16) {
         fn contain(x: u16, y: u16, area: Rect) -> bool {
             (x >= area.x)
                 && (x < area.x + area.width)
@@ -95,6 +95,14 @@ impl Page {
             None
         };
         info!(?self.current);
+    }
+
+    #[allow(clippy::single_match)]
+    pub fn double_click(&mut self) {
+        match self.current {
+            Some(Component::Outline) => self.outline_fold_expand_toggle(),
+            _ => {}
+        }
     }
 
     fn layout(&self) -> Layout {

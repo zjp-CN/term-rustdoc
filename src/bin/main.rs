@@ -40,11 +40,13 @@ fn main() -> Result<()> {
                 }
                 MouseEventKind::Down(MouseButton::Left) => {
                     let (x, y) = (mouse_event.column, mouse_event.row);
-                    page.set_current_component(x, y);
+                    tui.events.left_click()?;
+                    page.set_current_component(y, x);
                 }
                 _ => (),
             },
             Event::Resize(_, _) => {}
+            Event::MouseDoubleClick => page.double_click(),
         };
     }
 

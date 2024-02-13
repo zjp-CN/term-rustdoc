@@ -1,4 +1,3 @@
-use super::Selected;
 use crate::{err, Result};
 use ratatui::prelude::Rect;
 use std::fmt;
@@ -46,8 +45,6 @@ pub struct Scrollable<Ls: Lines> {
     pub cursor: Cursor<<Ls::Line as LineState>::State>,
     /// The maximum width among all lines
     pub max_windth: u16,
-    /// The selected text across lines
-    pub select: Option<Selected>,
     /// The widget area, usually not the full screen
     pub area: Rect,
 }
@@ -89,13 +86,12 @@ where
     <Ls::Line as LineState>::State: Default,
 {
     fn default() -> Self where {
-        let (lines, start, cursor, max_windth, select, area) = Default::default();
+        let (lines, start, cursor, max_windth, area) = Default::default();
         Scrollable {
             lines,
             start,
             cursor,
             max_windth,
-            select,
             area,
         }
     }
@@ -137,9 +133,6 @@ impl<Ls: Lines> fmt::Debug for Scrollable<Ls> {
             .field("cursor.y", &self.cursor.y)
             .field("max_windth", &self.max_windth)
             .field("area", &self.area);
-        if let Some(select) = &self.select {
-            s.field("select", select);
-        }
         s.finish()
     }
 }

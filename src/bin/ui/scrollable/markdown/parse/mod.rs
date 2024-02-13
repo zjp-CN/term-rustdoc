@@ -1,4 +1,4 @@
-use super::{fallback::StyledLine, wrapped::StyledText};
+use super::fallback::StyledLine;
 use icu_segmenter::LineSegmenter;
 use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};
@@ -72,13 +72,12 @@ pub fn md(doc: &str) -> Vec<StyledLine> {
         let syntax = ps.find_syntax_by_extension("md").unwrap();
         let mut h = HighlightLines::new(syntax, &ts.themes["base16-ocean.dark"]);
         for line in LinesWithEndings::from(doc) {
-            let mut one_line = Vec::with_capacity(4);
+            let mut styled_line = StyledLine::new();
             for (style, text) in h.highlight_line(line, ps).unwrap() {
-                one_line.push(StyledText::new_plain(text, convert_style(style)));
+                styled_line.push(text, convert_style(style));
             }
-            one_line.push(StyledText::new_plain("\n", Default::default()));
-            one_line.shrink_to_fit();
-            lines.push(StyledLine { line: one_line });
+            styled_line.shrink_to_fit();
+            lines.push(styled_line);
         }
     });
     lines.shrink_to_fit();

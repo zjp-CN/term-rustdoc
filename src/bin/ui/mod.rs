@@ -179,15 +179,6 @@ impl Widget for &mut Page {
     }
 }
 
-/// The selected texts will be rendered with original fg but grey bg.
-#[derive(Default, Debug)]
-pub struct Selected {
-    row_start: u16,
-    row_end: u16,
-    col_start: u16,
-    col_end: u16,
-}
-
 #[derive(Default, Debug)]
 struct Surround {
     block: Block<'static>,

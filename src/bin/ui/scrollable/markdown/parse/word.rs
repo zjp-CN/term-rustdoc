@@ -83,35 +83,41 @@ impl Fragment for Word {
     }
 }
 
-impl From<Word> for StyledText {
-    fn from(word: Word) -> Self {
+/// StyledText is a Word with ColumnSpan in a line.
+impl From<(Word, usize)> for StyledText {
+    fn from((word, start): (Word, usize)) -> Self {
         let mut text = word.word.clone();
         if word.trailling_whitespace {
             text.push(' ');
         }
-        StyledText::new_plain(text, word.style)
+        StyledText::new(text, word.style, start)
     }
 }
 
 impl From<Word> for StyledLine {
     fn from(word: Word) -> Self {
-        StyledLine {
-            line: vec![word.into()],
-        }
+        Vec::from([StyledText::from((word, 0))]).into()
     }
 }
 
 impl From<&[Word]> for StyledLine {
     fn from(mut words: &[Word]) -> Self {
         if words.is_empty() {
-            return StyledLine { line: Vec::new() };
+            return StyledLine::new();
         }
         if words[0].word.is_empty() {
             // skip the meaningless whitespace in the beginning of a line
             words = &words[1..];
         }
-        StyledLine {
-            line: words.iter().cloned().map(StyledText::from).collect(),
-        }
+        let mut start = 0;
+        let iter = words.iter().cloned();
+        StyledLine::from(
+            iter.map(|w| {
+                let text = StyledText::from((w, start));
+                start = text.span_end();
+                text
+            })
+            .collect::<Vec<_>>(),
+        )
     }
 }

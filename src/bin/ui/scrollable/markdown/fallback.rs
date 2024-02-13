@@ -6,14 +6,46 @@ use crate::{
     },
     Result,
 };
+use ratatui::style::Style;
 use std::{fmt, ops::Deref};
 use term_rustdoc::{tree::CrateDoc, util::XString};
+use unicode_width::UnicodeWidthStr;
 
 /// Scrollable text area for displaying markdown.
 pub type ScrollText = Scrollable<StyledLines>;
 
 pub struct StyledLine {
-    pub line: Vec<StyledText>,
+    line: Vec<StyledText>,
+    /// the total width of a line
+    width: usize,
+}
+
+impl StyledLine {
+    pub fn new() -> Self {
+        Self {
+            line: Vec::new(),
+            width: 0,
+        }
+    }
+
+    pub fn push<T: Into<XString>>(&mut self, text: T, style: Style) {
+        let start = self.width;
+        let text = text.into();
+        self.width += text.width();
+        self.line.push(StyledText::new(text, style, start));
+    }
+
+    pub fn shrink_to_fit(&mut self) {
+        self.line.shrink_to_fit();
+    }
+}
+
+/// NOTE: [`StyledText`]s must have correct [`ColumnSpan`]s here.
+impl From<Vec<StyledText>> for StyledLine {
+    fn from(line: Vec<StyledText>) -> Self {
+        let width = line.last().map(StyledText::span_end).unwrap_or(0);
+        StyledLine { line, width }
+    }
 }
 
 impl fmt::Debug for StyledLine {

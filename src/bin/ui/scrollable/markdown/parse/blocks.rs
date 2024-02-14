@@ -150,6 +150,8 @@ impl<'lines> WriteLines<'lines> {
 pub struct Links {
     heading: Vec<(u8, XString)>,
     links: Vec<XString>,
+    // FIXME: replace this HashMap with Vec<(XString, Block)>,
+    // and use the index as key/id like push_link returns.
     footnotes: HashMap<XString, Block>,
 }
 

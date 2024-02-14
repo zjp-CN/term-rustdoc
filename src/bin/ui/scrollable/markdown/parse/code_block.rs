@@ -98,7 +98,7 @@ pub fn other(lang: &str, code: &str) -> Block {
     })
 }
 
-gen_parse_code!(markdown, html);
+gen_parse_code!(markdown);
 
 pub fn md_table(table: &str) -> Block {
     markdown(table)

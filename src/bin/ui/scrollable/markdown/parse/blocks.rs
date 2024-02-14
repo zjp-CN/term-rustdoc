@@ -53,8 +53,8 @@ impl Blocks {
         self.links.footnotes.shrink_to_fit();
     }
 
-    pub fn write_styled_lines(&self, width: f64, lines: &mut Vec<StyledLine>) {
-        let mut writer = WriteLines::new(lines, width);
+    pub fn write_styled_lines(&self, width: f64) -> (Vec<StyledLine>, LinkedRegions) {
+        let mut writer = WriteLines::new(width);
         for block in &self.blocks {
             writer.write_lines(block.lines());
             if !block.links().is_empty() {
@@ -99,26 +99,26 @@ impl Blocks {
             }
             writer.write_empty_line();
         }
-        info!("{:#?}", writer.regions);
+        (writer.lines, writer.regions)
     }
 }
 
 /// Append a line to vec of StyledLine which is from StyledLines.
 /// This writer also generates LinkedRegions.
-struct WriteLines<'lines> {
-    lines: &'lines mut Vec<StyledLine>,
+struct WriteLines {
+    lines: Vec<StyledLine>,
+    regions: LinkedRegions,
     width: f64,
     penalties: Penalties,
-    regions: LinkedRegions,
 }
 
-impl<'lines> WriteLines<'lines> {
-    fn new(lines: &'lines mut Vec<StyledLine>, width: f64) -> WriteLines<'lines> {
+impl WriteLines {
+    fn new(width: f64) -> WriteLines {
         WriteLines {
-            lines,
+            lines: Vec::with_capacity(128),
+            regions: LinkedRegions::new(),
             width,
             penalties: Penalties::default(),
-            regions: LinkedRegions::new(),
         }
     }
 

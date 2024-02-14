@@ -24,9 +24,9 @@ let a = 1;
     2. `b`
 "#;
     snap!(markdown_iter(doc).collect::<Vec<_>>());
-    let parsed = parse(doc);
-    snap!("parse_markdown-parsed", parsed);
-    shot!(parsed, @r###"
+    let blocks = parse(doc);
+    snap!("parse_markdown-parsed", blocks);
+    shot!(blocks, @r###"
     # h1 `code`
 
     aaa b c d e. xxx z.
@@ -45,8 +45,7 @@ let a = 1;
 
     "###);
 
-    let mut lines = Vec::new();
-    parsed.write_styled_lines(7.0, &mut lines);
+    let (lines, _) = blocks.write_styled_lines(7.0);
     snap!("parse_markdown-StyledLines", lines);
 }
 
@@ -56,9 +55,8 @@ fn parse_markdown_dbg() {
     let doc = r#"
 "#;
     const WIDTH: f64 = 70.0;
-    let mut slines = Vec::new();
-    parse(doc).write_styled_lines(WIDTH, &mut slines);
-    dbg!(slines);
+    let (lines, _) = parse(doc).write_styled_lines(WIDTH);
+    dbg!(lines);
 }
 
 #[test]
@@ -92,8 +90,7 @@ m[^n].
 
     "###);
 
-    let mut lines = Vec::new();
-    blocks.write_styled_lines(20.0, &mut lines);
+    let (lines, _) = blocks.write_styled_lines(20.0);
     snap!("parse_markdown_links-StyledLines", lines);
 }
 

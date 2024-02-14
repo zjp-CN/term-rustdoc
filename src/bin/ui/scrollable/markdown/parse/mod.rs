@@ -1,4 +1,4 @@
-use super::fallback::StyledLine;
+use super::{fallback::StyledLine, region::LinkedRegions};
 use icu_segmenter::LineSegmenter;
 use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};
@@ -62,8 +62,8 @@ pub fn segment_words(text: &str, mut f: impl FnMut(&str, bool)) {
     });
 }
 
-pub fn parse_doc(doc: &str, width: f64, slines: &mut Vec<StyledLine>) {
-    entry_point::parse(doc).write_styled_lines(width, slines);
+pub fn parse_doc(doc: &str, width: f64) -> (Vec<StyledLine>, LinkedRegions) {
+    entry_point::parse(doc).write_styled_lines(width)
 }
 
 pub fn md(doc: &str) -> Vec<StyledLine> {
@@ -80,7 +80,6 @@ pub fn md(doc: &str) -> Vec<StyledLine> {
             lines.push(styled_line);
         }
     });
-    lines.shrink_to_fit();
     lines
 }
 

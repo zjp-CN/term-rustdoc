@@ -90,7 +90,7 @@ impl TargetRegion {
 /// Regions that bidirect to each other.
 /// When the cursor or selection falls into a region,
 /// the regions in targets will be into the same background color.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct LinkedRegions {
     tag: HashMap<RegionTag, TargetRegion>,
     // regions: Vec<(SelectedRegion, TargetRegion)>,

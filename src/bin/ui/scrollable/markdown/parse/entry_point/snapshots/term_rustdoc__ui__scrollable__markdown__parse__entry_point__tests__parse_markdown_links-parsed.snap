@@ -297,14 +297,14 @@ Blocks {
                             word: "## ",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "h2",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                             trailling_whitespace: true,
                         },
@@ -312,49 +312,49 @@ Blocks {
                             word: "[",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "c",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "]",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "[",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "1",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "]",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                             trailling_whitespace: true,
                         },
@@ -362,56 +362,56 @@ Blocks {
                             word: "[",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "`",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "h",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "`",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "]",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "[",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "1",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                         Word {
                             word: "]",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                2,
+                                0,
                             ),
                         },
                     ],
@@ -474,6 +474,12 @@ Blocks {
         },
     ],
     links: Links {
+        heading: [
+            (
+                2,
+                "## h2 [c] [`h`][c]\n",
+            ),
+        ],
         links: [
             "b",
             "d",

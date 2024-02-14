@@ -1,5 +1,5 @@
 use super::MetaTag;
-use crate::ui::scrollable::markdown::{fallback::StyledLine, StyledText};
+use crate::ui::scrollable::markdown::{fallback::StyledLine, region::LinkedRegions, StyledText};
 use ratatui::style::Style;
 use std::fmt::{self, Write};
 use term_rustdoc::util::XString;
@@ -27,7 +27,11 @@ pub struct Word {
 }
 
 impl Word {
-    pub fn words_to_line(mut words: &[Word]) -> StyledLine {
+    pub fn words_to_line(
+        mut words: &[Word],
+        row: usize,
+        linked_regions: &mut LinkedRegions,
+    ) -> StyledLine {
         if let Some(word) = words.first() {
             if word.word.is_empty() {
                 // skip the meaningless whitespace in the beginning of a line
@@ -40,8 +44,9 @@ impl Word {
         let mut start = 0;
         let iter = words.iter().cloned();
         StyledLine::from(
-            iter.map(|w| {
-                let text = w.into_text(start);
+            iter.map(|word| {
+                let (text, tag) = word.into_text(start);
+                linked_regions.push(tag, row, text.span());
                 start = text.span_end();
                 text
             })
@@ -50,14 +55,12 @@ impl Word {
     }
 
     /// StyledText is a Word with ColumnSpan in a line.
-    fn into_text(self, start: usize) -> StyledText {
+    fn into_text(self, start: usize) -> (StyledText, MetaTag) {
         let mut text = self.word;
         if self.trailling_whitespace {
             text.push(' ');
         }
-        let text = StyledText::new(text, self.style, start);
-        // text.span();
-        text
+        (StyledText::new(text, self.style, start), self.tag)
     }
 }
 

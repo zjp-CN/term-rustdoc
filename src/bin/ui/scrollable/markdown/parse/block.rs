@@ -111,10 +111,10 @@ impl Block {
         self.links.shrink_to_fit();
     }
 
-    pub fn set_heading(&mut self, level: u8) {
+    pub fn set_heading(&mut self, id: usize) {
         for line in &mut self.lines {
             for word in &mut line.words {
-                word.tag = MetaTag::Heading(level);
+                word.tag = MetaTag::Heading(id);
                 word.style.fg = Some(Color::LightCyan);
                 word.style.add_modifier = Modifier::BOLD;
             }

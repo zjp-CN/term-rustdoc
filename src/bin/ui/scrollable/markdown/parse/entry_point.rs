@@ -31,6 +31,7 @@ pub fn parse(doc: &str) -> Blocks {
                 }
             }
             Event::Start(Tag::Heading { level, .. }) => {
+                let raw = &doc[range.clone()];
                 let heading = ele!(#heading iter, level, range);
                 let mut block = Block::default();
                 let mut sharps = XString::default();
@@ -42,7 +43,8 @@ pub fn parse(doc: &str) -> Blocks {
                     ..Default::default()
                 });
                 Element::new(doc, &mut block, blocks.links(), heading).parse_paragraph();
-                block.set_heading(level);
+                let id = blocks.links().push_heading(level, raw);
+                block.set_heading(id);
                 blocks.push(block);
             }
             Event::Rule => blocks.push(Block::from_iter([Word {

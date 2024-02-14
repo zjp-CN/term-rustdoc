@@ -12,7 +12,7 @@ pub enum MetaTag {
     ListItemN(u8),
 
     // separate block elements: directly rendered as a truncatable line
-    Heading(u8),
+    Heading(usize),
     Image,
     Rule,
     FootnoteSource,

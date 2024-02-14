@@ -38,6 +38,7 @@ impl Blocks {
         Blocks {
             blocks: Vec::with_capacity(16),
             links: Links {
+                heading: Vec::new(),
                 links: Vec::with_capacity(8),
                 footnotes: hashmap(1),
             },
@@ -47,6 +48,7 @@ impl Blocks {
     pub fn shrink_to_fit(&mut self) {
         self.blocks.iter_mut().for_each(Block::shrink_to_fit);
         self.blocks.shrink_to_fit();
+        self.links.heading.shrink_to_fit();
         self.links.links.shrink_to_fit();
         self.links.footnotes.shrink_to_fit();
     }
@@ -97,6 +99,7 @@ impl Blocks {
             }
             writer.write_empty_line();
         }
+        info!("{:#?}", writer.regions);
     }
 }
 
@@ -130,7 +133,11 @@ impl<'lines> WriteLines<'lines> {
     }
 
     fn write_line(&mut self, words: &[Word]) {
-        self.lines.push(Word::words_to_line(words));
+        self.lines.push(Word::words_to_line(
+            words,
+            self.lines.len(),
+            &mut self.regions,
+        ));
     }
 
     fn write_empty_line(&mut self) {
@@ -141,6 +148,7 @@ impl<'lines> WriteLines<'lines> {
 /// Referenced links/footnotes in the whole doc.
 #[derive(Default, Debug)]
 pub struct Links {
+    heading: Vec<(u8, XString)>,
     links: Vec<XString>,
     footnotes: HashMap<XString, Block>,
 }
@@ -178,5 +186,11 @@ impl Links {
 
     pub fn get_footnote(&self, key: &str) -> Option<&Block> {
         self.footnotes.get(key)
+    }
+
+    pub fn push_heading(&mut self, level: u8, raw: &str) -> usize {
+        let id = self.heading.len();
+        self.heading.push((level, raw.into()));
+        id
     }
 }

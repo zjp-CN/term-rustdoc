@@ -12,14 +12,14 @@ Blocks {
                             word: "# ",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                1,
+                                0,
                             ),
                         },
                         Word {
                             word: "h1",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                1,
+                                0,
                             ),
                             trailling_whitespace: true,
                         },
@@ -27,21 +27,21 @@ Blocks {
                             word: "`",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                1,
+                                0,
                             ),
                         },
                         Word {
                             word: "code",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                1,
+                                0,
                             ),
                         },
                         Word {
                             word: "`",
                             style.add_modifier: BOLD,
                             tag: Heading(
-                                1,
+                                0,
                             ),
                         },
                     ],
@@ -341,6 +341,12 @@ Blocks {
         },
     ],
     links: Links {
+        heading: [
+            (
+                1,
+                "# h1 `code`\n",
+            ),
+        ],
         links: [],
         footnotes: {},
     },

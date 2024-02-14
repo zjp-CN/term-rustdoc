@@ -14,6 +14,12 @@ pub struct ColumnSpan {
     end: usize,
 }
 
+impl ColumnSpan {
+    pub fn span(self) -> [usize; 2] {
+        [self.start, self.end]
+    }
+}
+
 impl fmt::Debug for StyledText {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         <str as fmt::Debug>::fmt(self.as_str(), f)
@@ -44,5 +50,9 @@ impl StyledText {
 
     pub fn span_end(&self) -> usize {
         self.span.end
+    }
+
+    pub fn span(&self) -> ColumnSpan {
+        self.span.clone()
     }
 }

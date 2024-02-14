@@ -1,4 +1,4 @@
-use super::{block::Block, element::LINK, LinkTag, MetaTag, Word};
+use super::{element::LINK, Block, Line, LinkTag, MetaTag, Word};
 use crate::ui::scrollable::markdown::{fallback::StyledLine, region::LinkedRegions};
 use ratatui::style::{Color, Style};
 use std::fmt;
@@ -51,14 +51,13 @@ impl Blocks {
         self.links.footnotes.shrink_to_fit();
     }
 
-    pub fn write_styled_lines(&self, width: f64, slines: &mut Vec<StyledLine>) {
-        let mut writer = WriteLines::new(slines);
-        let penalties = Default::default();
+    pub fn write_styled_lines(&self, width: f64, lines: &mut Vec<StyledLine>) {
+        let mut writer = WriteLines::new(lines, width);
         for block in &self.blocks {
-            writer.write_block_as_styled_lines(block, width, penalties);
+            writer.write_lines(block.lines());
             if !block.links().is_empty() {
-                writer.write_empty_styled_line();
-                block.links().iter().copied().for_each(|idx| {
+                writer.write_empty_line();
+                for &idx in block.links() {
                     if let Some(word) = self.links.get_link(idx) {
                         let anchor = Word {
                             word: xformat!("[{idx}]:"),
@@ -70,7 +69,7 @@ impl Blocks {
                         let mut link = &word.word[..];
                         if link.len() + anchor.word.len() + 1 > width {
                             // when the link is too long, split it to multiple lines
-                            writer.write_styled_line(anchor);
+                            writer.write_line(anchor);
                             while !link.is_empty() {
                                 let end = width.min(link.len());
                                 let line = Word {
@@ -79,24 +78,24 @@ impl Blocks {
                                     tag: MetaTag::Link(LinkTag::ReferenceLink(idx)),
                                     trailling_whitespace: false,
                                 };
-                                writer.write_styled_line(line);
+                                writer.write_line(line);
                                 link = &link[end..];
                             }
                         } else {
-                            writer.write_styled_line(&[anchor, word][..]);
+                            writer.write_line(&[anchor, word][..]);
                         }
                     }
-                });
+                }
             }
             if !block.footnotes().is_empty() {
-                writer.write_empty_styled_line();
-                block.footnotes().iter().for_each(|key| {
+                writer.write_empty_line();
+                for key in block.footnotes() {
                     if let Some(block) = self.links.get_footnote(key) {
-                        writer.write_block_as_styled_lines(block, width, penalties);
+                        writer.write_lines(block.lines());
                     }
-                });
+                }
             }
-            writer.write_empty_styled_line();
+            writer.write_empty_line();
         }
     }
 }
@@ -105,31 +104,36 @@ impl Blocks {
 /// This writer also generates LinkedRegions.
 struct WriteLines<'lines> {
     lines: &'lines mut Vec<StyledLine>,
+    width: f64,
+    penalties: Penalties,
     regions: LinkedRegions,
 }
 
 impl<'lines> WriteLines<'lines> {
-    fn new(lines: &'lines mut Vec<StyledLine>) -> WriteLines<'lines> {
+    fn new(lines: &'lines mut Vec<StyledLine>, width: f64) -> WriteLines<'lines> {
         WriteLines {
             lines,
+            width,
+            penalties: Penalties::default(),
             regions: LinkedRegions::new(),
         }
     }
 
-    fn write_block_as_styled_lines(&mut self, block: &Block, width: f64, penalties: Penalties) {
-        for line in block.lines() {
-            match wrap_optimal_fit(line, &[width], &penalties) {
-                Ok(lines) => lines.into_iter().for_each(|l| self.write_styled_line(l)),
+    fn write_lines(&mut self, lines: &[Line]) {
+        let width = self.width;
+        for line in lines {
+            match wrap_optimal_fit(line, &[width], &self.penalties) {
+                Ok(lines) => lines.into_iter().for_each(|l| self.write_line(l)),
                 Err(err) => error!("failed to wrap the line to width {width}:{err}\n{line:?} "),
             };
         }
     }
 
-    fn write_styled_line(&mut self, line: impl Into<StyledLine>) {
+    fn write_line(&mut self, line: impl Into<StyledLine>) {
         self.lines.push(line.into());
     }
 
-    fn write_empty_styled_line(&mut self) {
+    fn write_empty_line(&mut self) {
         self.lines.push(StyledLine::new());
     }
 }

@@ -1,6 +1,5 @@
-use crate::ui::scrollable::markdown::{fallback::StyledLine, StyledText};
-
 use super::MetaTag;
+use crate::ui::scrollable::markdown::{fallback::StyledLine, StyledText};
 use ratatui::style::Style;
 use std::fmt::{self, Write};
 use term_rustdoc::util::XString;
@@ -27,7 +26,40 @@ pub struct Word {
     pub trailling_whitespace: bool,
 }
 
-impl Word {}
+impl Word {
+    pub fn words_to_line(mut words: &[Word]) -> StyledLine {
+        if let Some(word) = words.first() {
+            if word.word.is_empty() {
+                // skip the meaningless whitespace in the beginning of a line
+                words = &words[1..];
+            }
+        }
+        if words.is_empty() {
+            return StyledLine::new();
+        }
+        let mut start = 0;
+        let iter = words.iter().cloned();
+        StyledLine::from(
+            iter.map(|w| {
+                let text = w.into_text(start);
+                start = text.span_end();
+                text
+            })
+            .collect::<Vec<_>>(),
+        )
+    }
+
+    /// StyledText is a Word with ColumnSpan in a line.
+    fn into_text(self, start: usize) -> StyledText {
+        let mut text = self.word;
+        if self.trailling_whitespace {
+            text.push(' ');
+        }
+        let text = StyledText::new(text, self.style, start);
+        // text.span();
+        text
+    }
+}
 
 impl fmt::Debug for Word {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -80,44 +112,5 @@ impl Fragment for Word {
     /// imaginary extra width after the non-line-end word that the wrapping algorithm accepts
     fn penalty_width(&self) -> f64 {
         0.0
-    }
-}
-
-/// StyledText is a Word with ColumnSpan in a line.
-impl From<(Word, usize)> for StyledText {
-    fn from((word, start): (Word, usize)) -> Self {
-        let mut text = word.word.clone();
-        if word.trailling_whitespace {
-            text.push(' ');
-        }
-        StyledText::new(text, word.style, start)
-    }
-}
-
-impl From<Word> for StyledLine {
-    fn from(word: Word) -> Self {
-        Vec::from([StyledText::from((word, 0))]).into()
-    }
-}
-
-impl From<&[Word]> for StyledLine {
-    fn from(mut words: &[Word]) -> Self {
-        if words.is_empty() {
-            return StyledLine::new();
-        }
-        if words[0].word.is_empty() {
-            // skip the meaningless whitespace in the beginning of a line
-            words = &words[1..];
-        }
-        let mut start = 0;
-        let iter = words.iter().cloned();
-        StyledLine::from(
-            iter.map(|w| {
-                let text = StyledText::from((w, start));
-                start = text.span_end();
-                text
-            })
-            .collect::<Vec<_>>(),
-        )
     }
 }

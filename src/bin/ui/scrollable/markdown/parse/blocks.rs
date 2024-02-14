@@ -69,7 +69,7 @@ impl Blocks {
                         let mut link = &word.word[..];
                         if link.len() + anchor.word.len() + 1 > width {
                             // when the link is too long, split it to multiple lines
-                            writer.write_line(anchor);
+                            writer.write_line(&[anchor]);
                             while !link.is_empty() {
                                 let end = width.min(link.len());
                                 let line = Word {
@@ -78,11 +78,11 @@ impl Blocks {
                                     tag: MetaTag::Link(LinkTag::ReferenceLink(idx)),
                                     trailling_whitespace: false,
                                 };
-                                writer.write_line(line);
+                                writer.write_line(&[line]);
                                 link = &link[end..];
                             }
                         } else {
-                            writer.write_line(&[anchor, word][..]);
+                            writer.write_line(&[anchor, word]);
                         }
                     }
                 }
@@ -129,8 +129,8 @@ impl<'lines> WriteLines<'lines> {
         }
     }
 
-    fn write_line(&mut self, line: impl Into<StyledLine>) {
-        self.lines.push(line.into());
+    fn write_line(&mut self, words: &[Word]) {
+        self.lines.push(Word::words_to_line(words));
     }
 
     fn write_empty_line(&mut self) {

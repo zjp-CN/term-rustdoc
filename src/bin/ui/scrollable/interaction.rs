@@ -131,7 +131,7 @@ impl<Ls: Lines> Scrollable<Ls> {
     }
 
     pub fn set_cursor(&mut self, y: u16) {
-        if y < self.area.height {
+        if y < self.area.height && (y as usize) < self.all_lines().len() {
             self.cursor.y = y;
             self.set_cursor_state();
         }

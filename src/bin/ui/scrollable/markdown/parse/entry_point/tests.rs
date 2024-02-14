@@ -90,8 +90,9 @@ m[^n].
 
     "###);
 
-    let (lines, _) = blocks.write_styled_lines(20.0);
+    let (lines, regions) = blocks.write_styled_lines(20.0);
     snap!("parse_markdown_links-StyledLines", lines);
+    snap!("parse_markdown_links-LinkedRegions", regions);
 }
 
 #[test]

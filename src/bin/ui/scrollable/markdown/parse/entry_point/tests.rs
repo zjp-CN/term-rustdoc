@@ -24,8 +24,7 @@ let a = 1;
     2. `b`
 "#;
     snap!(markdown_iter(doc).collect::<Vec<_>>());
-    let blocks = parse(doc);
-    snap!("parse_markdown-parsed", blocks);
+    let mut blocks = parse(doc);
     shot!(blocks, @r###"
     # h1 `code`
 
@@ -45,8 +44,9 @@ let a = 1;
 
     "###);
 
-    let (lines, _) = blocks.write_styled_lines(7.0);
+    let lines = blocks.write_styled_lines(7.0);
     snap!("parse_markdown-StyledLines", lines);
+    snap!("parse_markdown-parsed", blocks);
 }
 
 /// This test is used to quickly test text wrapping.
@@ -55,7 +55,7 @@ fn parse_markdown_dbg() {
     let doc = r#"
 "#;
     const WIDTH: f64 = 70.0;
-    let (lines, _) = parse(doc).write_styled_lines(WIDTH);
+    let lines = parse(doc).write_styled_lines(WIDTH);
     dbg!(lines);
 }
 
@@ -77,7 +77,7 @@ m[^n].
 [^n]: blah
 ";
     snap!(markdown_iter(doc).collect::<Vec<_>>());
-    let blocks = parse(doc);
+    let mut blocks = parse(doc);
     snap!("parse_markdown_links-parsed", blocks);
     shot!(blocks, @r###"
     [a][0], [c][1], [e][1]. [long][2]
@@ -90,9 +90,8 @@ m[^n].
 
     "###);
 
-    let (lines, regions) = blocks.write_styled_lines(20.0);
+    let lines = blocks.write_styled_lines(20.0);
     snap!("parse_markdown_links-StyledLines", lines);
-    snap!("parse_markdown_links-LinkedRegions", regions);
 }
 
 #[test]

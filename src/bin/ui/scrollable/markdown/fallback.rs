@@ -1,4 +1,7 @@
-use super::{parse, region::LinkedRegions, StyledText};
+use super::{
+    parse::{self, Blocks},
+    StyledText,
+};
 use crate::{
     ui::{
         scrollable::{generics::LineState, Scrollable},
@@ -87,7 +90,7 @@ pub struct StyledLines {
     /// To switch between non-wrapping and wrapping behavior, press `<space>` shortcut.
     syntect: bool,
     lines: Vec<StyledLine>,
-    regions: LinkedRegions,
+    blocks: Blocks,
     doc: Option<CrateDoc>,
 }
 
@@ -120,9 +123,9 @@ impl StyledLines {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
                 if let Some(width) = (!self.syntect).then_some(width).flatten() {
-                    let (lines, regions) = parse::parse_doc(doc, width);
+                    let (lines, blocks) = parse::parse_doc(doc, width);
                     self.lines = lines;
-                    self.regions = regions;
+                    self.blocks = blocks;
                 } else {
                     self.lines = parse::md(doc)
                 };

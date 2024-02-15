@@ -1,5 +1,8 @@
 use super::{element::LINK, Block, Line, LinkTag, MetaTag, Word};
-use crate::ui::scrollable::markdown::{fallback::StyledLine, region::LinkedRegions};
+use crate::ui::scrollable::markdown::{
+    fallback::StyledLine,
+    region::{LinkedRegions, TargetRegion},
+};
 use ratatui::style::{Color, Style};
 use std::fmt;
 use term_rustdoc::util::{hashmap, xformat, HashMap, XString};
@@ -53,7 +56,7 @@ impl Blocks {
         self.links.footnotes.shrink_to_fit();
     }
 
-    pub fn write_styled_lines(&self, width: f64) -> (Vec<StyledLine>, LinkedRegions) {
+    pub fn write_styled_lines(&mut self, width: f64) -> Vec<StyledLine> {
         let mut writer = WriteLines::new(width);
         for block in &self.blocks {
             writer.write_lines(block.lines());
@@ -99,7 +102,7 @@ impl Blocks {
             }
             writer.write_empty_line();
         }
-        (writer.lines, writer.regions)
+        writer.split(self.links())
     }
 }
 
@@ -143,12 +146,17 @@ impl WriteLines {
     fn write_empty_line(&mut self) {
         self.lines.push(StyledLine::new());
     }
+
+    fn split(mut self, links: &mut Links) -> Vec<StyledLine> {
+        links.set_heading_regions(self.regions.take_headings());
+        self.lines
+    }
 }
 
 /// Referenced links/footnotes in the whole doc.
 #[derive(Default, Debug)]
 pub struct Links {
-    heading: Vec<(u8, XString)>,
+    heading: Vec<(u8, XString, TargetRegion)>,
     links: Vec<XString>,
     // FIXME: replace this HashMap with Vec<(XString, Block)>,
     // and use the index as key/id like push_link returns.
@@ -192,7 +200,17 @@ impl Links {
 
     pub fn push_heading(&mut self, level: u8, raw: &str) -> usize {
         let id = self.heading.len();
-        self.heading.push((level, raw.into()));
+        self.heading
+            .push((level, raw.into(), TargetRegion::default()));
         id
+    }
+
+    pub fn set_heading_regions(&mut self, mut regions: Vec<(usize, TargetRegion)>) {
+        regions.sort_unstable_by_key(|(idx, _)| *idx);
+        for (idx, region) in regions {
+            if let Some((_, _, old)) = self.heading.get_mut(idx) {
+                *old = region;
+            }
+        }
     }
 }

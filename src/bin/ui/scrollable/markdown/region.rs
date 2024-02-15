@@ -34,8 +34,7 @@ impl SelectedRegion {
 pub enum RegionTag {
     // /// A continuous region on screen.
     // OnScreen(SelectedRegion),
-    /// A string key like headings or impl or key of a footnote.
-    Heading(usize),
+    /// A string key like impl or key of a footnote.
     FootNote(XString),
     FootNoteSrc(XString),
     /// A referencd link id
@@ -43,7 +42,7 @@ pub enum RegionTag {
     LinkSrc(usize),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct TargetRegion {
     targets: SmallVec<[SelectedRegion; 1]>,
 }
@@ -64,7 +63,7 @@ impl TargetRegion {
     /// * usually merge them into one larger continuous region
     ///   * this means it's not used to merge usage regions of links or footnotes,
     ///     because they can scatter in discontinuous lines.
-    fn merge_continuous(&mut self, new: SelectedRegion) {
+    pub fn merge_continuous(&mut self, new: SelectedRegion) {
         if self.targets.len() == 1 {
             let old = &mut self.targets[0];
             match old.row_start.cmp(&new.row_start) {
@@ -93,31 +92,35 @@ impl TargetRegion {
 #[derive(Debug, Default)]
 pub struct LinkedRegions {
     tag: HashMap<RegionTag, TargetRegion>,
-    // regions: Vec<(SelectedRegion, TargetRegion)>,
+    heading: Vec<(usize, TargetRegion)>,
 }
 
 impl LinkedRegions {
     pub fn new() -> LinkedRegions {
         LinkedRegions {
             tag: hashmap(8),
-            // regions: Vec::with_capacity(4),
+            heading: Vec::with_capacity(8),
         }
     }
 
-    pub fn push(&mut self, tag: MetaTag, row: usize, col: ColumnSpan) {
-        if let Some(tag @ RegionTag::Heading(_)) = region_tag(tag) {
-            let region = SelectedRegion::new_same_line(row, col);
-            match self.tag.entry(tag) {
-                Entry::Occupied(ocp) => ocp.into_mut().merge_continuous(region),
-                Entry::Vacant(empty) => _ = empty.insert(region.into()),
-            };
+    pub fn push_heading(&mut self, idx: usize, row: usize, col: ColumnSpan) {
+        let region = SelectedRegion::new_same_line(row, col);
+        for (index, old) in &mut self.heading {
+            if *index == idx {
+                old.merge_continuous(region);
+                return;
+            }
         }
+        self.heading.push((idx, region.into()));
+    }
+
+    pub fn take_headings(&mut self) -> Vec<(usize, TargetRegion)> {
+        std::mem::take(&mut self.heading)
     }
 }
 
 pub fn region_tag(tag: MetaTag) -> Option<RegionTag> {
     match tag {
-        MetaTag::Heading(id) => Some(RegionTag::Heading(id)),
         MetaTag::Link(LinkTag::ReferenceLink(id)) => Some(RegionTag::Link(id)),
         MetaTag::Link(LinkTag::Footnote(key)) => Some(RegionTag::FootNote(key)),
         _ => None,

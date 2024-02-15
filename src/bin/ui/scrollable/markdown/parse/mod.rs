@@ -62,8 +62,9 @@ pub fn segment_words(text: &str, mut f: impl FnMut(&str, bool)) {
     });
 }
 
-pub fn parse_doc(doc: &str, width: f64) -> (Vec<StyledLine>, LinkedRegions) {
-    entry_point::parse(doc).write_styled_lines(width)
+pub fn parse_doc(doc: &str, width: f64) -> (Vec<StyledLine>, Blocks) {
+    let mut blocks = entry_point::parse(doc);
+    (blocks.write_styled_lines(width), blocks)
 }
 
 pub fn md(doc: &str) -> Vec<StyledLine> {

@@ -46,7 +46,11 @@ impl Word {
         StyledLine::from(
             iter.map(|word| {
                 let (text, tag) = word.into_text(start);
-                linked_regions.push(tag, row, text.span());
+                #[allow(clippy::single_match)]
+                match tag {
+                    MetaTag::Heading(idx) => linked_regions.push_heading(idx, row, text.span()),
+                    _ => (),
+                }
                 start = text.span_end();
                 text
             })

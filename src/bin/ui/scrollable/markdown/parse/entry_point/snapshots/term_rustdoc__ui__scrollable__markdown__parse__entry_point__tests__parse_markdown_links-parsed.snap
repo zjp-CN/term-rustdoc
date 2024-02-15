@@ -478,6 +478,9 @@ Blocks {
             (
                 2,
                 "## h2 [c] [`h`][c]\n",
+                TargetRegion {
+                    targets: [],
+                },
             ),
         ],
         links: [

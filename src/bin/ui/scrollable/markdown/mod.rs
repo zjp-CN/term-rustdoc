@@ -1,12 +1,12 @@
 /// fall back to syntect's highlights without text wrapping
 mod fallback;
+/// markdown headings
+mod heading;
+mod parse;
 /// A continuous region that may be across lines.
 mod region;
+mod render;
 /// cached and styled lines that are wrapped and incompletely highlighted
 mod wrapped;
 
-mod parse;
-mod render;
-
-pub use fallback::ScrollText;
-pub use wrapped::StyledText;
+pub use self::{fallback::ScrollText, heading::ScrollHeading, wrapped::StyledText};

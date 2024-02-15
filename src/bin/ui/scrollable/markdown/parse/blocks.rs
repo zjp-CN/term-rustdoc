@@ -1,6 +1,7 @@
 use super::{element::LINK, Block, Line, LinkTag, MetaTag, Word};
 use crate::ui::scrollable::markdown::{
     fallback::StyledLine,
+    heading::Headings,
     region::{LinkedRegions, SelectedRegion},
 };
 use ratatui::style::{Color, Style};
@@ -223,5 +224,19 @@ impl Links {
                 error!("the heading id {idx} from regions doesn't exist in Links");
             }
         }
+    }
+
+    pub fn to_heading(&self) -> Headings {
+        let Some(top) = self.heading.iter().map(|h| h.0).min() else {
+            return Headings::default();
+        };
+        let mut headings = Headings::with_capacity(self.heading.len());
+        for (level, text, region) in &self.heading {
+            let mut heading = XString::default();
+            (0..level.saturating_sub(top)).for_each(|_| heading.push_str("  "));
+            heading.push_str(text.trim_start().trim_start_matches('#').trim());
+            headings.push(heading, region.clone());
+        }
+        headings
     }
 }

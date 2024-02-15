@@ -1,4 +1,4 @@
-use self::scrollable::{ScrollText, ScrollTreeLines, Scrollable};
+use self::scrollable::{ScrollHeading, ScrollText, ScrollTreeLines, Scrollable};
 use crate::{app::App, Result};
 use ratatui::{
     prelude::{Buffer, Color, Constraint, Direction, Frame, Layout, Rect, Style, Widget},
@@ -209,6 +209,6 @@ struct Content {
 
 #[derive(Default, Debug)]
 struct Navigation {
-    display: ScrollTreeLines,
+    display: ScrollHeading,
     border: Surround,
 }

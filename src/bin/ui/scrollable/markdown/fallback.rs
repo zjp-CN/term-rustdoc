@@ -1,4 +1,5 @@
 use super::{
+    heading::Headings,
     parse::{self, Blocks},
     StyledText,
 };
@@ -118,22 +119,25 @@ impl StyledLines {
         }
     }
 
-    /// only returns true if a new doc is fetched
-    pub fn update_doc(&mut self, id: &str, width: Option<f64>) -> bool {
+    /// Only returns Some if a new doc is fetched.
+    ///
+    /// The Headings can still be empty because heading jumping isn't supported in syntect case.
+    pub fn update_doc(&mut self, id: &str, width: Option<f64>) -> Option<Headings> {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
-                if let Some(width) = (!self.syntect).then_some(width).flatten() {
-                    let (lines, blocks) = parse::parse_doc(doc, width);
+                return if let Some(width) = (!self.syntect).then_some(width).flatten() {
+                    let (lines, blocks, headings) = parse::parse_doc(doc, width);
                     self.lines = lines;
                     self.blocks = blocks;
+                    Some(headings)
                 } else {
-                    self.lines = parse::md(doc)
+                    self.lines = parse::md(doc);
+                    Some(Headings::default())
                 };
-                return true;
             }
         }
         self.reset_doc();
-        false
+        None
     }
 
     /// FIXME: cache queried doc to save parsing
@@ -166,7 +170,7 @@ impl ScrollText {
         (self.max_windth > 1).then(|| self.max_windth.saturating_sub(1) as f64)
     }
 
-    pub fn update_doc(&mut self, id: &str) -> bool {
+    pub fn update_doc(&mut self, id: &str) -> Option<Headings> {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
     }

@@ -19,7 +19,7 @@ pub fn render(_app: &mut App, page: &mut Page, f: &mut Frame) {
     f.render_widget(page, f.size());
 }
 
-const SET: Style = Style::new().bg(Color::Rgb(0, 36, 81)); // #002451
+const SET: Style = Style::new().bg(Color::Rgb(20, 19, 18)); // #141312
 const NEW: Style = Style::new();
 
 #[derive(Debug)]
@@ -106,7 +106,7 @@ impl Page {
     }
 
     fn layout(&self) -> Layout {
-        let outline_width = self.outline.display.max_width;
+        let outline_width = self.outline.display.max_width + 1;
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
@@ -136,19 +136,20 @@ impl Page {
         let layout = self.layout().split(full);
 
         // border
+        let outline_border = Block::new()
+            .borders(Borders::RIGHT)
+            .border_type(BorderType::Thick);
         self.outline.border = Surround {
             block: if matches!(self.current, None | Some(Component::Outline)) {
-                Block::new().style(SET)
+                outline_border.style(SET)
             } else {
-                Block::new()
+                outline_border
             },
             area: layout[0],
         };
         let outline_area = self.outline.border.inner();
         self.content.border = Surround {
-            block: Block::new()
-                .borders(Borders::LEFT)
-                .border_type(BorderType::Thick),
+            block: Block::new(),
             area: layout[1],
         };
         let content_area = self.content.border.inner();
@@ -168,8 +169,14 @@ impl Page {
         self.content.display.area = content_area;
         self.content.display.max_width = content_area.width;
 
-        if let Some(&navi_area) = layout.get(2) {
-            self.navi.display.area = navi_area;
+        if let Some(&navi_outer_area) = layout.get(2) {
+            self.navi.border = Surround {
+                block: Block::new()
+                    .borders(Borders::LEFT)
+                    .border_type(BorderType::Thick),
+                area: navi_outer_area,
+            };
+            self.navi.display.area = self.navi.border.inner();
         }
 
         // auto update content when screen size changes
@@ -184,6 +191,7 @@ impl Widget for &mut Page {
         self.content.border.render(buf);
         self.outline.display.render(buf);
         self.content.display.render(buf);
+        self.navi.border.render(buf);
         self.navi.display.render(buf);
     }
 }

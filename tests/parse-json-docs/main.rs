@@ -150,13 +150,13 @@ fn basic_info() -> Result<()> {
     "###);
 
     // item counts
-    shot!(doc.paths.len(), @"1987");
+    shot!(doc.paths.len(), @"2003");
     shot!(js.local_path().count(), @"17");
-    shot!(doc.index.len(), @"155");
+    shot!(doc.index.len(), @"157");
     shot!(js.local_index().count(), @"68");
 
     // data sizes
-    shot!(ByteSize(json.len() as _), @"361.7 KB");
+    shot!(ByteSize(json.len() as _), @"368.1 KB");
 
     Ok(())
 }
@@ -195,7 +195,7 @@ fn compression() -> Result<()> {
         "[raw json text => xz] {}",
         reduced_size(json_size, compress(json.as_bytes())?)
     );
-    shot!(json_compression, @"[raw json text => xz] 361.7 KB => 43.6 KB (-88%)");
+    shot!(json_compression, @"[raw json text => xz] 368.1 KB => 44.2 KB (-88%)");
 
     let [bin_size, xz_size] = compress_bin(doc)?;
     let bin_compression = format!(
@@ -207,9 +207,9 @@ fn compression() -> Result<()> {
         reduced_size(json_size, xz_size)
     );
     shot!(bin_compression, @r###"
-    [raw json text => bb] 361.7 KB => 174.3 KB (-52%)
-    [binary bytes  => xz] 174.3 KB => 41.6 KB (-76%)
-    [raw json text => xz] 361.7 KB => 41.6 KB (-89%) 
+    [raw json text => bb] 368.1 KB => 178.6 KB (-51%)
+    [binary bytes  => xz] 178.6 KB => 42.4 KB (-76%)
+    [raw json text => xz] 368.1 KB => 42.4 KB (-88%) 
     "###);
 
     Ok(())

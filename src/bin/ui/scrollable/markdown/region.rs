@@ -1,3 +1,4 @@
+#![allow(unused)] // TargetRegion is reserved for bidirection of referencd links
 use super::{
     parse::{LinkTag, MetaTag},
     wrapped::ColumnSpan,
@@ -66,6 +67,10 @@ pub enum RegionTag {
     LinkSrc(usize),
 }
 
+/// Multiple SelectedRegions, but in most cases still single SelectedRegion.
+///
+/// ReferenceLinks usually only have one linked region, but it's still common to
+/// have multiple linked regions.
 #[derive(Clone, Debug, Default)]
 pub struct TargetRegion {
     targets: SmallVec<[SelectedRegion; 1]>,

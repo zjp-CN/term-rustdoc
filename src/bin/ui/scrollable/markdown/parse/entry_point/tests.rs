@@ -78,7 +78,6 @@ m[^n].
 ";
     snap!(markdown_iter(doc).collect::<Vec<_>>());
     let mut blocks = parse(doc);
-    snap!("parse_markdown_links-parsed", blocks);
     shot!(blocks, @r###"
     [a][0], [c][1], [e][1]. [long][2]
 
@@ -92,6 +91,7 @@ m[^n].
 
     let lines = blocks.write_styled_lines(20.0);
     snap!("parse_markdown_links-StyledLines", lines);
+    snap!("parse_markdown_links-parsed", blocks);
 }
 
 #[test]

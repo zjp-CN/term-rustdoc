@@ -478,8 +478,11 @@ Blocks {
             (
                 2,
                 "## h2 [c] [`h`][c]\n",
-                TargetRegion {
-                    targets: [],
+                SelectedRegion {
+                    row_start: 14,
+                    row_end: 15,
+                    col_start: 0,
+                    col_end: 2,
                 },
             ),
         ],

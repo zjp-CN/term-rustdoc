@@ -1,7 +1,7 @@
 use super::{element::LINK, Block, Line, LinkTag, MetaTag, Word};
 use crate::ui::scrollable::markdown::{
     fallback::StyledLine,
-    region::{LinkedRegions, TargetRegion},
+    region::{LinkedRegions, SelectedRegion},
 };
 use ratatui::style::{Color, Style};
 use std::fmt;
@@ -156,7 +156,7 @@ impl WriteLines {
 /// Referenced links/footnotes in the whole doc.
 #[derive(Default, Debug)]
 pub struct Links {
-    heading: Vec<(u8, XString, TargetRegion)>,
+    heading: Vec<(u8, XString, SelectedRegion)>,
     links: Vec<XString>,
     // FIXME: replace this HashMap with Vec<(XString, Block)>,
     // and use the index as key/id like push_link returns.
@@ -201,15 +201,26 @@ impl Links {
     pub fn push_heading(&mut self, level: u8, raw: &str) -> usize {
         let id = self.heading.len();
         self.heading
-            .push((level, raw.into(), TargetRegion::default()));
+            .push((level, raw.into(), SelectedRegion::default()));
         id
     }
 
-    pub fn set_heading_regions(&mut self, mut regions: Vec<(usize, TargetRegion)>) {
+    pub fn set_heading_regions(&mut self, mut regions: Vec<(usize, SelectedRegion)>) {
         regions.sort_unstable_by_key(|(idx, _)| *idx);
+        if regions.len() != self.heading.len() {
+            error!(
+                "regions of heading has {} ids {:?}\nbut headings in blocks has {} ids {:?}",
+                regions.len(),
+                regions.iter().map(|r| r.0).collect::<Vec<_>>(),
+                self.heading.len(),
+                self.heading.iter().map(|r| r.0).collect::<Vec<_>>(),
+            );
+        }
         for (idx, region) in regions {
             if let Some((_, _, old)) = self.heading.get_mut(idx) {
                 *old = region;
+            } else {
+                error!("the heading id {idx} from regions doesn't exist in Links");
             }
         }
     }

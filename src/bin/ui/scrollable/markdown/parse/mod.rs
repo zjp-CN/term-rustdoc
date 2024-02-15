@@ -1,4 +1,4 @@
-use super::{fallback::StyledLine, region::LinkedRegions};
+use super::fallback::StyledLine;
 use icu_segmenter::LineSegmenter;
 use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};

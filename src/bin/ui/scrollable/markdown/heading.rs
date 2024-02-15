@@ -1,7 +1,10 @@
 use super::region::SelectedRegion;
-use crate::ui::scrollable::{
-    generics::{render_line, LineState},
-    Scrollable,
+use crate::ui::{
+    scrollable::{
+        generics::{render_line, LineState},
+        Scrollable,
+    },
+    Page,
 };
 use ratatui::buffer::Buffer;
 use term_rustdoc::{tree::Text, util::XString};
@@ -94,5 +97,19 @@ impl ScrollHeading {
             render_line(Some((text, style)), buf, x, y, width);
             y += 1;
         }
+    }
+}
+
+impl Page {
+    pub fn heading_jump(&mut self, y: u16) -> bool {
+        const MARGIN: usize = 3;
+        if let Some(heading) = self.navi.display.lines.get(y as usize) {
+            // set the upper bound: usually no need to use this, but who knows if y points
+            // to a line out of the doc range.
+            let limit = self.content.display.total_len().saturating_sub(MARGIN);
+            self.content().start = heading.jump.row_start().saturating_sub(MARGIN).min(limit);
+            return true;
+        }
+        false
     }
 }

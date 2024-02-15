@@ -90,7 +90,12 @@ impl Page {
         } else if contain(x, y, self.content.border.area) {
             set!(content)
         } else if contain(x, y, self.navi.border.area) {
-            set!(navi)
+            if self.heading_jump(y) {
+                // succeed to jump to a heading, thus focus on content panel
+                set!(content)
+            } else {
+                set!(navi)
+            }
         } else {
             None
         };

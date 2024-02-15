@@ -19,6 +19,10 @@ pub struct SelectedRegion {
 }
 
 impl SelectedRegion {
+    pub fn row_start(&self) -> usize {
+        self.row_start
+    }
+
     fn new_same_line(row: usize, col: ColumnSpan) -> Self {
         let [start, end] = col.span();
         SelectedRegion {

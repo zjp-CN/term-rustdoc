@@ -42,6 +42,10 @@ impl StyledLine {
     pub fn shrink_to_fit(&mut self) {
         self.line.shrink_to_fit();
     }
+
+    pub fn iter_text_style(&self) -> impl Iterator<Item = (&'_ str, Style)> {
+        self.line.iter().map(|l| (l.as_str(), l.style()))
+    }
 }
 
 /// NOTE: [`StyledText`]s must have correct [`ColumnSpan`]s here.
@@ -125,7 +129,7 @@ impl StyledLines {
     pub fn update_doc(&mut self, id: &str, width: Option<f64>) -> Option<Headings> {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
-                return if let Some(width) = (!self.syntect).then_some(width).flatten() {
+                return if let Some(width) = width {
                     let (lines, blocks, headings) = parse::parse_doc(doc, width);
                     self.lines = lines;
                     self.blocks = blocks;
@@ -165,9 +169,14 @@ impl ScrollText {
         })
     }
 
+    // Wrapping width is the exclusive maximum of a line.
+    // It's like the area width, all texts should be strictly less than the width.
+    //
+    // When syntect is used, no need to get wrapping width, because we won't support
+    // wrapping in case of syntect.
     fn wrapping_width(&self) -> Option<f64> {
-        // wrapping width should less than area width
-        (self.max_windth > 1).then(|| self.max_windth.saturating_sub(1) as f64)
+        // we use this method to aviod duplicating a width field in StyledLines.
+        (!self.lines.syntect && self.max_width > 1).then_some(self.max_width as f64)
     }
 
     pub fn update_doc(&mut self, id: &str) -> Option<Headings> {

@@ -44,7 +44,7 @@ pub struct Scrollable<Ls: Lines> {
     /// The row position where cursor was last time
     pub cursor: Cursor<<Ls::Line as LineState>::State>,
     /// The maximum width among all lines
-    pub max_windth: u16,
+    pub max_width: u16,
     /// The widget area, usually not the full screen
     pub area: Rect,
 }
@@ -91,7 +91,7 @@ where
             lines,
             start,
             cursor,
-            max_windth,
+            max_width: max_windth,
             area,
         }
     }
@@ -107,7 +107,7 @@ where
 
         Ok(Self {
             lines,
-            max_windth,
+            max_width: max_windth,
             ..Default::default()
         })
     }
@@ -121,7 +121,7 @@ where
     }
 
     pub fn update_maxwidth(&mut self) {
-        self.max_windth = self.lines.iter().map(TreeLine::width).max().unwrap();
+        self.max_width = self.lines.iter().map(TreeLine::width).max().unwrap();
     }
 }
 
@@ -131,7 +131,7 @@ impl<Ls: Lines> fmt::Debug for Scrollable<Ls> {
         s.field("lines.len", &self.total_len())
             .field("start", &self.start)
             .field("cursor.y", &self.cursor.y)
-            .field("max_windth", &self.max_windth)
+            .field("max_windth", &self.max_width)
             .field("area", &self.area);
         s.finish()
     }

@@ -1,9 +1,14 @@
 use super::region::SelectedRegion;
-use crate::ui::scrollable::{generics::LineState, Scrollable};
+use crate::ui::scrollable::{
+    generics::{render_line, LineState},
+    Scrollable,
+};
+use ratatui::buffer::Buffer;
 use term_rustdoc::{tree::Text, util::XString};
 
 pub type ScrollHeading = Scrollable<Headings>;
 
+#[derive(Debug)]
 pub struct Heading {
     line: Text,
     jump: SelectedRegion,
@@ -73,6 +78,21 @@ impl ScrollHeading {
             .max()
             .unwrap_or(0);
         self.lines = headings;
-        self.max_windth = max_windth;
+        self.max_width = max_windth;
+    }
+
+    pub fn render(&self, buf: &mut Buffer) {
+        let width = self.area.width;
+        if width == 0 {
+            return;
+        }
+        let (x, mut y, width) = (self.area.x, self.area.y, width as usize);
+        for line in &self.lines.lines {
+            let text = &line.as_str();
+            let text = text.get(..width.min(text.len())).unwrap_or("");
+            let style = line.line.style;
+            render_line(Some((text, style)), buf, x, y, width);
+            y += 1;
+        }
     }
 }

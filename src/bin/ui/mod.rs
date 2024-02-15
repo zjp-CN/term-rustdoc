@@ -106,10 +106,20 @@ impl Page {
     }
 
     fn layout(&self) -> Layout {
-        let outline_width = self.outline.display.max_windth;
-        Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Length(outline_width), Constraint::Min(0)])
+        const CONTENT_LEAST: u16 = 20;
+        let outline_width = self.outline.display.max_width;
+        let layout = Layout::default().direction(Direction::Horizontal);
+        let navi_width = self.navi.display.max_width;
+        if navi_width == 0 || outline_width + navi_width + CONTENT_LEAST > self.area.width {
+            // discard navi
+            layout.constraints([Constraint::Length(outline_width), Constraint::Min(0)])
+        } else {
+            layout.constraints([
+                Constraint::Length(outline_width),
+                Constraint::Min(0),
+                Constraint::Length(navi_width),
+            ])
+        }
     }
 
     /// This is called in Widget's render method because inner widgets don't implement
@@ -152,7 +162,7 @@ impl Page {
         // display.area
         self.outline.display.area = outline_area;
         // self.outline.display.cursor = outline_area.y;
-        let outline_max_width = self.outline.display.max_windth;
+        let outline_max_width = self.outline.display.max_width;
         if outline_area.width < outline_max_width {
             warn!(
                 outline_area.width,
@@ -162,10 +172,13 @@ impl Page {
         }
 
         self.content.display.area = content_area;
-        self.content.display.max_windth = content_area.width;
+        self.content.display.max_width = content_area.width;
         // auto update content when screen size changes
         self.update_content();
-        // self.content.display.cursor = content_area.y;
+
+        if let Some(&navi_area) = layout.get(2) {
+            self.navi.display.area = navi_area;
+        }
     }
 }
 
@@ -176,6 +189,7 @@ impl Widget for &mut Page {
         self.content.border.render(buf);
         self.outline.display.render(buf);
         self.content.display.render(buf);
+        self.navi.display.render(buf);
     }
 }
 

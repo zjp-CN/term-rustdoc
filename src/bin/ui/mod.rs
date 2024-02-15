@@ -39,7 +39,7 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(outline: TreeLines, doc: Option<CrateDoc>) -> Result<Self> {
+    pub fn new(outline: TreeLines, doc: Option<CrateDoc>, area: Rect) -> Result<Self> {
         let mut page = Page {
             outline: Outline {
                 display: Scrollable::new(outline)?,
@@ -51,10 +51,10 @@ impl Page {
             },
             // page scrolling like HOME/END will check the current Component
             current: Some(Component::Outline),
+            area,
             ..Default::default()
         };
-        info!(?page);
-        page.update_content();
+        page.update_area_inner(area);
         Ok(page)
     }
 
@@ -106,20 +106,14 @@ impl Page {
     }
 
     fn layout(&self) -> Layout {
-        const CONTENT_LEAST: u16 = 20;
         let outline_width = self.outline.display.max_width;
-        let layout = Layout::default().direction(Direction::Horizontal);
-        let navi_width = self.navi.display.max_width;
-        if navi_width == 0 || outline_width + navi_width + CONTENT_LEAST > self.area.width {
-            // discard navi
-            layout.constraints([Constraint::Length(outline_width), Constraint::Min(0)])
-        } else {
-            layout.constraints([
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
                 Constraint::Length(outline_width),
                 Constraint::Min(0),
-                Constraint::Length(navi_width),
+                Constraint::Percentage(10),
             ])
-        }
     }
 
     /// This is called in Widget's render method because inner widgets don't implement
@@ -173,12 +167,13 @@ impl Page {
 
         self.content.display.area = content_area;
         self.content.display.max_width = content_area.width;
-        // auto update content when screen size changes
-        self.update_content();
 
         if let Some(&navi_area) = layout.get(2) {
             self.navi.display.area = navi_area;
         }
+
+        // auto update content when screen size changes
+        self.update_content();
     }
 }
 

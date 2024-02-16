@@ -40,7 +40,6 @@ fn main() -> Result<()> {
                 }
                 MouseEventKind::Down(MouseButton::Left) => {
                     let (x, y) = (mouse_event.column, mouse_event.row);
-                    tui.events.left_click()?;
                     page.set_current_panel(y, x);
                 }
                 _ => (),

@@ -1,5 +1,7 @@
 use crate::Result;
-use crossterm::event::{self, Event as CrosstermEvent, KeyEvent, MouseEvent};
+use crossterm::event::{
+    self, Event as CrosstermEvent, KeyEvent, MouseButton, MouseEvent, MouseEventKind,
+};
 use std::{
     sync::mpsc,
     thread,
@@ -28,12 +30,6 @@ pub struct EventHandler {
     /// Event receiver channel.
     receiver: mpsc::Receiver<Event>,
 
-    /// Left click last time.
-    ///
-    /// When a new left click happens, compute the duration to determin
-    /// if the new click counts as double click.
-    last_click: Option<Instant>,
-
     /// Event handler thread.
     #[allow(dead_code)]
     handler: thread::JoinHandle<()>,
@@ -47,6 +43,7 @@ impl EventHandler {
         let handler = {
             let sender = sender.clone();
             thread::spawn(move || {
+                let mut last_click = Instant::now();
                 loop {
                     if event::poll(timeout).expect("unable to poll for event") {
                         match event::read().expect("unable to read event") {
@@ -57,7 +54,23 @@ impl EventHandler {
                                     Ok(()) // ignore KeyEventKind::Release on windows
                                 }
                             }
-                            CrosstermEvent::Mouse(e) => sender.send(Event::Mouse(e)),
+                            CrosstermEvent::Mouse(e) => {
+                                // Record the time of left clicking, and emit the MouseDoubleClick event
+                                // when the gap between two clicks is shorter than a duration.
+                                if let MouseEventKind::Down(MouseButton::Left) = &e.kind {
+                                    let now = Instant::now();
+                                    let old = std::mem::replace(&mut last_click, now);
+                                    if let Some(diff) = now.checked_duration_since(old) {
+                                        if diff < Duration::from_millis(500) {
+                                            sender
+                                                .send(Event::MouseDoubleClick)
+                                                .expect("failed to send MouseDoubleClick event");
+                                            continue; // no need to emit Mouse click event
+                                        }
+                                    }
+                                }
+                                sender.send(Event::Mouse(e))
+                            }
                             CrosstermEvent::Resize(w, h) => sender.send(Event::Resize(w, h)),
                             _ => Ok(()),
                         }
@@ -69,7 +82,6 @@ impl EventHandler {
         Self {
             sender,
             receiver,
-            last_click: None,
             handler,
         }
     }
@@ -80,23 +92,5 @@ impl EventHandler {
     /// there is no data available and it's possible for more data to be sent.
     pub fn next(&self) -> Result<Event> {
         Ok(self.receiver.recv()?)
-    }
-
-    /// Record the time of left clicking, and emit the MouseDoubleClick event
-    /// when the gap between two clicks is shorter than a duration.
-    pub fn left_click(&mut self) -> Result<()> {
-        let now = Instant::now();
-        if let Some(last_time) = self.last_click {
-            if let Some(diff) = now.checked_duration_since(last_time) {
-                if diff < Duration::from_millis(250) {
-                    self.sender.send(Event::MouseDoubleClick)?;
-                    // reset the click time: restart for the next double click
-                    self.last_click = None;
-                    return Ok(());
-                }
-            }
-        }
-        self.last_click = Some(now);
-        Ok(())
     }
 }

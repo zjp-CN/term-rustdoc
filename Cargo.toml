@@ -43,6 +43,8 @@ itertools = "0.12"
 smallvec = "1.13"
 icu_segmenter = "1"
 
+home = "0.5"
+
 [dev-dependencies]
 insta = "1"
 similar-asserts = "1.5"

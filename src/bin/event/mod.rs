@@ -61,7 +61,7 @@ impl EventHandler {
                                     let now = Instant::now();
                                     let old = std::mem::replace(&mut last_click, now);
                                     if let Some(diff) = now.checked_duration_since(old) {
-                                        if diff < Duration::from_millis(500) {
+                                        if diff < Duration::from_millis(450) {
                                             sender
                                                 .send(Event::MouseDoubleClick)
                                                 .expect("failed to send MouseDoubleClick event");

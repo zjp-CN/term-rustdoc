@@ -36,6 +36,7 @@ fn tokio_path() -> Result<PathBuf> {
 }
 
 #[test]
+#[ignore = "make sure tokio is cached in registry src dir"]
 fn checkout_tokio_path() -> Result<()> {
     let path = tokio_path()?;
     dbg!(path);
@@ -43,7 +44,7 @@ fn checkout_tokio_path() -> Result<()> {
 }
 
 #[test]
-#[ignore = "replace the manifest_path in your machine"]
+#[ignore = "make sure tokio is cached in registry src dir"]
 fn generate_tokio_json_doc() -> Result<()> {
     let dir = PathBuf::from_iter(["target", "deps"]);
     fs::create_dir_all(&dir)?;

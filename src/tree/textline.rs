@@ -159,6 +159,7 @@ impl TreeLines {
         };
         // default to zero level items by folding sub modules
         lines.expand_zero_level();
+        info!("Outline TreeLines ready");
         lines
     }
 

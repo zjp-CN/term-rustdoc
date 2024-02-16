@@ -51,6 +51,7 @@ impl Page {
             ..Default::default()
         };
         page.update_area_inner(area);
+        info!("Page ready");
         Ok(page)
     }
 
@@ -65,6 +66,7 @@ impl Page {
 
 impl Widget for &mut Page {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        info!("Page rendering starts");
         self.update_area(area);
         self.outline.border.render(buf);
         self.content.border.render(buf);
@@ -74,6 +76,7 @@ impl Widget for &mut Page {
         let content_start = self.content().start;
         let content_end = self.content().area.height as usize + content_start;
         self.navi.display.render(buf, content_start, content_end);
+        info!("Page rendered");
     }
 }
 

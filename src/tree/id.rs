@@ -105,6 +105,7 @@ impl IDMap {
             id_buffer: RefCell::new(String::with_capacity(24)),
         };
         map.dmod = DModule::new(&map);
+        info!("IDMap and DModule ready");
         map
     }
 

@@ -1,12 +1,12 @@
 use super::region::SelectedRegion;
 use crate::ui::{
     scrollable::{
-        generics::{render_line, LineState},
+        generics::{render_line, render_line_fill_gap, LineState},
         Scrollable,
     },
     Page,
 };
-use ratatui::buffer::Buffer;
+use ratatui::prelude::{Buffer, Color, Style};
 use term_rustdoc::{tree::Text, util::XString};
 
 pub type ScrollHeading = Scrollable<Headings>;
@@ -84,21 +84,40 @@ impl ScrollHeading {
         self.max_width = max_windth;
     }
 
-    pub fn render(&self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer, content_start: usize, content_end: usize) {
         let width = self.area.width;
         if width == 0 {
             return;
         }
         let (x, mut y, width) = (self.area.x, self.area.y, width as usize);
-        for line in &self.lines.lines {
+        let mut gap_str = XString::new_inline("");
+        let lines = &self.lines.lines;
+        for (idx, line) in lines.iter().enumerate() {
             let text = &line.as_str();
             let text = text.get(..width.min(text.len())).unwrap_or("");
-            let style = line.line.style;
-            render_line(Some((text, style)), buf, x, y, width);
+            let row_start = line.jump.row_start();
+            if (content_start <= row_start && content_end > row_start)
+                || (content_start > row_start
+                    && lines
+                        .get(idx + 1)
+                        .map(|l| content_end < l.jump.row_start())
+                        .unwrap_or(true))
+            {
+                render_line_fill_gap(Some((text, HEAD)), buf, x, y, width, &mut gap_str, HEAD);
+            } else {
+                let style = line.line.style;
+                render_line(Some((text, style)), buf, x, y, width);
+            }
             y += 1;
         }
     }
 }
+
+const HEAD: Style = Style {
+    fg: Some(Color::DarkGray),
+    bg: Some(Color::LightCyan),
+    ..Style::new()
+};
 
 impl Page {
     pub fn heading_jump(&mut self, y: u16) -> bool {

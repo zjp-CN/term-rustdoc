@@ -44,3 +44,32 @@ where
         x = x_pos;
     }
 }
+
+pub fn render_line_fill_gap<'t, I>(
+    line: I,
+    buf: &mut Buffer,
+    mut x: u16,
+    y: u16,
+    width: usize,
+    gap_str: &mut XString,
+    gap_style: Style,
+) where
+    I: IntoIterator<Item = (&'t str, Style)>,
+{
+    let mut used_width = 0usize;
+    for (text, style) in line {
+        // stop rendering once it hits the end of width
+        if used_width > width {
+            info!("{text:?} truncated in row {y} col {x} (used {used_width}, maximum {width})");
+            return;
+        }
+        let (x_pos, _) = buf.set_stringn(x, y, text, width, style);
+        used_width += x_pos.saturating_sub(x) as usize;
+        x = x_pos;
+    }
+    if let Some(gap) = width.checked_sub(used_width).filter(|gap| *gap > 0) {
+        gap_str.clear();
+        (0..gap).for_each(|_| gap_str.push(' '));
+        buf.set_stringn(x, y, gap_str, gap, gap_style);
+    }
+}

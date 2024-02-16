@@ -1,4 +1,4 @@
-use super::{scrollable::ScrollText, Component, Page, ScrollTreeLines};
+use super::{scrollable::ScrollText, Page, Panel, ScrollTreeLines};
 
 /// Scroll by fixed rows or half/full screen
 pub enum ScrollOffset {
@@ -10,8 +10,8 @@ pub enum ScrollOffset {
 macro_rules! current {
     ($self:ident: $outline:block; $content:block $(;)?) => {
         match $self.current {
-            Some(Component::Outline) => $outline,
-            Some(Component::Content) => $content,
+            Some(Panel::Outline) => $outline,
+            Some(Panel::Content) => $content,
             _ => (),
         };
     };

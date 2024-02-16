@@ -23,7 +23,7 @@ const SET: Style = Style::new().bg(Color::Rgb(20, 19, 18)); // #141312
 const NEW: Style = Style::new();
 
 #[derive(Debug)]
-enum Component {
+enum Panel {
     Outline,
     Content,
     Navigation,
@@ -34,7 +34,7 @@ pub struct Page {
     outline: Outline,
     content: Content,
     navi: Navigation,
-    current: Option<Component>,
+    current: Option<Panel>,
     area: Rect,
 }
 
@@ -49,8 +49,8 @@ impl Page {
                 display: ScrollText::new_text(doc)?,
                 ..Default::default()
             },
-            // page scrolling like HOME/END will check the current Component
-            current: Some(Component::Outline),
+            // page scrolling like HOME/END will check the current Panel
+            current: Some(Panel::Outline),
             area,
             ..Default::default()
         };
@@ -59,7 +59,7 @@ impl Page {
     }
 
     /// Responde to mouse click from left button.
-    pub fn set_current_component(&mut self, y: u16, x: u16) {
+    pub fn set_current_panel(&mut self, y: u16, x: u16) {
         fn contain(x: u16, y: u16, area: Rect) -> bool {
             (x >= area.x)
                 && (x < area.x + area.width)
@@ -79,7 +79,7 @@ impl Page {
                 *block.$a = block.$a.clone().style(SET);
                 *block.$b = block.$b.clone().style(NEW);
                 *block.$c = block.$c.clone().style(NEW);
-                Some(Component::$var)
+                Some(Panel::$var)
             }};
         }
         // Block area covers border and its inner
@@ -105,7 +105,7 @@ impl Page {
     #[allow(clippy::single_match)]
     pub fn double_click(&mut self) {
         match self.current {
-            Some(Component::Outline) => self.outline_fold_expand_toggle(),
+            Some(Panel::Outline) => self.outline_fold_expand_toggle(),
             _ => {}
         }
     }
@@ -145,7 +145,7 @@ impl Page {
             .borders(Borders::RIGHT)
             .border_type(BorderType::Thick);
         self.outline.border = Surround {
-            block: if matches!(self.current, None | Some(Component::Outline)) {
+            block: if matches!(self.current, None | Some(Panel::Outline)) {
                 outline_border.style(SET)
             } else {
                 outline_border

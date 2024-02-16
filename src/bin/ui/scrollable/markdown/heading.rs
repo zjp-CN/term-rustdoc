@@ -96,6 +96,8 @@ impl ScrollHeading {
             let text = &line.as_str();
             let text = text.get(..width.min(text.len())).unwrap_or("");
             let row_start = line.jump.row_start();
+            // highlight the heading when the heading line is in visual range or
+            // only the contents after the heading is in visual range
             if (content_start <= row_start && content_end > row_start)
                 || (content_start > row_start
                     && lines
@@ -103,7 +105,7 @@ impl ScrollHeading {
                         .map(|l| content_end < l.jump.row_start())
                         .unwrap_or(true))
             {
-                render_line_fill_gap(Some((text, HEAD)), buf, x, y, width, &mut gap_str, HEAD);
+                render_line_fill_gap(Some(text), HEAD, buf, x, y, width, &mut gap_str);
             } else {
                 let style = line.line.style;
                 render_line(Some((text, style)), buf, x, y, width);

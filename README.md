@@ -7,19 +7,25 @@
     - [x] focus on the latest module only (but with all other level modules folded)
     - [x] expand all public items
   - [ ] features related
-- [ ] doc content
-  - [ ] text wrapping
-  - [ ] syntax highlighting in codeblocks
-  - [ ] recognize rustdoc syntax attributes on codeblocks
-    - [ ] in links
-    - [ ] in codeblock (default to rust, hide lines, etc)
+- [x] doc content
+  - [x] text wrapping
+  - [x] syntax highlighting in codeblocks
+  - [x] recognize rustdoc syntax attributes on codeblocks
+    - [x] in links
+    - [x] in codeblock (default to rust, hide lines, etc)
 - [ ] navigation
-  - [ ] markdown outline
+  - [x] markdown outline
   - [ ] item's associated items/fields outline
 - [ ] configuration
-  - [ ] theme
-  - [ ] keybind
-- [ ] search
+  - [ ] package source
+    - [ ] local
+      - [ ] local registry src dirs
+      - [ ] caches in database (json docs that have been generated will be cached in local db)
+      - [ ] local paths to Cargo.toml
+    - [ ] non-local (i.e. download pkgs from the web): low priority
+  - [ ] theme: low priority
+  - [ ] keybind: low priority
+- [ ] fuzzing search
   - [ ] by item name
   - [ ] by all documentation contents
   - [ ] by function/method signature
@@ -27,6 +33,28 @@
     - [ ] on generic types
     - [ ] on trait bounds
   - [ ] by crate features
+- [ ] generic types enhancement
+  - [ ] generic type parameters
+    - [ ] list concrete candidate types that meet the trait bounds
+      - from within the current pkg
+      - from within the caches in database
+    - [ ] list the functions/methods that
+      - [ ] return generic types that hold the same trait bounds
+      - [ ] return concrete candidate types
+    - [ ] list the function/methods that
+      - [ ] accept generic types that hold the same trait bounds
+      - [ ] accept concrete candidate types
+  - [ ] lifetime parameters
+    - [ ] variance (lack of this info in json docs, but maybe not hard to have it)
+- [ ] concrete types
+  - [ ] list methods in which the concrete `Type` and its ownership variants `&Type` / `&mut Type` is 
+    - [ ] receiver type
+    - [ ] argument type
+    - [ ] return type
+- [ ] traits
+  - [ ] classify trait implementors
+    - [ ] by ownership (`impl Trait` for `Type` vs `&mut Type` vs `&Type` vs `Box<Type>`)
+    - [ ] by concrete vs generic 
 
 # Misc/Basics
 

@@ -1,10 +1,10 @@
 use self::{
     panel::Panel,
-    scrollable::{ScrollHeading, ScrollText, ScrollTreeLines, Scrollable},
+    scrollable::{ScrollHeading, ScrollTreeLines, Scrollable},
 };
-use crate::{app::App, Result};
+use crate::Result;
 use ratatui::{
-    prelude::{Buffer, Frame, Rect, Widget},
+    prelude::{Buffer, Rect, Widget},
     widgets::Block,
 };
 use term_rustdoc::tree::{CrateDoc, TreeLines};
@@ -20,10 +20,7 @@ mod page_scroll;
 mod scrollable;
 
 pub use page_scroll::ScrollOffset;
-
-pub fn render(_app: &mut App, page: &mut Page, f: &mut Frame) {
-    f.render_widget(page, f.size());
-}
+pub use scrollable::ScrollText;
 
 #[derive(Default, Debug)]
 pub struct Page {
@@ -81,17 +78,29 @@ impl Widget for &mut Page {
 }
 
 #[derive(Default, Debug)]
-struct Surround {
+pub struct Surround {
     block: Block<'static>,
     area: Rect,
 }
 
 impl Surround {
-    fn inner(&self) -> Rect {
+    pub fn new(block: Block<'static>, area: Rect) -> Self {
+        Surround { block, area }
+    }
+
+    // pub fn block(&mut self) -> &mut Block<'static> {
+    //     &mut self.block
+    // }
+    //
+    // pub fn area(&mut self) -> &mut Rect {
+    //     &mut self.area
+    // }
+
+    pub fn inner(&self) -> Rect {
         self.block.inner(self.area)
     }
 
-    fn render(&self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer) {
         (&self.block).render(self.area, buf);
     }
 }

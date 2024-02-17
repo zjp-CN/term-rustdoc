@@ -1,4 +1,5 @@
 use crate::Result;
+use color_eyre::eyre::Ok;
 use itertools::Itertools;
 use regex::Regex;
 use semver::Version;
@@ -45,6 +46,38 @@ fn pkg_name_version(path: &Path) -> Option<Component<'_>> {
     // i.e. <registry_src>/pkg_name_version/Cargo.toml
     // ~/.cargo/registry/src/rsproxy.cn-0dccff568467c15b/regex-1.10.3/Cargo.toml
     path.components().rev().nth(1)
+}
+
+#[derive(Debug, Default)]
+pub struct LocalRegistry {
+    pkgs: Vec<PkgNameVersion>,
+    path: PathBuf,
+}
+
+impl LocalRegistry {
+    pub fn all_pkgs_in_latest_registry() -> Result<Self> {
+        let Some(path) = latest_registry()? else {
+            return Ok(Self::default());
+        };
+        let pkgs = all_pkgs_in_latest_registry(&path)?;
+        Ok(LocalRegistry { pkgs, path })
+    }
+
+    pub fn lastest_pkgs_in_latest_registry() -> Result<Self> {
+        let Some(path) = latest_registry()? else {
+            return Ok(Self::default());
+        };
+        let pkgs = lastest_pkgs_in_latest_registry(&path)?;
+        Ok(LocalRegistry { pkgs, path })
+    }
+
+    pub fn len(&self) -> usize {
+        self.pkgs.len()
+    }
+
+    pub fn registry_src_path(&self) -> &Path {
+        &self.path
+    }
 }
 
 #[derive(Debug)]

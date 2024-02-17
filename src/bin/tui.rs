@@ -1,4 +1,4 @@
-use crate::{app::App, event::EventHandler, ui::Page, Result};
+use crate::{app::App, event::EventHandler, Frame, Result};
 use color_eyre::eyre;
 use crossterm::{
     cursor,
@@ -24,9 +24,9 @@ impl Tui {
         Ok(Tui { terminal, events })
     }
 
-    pub fn draw(&mut self, app: &mut App, widgets: &mut Page) -> Result<()> {
+    pub fn draw(&mut self, _app: &mut App, widgets: &mut Frame) -> Result<()> {
         self.terminal
-            .draw(|frame| crate::ui::render(app, widgets, frame))?;
+            .draw(|frame| frame.render_widget(widgets, frame.size()))?;
         Ok(())
     }
 

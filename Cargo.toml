@@ -44,6 +44,9 @@ smallvec = "1.13"
 icu_segmenter = "1"
 
 home = "0.5"
+dirs = "5"
+walkdir = "2"
+semver = "1"
 
 [dev-dependencies]
 insta = "1"

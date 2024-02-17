@@ -2,6 +2,8 @@ use crate::Result;
 use std::path::PathBuf;
 use term_rustdoc::tree::{CrateDoc, TreeLines};
 
+mod local_registry;
+
 #[derive(Default)]
 pub struct App {
     doc: Option<CrateDoc>,

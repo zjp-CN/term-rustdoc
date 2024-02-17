@@ -1,4 +1,10 @@
+use nucleo_matcher::{Config, Matcher};
 use ratatui::prelude::{Buffer, Color, Rect, Style};
+use std::cell::RefCell;
+
+thread_local! {
+    static FUZZ: RefCell<Matcher> = RefCell::new(Matcher::new(Config::DEFAULT));
+}
 
 #[derive(Default)]
 pub(super) struct Search {

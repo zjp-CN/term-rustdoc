@@ -1,7 +1,8 @@
+mod registry;
 mod search;
 
-use self::search::Search;
-use crate::ui::{ScrollText, Surround};
+use self::{registry::Registry, search::Search};
+use crate::ui::{ScrollOffset, Surround};
 use ratatui::{
     layout::Flex,
     prelude::*,
@@ -11,8 +12,8 @@ use ratatui::{
 #[derive(Default)]
 pub struct UI {
     search: Search,
-    database: ScrollText,
-    registry: ScrollText,
+    // database: ScrollText,
+    registry: Registry,
     area: Area,
 }
 
@@ -24,14 +25,29 @@ impl UI {
         }
         // update areas of search, database and registry
         self.search.area = self.area.search_border.inner();
-        self.database.area = self.area.database_border.inner();
-        self.registry.area = self.area.registry_border.inner();
+        // self.database.area = self.area.database_border.inner();
+        self.registry.set_area(self.area.registry_border.inner());
     }
 
     pub fn new(full: Rect) -> Self {
-        let mut ui = UI::default();
+        let mut ui = UI {
+            registry: Registry::new_local(),
+            ..Default::default()
+        };
         ui.update_area(full);
         ui
+    }
+
+    pub fn scroll_down(&mut self) {
+        self.registry
+            .scroll_text()
+            .scrolldown(ScrollOffset::HalfScreen);
+    }
+
+    pub fn scroll_up(&mut self) {
+        self.registry
+            .scroll_text()
+            .scrollup(ScrollOffset::HalfScreen);
     }
 }
 
@@ -40,7 +56,7 @@ impl Widget for &mut UI {
         self.update_area(full);
         self.area.render(buf);
         self.search.render(buf);
-        self.database.render(buf);
+        // self.database.render(buf);
         self.registry.render(buf);
     }
 }

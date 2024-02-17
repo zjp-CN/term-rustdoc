@@ -1,6 +1,6 @@
 use self::{
     panel::Panel,
-    scrollable::{ScrollHeading, ScrollTreeLines, Scrollable},
+    scrollable::{ScrollHeading, ScrollText, ScrollTreeLines},
 };
 use crate::Result;
 use ratatui::{
@@ -20,7 +20,7 @@ mod page_scroll;
 mod scrollable;
 
 pub use page_scroll::ScrollOffset;
-pub use scrollable::ScrollText;
+pub use scrollable::{render_line, render_line_fill_gap, LineState, Scrollable};
 
 #[derive(Default, Debug)]
 pub struct Page {

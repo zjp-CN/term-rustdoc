@@ -41,6 +41,8 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
         KeyCode::Char('c') if key_event.modifiers == KeyModifiers::CONTROL => app.quit(),
         KeyCode::Char(ch) => dash.push_char(ch),
         KeyCode::Backspace => dash.pop_char(),
+        KeyCode::PageUp => dash.scroll_up(),
+        KeyCode::PageDown => dash.scroll_down(),
         _ => (),
     }
 }

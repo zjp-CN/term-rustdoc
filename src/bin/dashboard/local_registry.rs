@@ -54,6 +54,13 @@ pub struct LocalRegistry {
     path: PathBuf,
 }
 
+impl std::ops::Deref for LocalRegistry {
+    type Target = [PkgNameVersion];
+    fn deref(&self) -> &Self::Target {
+        &self.pkgs
+    }
+}
+
 impl LocalRegistry {
     pub fn all_pkgs_in_latest_registry() -> Result<Self> {
         let Some(path) = latest_registry()? else {
@@ -80,11 +87,22 @@ impl LocalRegistry {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PkgNameVersion {
     name: XString,
     version: Version,
     path: PathBuf,
+}
+
+impl Default for PkgNameVersion {
+    fn default() -> Self {
+        let (name, path) = Default::default();
+        PkgNameVersion {
+            name,
+            version: Version::new(0, 0, 0),
+            path,
+        }
+    }
 }
 
 impl PkgNameVersion {
@@ -100,6 +118,10 @@ impl PkgNameVersion {
         } else {
             None
         }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
 

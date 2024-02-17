@@ -1,3 +1,6 @@
+mod search;
+
+use self::search::Search;
 use crate::ui::{ScrollText, Surround};
 use ratatui::{
     layout::Flex,
@@ -82,40 +85,5 @@ impl Area {
         self.search_border.render(buf);
         self.database_border.render(buf);
         self.registry_border.render(buf);
-    }
-}
-
-#[derive(Default)]
-struct Search {
-    input: String,
-    area: Rect,
-}
-
-impl Search {
-    fn render(&self, buf: &mut Buffer) {
-        let Rect { x, y, width, .. } = self.area;
-        let width = width.saturating_sub(1) as usize;
-        let mut text = self.input.as_str();
-        // show end half if the input exceeds the width
-        text = &text[text.len().saturating_sub(width)..];
-        let (x, _) = buf.set_stringn(x, y, text, width, Style::new());
-
-        // the last width is used as cursor
-        let cursor = Style {
-            bg: Some(Color::Green),
-            ..Default::default()
-        };
-        buf.set_stringn(x, y, " ", 1, cursor);
-    }
-}
-
-/// Search related
-impl UI {
-    pub fn push_char(&mut self, ch: char) {
-        self.search.input.push(ch);
-    }
-
-    pub fn pop_char(&mut self) {
-        self.search.input.pop();
     }
 }

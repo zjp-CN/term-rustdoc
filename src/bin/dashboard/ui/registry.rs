@@ -1,23 +1,20 @@
 use crate::{
     dashboard::local_registry::LocalRegistry,
+    fuzzy::Fuzzy,
     ui::{render_line, LineState, Scrollable, Surround},
 };
-use nucleo::{
-    pattern::{CaseMatching, Normalization},
-    Injector, Nucleo,
-};
-use ratatui::prelude::*;
-use std::{cell::RefCell, sync::Arc};
+use ratatui::prelude::{Buffer, Rect, Style};
 use term_rustdoc::util::xformat;
 
 #[derive(Default)]
 pub(super) struct PkgLists {
     local: LocalRegistry,
     filter: Vec<LocalPkgsIndex>,
+    fuzzy: Fuzzy,
 }
 
 impl PkgLists {
-    fn new_local() -> Self {
+    fn new_local(fuzzy: Fuzzy) -> Self {
         let registry = match LocalRegistry::lastest_pkgs_in_latest_registry() {
             Ok(registry) => registry,
             Err(err) => {
@@ -30,12 +27,11 @@ impl PkgLists {
             registry.len(),
             registry.registry_src_path().display()
         );
-        let list = PkgLists {
+        PkgLists {
             filter: (0..registry.len()).map(LocalPkgsIndex).collect(),
             local: registry,
-        };
-        list.set_fuzzy_matcher();
-        list
+            fuzzy,
+        }
     }
 
     fn fill_filter(&mut self) {
@@ -52,22 +48,27 @@ impl PkgLists {
             .extend((0..self.local.len()).map(LocalPkgsIndex));
     }
 
-    /// Pass the pkg names to the fuzzy matcher.
-    /// This should only called when full list is searched in.
-    fn set_fuzzy_matcher(&self) {
-        let inject = injector();
-        for (idx, pkg) in self.local.iter().enumerate() {
-            inject.push(LocalPkgsIndex(idx), |buf| {
-                if let Some(buf) = buf.first_mut() {
-                    *buf = pkg.name().into();
-                }
-            });
+    fn update_search(&mut self, pattern: &str) {
+        struct Ele<'s>(&'s str, LocalPkgsIndex);
+        impl AsRef<str> for Ele<'_> {
+            fn as_ref(&self) -> &str {
+                self.0
+            }
         }
-    }
+        impl From<Ele<'_>> for LocalPkgsIndex {
+            fn from(value: Ele<'_>) -> Self {
+                value.1
+            }
+        }
 
-    fn update_search(&mut self, search_text: &str) {
-        parse_pattern(search_text);
-        get_fuzzy_result(&mut self.filter);
+        self.fuzzy.parse(pattern);
+        let iter = self
+            .local
+            .iter()
+            .enumerate()
+            .map(|(idx, pkg)| Ele(pkg.name(), LocalPkgsIndex(idx)))
+            .collect::<Vec<_>>();
+        self.fuzzy.match_list(iter, &mut self.filter);
         self.fill_filter();
     }
 }
@@ -103,10 +104,10 @@ pub struct Registry {
 }
 
 impl Registry {
-    pub fn new_local() -> Self {
+    pub fn new_local(fuzzy: Fuzzy) -> Self {
         Registry {
             inner: Scrollable {
-                lines: PkgLists::new_local(),
+                lines: PkgLists::new_local(fuzzy),
                 ..Default::default()
             },
             ..Default::default()
@@ -133,7 +134,7 @@ impl Registry {
         let width = width as usize;
         let pkgs = &text.lines.local;
         if let Some(lines) = text.visible_lines() {
-            let mut start = text.start;
+            let mut start = text.start + 1;
             let style = Style::new();
             for line in lines {
                 let pkg = xformat!("{start}. {}", pkgs[line.0].name());
@@ -152,61 +153,12 @@ impl Registry {
         self.border.render_with_bottom_right_text(buf, &text);
     }
 
-    pub fn update_search(&mut self, search_text: &str) {
-        self.inner.lines.update_search(search_text);
+    pub fn update_search(&mut self, pattern: &str) {
+        self.inner.lines.update_search(pattern);
     }
 
     /// Reset to all pkgs.
     pub fn clear_and_reset(&mut self) {
         self.inner.lines.force_all();
     }
-}
-
-type Matcher = Nucleo<LocalPkgsIndex>;
-
-/// only one colo
-fn init_fuzzy_matcher() -> Matcher {
-    Nucleo::new(nucleo::Config::DEFAULT, Arc::new(|| {}), None, 1)
-}
-
-thread_local! {
-    static MATCHER: RefCell< Matcher> = RefCell::new(init_fuzzy_matcher());
-}
-
-fn injector() -> Injector<LocalPkgsIndex> {
-    MATCHER.with(|m| m.borrow().injector())
-}
-
-fn parse_pattern(search_text: &str) {
-    MATCHER.with(|m| {
-        m.borrow_mut().pattern.reparse(
-            0,
-            search_text,
-            CaseMatching::Ignore,
-            Normalization::Smart,
-            false,
-        );
-    });
-}
-
-fn get_fuzzy_result(filter: &mut Vec<LocalPkgsIndex>) {
-    MATCHER.with(move |m| {
-        let matcher = &mut m.borrow_mut();
-        let status = matcher.tick(100);
-        if status.running {
-            info!("Fuzzy Matcher is still running");
-        }
-        if status.changed {
-            let snapshot = matcher.snapshot();
-            let total = snapshot.item_count();
-            let got = snapshot.matched_item_count();
-            info!(total, got, "Snapshot yields matched items");
-            if got == 0 {
-                info!("no search result");
-                return;
-            }
-            filter.clear();
-            filter.extend(snapshot.matched_items(..).map(|item| item.data));
-        }
-    })
 }

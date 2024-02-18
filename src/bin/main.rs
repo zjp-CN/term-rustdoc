@@ -2,6 +2,7 @@ mod app;
 mod dashboard;
 mod event;
 mod frame;
+mod fuzzy;
 mod logger;
 mod tui;
 mod ui;
@@ -18,12 +19,13 @@ fn main() -> Result<()> {
 
     let mut tui = tui::Tui::new(1000)?;
     let mut app = app::App::default();
+    let fuzz = fuzzy::Fuzzy::new();
 
     // let outline = app.set_doc()?;
     let full = tui.size()?;
     // let page = ui::Page::new(outline, app.rustdoc(), full)?;
     let page = Default::default();
-    let dash_board = dashboard::DashBoard::new(full)?;
+    let dash_board = dashboard::DashBoard::new(full, fuzz)?;
     let mut frame = Frame { dash_board, page };
 
     // Start the main loop.

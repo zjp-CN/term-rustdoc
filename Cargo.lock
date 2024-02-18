@@ -1336,6 +1336,7 @@ dependencies = [
  "insta",
  "itertools",
  "nucleo",
+ "nucleo-matcher",
  "public-api",
  "pulldown-cmark",
  "ratatui",

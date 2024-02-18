@@ -1,7 +1,7 @@
 mod local_registry;
 mod ui;
 
-use crate::Result;
+use crate::{fuzzy::Fuzzy, Result};
 use ratatui::layout::Rect;
 
 pub struct DashBoard {
@@ -9,8 +9,8 @@ pub struct DashBoard {
 }
 
 impl DashBoard {
-    pub fn new(full: Rect) -> Result<Self> {
-        let ui = ui::UI::new(full);
+    pub fn new(full: Rect, fuzzy: Fuzzy) -> Result<Self> {
+        let ui = ui::UI::new(full, fuzzy);
         Ok(DashBoard { ui })
     }
 

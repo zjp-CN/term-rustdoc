@@ -2,7 +2,10 @@ mod registry;
 mod search;
 
 use self::{registry::Registry, search::Search};
-use crate::ui::{ScrollOffset, Surround};
+use crate::{
+    fuzzy::Fuzzy,
+    ui::{ScrollOffset, Surround},
+};
 use ratatui::{
     layout::Flex,
     prelude::*,
@@ -28,9 +31,9 @@ impl UI {
         }
     }
 
-    pub fn new(full: Rect) -> Self {
+    pub fn new(full: Rect, fuzzy: Fuzzy) -> Self {
         let mut ui = UI {
-            registry: Registry::new_local(),
+            registry: Registry::new_local(fuzzy),
             ..Default::default()
         };
         ui.update_area(full);

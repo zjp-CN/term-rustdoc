@@ -37,8 +37,15 @@ impl Frame {
 
 fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
     let dash = dash.ui();
+    if key_event.modifiers == KeyModifiers::CONTROL {
+        match key_event.code {
+            KeyCode::Char('q') => app.quit(),
+            KeyCode::Char('c') => dash.clear_input(),
+            _ => (),
+        }
+        return;
+    }
     match key_event.code {
-        KeyCode::Char('c') if key_event.modifiers == KeyModifiers::CONTROL => app.quit(),
         KeyCode::Char(ch) => dash.push_char(ch),
         KeyCode::Backspace => dash.pop_char(),
         KeyCode::PageUp => dash.scroll_up(),

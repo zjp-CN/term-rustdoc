@@ -14,7 +14,6 @@ use term_rustdoc::util::xformat;
 pub(super) struct PkgLists {
     local: LocalRegistry,
     filter: Vec<LocalPkgsIndex>,
-    matcher: Option<Injector<LocalPkgsIndex>>,
 }
 
 impl PkgLists {
@@ -31,10 +30,9 @@ impl PkgLists {
             registry.len(),
             registry.registry_src_path().display()
         );
-        let mut list = PkgLists {
+        let list = PkgLists {
             filter: (0..registry.len()).map(LocalPkgsIndex).collect(),
             local: registry,
-            matcher: None,
         };
         list.set_fuzzy_matcher();
         list
@@ -47,10 +45,17 @@ impl PkgLists {
         }
     }
 
+    /// clear the filter result and fill with all pkgs back
+    fn force_all(&mut self) {
+        self.filter.clear();
+        self.filter
+            .extend((0..self.local.len()).map(LocalPkgsIndex));
+    }
+
     /// Pass the pkg names to the fuzzy matcher.
     /// This should only called when full list is searched in.
-    fn set_fuzzy_matcher(&mut self) {
-        let inject = self.matcher.get_or_insert_with(injector);
+    fn set_fuzzy_matcher(&self) {
+        let inject = injector();
         for (idx, pkg) in self.local.iter().enumerate() {
             inject.push(LocalPkgsIndex(idx), |buf| {
                 if let Some(buf) = buf.first_mut() {
@@ -150,10 +155,16 @@ impl Registry {
     pub fn update_search(&mut self, search_text: &str) {
         self.inner.lines.update_search(search_text);
     }
+
+    /// Reset to all pkgs.
+    pub fn clear_and_reset(&mut self) {
+        self.inner.lines.force_all();
+    }
 }
 
 type Matcher = Nucleo<LocalPkgsIndex>;
 
+/// only one colo
 fn init_fuzzy_matcher() -> Matcher {
     Nucleo::new(nucleo::Config::DEFAULT, Arc::new(|| {}), None, 1)
 }
@@ -174,7 +185,7 @@ fn parse_pattern(search_text: &str) {
             CaseMatching::Ignore,
             Normalization::Smart,
             false,
-        )
+        );
     });
 }
 
@@ -191,6 +202,7 @@ fn get_fuzzy_result(filter: &mut Vec<LocalPkgsIndex>) {
             let got = snapshot.matched_item_count();
             info!(total, got, "Snapshot yields matched items");
             if got == 0 {
+                info!("no search result");
                 return;
             }
             filter.clear();

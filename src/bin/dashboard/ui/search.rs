@@ -34,5 +34,12 @@ impl super::UI {
 
     pub fn pop_char(&mut self) {
         self.search.input.pop();
+        // update fuzzy matcher
+        self.registry.update_search(&self.search.input);
+    }
+
+    pub fn clear_input(&mut self) {
+        self.search.input.clear();
+        self.registry.clear_and_reset();
     }
 }

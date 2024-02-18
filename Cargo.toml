@@ -47,6 +47,7 @@ home = "0.5"
 dirs = "5"
 walkdir = "2"
 semver = "1"
+nucleo = "0.3"
 
 [dev-dependencies]
 insta = "1"

@@ -1,10 +1,4 @@
-use nucleo_matcher::{Config, Matcher};
 use ratatui::prelude::{Buffer, Color, Rect, Style};
-use std::cell::RefCell;
-
-thread_local! {
-    static FUZZ: RefCell<Matcher> = RefCell::new(Matcher::new(Config::DEFAULT));
-}
 
 #[derive(Default)]
 pub(super) struct Search {
@@ -34,6 +28,8 @@ impl Search {
 impl super::UI {
     pub fn push_char(&mut self, ch: char) {
         self.search.input.push(ch);
+        // update fuzzy matcher
+        self.registry.update_search(&self.search.input);
     }
 
     pub fn pop_char(&mut self) {

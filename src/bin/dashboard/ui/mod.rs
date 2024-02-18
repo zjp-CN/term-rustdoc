@@ -20,13 +20,12 @@ pub struct UI {
 impl UI {
     fn update_area(&mut self, full: Rect) {
         // skip rendering is the same area
-        if !self.area.update(full) {
-            return;
+        if let Some(registry) = self.area.update(full) {
+            // update areas of search, database and registry
+            self.search.area = self.area.search_border.inner();
+            // self.database.area = self.area.database_border.inner();
+            self.registry.set_area(registry);
         }
-        // update areas of search, database and registry
-        self.search.area = self.area.search_border.inner();
-        // self.database.area = self.area.database_border.inner();
-        self.registry.set_area(self.area.registry_border.inner());
     }
 
     pub fn new(full: Rect) -> Self {
@@ -67,7 +66,6 @@ struct Area {
     center: Rect,
     search_border: Surround,
     database_border: Surround,
-    registry_border: Surround,
 }
 
 fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {
@@ -79,9 +77,9 @@ fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {
 }
 
 impl Area {
-    fn update(&mut self, full: Rect) -> bool {
+    fn update(&mut self, full: Rect) -> Option<Surround> {
         if self.full == full {
-            return false;
+            return None;
         }
         self.full = full;
         self.center = centered_rect(full, 80, 80);
@@ -93,13 +91,14 @@ impl Area {
         let half = Constraint::Percentage(50);
         let [db, reg] = Layout::horizontal([half, half]).areas(db_reg);
         self.database_border = Surround::new(block.clone().title("From Database"), db);
-        self.registry_border = Surround::new(block.title("From Local Registry Src Dir"), reg);
-        true
+        Some(Surround::new(
+            block.title("From Local Registry Src Dir"),
+            reg,
+        ))
     }
 
     fn render(&self, buf: &mut Buffer) {
         self.search_border.render(buf);
         self.database_border.render(buf);
-        self.registry_border.render(buf);
     }
 }

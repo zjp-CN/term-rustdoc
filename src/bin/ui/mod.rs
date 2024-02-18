@@ -4,7 +4,7 @@ use self::{
 };
 use crate::Result;
 use ratatui::{
-    prelude::{Buffer, Rect, Widget},
+    prelude::{Buffer, Rect, Style, Widget},
     widgets::Block,
 };
 use term_rustdoc::tree::{CrateDoc, TreeLines};
@@ -92,8 +92,8 @@ impl Surround {
     //     &mut self.block
     // }
     //
-    // pub fn area(&mut self) -> &mut Rect {
-    //     &mut self.area
+    // pub fn area(&self) -> &Rect {
+    //     &self.area
     // }
 
     pub fn inner(&self) -> Rect {
@@ -102,6 +102,16 @@ impl Surround {
 
     pub fn render(&self, buf: &mut Buffer) {
         (&self.block).render(self.area, buf);
+    }
+
+    pub fn render_with_bottom_right_text(&self, buf: &mut Buffer, text: &str) {
+        self.render(buf);
+        let area = self.area;
+        if let Some(offset) = (area.width as usize).checked_sub(2 + text.len()) {
+            let x = area.x + offset as u16;
+            let y = area.y + area.height - 1;
+            render_line(Some((text, Style::new())), buf, x, y, text.len());
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::{
     dashboard::local_registry::LocalRegistry,
-    ui::{render_line, LineState, Scrollable},
+    ui::{render_line, LineState, Scrollable, Surround},
 };
 use nucleo::{
     pattern::{CaseMatching, Normalization},
@@ -94,14 +94,15 @@ impl LineState for LocalPkgsIndex {
 
 #[derive(Default)]
 pub struct Registry {
-    pub text: Scrollable<PkgLists>,
+    pub inner: Scrollable<PkgLists>,
     matched: FuzzyOutput,
+    border: Surround,
 }
 
 impl Registry {
     pub fn new_local() -> Self {
         Registry {
-            text: Scrollable {
+            inner: Scrollable {
                 lines: PkgLists::new_local(),
                 ..Default::default()
             },
@@ -109,24 +110,24 @@ impl Registry {
         }
     }
 
-    pub fn set_area(&mut self, area: Rect) {
-        self.text.area = area;
+    pub fn set_area(&mut self, border: Surround) {
+        self.inner.area = border.inner();
+        self.border = border;
     }
 
     pub fn scroll_text(&mut self) -> &mut Scrollable<PkgLists> {
-        &mut self.text
+        &mut self.inner
     }
 
     pub fn render(&self, buf: &mut Buffer) {
-        let text = &self.text;
+        // render border
+        self.border.render(buf);
+
+        let text = &self.inner;
         let Rect {
-            x,
-            mut y,
-            width,
-            height,
+            x, mut y, width, ..
         } = text.area;
         let width = width as usize;
-        let bottom = y + height;
         let pkgs = &text.lines.local;
         let style = Style::new();
         if let Some(lines) = text.visible_lines() {
@@ -135,21 +136,14 @@ impl Registry {
                 y += 1;
             }
         }
+
         // write the match result to the border bottom line
-        render_line(
-            Some((
-                &*xformat!("got {} / total {}", self.matched.got, self.matched.total),
-                style,
-            )),
-            buf,
-            x,
-            bottom,
-            width,
-        );
+        let text = xformat!(" got {} / total {} ", self.matched.got, self.matched.total);
+        self.border.render_with_bottom_right_text(buf, &text);
     }
 
     pub fn update_search(&mut self, search_text: &str) {
-        if let Some(matched) = self.text.lines.update_search(search_text) {
+        if let Some(matched) = self.inner.lines.update_search(search_text) {
             self.matched = matched;
         }
     }

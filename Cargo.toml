@@ -47,7 +47,6 @@ home = "0.5"
 dirs = "5"
 walkdir = "2"
 semver = "1"
-nucleo = "0.3" # can be removed
 nucleo-matcher = "0.3"
 
 [dev-dependencies]

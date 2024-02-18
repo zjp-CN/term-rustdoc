@@ -10,7 +10,7 @@ use term_rustdoc::util::xformat;
 pub(super) struct PkgLists {
     local: LocalRegistry,
     filter: Vec<LocalPkgsIndex>,
-    fuzzy: Fuzzy,
+    fuzzy: Option<Fuzzy>,
 }
 
 impl PkgLists {
@@ -30,7 +30,7 @@ impl PkgLists {
         PkgLists {
             filter: (0..registry.len()).map(LocalPkgsIndex).collect(),
             local: registry,
-            fuzzy,
+            fuzzy: Some(fuzzy),
         }
     }
 
@@ -61,15 +61,13 @@ impl PkgLists {
             }
         }
 
-        self.fuzzy.parse(pattern);
-        let iter = self
-            .local
-            .iter()
-            .enumerate()
-            .map(|(idx, pkg)| Ele(pkg.name(), LocalPkgsIndex(idx)))
-            .collect::<Vec<_>>();
-        self.fuzzy.match_list(iter, &mut self.filter);
-        self.fill_filter();
+        if let Some(fuzzy) = &mut self.fuzzy {
+            fuzzy.parse(pattern);
+            let iter = self.local.iter().enumerate();
+            let iter = iter.map(|(idx, pkg)| Ele(pkg.name(), LocalPkgsIndex(idx)));
+            fuzzy.match_list(iter, &mut self.filter);
+            self.fill_filter();
+        }
     }
 }
 

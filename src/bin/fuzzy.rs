@@ -16,13 +16,8 @@ pub struct Fuzzy {
     fuzzy: Rc<RefCell<FuzzyInner>>,
 }
 
-impl Default for Fuzzy {
-    fn default() -> Self {
-        Fuzzy::new()
-    }
-}
-
 impl Fuzzy {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Fuzzy {
             fuzzy: Rc::new(RefCell::new(FuzzyInner::new())),
@@ -60,7 +55,7 @@ struct FuzzyInner {
 impl FuzzyInner {
     fn new() -> Self {
         FuzzyInner {
-            buf: Vec::with_capacity(128),
+            buf: Vec::new(),
             pat: Atom::parse("", CaseMatching::Smart, Normalization::Smart),
             matcher: Matcher::new(Config::DEFAULT),
         }

@@ -60,11 +60,10 @@ impl PkgLists {
         }
     }
 
-    fn update_search(&mut self, search_text: &str) -> Option<FuzzyOutput> {
+    fn update_search(&mut self, search_text: &str) {
         parse_pattern(search_text);
-        let res = get_fuzzy_result(&mut self.filter);
+        get_fuzzy_result(&mut self.filter);
         self.fill_filter();
-        res
     }
 }
 
@@ -95,7 +94,6 @@ impl LineState for LocalPkgsIndex {
 #[derive(Default)]
 pub struct Registry {
     pub inner: Scrollable<PkgLists>,
-    matched: FuzzyOutput,
     border: Surround,
 }
 
@@ -129,23 +127,28 @@ impl Registry {
         } = text.area;
         let width = width as usize;
         let pkgs = &text.lines.local;
-        let style = Style::new();
         if let Some(lines) = text.visible_lines() {
+            let mut start = text.start;
+            let style = Style::new();
             for line in lines {
-                render_line(Some((pkgs[line.0].name(), style)), buf, x, y, width);
+                let pkg = xformat!("{start}. {}", pkgs[line.0].name());
+                render_line(Some((&*pkg, style)), buf, x, y, width);
                 y += 1;
+                start += 1;
             }
         }
 
         // write the match result to the border bottom line
-        let text = xformat!(" got {} / total {} ", self.matched.got, self.matched.total);
+        let text = xformat!(
+            " got {} / total {} ",
+            self.inner.total_len(),
+            self.inner.lines.local.len()
+        );
         self.border.render_with_bottom_right_text(buf, &text);
     }
 
     pub fn update_search(&mut self, search_text: &str) {
-        if let Some(matched) = self.inner.lines.update_search(search_text) {
-            self.matched = matched;
-        }
+        self.inner.lines.update_search(search_text);
     }
 }
 
@@ -175,15 +178,8 @@ fn parse_pattern(search_text: &str) {
     });
 }
 
-#[derive(Default)]
-struct FuzzyOutput {
-    total: u32,
-    got: u32,
-}
-
-fn get_fuzzy_result(filter: &mut Vec<LocalPkgsIndex>) -> Option<FuzzyOutput> {
+fn get_fuzzy_result(filter: &mut Vec<LocalPkgsIndex>) {
     MATCHER.with(move |m| {
-        let mut res = None;
         let matcher = &mut m.borrow_mut();
         let status = matcher.tick(100);
         if status.running {
@@ -194,13 +190,11 @@ fn get_fuzzy_result(filter: &mut Vec<LocalPkgsIndex>) -> Option<FuzzyOutput> {
             let total = snapshot.item_count();
             let got = snapshot.matched_item_count();
             info!(total, got, "Snapshot yields matched items");
-            res = Some(FuzzyOutput { total, got });
             if got == 0 {
-                return res;
+                return;
             }
             filter.clear();
             filter.extend(snapshot.matched_items(..).map(|item| item.data));
         }
-        res
     })
 }

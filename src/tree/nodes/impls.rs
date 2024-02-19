@@ -4,7 +4,7 @@ use crate::tree::{
 };
 use rustdoc_types::{Id, ItemEnum};
 
-#[derive(Default)]
+#[derive(Default, serde::Deserialize, serde::Serialize)]
 pub struct DImpl {
     pub inherent: IDs,
     pub trait_: IDs,
@@ -12,7 +12,7 @@ pub struct DImpl {
     pub blanket: IDs,
 }
 impl DImpl {
-    pub fn new(ids: &[Id], index: &IndexMap) -> Box<Self> {
+    pub fn new(ids: &[Id], index: &IndexMap) -> Self {
         if ids.is_empty() {
             return Default::default();
         }
@@ -39,12 +39,12 @@ impl DImpl {
                 }
             }
         }
-        Box::new(DImpl {
+        DImpl {
             inherent: inherent.into(),
             trait_: trait_.into(),
             auto: auto.into(),
             blanket: blanket.into(),
-        })
+        }
     }
     pub fn is_empty(&self) -> bool {
         self.inherent.is_empty()

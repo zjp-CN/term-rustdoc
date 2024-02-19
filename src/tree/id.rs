@@ -10,7 +10,9 @@ mod impls;
 
 pub type IDs = Box<[ID]>;
 
-#[derive(Clone, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(
+    Clone, Default, Hash, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[repr(transparent)]
 pub struct ID {
     pub id: XString,
@@ -90,6 +92,7 @@ impl<T: IdAsStr> IdAsStr for &T {
 
 /// This is usually used behind a shared reference.
 /// For owned version, use [`CrateDoc`][super::CrateDoc] instead.
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct IDMap {
     krate: Crate,
     dmod: DModule,

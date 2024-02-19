@@ -4,10 +4,11 @@ use crate::tree::{
 };
 use rustdoc_types::Union;
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct DUnion {
     pub id: ID,
     pub fields: IDs,
-    pub impls: Box<DImpl>,
+    pub impls: DImpl,
 }
 impl DUnion {
     pub fn new(id: ID, item: &Union, index: &IndexMap) -> Self {

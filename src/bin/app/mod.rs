@@ -1,3 +1,5 @@
+mod database;
+
 use crate::Result;
 use std::path::PathBuf;
 use term_rustdoc::tree::{CrateDoc, TreeLines};

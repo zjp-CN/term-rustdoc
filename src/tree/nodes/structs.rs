@@ -4,11 +4,12 @@ use crate::tree::{
 };
 use rustdoc_types::{Struct, StructKind};
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct DStruct {
     pub id: ID,
     pub fields: IDs,
     pub contain_private_fields: bool,
-    pub impls: Box<DImpl>,
+    pub impls: DImpl,
 }
 
 impl DStruct {

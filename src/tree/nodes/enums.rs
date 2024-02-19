@@ -4,11 +4,12 @@ use crate::tree::{
 };
 use rustdoc_types::Enum;
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct DEnum {
     pub id: ID,
     pub variants: IDs,
     // variants_stripped: bool, -> Does this really make sense?
-    pub impls: Box<DImpl>,
+    pub impls: DImpl,
 }
 impl DEnum {
     pub fn new(id: ID, item: &Enum, index: &IndexMap) -> Self {

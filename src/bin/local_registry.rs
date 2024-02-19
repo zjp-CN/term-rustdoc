@@ -95,7 +95,7 @@ impl LocalRegistry {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct PkgNameVersion {
     /// Pkg name from dir name.
     name: XString,

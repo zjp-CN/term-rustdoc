@@ -21,13 +21,14 @@ use crate::tree::{
     IdToID, IndexMap, ID,
 };
 use rustdoc_types::{Id, Item, ItemEnum, MacroKind, Module};
+use serde::{Deserialize, Serialize};
 use std::ops::Not;
 
 /// Module tree with structural items.
 /// All the items only carry ids without actual data.
 // NOTE: small improvement by turning all the types of fields
 // from Vec to Arr after instantiation.
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct DModule {
     pub id: ID,
     // If true, this module is not part of the public API,
@@ -206,7 +207,7 @@ impl_show! {
 /// generate id wrapper types for simple items
 macro_rules! gen_simple_items {
     ($( $name:ident => $tag:ident => $kind:ident , )+ ) => {$(
-        #[derive(Debug)] pub struct $name { pub id: ID, }
+        #[derive(Debug, Serialize, Deserialize)] pub struct $name { pub id: ID, }
         impl $name { pub fn new(id: ID) -> Self { Self { id } } }
         impl Show for $name {
             fn show(&self) -> DocTree { self.id.show() }

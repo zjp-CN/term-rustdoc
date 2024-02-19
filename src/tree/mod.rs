@@ -26,7 +26,7 @@ pub use textline::{Text, TextTag, TreeLine, TreeLines};
 /// and the items tree structure in public modules.
 ///
 /// It's cheap to clone and use a ID buffer to avoid the cost of generating a new string in query.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct CrateDoc {
     inner: Rc<IDMap>,
 }

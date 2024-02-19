@@ -1,4 +1,3 @@
-mod local_registry;
 mod ui;
 
 use crate::{fuzzy::Fuzzy, Result};

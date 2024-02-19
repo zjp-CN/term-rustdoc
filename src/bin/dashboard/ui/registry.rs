@@ -1,6 +1,6 @@
 use crate::{
-    dashboard::local_registry::LocalRegistry,
     fuzzy::Fuzzy,
+    local_registry::LocalRegistry,
     ui::{render_line, LineState, Scrollable, Surround},
 };
 use ratatui::prelude::{Buffer, Color, Rect};

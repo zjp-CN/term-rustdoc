@@ -3,6 +3,7 @@ mod dashboard;
 mod event;
 mod frame;
 mod fuzzy;
+mod local_registry;
 mod logger;
 mod tui;
 mod ui;

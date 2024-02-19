@@ -3,9 +3,8 @@ use crate::{
     fuzzy::Fuzzy,
     ui::{render_line, LineState, Scrollable, Surround},
 };
-use ratatui::prelude::{Buffer, Color, Rect, Style};
+use ratatui::prelude::{Buffer, Color, Rect};
 use term_rustdoc::util::xformat;
-use unicode_width::UnicodeWidthStr;
 
 #[derive(Default)]
 pub(super) struct PkgLists {
@@ -133,26 +132,27 @@ impl Registry {
         let width = width as usize;
         let pkgs = &text.lines.local;
         if let Some(lines) = text.visible_lines() {
+            // render current selected pkg
+            if text.get_line_of_current_cursor().is_some() {
+                let row = text.area.y + text.cursor.y;
+                for col in x..text.area.width + x {
+                    buf.get_mut(col, row).set_bg(Color::from_u32(0x00548B54)); // #548B54
+                }
+            }
+
             let mut start = text.start + 1;
-            let style = Style::new();
-            let ver_style = Style {
-                fg: Some(Color::DarkGray),
-                ..Style::new()
-            };
             for line in lines {
                 let pkg = &pkgs[line.0];
-                let mut text = xformat!("{start:02}. {}", pkg.name());
-                let used_width = render_line(Some((&*text, style)), buf, x, y, width);
-                let need = pkg.ver().width() + 2;
-                // display version if possible
-                if width.checked_sub(used_width + need).is_some() {
-                    text.clear();
-                    text.push(' ');
-                    text.push('v');
-                    text.push_str(pkg.ver());
-                    let version = Some((&*text, ver_style));
-                    render_line(version, buf, x + used_width as u16, y, need);
-                }
+                let [(name, style_name), (ver, style_ver)] = pkg.styled_name_ver();
+                let num = xformat!("{start:02}. ");
+                // render name and version, but with extra info and styles
+                let line = [
+                    (&*num, style_name),
+                    (name, style_name),
+                    (" v", style_ver),
+                    (ver, style_ver),
+                ];
+                render_line(line, buf, x, y, width);
                 y += 1;
                 start += 1;
             }

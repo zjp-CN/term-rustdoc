@@ -1,5 +1,6 @@
 use crate::Result;
 use itertools::Itertools;
+use ratatui::prelude::{Color, Style};
 use regex::Regex;
 use semver::Version;
 use std::{
@@ -140,6 +141,15 @@ impl PkgNameVersion {
 
     pub fn ver(&self) -> &str {
         &self.ver_str
+    }
+
+    pub fn styled_name_ver(&self) -> [(&str, Style); 2] {
+        let style_name = Style::new();
+        let style_ver = Style {
+            fg: Some(Color::DarkGray),
+            ..Style::new()
+        };
+        [(self.name(), style_name), (self.ver(), style_ver)]
     }
 }
 

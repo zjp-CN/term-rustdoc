@@ -51,6 +51,14 @@ impl UI {
             .scroll_text()
             .scrollup(ScrollOffset::HalfScreen);
     }
+
+    pub fn scroll_home(&mut self) {
+        self.registry.scroll_text().scroll_home();
+    }
+
+    pub fn scroll_end(&mut self) {
+        self.registry.scroll_text().scroll_end();
+    }
 }
 
 impl Widget for &mut UI {

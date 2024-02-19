@@ -176,5 +176,6 @@ impl Registry {
     /// Reset to all pkgs.
     pub fn clear_and_reset(&mut self) {
         self.inner.lines.force_all();
+        self.inner.start = 0;
     }
 }

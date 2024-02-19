@@ -3,8 +3,9 @@ use crate::{
     fuzzy::Fuzzy,
     ui::{render_line, LineState, Scrollable, Surround},
 };
-use ratatui::prelude::{Buffer, Rect, Style};
+use ratatui::prelude::{Buffer, Color, Rect, Style};
 use term_rustdoc::util::xformat;
+use unicode_width::UnicodeWidthStr;
 
 #[derive(Default)]
 pub(super) struct PkgLists {
@@ -134,9 +135,24 @@ impl Registry {
         if let Some(lines) = text.visible_lines() {
             let mut start = text.start + 1;
             let style = Style::new();
+            let ver_style = Style {
+                fg: Some(Color::DarkGray),
+                ..Style::new()
+            };
             for line in lines {
-                let pkg = xformat!("{start}. {}", pkgs[line.0].name());
-                render_line(Some((&*pkg, style)), buf, x, y, width);
+                let pkg = &pkgs[line.0];
+                let mut text = xformat!("{start:02}. {}", pkg.name());
+                let used_width = render_line(Some((&*text, style)), buf, x, y, width);
+                let need = pkg.ver().width() + 2;
+                // display version if possible
+                if width.checked_sub(used_width + need).is_some() {
+                    text.clear();
+                    text.push(' ');
+                    text.push('v');
+                    text.push_str(pkg.ver());
+                    let version = Some((&*text, ver_style));
+                    render_line(version, buf, x + used_width as u16, y, need);
+                }
                 y += 1;
                 start += 1;
             }

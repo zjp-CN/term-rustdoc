@@ -34,7 +34,7 @@ fn find_pkgs(registry_src: &Path) -> Vec<PkgNameVersion> {
                         pkg_path.push("Cargo.toml");
                         if pkg_path.exists() {
                             pkg_path.pop();
-                            return PkgNameVersion::new_pkg(pkg_path);
+                            return PkgNameVersion::new(pkg_path);
                         }
                     }
                     None
@@ -130,7 +130,7 @@ impl Default for PkgNameVersion {
 }
 
 impl PkgNameVersion {
-    fn new_pkg(pkg_path: PathBuf) -> Option<Self> {
+    fn new(pkg_path: PathBuf) -> Option<Self> {
         let modified = pkg_path.metadata().ok()?.modified().ok()?;
         let (name, ver, version) = get_pkg_name(pkg_path.file_name()?.to_str()?)?;
         Some(PkgNameVersion {
@@ -144,6 +144,10 @@ impl PkgNameVersion {
 
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    pub fn ver(&self) -> &str {
+        &self.ver_str
     }
 }
 

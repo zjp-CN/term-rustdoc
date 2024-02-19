@@ -59,6 +59,14 @@ impl UI {
     pub fn scroll_end(&mut self) {
         self.registry.scroll_text().scroll_end();
     }
+
+    pub fn move_backward_cursor(&mut self) {
+        self.registry.scroll_text().move_backward_cursor();
+    }
+
+    pub fn move_forward_cursor(&mut self) {
+        self.registry.scroll_text().move_forward_cursor();
+    }
 }
 
 impl Widget for &mut UI {

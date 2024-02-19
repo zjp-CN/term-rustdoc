@@ -56,16 +56,18 @@ impl<Ls: Lines> Scrollable<Ls> {
 impl<Ls: Lines> Scrollable<Ls> {
     /// Check the cursor position and its state after redrawing.
     ///
+    /// NOTE: this should always be called when the length of lines is changed,
+    /// because cursor will be out of scope if not check or set the cursor.
+    ///
     /// This also moves the cursor in two ways:
+    /// * coerce the cursor to the last line if it lies outside the line length
     /// * coerce the cursor to the bottom line if it lies outside the height
     /// * coerce the cursor to last position if the screen contains the previous state
     pub fn check_if_can_return_to_previous_cursor(&mut self) -> bool {
-        if self.cursor.y >= self.area.height {
-            error!(
-                "This is a bug because cursor is beyond height of drawing area. \
-                 Let's coerce it to the bottom line."
-            );
-            self.cursor.y = self.area.height.saturating_sub(1);
+        let height = self.area.height;
+        let maximum = self.total_len().try_into().unwrap_or(height).min(height);
+        if self.cursor.y >= maximum {
+            self.cursor.y = maximum.saturating_sub(1);
         }
         if let Some(lines) = self.visible_lines() {
             if let Some(pos) = lines
@@ -84,7 +86,13 @@ impl<Ls: Lines> Scrollable<Ls> {
     fn set_cursor_state(&mut self) {
         if let Some(l) = self.get_line_of_current_cursor() {
             self.cursor.state = l.state();
-        }
+        } else if let Some(last) = self.all_lines().last() {
+            // the cursor is beyond the scope, thus set it to the last line
+            self.cursor.state = last.state();
+            self.cursor.y = self.total_len().saturating_sub(1) as u16;
+        } // still possible to see empty lines
+          // (like forget to reset or check_if_can_return_to_previous_cursor
+          // when getting empty result)
     }
 }
 

@@ -48,6 +48,8 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
     match key_event.code {
         KeyCode::Char(ch) => dash.push_char(ch),
         KeyCode::Backspace => dash.pop_char(),
+        KeyCode::Up => dash.move_backward_cursor(),
+        KeyCode::Down => dash.move_forward_cursor(),
         KeyCode::Home => dash.scroll_home(),
         KeyCode::End => dash.scroll_end(),
         KeyCode::PageUp => dash.scroll_up(),

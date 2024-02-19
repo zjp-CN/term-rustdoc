@@ -67,9 +67,13 @@ impl<Ls: Lines> Scrollable<Ls> {
     /// The line that current cursor on screen points to.
     pub fn get_line_of_current_cursor(&self) -> Option<&Ls::Line> {
         self.visible_lines().and_then(|lines| {
-            let line = lines.get(self.cursor.y as usize);
-            if line.is_none() && self.total_len() != 0 {
-                error!("Cursor is beyond all lines length {}.", self.total_len());
+            let cursor = self.cursor.y as usize;
+            let line = lines.get(cursor);
+            if lines.get(cursor).is_none() {
+                error!(
+                    "Cursor on row {cursor} is beyond all lines length {}.",
+                    self.total_len()
+                );
             }
             line
         })

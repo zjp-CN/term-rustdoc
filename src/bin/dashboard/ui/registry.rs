@@ -171,11 +171,23 @@ impl Registry {
     pub fn update_search(&mut self, pattern: &str) {
         self.inner.lines.update_search(pattern);
         self.inner.start = 0;
+        self.set_cursor();
     }
 
     /// Reset to all pkgs.
     pub fn clear_and_reset(&mut self) {
         self.inner.lines.force_all();
         self.inner.start = 0;
+        self.set_cursor();
+    }
+
+    /// Set the cursor to previously selected pkg position if possible.
+    /// If not possible, i.e. the previous selected result is not in visual,
+    /// this resets the cursor to the first item.
+    fn set_cursor(&mut self) {
+        if !self.inner.check_if_can_return_to_previous_cursor() {
+            // NOTE: we reset the cursor to first line on purporse here
+            self.inner.cursor.y = 0;
+        }
     }
 }

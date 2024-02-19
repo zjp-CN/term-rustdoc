@@ -4,7 +4,7 @@ use regex::Regex;
 use semver::Version;
 use std::{
     fs,
-    path::{Component, Path, PathBuf},
+    path::{Path, PathBuf},
     time::SystemTime,
 };
 use term_rustdoc::util::XString;
@@ -53,14 +53,6 @@ pub fn all_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgNameVersion> {
     pkgs.sort_unstable_by(|a, b| (&*a.name, &a.version).cmp(&(&*b.name, &b.version)));
     pkgs.shrink_to_fit();
     pkgs
-}
-
-fn pkg_name_version(path: &Path) -> Option<Component<'_>> {
-    // Since the 2nd depth directs to Cargo.toml,
-    // the last but one is considered to be pkg name and version.
-    // i.e. <registry_src>/pkg_name_version/Cargo.toml
-    // ~/.cargo/registry/src/rsproxy.cn-0dccff568467c15b/regex-1.10.3/Cargo.toml
-    path.components().rev().nth(1)
 }
 
 #[derive(Debug, Default)]

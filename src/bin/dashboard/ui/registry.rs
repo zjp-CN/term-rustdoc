@@ -167,8 +167,10 @@ impl Registry {
         self.border.render_with_bottom_right_text(buf, &text);
     }
 
+    /// Update the fuzzy result every time the input pattern changes.
     pub fn update_search(&mut self, pattern: &str) {
         self.inner.lines.update_search(pattern);
+        self.inner.start = 0;
     }
 
     /// Reset to all pkgs.

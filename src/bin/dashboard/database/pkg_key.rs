@@ -56,7 +56,7 @@ impl redb::RedbValue for PkgKey {
         Self: 'a,
         Self: 'b,
     {
-        bincode::serde::encode_to_vec(value, bincode::config::standard()).unwrap()
+        super::encode(value).unwrap()
     }
 
     fn type_name() -> redb::TypeName {

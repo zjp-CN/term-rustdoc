@@ -86,7 +86,7 @@ fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInf
                 cache_info.meta.set_finished_duration();
                 let duration = cache_info.meta.duration.as_secs_f32();
                 info!(?cache_info.pkg, ?json_path, "succeefully compiled the doc in {duration:.2}s");
-                if let Err(err) = cache_info.save_doc(&json_path) {
+                if let Err(err) = cache_info.save_doc(&json_path, pkg_info) {
                     error!("{err}");
                 }
                 match progress.lock() {
@@ -124,7 +124,7 @@ impl CachedDocInfo {
         }
     }
 
-    fn save_doc(&self, json_path: &Path) -> Result<()> {
+    fn save_doc(&self, json_path: &Path, pkg_info: PkgInfo) -> Result<()> {
         let file = fs::File::open(json_path).map_err(|err| {
             err!(
                 "Failed to open compiled json doc under {}:\n{err}",
@@ -135,27 +135,39 @@ impl CachedDocInfo {
         let doc = CrateDoc::new(serde_json::from_reader(file)?);
 
         let db = redb::Database::create(&self.db_file)?;
+
+        // write PkgInfo into db
+        self.write_to_db(&db, "host-pkg-info", encode(&pkg_info)?)?;
+        info!(?self.pkg, "PkgInfo is succeefully saved");
+
         // write raw json string into db
-        let table_json = redb::TableDefinition::<PkgKey, Vec<u8>>::new("host-json");
-        let write_txn = db.begin_write()?;
-        {
-            let mut table = write_txn.open_table(table_json)?;
-            table.insert(&self.pkg, fs::read(json_path)?)?;
-        }
-        write_txn.commit()?;
+        self.write_to_db(&db, "host-json", fs::read(json_path)?)?;
         info!(?self.pkg, "raw json is succeefully saved");
+
         // write parsed doc into db
-        let table_parsed = redb::TableDefinition::<PkgKey, Vec<u8>>::new("host-parsed");
-        let write_txn = db.begin_write()?;
-        {
-            let mut table = write_txn.open_table(table_parsed)?;
-            let doc = bincode::serde::encode_to_vec(doc, bincode::config::standard())?;
-            table.insert(&self.pkg, &doc)?;
-        }
-        write_txn.commit()?;
+        self.write_to_db(&db, "host-parsed", encode(doc)?)?;
         info!(?self.pkg, "parsed data is succeefully saved");
+
         Ok(())
     }
+
+    fn write_to_db(&self, db: &redb::Database, name: &str, value: Vec<u8>) -> Result<()> {
+        let table = redb::TableDefinition::<PkgKey, Vec<u8>>::new(name);
+        let write_txn = db.begin_write()?;
+        {
+            let mut table = write_txn.open_table(table)?;
+            table.insert(&self.pkg, value)?;
+        }
+        write_txn.commit()?;
+        Ok(())
+    }
+}
+
+fn encode<T: Serialize>(t: T) -> Result<Vec<u8>> {
+    Ok(bincode::serde::encode_to_vec(
+        t,
+        bincode::config::standard(),
+    )?)
 }
 
 #[derive(Deserialize, Serialize)]

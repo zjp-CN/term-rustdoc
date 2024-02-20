@@ -1,5 +1,6 @@
 use super::Features;
 use crate::local_registry::PkgNameVersion;
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -37,11 +38,19 @@ impl PkgKey {
     }
 
     pub fn name(&self) -> &str {
-        &self.name_ver.name()
+        self.name_ver.name()
     }
 
-    pub fn features(&self) -> &Features {
-        &self.features
+    pub fn ver_str(&self) -> &str {
+        self.name_ver.ver_str()
+    }
+
+    /// Parse the version. When the version can't be parsed, this will return a `0.0.0` version.
+    pub fn version(&self) -> Version {
+        self.ver_str()
+            .parse()
+            .map_err(|err| error!("Failed to parse the version in {self:?}:\n{err}"))
+            .unwrap_or(Version::new(0, 0, 0))
     }
 }
 

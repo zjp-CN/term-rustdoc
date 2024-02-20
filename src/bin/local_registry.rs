@@ -116,6 +116,10 @@ impl PkgNameVersion {
     pub fn name(&self) -> &str {
         &self.name
     }
+
+    pub fn ver_str(&self) -> &str {
+        &self.version
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

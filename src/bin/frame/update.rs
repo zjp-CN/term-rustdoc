@@ -36,7 +36,7 @@ impl Frame {
 }
 
 fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
-    let (ui, db) = dash.ui_db();
+    let ui = dash.ui();
     if key_event.modifiers == KeyModifiers::CONTROL {
         match key_event.code {
             KeyCode::Char('q') => app.quit(),
@@ -54,11 +54,7 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
         KeyCode::End => ui.scroll_end(),
         KeyCode::PageUp => ui.scroll_up(),
         KeyCode::PageDown => ui.scroll_down(),
-        KeyCode::Enter => {
-            if let Some((pkg_dir, name_ver)) = ui.get_local_pkg_info() {
-                db.compile_doc(pkg_dir, name_ver);
-            }
-        }
+        KeyCode::Enter => ui.compile_doc(),
         _ => (),
     }
 }

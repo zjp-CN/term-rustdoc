@@ -2,10 +2,9 @@ mod database;
 mod registry;
 mod search;
 
-use self::{registry::Registry, search::Search};
+use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
     fuzzy::Fuzzy,
-    local_registry::PkgInfo,
     ui::{ScrollOffset, Surround},
 };
 use ratatui::{
@@ -13,12 +12,11 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Borders},
 };
-use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct UI {
     search: Search,
-    // database: ScrollText,
+    database: DataBaseUI,
     registry: Registry,
     area: Area,
 }
@@ -71,8 +69,11 @@ impl UI {
         self.registry.scroll_text().move_forward_cursor();
     }
 
-    pub fn get_local_pkg_info(&self) -> Option<(PathBuf, PkgInfo)> {
-        self.registry.get_pkg_of_current_cursor()
+    pub fn compile_doc(&mut self) {
+        // TODO
+        if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg_of_current_cursor() {
+            self.database.compile_doc(pkg_dir, pkg_info);
+        }
     }
 }
 

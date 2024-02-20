@@ -2,6 +2,7 @@ use crate::{
     dashboard::database::{CachedDocInfo, PkgKey},
     ui::LineState,
 };
+use core::cmp::Ordering;
 use semver::Version;
 use term_rustdoc::tree::CrateDoc;
 
@@ -10,7 +11,7 @@ pub struct LoadedDoc {
     doc: CrateDoc,
 }
 
-pub struct CacheID(usize);
+pub struct CacheID(pub usize);
 
 impl LineState for CacheID {
     type State = usize;
@@ -30,20 +31,48 @@ pub struct Cache {
     ver: Version,
 }
 
-impl Cache {}
+impl Cache {
+    pub fn new_being_cached(pkg_key: PkgKey) -> Cache {
+        Cache {
+            ver: pkg_key.version(),
+            inner: CacheInner::BeingCached(pkg_key),
+        }
+    }
+}
 
 impl PartialOrd for Cache {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for Cache {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        let name = self.inner.pkg_key().name();
-        match name.cmp(other.inner.pkg_key().name()) {
-            core::cmp::Ordering::Equal => self.ver.cmp(&other.ver),
-            ord => ord,
+    /// Loaded is always before Unloaded, and Unloaded is always before BeingCached.
+    /// When both are of the same kind, compare with name and parsed version.
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (&self.inner, &other.inner) {
+            (CacheInner::Loaded(a), CacheInner::Loaded(b)) => {
+                match a.info.pkg.name().cmp(b.info.pkg.name()) {
+                    Ordering::Equal => self.ver.cmp(&other.ver),
+                    ord => ord,
+                }
+            }
+            (CacheInner::Loaded(_), _) => Ordering::Less,
+            (CacheInner::Unloaded(a), CacheInner::Unloaded(b)) => {
+                match a.pkg.name().cmp(b.pkg.name()) {
+                    Ordering::Equal => self.ver.cmp(&other.ver),
+                    ord => ord,
+                }
+            }
+            (CacheInner::Unloaded(_), CacheInner::BeingCached(_)) => Ordering::Less,
+            (CacheInner::Unloaded(_), CacheInner::Loaded(_)) => Ordering::Greater,
+            (CacheInner::BeingCached(a), CacheInner::BeingCached(b)) => {
+                match a.name().cmp(b.name()) {
+                    Ordering::Equal => self.ver.cmp(&other.ver),
+                    ord => ord,
+                }
+            }
+            (CacheInner::BeingCached(_), _) => Ordering::Greater,
         }
     }
 }

@@ -1,12 +1,13 @@
-use super::Progress;
+use super::{PkgKey, Progress};
 use crate::{dashboard::database::cache_info::CachedDocInfo, local_registry::PkgInfo, Result};
 use bincode::config;
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::PathBuf;
 
-pub fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInfo) {
+pub fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInfo) -> PkgKey {
     let mut cargo_toml = pkg_dir;
     cargo_toml.push("Cargo.toml");
+    let in_progress = PkgKey::new_with_default_feature(pkg_info.to_name_ver());
     rayon::spawn(move || {
         let dir = match tempfile::tempdir() {
             Ok(dir) => dir,
@@ -46,6 +47,7 @@ pub fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: Pk
             Err(err) => error!("Failed to compile {}:\n{err}", cargo_toml.display()),
         }
     });
+    in_progress
 }
 
 pub fn encode<T: Serialize>(t: T) -> Result<Vec<u8>> {

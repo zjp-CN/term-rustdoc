@@ -45,16 +45,17 @@ impl DataBase {
         })
     }
 
-    pub fn compile_doc(&self, pkg_dir: PathBuf, pkg_info: PkgInfo) {
+    pub fn compile_doc(&self, pkg_dir: PathBuf, pkg_info: PkgInfo) -> Option<PkgKey> {
         let Some(parent) = self.dir.as_ref() else {
-            return;
+            error!("data_local_dir/term_rustdoc does not exist");
+            return None;
         };
-        util::build(
+        Some(util::build(
             self.in_progress.clone(),
             parent.to_owned(),
             pkg_dir,
             pkg_info,
-        );
+        ))
     }
 }
 

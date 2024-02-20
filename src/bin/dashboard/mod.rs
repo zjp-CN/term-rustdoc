@@ -4,21 +4,19 @@ mod ui;
 use crate::{fuzzy::Fuzzy, Result};
 use ratatui::layout::Rect;
 
-use self::{database::DataBase, ui::UI};
+use self::ui::UI;
 
 pub struct DashBoard {
     ui: UI,
-    db: DataBase,
 }
 
 impl DashBoard {
     pub fn new(full: Rect, fuzzy: Fuzzy) -> Result<Self> {
         let ui = UI::new(full, fuzzy);
-        let db = DataBase::init()?;
-        Ok(DashBoard { ui, db })
+        Ok(DashBoard { ui })
     }
 
-    pub fn ui_db(&mut self) -> (&mut UI, &mut DataBase) {
-        (&mut self.ui, &mut self.db)
+    pub fn ui(&mut self) -> &mut UI {
+        &mut self.ui
     }
 }

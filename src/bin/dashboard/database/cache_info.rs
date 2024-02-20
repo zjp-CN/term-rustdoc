@@ -16,7 +16,7 @@ use std::{
 use term_rustdoc::tree::CrateDoc;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub(super) struct CachedDocInfo {
+pub struct CachedDocInfo {
     pub pkg: PkgKey,
     /// file name for doc db (with parent path included); usually is `self.pkg-self.ver.db`.
     db_file: PathBuf,
@@ -24,10 +24,10 @@ pub(super) struct CachedDocInfo {
 }
 
 impl CachedDocInfo {
-    pub fn new(name_ver: PkgNameVersion, mut db_dir: PathBuf) -> Self {
+    pub fn new_with_default_feature(name_ver: PkgNameVersion, mut db_dir: PathBuf) -> Self {
         let fname = name_ver.doc_db_file_name();
         db_dir.push(&*fname);
-        let pkg = PkgKey::new(name_ver);
+        let pkg = PkgKey::new_with_default_feature(name_ver);
         CachedDocInfo {
             pkg,
             db_file: db_dir,

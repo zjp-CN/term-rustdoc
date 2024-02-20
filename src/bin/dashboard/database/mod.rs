@@ -3,7 +3,7 @@ mod meta;
 mod pkg_key;
 mod util;
 
-use self::{cache_info::CachedDocInfo, meta::DocMeta};
+use self::meta::DocMeta;
 use crate::{err, local_registry::PkgInfo, Result};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -11,7 +11,9 @@ use std::{
     path::PathBuf,
     sync::{Arc, Mutex},
 };
-use term_rustdoc::{tree::CrateDoc, util::XString};
+use term_rustdoc::util::XString;
+
+pub use self::{cache_info::CachedDocInfo, pkg_key::PkgKey};
 
 type Progress = Arc<Mutex<Vec<CachedDocInfo>>>;
 
@@ -25,10 +27,6 @@ pub struct DataBase {
     /// * can't find config_local_dir
     /// * or the term-rustdoc folder is checked to be created
     dir: Option<PathBuf>,
-    /// loaded pkg docs
-    loaded: Vec<PackageDoc>,
-    /// all cached docs (not loaded)
-    cached: Vec<CachedDocInfo>,
     /// The pkg which doc is compiled and written into its db file.
     in_progress: Progress,
 }
@@ -60,22 +58,13 @@ impl DataBase {
     }
 }
 
-#[derive(Deserialize, Serialize)]
-struct PackageDoc {
-    /// source pkg:
-    /// * the path direct to pkg dir under local registry_src
-    /// * the modified time is for pkg dir
-    src: PkgInfo,
-    doc: CrateDoc,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(dead_code)]
-enum Features {
+pub enum Features {
     #[default]
     Default,
-    NoDefault,
     All,
     DefaultPlus(Box<[XString]>),
+    NoDefault,
     NoDefaultPlus(Box<[XString]>),
 }

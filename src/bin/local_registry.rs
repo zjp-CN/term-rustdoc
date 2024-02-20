@@ -112,6 +112,10 @@ impl PkgNameVersion {
         name.extend(["-", &*self.version, ".db"]);
         name
     }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,3 +1,4 @@
+mod database;
 mod registry;
 mod search;
 

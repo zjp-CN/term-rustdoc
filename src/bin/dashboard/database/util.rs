@@ -15,7 +15,8 @@ pub fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: Pk
                 return;
             }
         };
-        let mut cache_info = CachedDocInfo::new(pkg_info.to_name_ver(), db_dir);
+        let mut cache_info =
+            CachedDocInfo::new_with_default_feature(pkg_info.to_name_ver(), db_dir);
         info!(?cache_info.pkg, "begin to compile the doc under {}", dir.path().display());
         match rustdoc_json::Builder::default()
             .toolchain("nightly")

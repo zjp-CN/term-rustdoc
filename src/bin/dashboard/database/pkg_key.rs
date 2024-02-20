@@ -4,7 +4,11 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The key in doc db file.
-#[derive(Deserialize, Serialize)]
+///
+/// NOTE: the reason why PkgKey doesn't implement PartialOrd and Ord is
+/// we can't directly compare the version string, and the parsed Version
+/// should be stored outside this struct.
+#[derive(Deserialize, Serialize, PartialEq, Eq)]
 pub struct PkgKey {
     name_ver: PkgNameVersion,
     /// features enabled/used when the doc is compiled
@@ -25,11 +29,19 @@ impl fmt::Debug for PkgKey {
 }
 
 impl PkgKey {
-    pub fn new(name_ver: PkgNameVersion) -> PkgKey {
+    pub fn new_with_default_feature(name_ver: PkgNameVersion) -> PkgKey {
         PkgKey {
             name_ver,
             features: Features::Default,
         }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name_ver.name()
+    }
+
+    pub fn features(&self) -> &Features {
+        &self.features
     }
 }
 

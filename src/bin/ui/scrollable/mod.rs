@@ -8,7 +8,7 @@ mod interaction;
 mod markdown;
 mod render;
 
-pub use self::generics::{render_line, render_line_fill_gap, LineState, Lines};
+pub use self::generics::{render_line, LineState, Lines};
 pub use self::markdown::{ScrollHeading, ScrollText};
 
 /// Scrollable tree view but stored in lines.

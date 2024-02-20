@@ -3,6 +3,7 @@ use crate::{
     ui::LineState,
 };
 use core::cmp::Ordering;
+use ratatui::prelude::{Color, Style};
 use semver::Version;
 use term_rustdoc::tree::CrateDoc;
 
@@ -44,6 +45,20 @@ impl Cache {
             ver: info.pkg.version(),
             inner: CacheInner::Unloaded(info),
         }
+    }
+
+    pub fn line(&self) -> [(&str, Style); 2] {
+        let key = self.inner.pkg_key();
+        [
+            (key.name(), Style::new()),
+            (
+                key.ver_str(),
+                Style {
+                    fg: Some(Color::DarkGray),
+                    ..Style::new()
+                },
+            ),
+        ]
     }
 }
 

@@ -24,10 +24,10 @@ pub struct UI {
 impl UI {
     fn update_area(&mut self, full: Rect) {
         // skip rendering is the same area
-        if let Some(registry) = self.area.update(full) {
+        if let Some([db, registry]) = self.area.update(full) {
             // update areas of search, database and registry
             self.search.area = self.area.search_border.inner();
-            // self.database.area = self.area.database_border.inner();
+            self.database.set_area(db);
             self.registry.set_area(registry);
         }
     }
@@ -84,7 +84,7 @@ impl Widget for &mut UI {
         self.update_area(full);
         self.area.render(buf);
         self.search.render(buf);
-        // self.database.render(buf);
+        self.database.render(buf);
         self.registry.render(buf);
     }
 }
@@ -94,7 +94,6 @@ struct Area {
     full: Rect,
     center: Rect,
     search_border: Surround,
-    database_border: Surround,
 }
 
 fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {
@@ -106,7 +105,7 @@ fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {
 }
 
 impl Area {
-    fn update(&mut self, full: Rect) -> Option<Surround> {
+    fn update(&mut self, full: Rect) -> Option<[Surround; 2]> {
         if self.full == full {
             return None;
         }
@@ -119,15 +118,12 @@ impl Area {
         self.search_border = Surround::new(block.clone().title("Search Package"), search);
         let half = Constraint::Percentage(50);
         let [db, reg] = Layout::horizontal([half, half]).areas(db_reg);
-        self.database_border = Surround::new(block.clone().title("From Database"), db);
-        Some(Surround::new(
-            block.title("From Local Registry Src Dir"),
-            reg,
-        ))
+        let database = Surround::new(block.clone().title("From Database"), db);
+        let registry = Surround::new(block.title("From Local Registry Src Dir"), reg);
+        Some([database, registry])
     }
 
     fn render(&self, buf: &mut Buffer) {
         self.search_border.render(buf);
-        self.database_border.render(buf);
     }
 }

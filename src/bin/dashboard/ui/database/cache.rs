@@ -47,9 +47,11 @@ impl Cache {
         }
     }
 
-    pub fn line(&self) -> [(&str, Style); 2] {
+    pub fn line(&self) -> [(&str, Style); 3] {
+        let kind = self.inner.kind();
         let key = self.inner.pkg_key();
         [
+            kind,
             (key.name(), Style::new()),
             (
                 key.ver_str(),
@@ -114,6 +116,26 @@ impl CacheInner {
             CacheInner::Loaded(load) => &load.info.pkg,
             CacheInner::Unloaded(unload) => &unload.pkg,
             CacheInner::BeingCached(pk) => pk,
+        }
+    }
+
+    fn kind(&self) -> (&'static str, Style) {
+        match self {
+            CacheInner::Loaded(_) => ("[Loaded]", Style::new()),
+            CacheInner::Unloaded(_) => (
+                "[Cached]",
+                Style {
+                    fg: Some(Color::DarkGray),
+                    ..Style::new()
+                },
+            ),
+            CacheInner::BeingCached(_) => (
+                "[HoldOn]",
+                Style {
+                    fg: Some(Color::LightMagenta),
+                    ..Style::new()
+                },
+            ),
         }
     }
 }

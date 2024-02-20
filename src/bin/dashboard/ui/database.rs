@@ -88,8 +88,10 @@ impl DataBaseUI {
         let pkgs = &self.inner.lines.caches;
         for id in ids {
             let num = xformat!("{start:02}. ");
-            let [(name, style_name), (ver, style_ver)] = pkgs[id.0].line();
+            let [(kind, style_kind), (name, style_name), (ver, style_ver)] = pkgs[id.0].line();
             let line = [
+                (kind, style_kind),
+                (" ", style_kind),
                 (&*num, style_name),
                 (name, style_name),
                 (" v", style_ver),

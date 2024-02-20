@@ -127,36 +127,35 @@ impl Registry {
         self.border.render(buf);
 
         let text = &self.inner;
-        let Rect {
-            x, mut y, width, ..
-        } = text.area;
-        let width = width as usize;
+        let Some(lines) = text.visible_lines() else {
+            return;
+        };
+        let Rect { x, mut y, .. } = text.area;
+        let width = text.area.width as usize;
         let pkgs = &text.lines.local;
-        if let Some(lines) = text.visible_lines() {
-            // render current selected pkg
-            if text.get_line_of_current_cursor().is_some() {
-                let row = text.area.y + text.cursor.y;
-                for col in x..text.area.width + x {
-                    buf.get_mut(col, row).set_bg(Color::from_u32(0x00548B54)); // #548B54
-                }
+        // render current selected pkg
+        if text.get_line_of_current_cursor().is_some() {
+            let row = text.area.y + text.cursor.y;
+            for col in x..text.area.width + x {
+                buf.get_mut(col, row).set_bg(Color::from_u32(0x00548B54)); // #548B54
             }
+        }
 
-            let mut start = text.start + 1;
-            for line in lines {
-                let pkg = &pkgs[line.0];
-                let [(name, style_name), (ver, style_ver)] = pkg.styled_name_ver();
-                let num = xformat!("{start:02}. ");
-                // render name and version, but with extra info and styles
-                let line = [
-                    (&*num, style_name),
-                    (name, style_name),
-                    (" v", style_ver),
-                    (ver, style_ver),
-                ];
-                render_line(line, buf, x, y, width);
-                y += 1;
-                start += 1;
-            }
+        let mut start = text.start + 1;
+        for line in lines {
+            let pkg = &pkgs[line.0];
+            let [(name, style_name), (ver, style_ver)] = pkg.styled_name_ver();
+            let num = xformat!("{start:02}. ");
+            // render name and version, but with extra info and styles
+            let line = [
+                (&*num, style_name),
+                (name, style_name),
+                (" v", style_ver),
+                (ver, style_ver),
+            ];
+            render_line(line, buf, x, y, width);
+            y += 1;
+            start += 1;
         }
 
         // write the match result to the border bottom line

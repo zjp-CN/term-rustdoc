@@ -1,25 +1,14 @@
-mod database;
-
-use self::database::DataBase;
 use crate::Result;
 use std::path::PathBuf;
 use term_rustdoc::tree::{CrateDoc, TreeLines};
 
 #[derive(Default)]
 pub struct App {
-    pub db: DataBase,
     doc: Option<CrateDoc>,
     pub should_quit: bool,
 }
 
 impl App {
-    pub fn init() -> Result<App> {
-        Ok(App {
-            db: DataBase::init()?,
-            ..Default::default()
-        })
-    }
-
     /// Set should_quit to true to quit the application.
     pub fn quit(&mut self) {
         self.should_quit = true;

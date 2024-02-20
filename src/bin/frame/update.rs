@@ -36,27 +36,27 @@ impl Frame {
 }
 
 fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
-    let dash = dash.ui();
+    let (ui, db) = dash.ui_db();
     if key_event.modifiers == KeyModifiers::CONTROL {
         match key_event.code {
             KeyCode::Char('q') => app.quit(),
-            KeyCode::Char('c') => dash.clear_input(),
+            KeyCode::Char('c') => ui.clear_input(),
             _ => (),
         }
         return;
     }
     match key_event.code {
-        KeyCode::Char(ch) => dash.push_char(ch),
-        KeyCode::Backspace => dash.pop_char(),
-        KeyCode::Up => dash.move_backward_cursor(),
-        KeyCode::Down => dash.move_forward_cursor(),
-        KeyCode::Home => dash.scroll_home(),
-        KeyCode::End => dash.scroll_end(),
-        KeyCode::PageUp => dash.scroll_up(),
-        KeyCode::PageDown => dash.scroll_down(),
+        KeyCode::Char(ch) => ui.push_char(ch),
+        KeyCode::Backspace => ui.pop_char(),
+        KeyCode::Up => ui.move_backward_cursor(),
+        KeyCode::Down => ui.move_forward_cursor(),
+        KeyCode::Home => ui.scroll_home(),
+        KeyCode::End => ui.scroll_end(),
+        KeyCode::PageUp => ui.scroll_up(),
+        KeyCode::PageDown => ui.scroll_down(),
         KeyCode::Enter => {
-            if let Some((pkg_dir, name_ver)) = dash.get_local_pkg() {
-                app.db.compile_doc(pkg_dir, name_ver);
+            if let Some((pkg_dir, name_ver)) = ui.get_local_pkg() {
+                db.compile_doc(pkg_dir, name_ver);
             }
         }
         _ => (),

@@ -11,7 +11,7 @@ pub struct Frame {
 impl Widget for &mut Frame {
     /// entry point for all rendering
     fn render(self, full: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
-        self.dash_board.ui().render(full, buf);
+        self.dash_board.ui_db().0.render(full, buf);
         // self.page.render(full, buf);
     }
 }

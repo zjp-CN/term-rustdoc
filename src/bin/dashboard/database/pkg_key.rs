@@ -46,9 +46,7 @@ impl redb::RedbValue for PkgKey {
     where
         Self: 'a,
     {
-        bincode::serde::decode_from_slice(data, bincode::config::standard())
-            .unwrap()
-            .0
+        super::decode(data).unwrap()
     }
 
     fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>

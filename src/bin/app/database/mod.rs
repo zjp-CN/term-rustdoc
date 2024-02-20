@@ -1,10 +1,22 @@
-use crate::local_registry::PkgNameVersion;
+use crate::{
+    err,
+    local_registry::{PkgInfo, PkgNameVersion},
+    Result,
+};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+    time::SystemTime,
+};
 use term_rustdoc::{tree::CrateDoc, util::XString};
 
+type Progress = Arc<Mutex<Vec<CachedDocInfo>>>;
+
+#[derive(Default)]
 pub struct DataBase {
-    /// [`dirs::config_local_dir`] + `term-rustdoc` folder
+    /// [`dirs::data_local_dir`] + `term-rustdoc` folder
     ///
     /// `Some` means the folder does exist.
     ///
@@ -16,16 +28,119 @@ pub struct DataBase {
     loaded: Vec<PackageDoc>,
     /// all cached docs (not loaded)
     cached: Vec<CachedDocInfo>,
+    /// The pkg which doc is compiled and written into its db file.
+    in_progress: Progress,
+}
+
+impl DataBase {
+    pub fn init() -> Result<Self> {
+        let mut dir =
+            dirs::data_local_dir().ok_or_else(|| err!("Can't find the config_local_dir"))?;
+        dir.push("term-rustdoc");
+        if !dir.exists() {
+            fs::create_dir(&dir)?;
+        }
+        Ok(DataBase {
+            dir: Some(dir),
+            ..Default::default()
+        })
+    }
+
+    pub fn compile_doc(&mut self, pkg_dir: PathBuf, name_ver: PkgNameVersion) {
+        let Some(parent) = self.dir.as_ref() else {
+            return;
+        };
+        let info = PkgKey::new(name_ver).into_cached_info(parent);
+        PackageDoc::build(self.in_progress.clone(), pkg_dir, info);
+    }
+}
+
+/// The key in doc db file.
+#[derive(Deserialize, Serialize, Debug)]
+struct PkgKey {
+    name_ver: PkgNameVersion,
+    /// features enabled/used when the doc is compiled
+    /// TODO: for now, we haven't supported feature selection.
+    features: Features,
+}
+
+impl PkgKey {
+    fn into_cached_info(self, parent: &Path) -> CachedDocInfo {
+        CachedDocInfo {
+            db_file: parent.join(&*self.name_ver.doc_db_file_name()),
+            pkg: self,
+            created: SystemTime::now(),
+        }
+    }
+
+    fn new(name_ver: PkgNameVersion) -> PkgKey {
+        PkgKey {
+            name_ver,
+            features: Features::Default,
+        }
+    }
+}
+
+impl redb::RedbValue for PkgKey {
+    type SelfType<'a> = PkgKey;
+
+    type AsBytes<'a> = Vec<u8>;
+
+    fn fixed_width() -> Option<usize> {
+        None
+    }
+
+    fn from_bytes<'a>(data: &'a [u8]) -> Self::SelfType<'a>
+    where
+        Self: 'a,
+    {
+        bincode::serde::decode_from_slice(data, bincode::config::standard())
+            .unwrap()
+            .0
+    }
+
+    fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>
+    where
+        Self: 'a,
+        Self: 'b,
+    {
+        bincode::serde::encode_to_vec(value, bincode::config::standard()).unwrap()
+    }
+
+    fn type_name() -> redb::TypeName {
+        redb::TypeName::new("PkgKey")
+    }
+}
+
+impl redb::RedbKey for PkgKey {
+    fn compare(data1: &[u8], data2: &[u8]) -> std::cmp::Ordering {
+        data1.cmp(data2)
+    }
 }
 
 #[derive(Deserialize, Serialize)]
 struct CachedDocInfo {
-    /// cached pkg doc: especially
-    /// * the path direct to db file storing the doc rather than pkg dir
-    /// * the modified time is when the doc is compiled and generated
-    pkg: PkgNameVersion,
-    /// file name for doc db (with parent path excluded); usually is `self.pkg-self.ver.db`.
-    db_file: XString,
+    pkg: PkgKey,
+    /// file name for doc db (with parent path included); usually is `self.pkg-self.ver.db`.
+    db_file: PathBuf,
+    /// the time when the doc is compiled and generated
+    created: SystemTime,
+}
+
+impl CachedDocInfo {
+    fn save_doc(&self, doc: &CrateDoc) -> Result<()> {
+        let db = redb::Database::create(&self.db_file)?;
+        let table = redb::TableDefinition::<PkgKey, Vec<u8>>::new("host");
+        let write_txn = db.begin_write()?;
+        {
+            let mut table = write_txn.open_table(table)?;
+            let doc = bincode::serde::encode_to_vec(doc, bincode::config::standard())?;
+            table.insert(&self.pkg, &doc)?;
+        }
+        write_txn.commit()?;
+        info!(?self.pkg, "succeefully saved");
+        Ok(())
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -33,9 +148,62 @@ struct PackageDoc {
     /// source pkg:
     /// * the path direct to pkg dir under local registry_src
     /// * the modified time is for pkg dir
-    src: PkgNameVersion,
+    src: PkgInfo,
     doc: CrateDoc,
     meta: DocMeta,
+}
+
+impl PackageDoc {
+    pub fn build(progress: Progress, pkg_dir: PathBuf, info: CachedDocInfo) {
+        let mut cargo_toml = pkg_dir;
+        cargo_toml.push("Cargo.toml");
+        rayon::spawn(move || {
+            let dir = match tempfile::tempdir() {
+                Ok(dir) => dir,
+                Err(err) => {
+                    error!("Can't create a tempdir:\n{err}");
+                    return;
+                }
+            };
+            info!(?info.pkg, "begin to compile the doc under {}", dir.path().display());
+            match rustdoc_json::Builder::default()
+                .toolchain("nightly")
+                .quiet(true)
+                .target_dir(&dir)
+                .manifest_path(&cargo_toml)
+                .build()
+            {
+                Ok(json_path) => {
+                    info!(?info.pkg, ?json_path, "succeefully compiled the doc");
+                    if let Err(err) = save_doc(&json_path, &info) {
+                        error!("{err}");
+                    }
+                    match progress.lock() {
+                        Ok(mut v) => v.push(info),
+                        Err(err) => {
+                            error!(
+                                "Failed to lock the progress to write generated PkgKey.\
+                                 The doc is generated though.\n{err}"
+                            )
+                        }
+                    }
+                }
+                Err(err) => error!("Failed to compile {}:\n{err}", cargo_toml.display()),
+            }
+        });
+    }
+}
+
+fn save_doc(json_path: &Path, info: &CachedDocInfo) -> Result<()> {
+    let file = fs::File::open(json_path).map_err(|err| {
+        err!(
+            "Failed to open compiled json doc under {}:\n{err}",
+            json_path.display()
+        )
+    })?;
+    let doc = CrateDoc::new(serde_json::from_reader(file)?);
+    info.save_doc(&doc)?;
+    Ok(())
 }
 
 #[derive(Deserialize, Serialize)]
@@ -47,9 +215,6 @@ struct DocMeta {
     /// TODO: the target platform. we haven't supported this other than host triple,
     /// so usually this equals to host_triple.
     target_triple: XString,
-    /// features enabled/used when the doc is compiled
-    /// TODO: for now, we haven't supported feature selection.
-    features: Features,
     // /// For now, each doc is generated on local machine.
     // /// TODO:
     // /// But for the future, we can support save and load docs non-locally generated.
@@ -59,7 +224,7 @@ struct DocMeta {
     // is_local: bool,
 }
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[allow(dead_code)]
 enum Features {
     #[default]

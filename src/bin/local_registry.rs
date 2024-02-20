@@ -3,6 +3,7 @@ use itertools::Itertools;
 use ratatui::prelude::{Color, Style};
 use regex::Regex;
 use semver::Version;
+use serde::{Deserialize, Serialize};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -23,7 +24,7 @@ fn latest_registry() -> Result<Option<PathBuf>> {
     Ok(entries.pop().map(|v| v.1))
 }
 
-fn find_pkgs(registry_src: &Path) -> Vec<PkgNameVersion> {
+fn find_pkgs(registry_src: &Path) -> Vec<PkgInfo> {
     match fs::read_dir(registry_src) {
         Ok(entries) => {
             entries
@@ -35,7 +36,7 @@ fn find_pkgs(registry_src: &Path) -> Vec<PkgNameVersion> {
                         pkg_path.push("Cargo.toml");
                         if pkg_path.exists() {
                             pkg_path.pop();
-                            return PkgNameVersion::new(pkg_path);
+                            return PkgInfo::new(pkg_path);
                         }
                     }
                     None
@@ -49,7 +50,7 @@ fn find_pkgs(registry_src: &Path) -> Vec<PkgNameVersion> {
     }
 }
 
-pub fn all_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgNameVersion> {
+pub fn all_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgInfo> {
     let mut pkgs = find_pkgs(registry_src);
     pkgs.sort_unstable_by(|a, b| (&*a.name, &a.version).cmp(&(&*b.name, &b.version)));
     pkgs.shrink_to_fit();
@@ -58,12 +59,12 @@ pub fn all_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgNameVersion> {
 
 #[derive(Debug, Default)]
 pub struct LocalRegistry {
-    pkgs: Vec<PkgNameVersion>,
+    pkgs: Vec<PkgInfo>,
     path: PathBuf,
 }
 
 impl std::ops::Deref for LocalRegistry {
-    type Target = [PkgNameVersion];
+    type Target = [PkgInfo];
     fn deref(&self) -> &Self::Target {
         &self.pkgs
     }
@@ -95,8 +96,22 @@ impl LocalRegistry {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PkgNameVersion {
+    name: XString,
+    version: XString,
+}
+
+impl PkgNameVersion {
+    pub fn doc_db_file_name(&self) -> XString {
+        let mut name = self.name.clone();
+        name.extend(["-", &*self.version, ".db"]);
+        name
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PkgInfo {
     /// Pkg name from dir name.
     name: XString,
     /// Pkg version from dir name.
@@ -109,10 +124,10 @@ pub struct PkgNameVersion {
     modified: SystemTime,
 }
 
-impl Default for PkgNameVersion {
+impl Default for PkgInfo {
     fn default() -> Self {
         let (name, ver_str, path) = Default::default();
-        PkgNameVersion {
+        PkgInfo {
             name,
             ver_str,
             version: Version::new(0, 0, 0),
@@ -122,11 +137,11 @@ impl Default for PkgNameVersion {
     }
 }
 
-impl PkgNameVersion {
+impl PkgInfo {
     fn new(pkg_path: PathBuf) -> Option<Self> {
         let modified = pkg_path.metadata().ok()?.modified().ok()?;
         let (name, ver, version) = get_pkg_name(pkg_path.file_name()?.to_str()?)?;
-        Some(PkgNameVersion {
+        Some(PkgInfo {
             name,
             ver_str: ver,
             version,
@@ -151,6 +166,17 @@ impl PkgNameVersion {
         };
         [(self.name(), style_name), (self.ver(), style_ver)]
     }
+
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    pub fn to_name_ver(&self) -> PkgNameVersion {
+        PkgNameVersion {
+            name: self.name.clone(),
+            version: self.ver_str.clone(),
+        }
+    }
 }
 
 thread_local! {
@@ -170,7 +196,7 @@ fn get_pkg_name(name_ver: &str) -> Option<(XString, XString, Version)> {
 }
 
 /// Pkgs with lastest version.
-pub fn lastest_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgNameVersion> {
+pub fn lastest_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgInfo> {
     let mut pkgs: Vec<_> = all_pkgs_in_latest_registry(registry_src)
         .into_iter()
         .group_by(|pkg| pkg.name.clone())

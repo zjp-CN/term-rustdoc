@@ -54,6 +54,11 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
         KeyCode::End => dash.scroll_end(),
         KeyCode::PageUp => dash.scroll_up(),
         KeyCode::PageDown => dash.scroll_down(),
+        KeyCode::Enter => {
+            if let Some((pkg_dir, name_ver)) = dash.get_local_pkg() {
+                app.db.compile_doc(pkg_dir, name_ver);
+            }
+        }
         _ => (),
     }
 }

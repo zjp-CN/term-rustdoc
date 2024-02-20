@@ -19,7 +19,7 @@ fn main() -> Result<()> {
     logger::init()?;
 
     let mut tui = tui::Tui::new(1000)?;
-    let mut app = app::App::default();
+    let mut app = app::App::init()?;
     let fuzz = fuzzy::Fuzzy::new();
 
     // let outline = app.set_doc()?;

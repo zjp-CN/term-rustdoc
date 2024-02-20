@@ -1,6 +1,8 @@
+use std::path::PathBuf;
+
 use crate::{
     fuzzy::Fuzzy,
-    local_registry::LocalRegistry,
+    local_registry::{LocalRegistry, PkgNameVersion},
     ui::{render_line, LineState, Scrollable, Surround},
 };
 use ratatui::prelude::{Buffer, Color, Rect};
@@ -189,5 +191,13 @@ impl Registry {
             // NOTE: we reset the cursor to first line on purporse here
             self.inner.cursor.y = 0;
         }
+    }
+
+    pub fn get_pkg_of_current_cursor(&self) -> Option<(PathBuf, PkgNameVersion)> {
+        let pkgs = &self.inner.lines.local;
+        self.inner.get_line_of_current_cursor().map(|idx| {
+            let pkg = &pkgs[idx.0];
+            (pkgs.registry_src_path().join(pkg.path()), pkg.to_name_ver())
+        })
     }
 }

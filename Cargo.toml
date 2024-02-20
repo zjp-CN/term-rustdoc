@@ -48,6 +48,8 @@ dirs = "5"
 walkdir = "2"
 semver = "1"
 nucleo-matcher = "0.3"
+rayon = "1"
+tempfile = "3"
 
 [dev-dependencies]
 insta = "1"

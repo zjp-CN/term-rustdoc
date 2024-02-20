@@ -1,9 +1,12 @@
 mod registry;
 mod search;
 
+use std::path::PathBuf;
+
 use self::{registry::Registry, search::Search};
 use crate::{
     fuzzy::Fuzzy,
+    local_registry::PkgNameVersion,
     ui::{ScrollOffset, Surround},
 };
 use ratatui::{
@@ -66,6 +69,10 @@ impl UI {
 
     pub fn move_forward_cursor(&mut self) {
         self.registry.scroll_text().move_forward_cursor();
+    }
+
+    pub fn get_local_pkg(&self) -> Option<(PathBuf, PkgNameVersion)> {
+        self.registry.get_pkg_of_current_cursor()
     }
 }
 

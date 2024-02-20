@@ -20,7 +20,7 @@ mod page_scroll;
 mod scrollable;
 
 pub use page_scroll::ScrollOffset;
-pub use scrollable::{render_line, render_line_fill_gap, LineState, Scrollable};
+pub use scrollable::{render_line, LineState, Scrollable};
 
 #[derive(Default, Debug)]
 pub struct Page {

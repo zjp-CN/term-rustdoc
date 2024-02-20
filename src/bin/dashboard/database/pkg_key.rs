@@ -1,10 +1,10 @@
-use super::{CachedDocInfo, Features};
+use super::Features;
 use crate::local_registry::PkgNameVersion;
 use serde::{Deserialize, Serialize};
-use std::{path::Path, time::SystemTime};
+use std::fmt;
 
 /// The key in doc db file.
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct PkgKey {
     name_ver: PkgNameVersion,
     /// features enabled/used when the doc is compiled
@@ -12,15 +12,19 @@ pub struct PkgKey {
     features: Features,
 }
 
-impl PkgKey {
-    pub fn into_cached_info(self, parent: &Path) -> CachedDocInfo {
-        CachedDocInfo {
-            db_file: parent.join(&*self.name_ver.doc_db_file_name()),
-            pkg: self,
-            created: SystemTime::now(),
+impl fmt::Debug for PkgKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let [name, ver] = self.name_ver.name_ver();
+        let features = &self.features;
+        if matches!(features, Features::Default) {
+            write!(f, "{name}_v{ver}")
+        } else {
+            write!(f, "{name}_v{ver} [{features:?}]")
         }
     }
+}
 
+impl PkgKey {
     pub fn new(name_ver: PkgNameVersion) -> PkgKey {
         PkgKey {
             name_ver,

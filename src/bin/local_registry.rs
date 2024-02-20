@@ -103,6 +103,10 @@ pub struct PkgNameVersion {
 }
 
 impl PkgNameVersion {
+    pub fn name_ver(&self) -> [&str; 2] {
+        [&self.name, &self.version]
+    }
+
     pub fn doc_db_file_name(&self) -> XString {
         let mut name = self.name.clone();
         name.extend(["-", &*self.version, ".db"]);

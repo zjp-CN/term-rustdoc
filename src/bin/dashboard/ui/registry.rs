@@ -1,11 +1,10 @@
-use std::path::PathBuf;
-
 use crate::{
     fuzzy::Fuzzy,
-    local_registry::{LocalRegistry, PkgNameVersion},
+    local_registry::{LocalRegistry, PkgInfo},
     ui::{render_line, LineState, Scrollable, Surround},
 };
 use ratatui::prelude::{Buffer, Color, Rect};
+use std::path::PathBuf;
 use term_rustdoc::util::xformat;
 
 #[derive(Default)]
@@ -193,11 +192,11 @@ impl Registry {
         }
     }
 
-    pub fn get_pkg_of_current_cursor(&self) -> Option<(PathBuf, PkgNameVersion)> {
+    pub fn get_pkg_of_current_cursor(&self) -> Option<(PathBuf, PkgInfo)> {
         let pkgs = &self.inner.lines.local;
         self.inner.get_line_of_current_cursor().map(|idx| {
             let pkg = &pkgs[idx.0];
-            (pkgs.registry_src_path().join(pkg.path()), pkg.to_name_ver())
+            (pkgs.registry_src_path().join(pkg.path()), pkg.clone())
         })
     }
 }

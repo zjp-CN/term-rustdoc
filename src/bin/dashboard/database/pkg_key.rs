@@ -46,7 +46,7 @@ impl redb::RedbValue for PkgKey {
     where
         Self: 'a,
     {
-        super::decode(data).unwrap()
+        super::util::decode(data).unwrap()
     }
 
     fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>
@@ -54,7 +54,7 @@ impl redb::RedbValue for PkgKey {
         Self: 'a,
         Self: 'b,
     {
-        super::encode(value).unwrap()
+        super::util::encode(value).unwrap()
     }
 
     fn type_name() -> redb::TypeName {

@@ -1,4 +1,8 @@
-use super::{decode, encode, pkg_key::PkgKey, DocMeta};
+use super::{
+    pkg_key::PkgKey,
+    util::{decode, encode},
+    DocMeta,
+};
 use crate::{
     err,
     local_registry::{PkgInfo, PkgNameVersion},

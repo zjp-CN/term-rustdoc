@@ -57,6 +57,31 @@ impl DataBase {
             pkg_info,
         ))
     }
+
+    pub fn all_caches(&self) -> Result<Vec<CachedDocInfo>> {
+        use redb::ReadableTable;
+        let dir = self
+            .dir
+            .as_deref()
+            .ok_or_else(|| err!("Can't fetch all caches because the dir path is not set up"))?;
+        let db = redb::Database::open(dir.join("index.db"))
+            .map_err(|err| err!("Can't open index.db:\n{err}"))?;
+        let table = redb::TableDefinition::<PkgKey, CachedDocInfo>::new("CachedDocInfo");
+        let read_txn = db.begin_read()?;
+        let info: Vec<CachedDocInfo> = read_txn
+            .open_table(table)?
+            .iter()?
+            .filter_map(|res| match res {
+                Ok((_, v)) => Some(v.value()),
+                Err(err) => {
+                    error!("Failed to read a key-value pair in index.db:\n{err}");
+                    None
+                }
+            })
+            .collect();
+        info!("Succeefully read {} CachedDocInfo", info.len());
+        Ok(info)
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]

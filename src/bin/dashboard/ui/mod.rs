@@ -34,8 +34,10 @@ impl UI {
 
     pub fn new(full: Rect, fuzzy: Fuzzy) -> Self {
         let mut ui = UI {
+            database: DataBaseUI::init(),
             registry: Registry::new_local(fuzzy),
-            ..Default::default()
+            search: Search::default(),
+            area: Area::default(),
         };
         ui.update_area(full);
         ui

@@ -38,6 +38,13 @@ impl Cache {
             inner: CacheInner::BeingCached(pkg_key),
         }
     }
+
+    pub fn new_unloaded(info: CachedDocInfo) -> Cache {
+        Cache {
+            ver: info.pkg.version(),
+            inner: CacheInner::Unloaded(info),
+        }
+    }
 }
 
 impl PartialOrd for Cache {

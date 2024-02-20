@@ -30,6 +30,11 @@ impl DataBaseUI {
     pub fn init() -> Self {
         let mut ui = DataBaseUI::default();
         if let Ok(db) = DataBase::init() {
+            ui.pkg_docs().caches = db
+                .all_caches()
+                .map_err(|err| error!("Failed to read CachedDocInfo:\n{err}"))
+                .map(|v| v.into_iter().map(Cache::new_unloaded).collect())
+                .unwrap_or_default();
             ui.pkg_docs().db = db;
         }
         ui

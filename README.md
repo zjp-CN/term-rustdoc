@@ -16,13 +16,18 @@
 - [ ] navigation
   - [x] markdown outline
   - [ ] item's associated items/fields outline
+- [ ] package source / DashBoard Popup
+  - [x] local
+    - [x] local registry src dirs
+      - [x] fuzzing search
+      - [x] select pkgs to compile docs and cache the artifacts in local db files
+    - [x] caches in database (json docs that have been generated will be cached in local db)
+      - [x] cache raw JSON output and compress it via xz
+      - [x] cache parsed output for faster loading and compress it via xz
+      - [x] Sorting the cache list for all items or in groups
+    - [ ] local paths to Cargo.toml: low priority
+  - [ ] non-local (i.e. download pkgs from the web): low priority
 - [ ] configuration
-  - [ ] package source
-    - [ ] local
-      - [ ] local registry src dirs
-      - [ ] caches in database (json docs that have been generated will be cached in local db)
-      - [ ] local paths to Cargo.toml
-    - [ ] non-local (i.e. download pkgs from the web): low priority
   - [ ] theme: low priority
   - [ ] keybind: low priority
 - [ ] fuzzing search

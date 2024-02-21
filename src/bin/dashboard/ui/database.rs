@@ -54,12 +54,20 @@ impl DataBaseUI {
         &mut self.inner.lines
     }
 
+    /// Usually this appends the in-progress doc to the caches vec.
+    ///
+    /// But when the pkg is cached before, there will be a duplicate.
+    /// In this case, this method will change its status.
     pub fn compile_doc(&mut self, pkg_dir: PathBuf, pkg_info: PkgInfo) {
         if let Some(pkg_key) = self.pkg_docs().db.compile_doc(pkg_dir, pkg_info) {
             let caches = &mut self.pkg_docs().caches;
-            let id = CacheID(caches.len());
-            caches.push(Cache::new_being_cached(pkg_key));
-            self.pkg_docs().indices.push(id);
+            if let Some(old) = caches.iter_mut().find(|cache| **cache == pkg_key) {
+                *old = Cache::new_being_cached(pkg_key);
+            } else {
+                let id = CacheID(caches.len());
+                caches.push(Cache::new_being_cached(pkg_key));
+                self.pkg_docs().indices.push(id);
+            }
             self.sort_caches();
         }
     }

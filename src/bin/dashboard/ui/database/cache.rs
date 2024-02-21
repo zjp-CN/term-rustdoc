@@ -97,6 +97,18 @@ impl Cache {
     }
 }
 
+impl PartialEq<PkgKey> for Cache {
+    fn eq(&self, other: &PkgKey) -> bool {
+        self.inner.pkg_key() == other
+    }
+}
+
+impl PartialEq<Cache> for PkgKey {
+    fn eq(&self, other: &Cache) -> bool {
+        Cache::eq(other, self)
+    }
+}
+
 impl PartialOrd for Cache {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))

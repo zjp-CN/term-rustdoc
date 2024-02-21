@@ -6,12 +6,12 @@ use crate::{
     local_registry::PkgInfo,
     ui::{render_line, Scrollable, Surround},
 };
-use ratatui::prelude::{Buffer, Rect};
+use ratatui::prelude::{Buffer, Color, Rect};
 use std::path::PathBuf;
 use term_rustdoc::util::xformat;
 
 #[derive(Default)]
-struct PkgDocs {
+pub struct PkgDocs {
     db: DataBase,
     caches: Vec<Cache>,
     /// NOTE: the indices only change when the length of caches changes,
@@ -85,7 +85,17 @@ impl DataBaseUI {
         let mut start = self.inner.start + 1;
         let Rect { x, mut y, .. } = self.inner.area;
         let width = self.inner.area.width as usize;
-        let pkgs = &self.inner.lines.caches;
+
+        // render current selected pkg
+        let text = &self.inner;
+        if text.get_line_of_current_cursor().is_some() {
+            let row = text.area.y + text.cursor.y;
+            for col in x..text.area.width + x {
+                buf.get_mut(col, row).set_bg(Color::from_u32(0x005DA063)); // #5DA063
+            }
+        }
+
+        let pkgs = &text.lines.caches;
         for id in ids {
             let num = xformat!("{start:02}. ");
             let [(kind, style_kind), (name, style_name), (ver, style_ver)] = pkgs[id.0].line();
@@ -101,5 +111,21 @@ impl DataBaseUI {
             start += 1;
             y += 1;
         }
+    }
+
+    pub fn load_doc(&mut self) {
+        if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
+            let unloaded = self.inner.lines.caches.remove(id);
+            self.inner.lines.caches.push(unloaded.load_doc());
+            self.sort_caches();
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.inner.all_lines().is_empty()
+    }
+
+    pub fn scroll_text(&mut self) -> &mut Scrollable<PkgDocs> {
+        &mut self.inner
     }
 }

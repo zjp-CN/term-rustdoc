@@ -47,12 +47,37 @@ impl Cache {
         }
     }
 
+    pub fn load_doc(self) -> Self {
+        match self.inner {
+            CacheInner::Unloaded(info) => match info.load_doc() {
+                Ok(doc) => Cache {
+                    inner: CacheInner::Loaded(LoadedDoc { info, doc }),
+                    ver: self.ver,
+                },
+                Err(err) => {
+                    error!("Failed to load {:?}:\n{err}", info.pkg);
+                    Cache {
+                        inner: CacheInner::Unloaded(info),
+                        ver: self.ver,
+                    }
+                }
+            },
+            _ => self,
+        }
+    }
+
     pub fn line(&self) -> [(&str, Style); 3] {
         let kind = self.inner.kind();
         let key = self.inner.pkg_key();
         [
             kind,
-            (key.name(), Style::new()),
+            (
+                key.name(),
+                Style {
+                    fg: Some(Color::White),
+                    ..Style::new()
+                },
+            ),
             (
                 key.ver_str(),
                 Style {

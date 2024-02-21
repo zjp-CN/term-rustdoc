@@ -35,6 +35,12 @@ impl CachedDocInfo {
         }
     }
 
+    pub fn load_doc(&self) -> Result<CrateDoc> {
+        let db = redb::Database::open(&self.db_file)?;
+        let bytes = read_from_doc_db::<PkgKey, Vec<u8>>(&db, "host-parsed", &self.pkg)?;
+        decode(&bytes)
+    }
+
     pub fn save_doc(&self, json_path: &Path, pkg_info: PkgInfo) -> Result<()> {
         let file = fs::File::open(json_path).map_err(|err| {
             err!(
@@ -103,6 +109,22 @@ where
     }
     write_txn.commit()?;
     Ok(())
+}
+
+fn read_from_doc_db<K, V>(db: &redb::Database, name: &str, key: &K) -> Result<V>
+where
+    K: 'static + for<'a> redb::RedbKey<SelfType<'a> = K> + std::fmt::Debug,
+    V: 'static + for<'a> redb::RedbValue<SelfType<'a> = V>,
+{
+    use redb::ReadableTable;
+    let table = redb::TableDefinition::<K, V>::new(name);
+    let read_txn = db.begin_read()?;
+    let value = read_txn
+        .open_table(table)?
+        .get(key)?
+        .ok_or_else(|| err!("Failed to get the key `{key:?}` from table `{name}`"))?
+        .value();
+    Ok(value)
 }
 
 impl redb::RedbValue for CachedDocInfo {

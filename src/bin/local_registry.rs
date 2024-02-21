@@ -171,7 +171,10 @@ impl PkgInfo {
     }
 
     pub fn styled_name_ver(&self) -> [(&str, Style); 2] {
-        let style_name = Style::new();
+        let style_name = Style {
+            fg: Some(Color::White),
+            ..Style::new()
+        };
         let style_ver = Style {
             fg: Some(Color::DarkGray),
             ..Style::new()

@@ -2,6 +2,8 @@ mod database;
 mod registry;
 mod search;
 
+use std::default;
+
 use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
     fuzzy::Fuzzy,
@@ -44,31 +46,57 @@ impl UI {
     }
 
     pub fn scroll_down(&mut self) {
-        self.registry
-            .scroll_text()
-            .scrolldown(ScrollOffset::HalfScreen);
+        match self.area.current {
+            Panel::Database => self
+                .database
+                .scroll_text()
+                .scrolldown(ScrollOffset::HalfScreen),
+            Panel::LocalRegistry => self
+                .registry
+                .scroll_text()
+                .scrolldown(ScrollOffset::HalfScreen),
+        };
     }
 
     pub fn scroll_up(&mut self) {
-        self.registry
-            .scroll_text()
-            .scrollup(ScrollOffset::HalfScreen);
+        match self.area.current {
+            Panel::Database => self
+                .database
+                .scroll_text()
+                .scrollup(ScrollOffset::HalfScreen),
+            Panel::LocalRegistry => self
+                .registry
+                .scroll_text()
+                .scrollup(ScrollOffset::HalfScreen),
+        };
     }
 
     pub fn scroll_home(&mut self) {
-        self.registry.scroll_text().scroll_home();
+        match self.area.current {
+            Panel::Database => self.database.scroll_text().scroll_home(),
+            Panel::LocalRegistry => self.registry.scroll_text().scroll_home(),
+        };
     }
 
     pub fn scroll_end(&mut self) {
-        self.registry.scroll_text().scroll_end();
+        match self.area.current {
+            Panel::Database => self.database.scroll_text().scroll_end(),
+            Panel::LocalRegistry => self.registry.scroll_text().scroll_end(),
+        };
     }
 
     pub fn move_backward_cursor(&mut self) {
-        self.registry.scroll_text().move_backward_cursor();
+        match self.area.current {
+            Panel::Database => self.database.scroll_text().move_backward_cursor(),
+            Panel::LocalRegistry => self.registry.scroll_text().move_backward_cursor(),
+        };
     }
 
     pub fn move_forward_cursor(&mut self) {
-        self.registry.scroll_text().move_forward_cursor();
+        match self.area.current {
+            Panel::Database => self.database.scroll_text().move_forward_cursor(),
+            Panel::LocalRegistry => self.registry.scroll_text().move_forward_cursor(),
+        };
     }
 
     pub fn compile_doc(&mut self) {
@@ -76,6 +104,17 @@ impl UI {
         if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg_of_current_cursor() {
             self.database.compile_doc(pkg_dir, pkg_info);
         }
+    }
+
+    pub fn switch_panel(&mut self) {
+        if self.database.is_empty() {
+            self.area.current = Panel::LocalRegistry;
+            return;
+        }
+        self.area.current = match self.area.current {
+            Panel::Database => Panel::LocalRegistry,
+            Panel::LocalRegistry => Panel::Database,
+        };
     }
 }
 
@@ -94,6 +133,14 @@ struct Area {
     full: Rect,
     center: Rect,
     search_border: Surround,
+    current: Panel,
+}
+
+#[derive(Default, Clone, Copy)]
+enum Panel {
+    #[default]
+    Database,
+    LocalRegistry,
 }
 
 fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {

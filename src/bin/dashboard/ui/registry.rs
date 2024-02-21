@@ -137,7 +137,7 @@ impl Registry {
         if text.get_line_of_current_cursor().is_some() {
             let row = text.area.y + text.cursor.y;
             for col in x..text.area.width + x {
-                buf.get_mut(col, row).set_bg(Color::from_u32(0x00548B54)); // #548B54
+                buf.get_mut(col, row).set_bg(Color::from_u32(0x005DA063)); // #5DA063
             }
         }
 

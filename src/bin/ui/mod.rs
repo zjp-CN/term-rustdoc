@@ -7,7 +7,9 @@ use ratatui::{
     prelude::{Buffer, Rect, Style, Widget},
     widgets::Block,
 };
+use std::borrow::Cow;
 use term_rustdoc::tree::{CrateDoc, TreeLines};
+use unicode_width::UnicodeWidthStr;
 
 mod layout;
 mod panel;
@@ -104,13 +106,28 @@ impl Surround {
         (&self.block).render(self.area, buf);
     }
 
-    pub fn render_with_bottom_right_text(&self, buf: &mut Buffer, text: &str) {
-        self.render(buf);
+    pub fn render_only_bottom_right_text(&self, buf: &mut Buffer, text: &str) -> usize {
         let area = self.area;
-        if let Some(offset) = (area.width as usize).checked_sub(2 + text.len()) {
+        let text_width = text.width();
+        if let Some(offset) = (area.width as usize).checked_sub(2 + text_width) {
             let x = area.x + offset as u16;
             let y = area.y + area.height - 1;
-            render_line(Some((text, Style::new())), buf, x, y, text.len());
+            render_line(Some((text, Style::new())), buf, x, y, text_width);
+            return text_width + 2;
+        }
+        0
+    }
+
+    pub fn render_only_bottom_left_text(&self, buf: &mut Buffer, text: &str, used: usize) {
+        let area = self.area;
+        if let Some(rest) = (area.width as usize).checked_sub(2 + used) {
+            if rest < text.width() {
+                // not enought space to show
+                return;
+            }
+            let x = area.x + 2;
+            let y = area.y + area.height - 1;
+            render_line(Some((text, Style::new())), buf, x, y, rest);
         }
     }
 }

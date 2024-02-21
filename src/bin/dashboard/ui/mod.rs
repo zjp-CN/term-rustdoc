@@ -126,6 +126,13 @@ impl UI {
             Panel::LocalRegistry => Panel::Database,
         };
     }
+
+    pub fn switch_sort(&mut self) {
+        match self.area.current {
+            Panel::Database => self.database.switch_sort(),
+            Panel::LocalRegistry => (),
+        }
+    }
 }
 
 impl Widget for &mut UI {

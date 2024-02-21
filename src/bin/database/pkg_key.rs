@@ -52,6 +52,10 @@ impl PkgKey {
             .map_err(|err| error!("Failed to parse the version in {self:?}:\n{err}"))
             .unwrap_or(Version::new(0, 0, 0))
     }
+
+    pub fn features(&self) -> &Features {
+        &self.features
+    }
 }
 
 impl redb::RedbValue for PkgKey {

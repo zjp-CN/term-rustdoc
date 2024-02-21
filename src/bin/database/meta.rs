@@ -85,4 +85,8 @@ impl DocMeta {
     pub fn duration_as_secs(&self) -> f32 {
         self.duration.as_secs_f32()
     }
+
+    pub fn started_time(&self) -> SystemTime {
+        self.started
+    }
 }

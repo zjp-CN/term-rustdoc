@@ -42,6 +42,7 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
         match key_event.code {
             KeyCode::Char('q') => app.quit(),
             KeyCode::Char('c') => ui.clear_input(),
+            KeyCode::Char('s') => ui.switch_sort(),
             _ => (),
         }
         return;

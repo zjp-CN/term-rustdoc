@@ -1,6 +1,6 @@
 mod cache;
 
-use self::cache::{Cache, CacheID};
+use self::cache::{Cache, CacheID, SortKind};
 use crate::{
     database::{CachedDocInfo, DataBase},
     event::Sender,
@@ -15,6 +15,7 @@ use term_rustdoc::util::xformat;
 pub struct PkgDocs {
     db: DataBase,
     caches: Vec<Cache>,
+    caches_sort: SortKind,
     /// NOTE: the indices only change when the length of caches changes,
     /// because we need to sort caches for displaying, thus both lengths should equal.
     indices: Vec<CacheID>,
@@ -74,7 +75,14 @@ impl DataBaseUI {
 
     /// Sort the Cache vec because the inner states have changed.
     fn sort_caches(&mut self) {
-        self.pkg_docs().caches.sort_unstable();
+        let kind = self.pkg_docs().caches_sort;
+        self.pkg_docs().caches.sort_unstable_by(kind.cmp_fn());
+    }
+
+    pub fn switch_sort(&mut self) {
+        let kind = self.pkg_docs().caches_sort.next();
+        self.pkg_docs().caches_sort = kind;
+        self.sort_caches();
     }
 }
 
@@ -120,6 +128,12 @@ impl DataBaseUI {
             start += 1;
             y += 1;
         }
+
+        // write the sor description and counts to the border bottom line
+        let text = xformat!(" total {} ", self.inner.lines.caches.len());
+        let used = self.border.render_only_bottom_right_text(buf, &text);
+        let desc = self.inner.lines.caches_sort.describe();
+        self.border.render_only_bottom_left_text(buf, desc, used);
     }
 
     pub fn load_doc(&mut self) {

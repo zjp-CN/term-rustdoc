@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     fs,
     path::{Path, PathBuf},
-    time::Instant,
+    time::{Instant, SystemTime},
 };
 use term_rustdoc::tree::CrateDoc;
 
@@ -96,6 +96,10 @@ impl CachedDocInfo {
 
     pub(super) fn meta_mut(&mut self) -> &mut DocMeta {
         &mut self.meta
+    }
+
+    pub fn started_time(&self) -> SystemTime {
+        self.meta.started_time()
     }
 }
 

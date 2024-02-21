@@ -164,7 +164,7 @@ impl Registry {
             self.inner.total_len(),
             self.inner.lines.local.len()
         );
-        self.border.render_with_bottom_right_text(buf, &text);
+        self.border.render_only_bottom_right_text(buf, &text);
     }
 
     /// Update the fuzzy result every time the input pattern changes.

@@ -115,9 +115,12 @@ impl DataBaseUI {
 
     pub fn load_doc(&mut self) {
         if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
-            let unloaded = self.inner.lines.caches.remove(id);
-            self.inner.lines.caches.push(unloaded.load_doc());
-            self.sort_caches();
+            if self.inner.lines.caches[id].loadable() {
+                let unloaded = self.inner.lines.caches.remove(id);
+                let loaded = unloaded.load_doc();
+                self.inner.lines.caches.push(loaded);
+                self.sort_caches();
+            }
         }
     }
 

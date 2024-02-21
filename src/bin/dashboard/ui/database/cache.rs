@@ -47,6 +47,10 @@ impl Cache {
         }
     }
 
+    pub fn loadable(&self) -> bool {
+        matches!(self.inner, CacheInner::Unloaded(_))
+    }
+
     pub fn load_doc(self) -> Self {
         match self.inner {
             CacheInner::Unloaded(info) => match info.load_doc() {

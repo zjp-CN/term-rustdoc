@@ -54,7 +54,7 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
         KeyCode::End => ui.scroll_end(),
         KeyCode::PageUp => ui.scroll_up(),
         KeyCode::PageDown => ui.scroll_down(),
-        KeyCode::Enter => ui.compile_doc(),
+        KeyCode::Enter => ui.compile_or_load_doc(),
         KeyCode::Tab => ui.switch_panel(),
         _ => (),
     }

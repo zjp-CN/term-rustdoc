@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     fs,
     path::{Path, PathBuf},
+    time::Instant,
 };
 use term_rustdoc::tree::CrateDoc;
 
@@ -36,9 +37,13 @@ impl CachedDocInfo {
     }
 
     pub fn load_doc(&self) -> Result<CrateDoc> {
+        let now = Instant::now();
+        debug!(?self.pkg, "Start to load");
         let db = redb::Database::open(&self.db_file)?;
         let bytes = read_from_doc_db::<PkgKey, Vec<u8>>(&db, "host-parsed", &self.pkg)?;
-        decode(&bytes)
+        let doc = decode(&bytes)?;
+        info!(?self.pkg, "Loaded in {:.2}s", now.elapsed().as_secs_f32());
+        Ok(doc)
     }
 
     pub fn save_doc(&self, json_path: &Path, pkg_info: PkgInfo) -> Result<()> {

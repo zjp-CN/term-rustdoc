@@ -97,10 +97,14 @@ impl UI {
         };
     }
 
-    pub fn compile_doc(&mut self) {
-        // TODO
-        if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg_of_current_cursor() {
-            self.database.compile_doc(pkg_dir, pkg_info);
+    pub fn compile_or_load_doc(&mut self) {
+        match self.area.current {
+            Panel::Database => self.database.load_doc(),
+            Panel::LocalRegistry => {
+                if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg_of_current_cursor() {
+                    self.database.compile_doc(pkg_dir, pkg_info);
+                }
+            }
         }
     }
 

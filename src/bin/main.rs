@@ -13,7 +13,7 @@ mod ui;
 extern crate tracing;
 
 use self::frame::Frame;
-use color_eyre::eyre::{eyre as err, Result};
+use color_eyre::eyre::{eyre as err, Result, WrapErr};
 
 fn main() -> Result<()> {
     tui::install_hooks()?;

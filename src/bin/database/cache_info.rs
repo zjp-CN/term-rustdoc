@@ -4,9 +4,10 @@ use super::{
     DocMeta,
 };
 use crate::{
+    database::util,
     err,
     local_registry::{PkgInfo, PkgNameVersion},
-    Result,
+    Result, WrapErr,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -41,15 +42,15 @@ impl CachedDocInfo {
         debug!(?self.pkg, "Start to load");
         let db = redb::Database::open(&self.db_file)?;
         let bytes = read_from_doc_db::<PkgKey, Vec<u8>>(&db, "host-parsed", &self.pkg)?;
-        let doc = decode(&bytes)?;
+        let doc = util::decode_with_xz(&bytes)?;
         info!(?self.pkg, "Loaded in {:.2}s", now.elapsed().as_secs_f32());
         Ok(doc)
     }
 
     pub fn save_doc(&self, json_path: &Path, pkg_info: PkgInfo) -> Result<()> {
-        let file = fs::File::open(json_path).map_err(|err| {
-            err!(
-                "Failed to open compiled json doc under {}:\n{err}",
+        let file = fs::File::open(json_path).wrap_err_with(|| {
+            format!(
+                "Failed to open compiled json doc under {}",
                 json_path.display()
             )
         })?;
@@ -63,11 +64,13 @@ impl CachedDocInfo {
         info!(?self.pkg, "PkgInfo is succeefully saved");
 
         // write raw json string into db
-        self.write_to_db(&db, "host-json", fs::read(json_path)?)?;
+        let json_bytes = fs::read(json_path)?;
+        let compressed = util::xz_encode_on_bytes(&json_bytes)?;
+        self.write_to_db(&db, "host-json", compressed)?;
         info!(?self.pkg, "raw json is succeefully saved");
 
         // write parsed doc into db
-        self.write_to_db(&db, "host-parsed", encode(doc)?)?;
+        self.write_to_db(&db, "host-parsed", util::encode_with_xz(doc)?)?;
         info!(?self.pkg, "parsed data is succeefully saved");
 
         // write to index.db

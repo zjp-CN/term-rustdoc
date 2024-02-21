@@ -6,7 +6,10 @@ use core::cmp::Ordering;
 use ratatui::prelude::{Color, Style};
 use semver::Version;
 use std::time::SystemTime;
-use term_rustdoc::tree::CrateDoc;
+use term_rustdoc::{
+    tree::CrateDoc,
+    util::{xformat, XString},
+};
 
 pub struct LoadedDoc {
     info: CachedDocInfo,
@@ -195,6 +198,47 @@ impl Cache {
             CacheInner::BeingCached(_, time) => *time,
         }
     }
+
+    pub fn add(&self, count: &mut Count) {
+        match &self.inner {
+            CacheInner::Loaded(_) => count.loaded += 1,
+            CacheInner::Unloaded(_) => count.unloaded += 1,
+            CacheInner::BeingCached(_, _) => count.in_progress += 1,
+        }
+    }
+}
+
+#[derive(Default, Clone, Copy)]
+pub struct Count {
+    pub loaded: usize,
+    pub unloaded: usize,
+    pub in_progress: usize,
+}
+
+impl Count {
+    pub fn describe(self) -> XString {
+        use std::fmt::Write;
+        let Count {
+            loaded,
+            unloaded,
+            in_progress,
+        } = self;
+        let mut text = XString::new_inline(" ");
+        if loaded != 0 {
+            write!(&mut text, "Loaded: {loaded} / ").unwrap();
+        }
+        if unloaded != 0 {
+            write!(&mut text, "Cached: {unloaded} / ").unwrap();
+        }
+        if in_progress != 0 {
+            write!(&mut text, "HoldOn: {in_progress} / ").unwrap();
+        }
+        let total = loaded + unloaded + in_progress;
+        if total != 0 {
+            write!(&mut text, "Total: {total} ").unwrap();
+        }
+        text
+    }
 }
 
 /// Sort kind for pkg list in database panel.
@@ -228,10 +272,10 @@ impl SortKind {
 
     pub fn describe(self) -> &'static str {
         match self {
-            SortKind::TimeForAll => " [for all] Sort by time ",
-            SortKind::PkgKeyForAll => " [for all] Sort by PkgKey ",
-            SortKind::TimeGrouped => " [in groups] Sort by time ",
-            SortKind::PkgKeyGrouped => " [in groups] Sort by PkgKey ",
+            SortKind::TimeForAll => " [For All] Sort by time ",
+            SortKind::PkgKeyForAll => " [For All] Sort by PkgKey ",
+            SortKind::TimeGrouped => " [In Groups] Sort by time ",
+            SortKind::PkgKeyGrouped => " [In Groups] Sort by PkgKey ",
         }
     }
 }

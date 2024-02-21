@@ -1,6 +1,6 @@
 mod cache;
 
-use self::cache::{Cache, CacheID, SortKind};
+use self::cache::{Cache, CacheID, Count, SortKind};
 use crate::{
     database::{CachedDocInfo, DataBase},
     event::Sender,
@@ -130,7 +130,10 @@ impl DataBaseUI {
         }
 
         // write the sor description and counts to the border bottom line
-        let text = xformat!(" total {} ", self.inner.lines.caches.len());
+        let mut count = Count::default();
+        let iter = self.inner.lines.caches.iter();
+        iter.for_each(|cache| cache.add(&mut count));
+        let text = count.describe();
         let used = self.border.render_only_bottom_right_text(buf, &text);
         let desc = self.inner.lines.caches_sort.describe();
         self.border.render_only_bottom_left_text(buf, desc, used);

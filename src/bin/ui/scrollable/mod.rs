@@ -60,6 +60,9 @@ impl<Ls: Lines> Scrollable<Ls> {
     /// The slice length should be able to cast to u16 without surprising behavior.
     pub fn visible_lines(&self) -> Option<&[Ls::Line]> {
         let total_len = self.lines.len();
+        if total_len == 0 {
+            return None;
+        }
         let end = (self.start + self.area.height as usize).min(total_len);
         self.lines.get(self.start..end)
     }

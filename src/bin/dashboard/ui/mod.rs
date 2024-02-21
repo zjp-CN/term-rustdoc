@@ -41,7 +41,9 @@ impl UI {
             search: Search::default(),
             area: Area::default(),
         };
+        ui.switch_panel(); // switch to database if caches are not empty
         ui.update_area(full);
+        info!("DashBoard UI initialized.");
         ui
     }
 
@@ -150,8 +152,8 @@ struct Area {
 
 #[derive(Default, Clone, Copy)]
 enum Panel {
-    #[default]
     Database,
+    #[default]
     LocalRegistry,
 }
 

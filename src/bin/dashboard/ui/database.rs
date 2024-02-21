@@ -76,7 +76,7 @@ impl DataBaseUI {
         self.border = surround;
     }
 
-    pub fn render(&self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer, current: bool) {
         self.border.render(buf);
 
         let Some(ids) = self.inner.visible_lines() else {
@@ -88,7 +88,7 @@ impl DataBaseUI {
 
         // render current selected pkg
         let text = &self.inner;
-        if text.get_line_of_current_cursor().is_some() {
+        if current && text.get_line_of_current_cursor().is_some() {
             let row = text.area.y + text.cursor.y;
             for col in x..text.area.width + x {
                 buf.get_mut(col, row).set_bg(Color::from_u32(0x005DA063)); // #5DA063

@@ -2,8 +2,6 @@ mod database;
 mod registry;
 mod search;
 
-use std::default;
-
 use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
     fuzzy::Fuzzy,
@@ -123,8 +121,12 @@ impl Widget for &mut UI {
         self.update_area(full);
         self.area.render(buf);
         self.search.render(buf);
-        self.database.render(buf);
-        self.registry.render(buf);
+        let [db, reg] = match self.area.current {
+            Panel::Database => [true, false],
+            Panel::LocalRegistry => [false, true],
+        };
+        self.database.render(buf, db);
+        self.registry.render(buf, reg);
     }
 }
 

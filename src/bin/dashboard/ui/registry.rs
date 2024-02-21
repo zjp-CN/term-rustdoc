@@ -122,7 +122,7 @@ impl Registry {
         &mut self.inner
     }
 
-    pub fn render(&self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer, current: bool) {
         // render border
         self.border.render(buf);
 
@@ -134,7 +134,7 @@ impl Registry {
         let width = text.area.width as usize;
         let pkgs = &text.lines.local;
         // render current selected pkg
-        if text.get_line_of_current_cursor().is_some() {
+        if current && text.get_line_of_current_cursor().is_some() {
             let row = text.area.y + text.cursor.y;
             for col in x..text.area.width + x {
                 buf.get_mut(col, row).set_bg(Color::from_u32(0x005DA063)); // #5DA063

@@ -47,6 +47,10 @@ impl Cache {
         }
     }
 
+    pub fn is_in_progress(&self, key: &PkgKey) -> bool {
+        matches!(&self.inner, CacheInner::BeingCached(pkg) if pkg == key)
+    }
+
     pub fn loadable(&self) -> bool {
         matches!(self.inner, CacheInner::Unloaded(_))
     }

@@ -82,6 +82,21 @@ impl DataBase {
         info!("Succeefully read {} CachedDocInfo", info.len());
         Ok(info)
     }
+
+    pub fn take_in_progress(&self) -> Vec<CachedDocInfo> {
+        match self.in_progress.try_lock() {
+            Ok(mut guard) => {
+                let info = &mut *guard;
+                let len = info.len();
+                if len != 0 {
+                    info!("got {len} CachedDocInfo");
+                    return std::mem::take(info);
+                }
+            }
+            Err(err) => error!("Can't lock the in_progress mutex: {err}"),
+        };
+        Vec::new()
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]

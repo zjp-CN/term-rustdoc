@@ -1,4 +1,4 @@
-use crate::Result;
+use crate::{database::CachedDocInfo, Result};
 use crossterm::event::{
     self, Event as CrosstermEvent, KeyEvent, MouseButton, MouseEvent, MouseEventKind,
 };
@@ -9,7 +9,7 @@ use std::{
 };
 
 /// Terminal events.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub enum Event {
     /// Key press.
     Key(KeyEvent),
@@ -19,13 +19,16 @@ pub enum Event {
     MouseDoubleClick,
     /// Terminal resize.
     Resize(u16, u16),
+    /// Pkg doc that's compiled and written into its db file.
+    DocCompiled(Box<CachedDocInfo>),
 }
+
+pub type Sender = mpsc::Sender<Event>;
 
 /// Terminal event handler.
 #[derive(Debug)]
 pub struct EventHandler {
     /// Event sender channel.
-    #[allow(dead_code)]
     sender: mpsc::Sender<Event>,
     /// Event receiver channel.
     receiver: mpsc::Receiver<Event>,
@@ -92,5 +95,9 @@ impl EventHandler {
     /// there is no data available and it's possible for more data to be sent.
     pub fn next(&self) -> Result<Event> {
         Ok(self.receiver.recv()?)
+    }
+
+    pub fn get_sender(&self) -> Sender {
+        self.sender.clone()
     }
 }

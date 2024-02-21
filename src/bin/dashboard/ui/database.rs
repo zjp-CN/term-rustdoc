@@ -2,7 +2,8 @@ mod cache;
 
 use self::cache::{Cache, CacheID};
 use crate::{
-    dashboard::database::DataBase,
+    database::{CachedDocInfo, DataBase},
+    event::Sender,
     local_registry::PkgInfo,
     ui::{render_line, Scrollable, Surround},
 };
@@ -34,9 +35,9 @@ pub struct DataBaseUI {
 }
 
 impl DataBaseUI {
-    pub fn init() -> Self {
+    pub fn init(sender: Sender) -> Self {
         let mut ui = DataBaseUI::default();
-        if let Ok(db) = DataBase::init() {
+        if let Ok(db) = DataBase::init(sender) {
             let caches: Vec<_> = db
                 .all_caches()
                 .map_err(|err| error!("Failed to read CachedDocInfo:\\n{err}"))
@@ -76,10 +77,8 @@ impl DataBaseUI {
         self.border = surround;
     }
 
-    pub fn render(&mut self, buf: &mut Buffer, current: bool) {
+    pub fn render(&self, buf: &mut Buffer, current: bool) {
         self.border.render(buf);
-
-        self.update_in_progress();
 
         let Some(ids) = self.inner.visible_lines() else {
             return;
@@ -126,20 +125,18 @@ impl DataBaseUI {
         }
     }
 
-    fn update_in_progress(&mut self) {
-        for info in self.pkg_docs().db.take_in_progress() {
-            let key = &info.pkg;
-            let caches = &mut self.pkg_docs().caches;
-            if let Some(cache) = caches.iter_mut().find(|cache| cache.is_in_progress(key)) {
-                *cache = Cache::new_unloaded(info);
-            } else {
-                error!("{key:?} is not found in the caches vec, but it should.");
-                let id = CacheID(caches.len());
-                caches.push(Cache::new_unloaded(info));
-                self.pkg_docs().indices.push(id);
-            }
-            self.sort_caches();
+    pub fn receive_compiled_doc(&mut self, info: CachedDocInfo) {
+        let key = &info.pkg;
+        let caches = &mut self.pkg_docs().caches;
+        if let Some(cache) = caches.iter_mut().find(|cache| cache.is_in_progress(key)) {
+            *cache = Cache::new_unloaded(info);
+        } else {
+            error!("{key:?} is not found in the caches vec, but it should.");
+            let id = CacheID(caches.len());
+            caches.push(Cache::new_unloaded(info));
+            self.pkg_docs().indices.push(id);
         }
+        self.sort_caches();
     }
 
     pub fn is_empty(&self) -> bool {

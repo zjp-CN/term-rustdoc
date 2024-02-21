@@ -1,7 +1,6 @@
-mod database;
 mod ui;
 
-use crate::{fuzzy::Fuzzy, Result};
+use crate::{event::Sender, fuzzy::Fuzzy, Result};
 use ratatui::layout::Rect;
 
 use self::ui::UI;
@@ -11,8 +10,8 @@ pub struct DashBoard {
 }
 
 impl DashBoard {
-    pub fn new(full: Rect, fuzzy: Fuzzy) -> Result<Self> {
-        let ui = UI::new(full, fuzzy);
+    pub fn new(full: Rect, fuzzy: Fuzzy, sender: Sender) -> Result<Self> {
+        let ui = UI::new(full, fuzzy, sender);
         Ok(DashBoard { ui })
     }
 

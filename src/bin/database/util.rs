@@ -1,10 +1,15 @@
-use super::{PkgKey, Progress};
-use crate::{dashboard::database::cache_info::CachedDocInfo, local_registry::PkgInfo, Result};
+use super::PkgKey;
+use crate::{
+    database::CachedDocInfo,
+    event::{Event, Sender},
+    local_registry::PkgInfo,
+    Result,
+};
 use bincode::config;
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::PathBuf;
 
-pub fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInfo) -> PkgKey {
+pub fn build(sender: Sender, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInfo) -> PkgKey {
     let mut cargo_toml = pkg_dir;
     cargo_toml.push("Cargo.toml");
     let in_progress = PkgKey::new_with_default_feature(pkg_info.to_name_ver());
@@ -34,12 +39,11 @@ pub fn build(progress: Progress, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: Pk
                 if let Err(err) = cache_info.save_doc(&json_path, pkg_info) {
                     error!("{err}");
                 }
-                match progress.lock() {
-                    Ok(mut v) => v.push(cache_info),
+                match sender.send(Event::DocCompiled(Box::new(cache_info))) {
+                    Ok(()) => (),
                     Err(err) => {
                         error!(
-                            "Failed to lock the progress to write generated PkgKey.\
-                                 The doc is generated though.\n{err}"
+                            "Failed to send `DocCompiled` event when CachedDocInfo is ready:\n{err}"
                         )
                     }
                 }

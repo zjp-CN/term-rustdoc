@@ -1,5 +1,6 @@
 mod app;
 mod dashboard;
+mod database;
 mod event;
 mod frame;
 mod fuzzy;
@@ -26,7 +27,8 @@ fn main() -> Result<()> {
     let full = tui.size()?;
     // let page = ui::Page::new(outline, app.rustdoc(), full)?;
     let page = Default::default();
-    let dash_board = dashboard::DashBoard::new(full, fuzz)?;
+    let sender = tui.events.get_sender();
+    let dash_board = dashboard::DashBoard::new(full, fuzz, sender)?;
     let mut frame = Frame { dash_board, page };
 
     // Start the main loop.

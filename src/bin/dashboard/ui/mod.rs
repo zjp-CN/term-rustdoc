@@ -4,6 +4,8 @@ mod search;
 
 use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
+    database::CachedDocInfo,
+    event::Sender,
     fuzzy::Fuzzy,
     ui::{ScrollOffset, Surround},
 };
@@ -32,9 +34,9 @@ impl UI {
         }
     }
 
-    pub fn new(full: Rect, fuzzy: Fuzzy) -> Self {
+    pub fn new(full: Rect, fuzzy: Fuzzy, sender: Sender) -> Self {
         let mut ui = UI {
-            database: DataBaseUI::init(),
+            database: DataBaseUI::init(sender),
             registry: Registry::new_local(fuzzy),
             search: Search::default(),
             area: Area::default(),
@@ -106,6 +108,10 @@ impl UI {
                 }
             }
         }
+    }
+
+    pub fn receive_compiled_doc(&mut self, info: CachedDocInfo) {
+        self.database.receive_compiled_doc(info);
     }
 
     pub fn switch_panel(&mut self) {

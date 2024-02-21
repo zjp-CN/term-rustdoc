@@ -1,5 +1,5 @@
 use crate::{
-    dashboard::database::{CachedDocInfo, PkgKey},
+    database::{CachedDocInfo, PkgKey},
     ui::LineState,
 };
 use core::cmp::Ordering;

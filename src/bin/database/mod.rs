@@ -4,18 +4,12 @@ mod pkg_key;
 mod util;
 
 use self::meta::DocMeta;
-use crate::{err, local_registry::PkgInfo, Result};
+use crate::{err, event::Sender, local_registry::PkgInfo, Result};
 use serde::{Deserialize, Serialize};
-use std::{
-    fs,
-    path::PathBuf,
-    sync::{Arc, Mutex},
-};
+use std::{fs, path::PathBuf};
 use term_rustdoc::util::XString;
 
 pub use self::{cache_info::CachedDocInfo, pkg_key::PkgKey};
-
-type Progress = Arc<Mutex<Vec<CachedDocInfo>>>;
 
 #[derive(Default)]
 pub struct DataBase {
@@ -27,12 +21,12 @@ pub struct DataBase {
     /// * can't find config_local_dir
     /// * or the term-rustdoc folder is checked to be created
     dir: Option<PathBuf>,
-    /// The pkg which doc is compiled and written into its db file.
-    in_progress: Progress,
+    /// When a pkg doc is compiled and written into its db file, use this to send an event to notify UI.
+    sender: Option<Sender>,
 }
 
 impl DataBase {
-    pub fn init() -> Result<Self> {
+    pub fn init(sender: Sender) -> Result<Self> {
         let mut dir =
             dirs::data_local_dir().ok_or_else(|| err!("Can't find the config_local_dir"))?;
         dir.push("term-rustdoc");
@@ -41,21 +35,20 @@ impl DataBase {
         }
         Ok(DataBase {
             dir: Some(dir),
-            ..Default::default()
+            sender: Some(sender),
         })
     }
 
     pub fn compile_doc(&self, pkg_dir: PathBuf, pkg_info: PkgInfo) -> Option<PkgKey> {
-        let Some(parent) = self.dir.as_ref() else {
+        let Some(parent) = self.dir.clone() else {
             error!("data_local_dir/term_rustdoc does not exist");
             return None;
         };
-        Some(util::build(
-            self.in_progress.clone(),
-            parent.to_owned(),
-            pkg_dir,
-            pkg_info,
-        ))
+        let Some(sender) = self.sender.clone() else {
+            error!("DataBase doesn't have a sender. This is a bug.");
+            return None;
+        };
+        Some(util::build(sender, parent, pkg_dir, pkg_info))
     }
 
     pub fn all_caches(&self) -> Result<Vec<CachedDocInfo>> {
@@ -81,21 +74,6 @@ impl DataBase {
             .collect();
         info!("Succeefully read {} CachedDocInfo", info.len());
         Ok(info)
-    }
-
-    pub fn take_in_progress(&self) -> Vec<CachedDocInfo> {
-        match self.in_progress.try_lock() {
-            Ok(mut guard) => {
-                let info = &mut *guard;
-                let len = info.len();
-                if len != 0 {
-                    info!("got {len} CachedDocInfo");
-                    return std::mem::take(info);
-                }
-            }
-            Err(err) => error!("Can't lock the in_progress mutex: {err}"),
-        };
-        Vec::new()
     }
 }
 

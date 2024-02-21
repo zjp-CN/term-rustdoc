@@ -26,6 +26,7 @@ impl Frame {
             },
             Event::Resize(_, _) => {}
             Event::MouseDoubleClick => self.page.double_click(),
+            Event::DocCompiled(info) => self.dash_board.ui().receive_compiled_doc(*info),
         };
     }
 

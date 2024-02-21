@@ -5,6 +5,7 @@ mod util;
 
 use self::meta::DocMeta;
 use crate::{err, event::Sender, local_registry::PkgInfo, Result};
+use color_eyre::eyre::WrapErr;
 use serde::{Deserialize, Serialize};
 use std::{fs, path::PathBuf};
 use term_rustdoc::util::XString;
@@ -57,12 +58,16 @@ impl DataBase {
             .dir
             .as_deref()
             .ok_or_else(|| err!("Can't fetch all caches because the dir path is not set up"))?;
-        let db = redb::Database::open(dir.join("index.db"))
-            .map_err(|err| err!("Can't open index.db:\n{err}"))?;
+        let db = redb::Database::create(dir.join("index.db"))
+            .wrap_err_with(|| "Can't create index.db")?;
         let table = redb::TableDefinition::<PkgKey, CachedDocInfo>::new("CachedDocInfo");
         let read_txn = db.begin_read()?;
-        let info: Vec<CachedDocInfo> = read_txn
-            .open_table(table)?
+        let read_only_table = match read_txn.open_table(table) {
+            Ok(tab) => tab,
+            Err(redb::TableError::TableDoesNotExist(_)) => return Ok(Vec::new()),
+            err => err.wrap_err_with(|| "Can't read CachedDocInfo table from index.db")?,
+        };
+        let info: Vec<CachedDocInfo> = read_only_table
             .iter()?
             .filter_map(|res| match res {
                 Ok((_, v)) => Some(v.value()),

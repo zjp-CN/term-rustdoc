@@ -1,9 +1,10 @@
 use super::{
+    code_block,
     element::{parse_intra_code, Element, EventRange, FOOTNOTE},
     meta_tag::{LinkTag, MetaTag},
     Block, Line, Links, Word,
 };
-use pulldown_cmark::{Event, Tag};
+use pulldown_cmark::{CodeBlockKind, Event, Tag};
 use ratatui::style::{Color, Style};
 use term_rustdoc::util::{xformat, XString};
 
@@ -76,6 +77,18 @@ pub fn parse<'doc, I>(
                 parse(level, kind, list, block, doc, links);
             }
 
+            Event::Start(Tag::CodeBlock(CodeBlockKind::Indented)) => {
+                let code_block = &doc[range.clone()];
+                block.push_code_block(code_block::rust(code_block));
+                let _ = ele!(iter, CodeBlock, range);
+            }
+            Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(fence))) => {
+                let fence = XString::from(&*fence);
+                parse_codeblock(doc[range.clone()].trim(), fence, block);
+                // consume the codeblock iterator
+                let _ = ele!(iter, CodeBlock, range);
+            }
+
             // This case is less likely due to Start List -> Start Item -> TaskListMarker -> Text
             Event::Start(Tag::Paragraph) => {
                 let para = ele!(iter, Paragraph, range);
@@ -84,6 +97,27 @@ pub fn parse<'doc, I>(
             _ => (),
         }
     }
+}
+
+/// Codebock in nest lists are parsed into multiple lines by pulldown_cmark.
+/// So here we use the raw text and parse the backticks instead.
+/// The content code will be rendered by syntect directly.
+pub fn parse_codeblock(mut codeblock: &str, mut fence: XString, block: &mut Block) {
+    // NOTE: the starting backticks in range doesn't contain leading whitespaces,
+    // thus use the ending backticks istead.
+    let mut backticks = "```";
+    if let Some(backtick) = codeblock.rfind("```") {
+        if let Some(last_line) = codeblock[..backtick].rfind('\n') {
+            backticks = &codeblock[last_line + 1..];
+            if let Some(first_line) = codeblock.find('\n') {
+                codeblock = &codeblock[first_line + 1..last_line];
+            }
+        }
+    }
+    let [start, end] = Line::backtick(backticks, fence.clone());
+    block.extend([start]);
+    block.push_code_block(code_block::parse(&mut fence, codeblock));
+    block.extend([end, Line::default()]);
 }
 
 fn task_maker(done: bool, block: &mut Block) {

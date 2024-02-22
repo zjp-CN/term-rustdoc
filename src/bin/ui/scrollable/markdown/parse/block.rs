@@ -141,6 +141,10 @@ impl Block {
             }
         }
     }
+
+    pub fn push_code_block(&mut self, code: Block) {
+        self.lines.extend(code.lines);
+    }
 }
 
 impl Block {

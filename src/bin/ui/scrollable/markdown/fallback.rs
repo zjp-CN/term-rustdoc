@@ -116,9 +116,9 @@ impl Deref for StyledLines {
 }
 
 impl StyledLines {
-    pub fn new(doc: Option<CrateDoc>) -> Self {
+    pub fn new(doc: CrateDoc) -> Self {
         StyledLines {
-            doc,
+            doc: Some(doc),
             ..Default::default()
         }
     }
@@ -162,7 +162,7 @@ impl Page {
 }
 
 impl ScrollText {
-    pub fn new_text(doc: Option<CrateDoc>) -> Result<Self> {
+    pub fn new_text(doc: CrateDoc) -> Result<Self> {
         Ok(Scrollable {
             lines: StyledLines::new(doc),
             ..Default::default()

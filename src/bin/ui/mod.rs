@@ -7,7 +7,7 @@ use ratatui::{
     prelude::{Buffer, Rect, Style, Widget},
     widgets::Block,
 };
-use term_rustdoc::tree::{CrateDoc, TreeLines};
+use term_rustdoc::tree::CrateDoc;
 use unicode_width::UnicodeWidthStr;
 
 mod layout;
@@ -36,11 +36,11 @@ impl Page {
     pub fn new(doc: CrateDoc, area: Rect) -> Result<Self> {
         let mut page = Page {
             outline: Outline {
-                display: Scrollable::new(TreeLines::from(doc.clone()))?,
+                display: Scrollable::new(doc.clone().into())?,
                 ..Default::default()
             },
             content: Content {
-                display: ScrollText::new_text(Some(doc))?,
+                display: ScrollText::new_text(doc)?,
                 ..Default::default()
             },
             // page scrolling like HOME/END will check the current Panel

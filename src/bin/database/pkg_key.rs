@@ -56,6 +56,13 @@ impl PkgKey {
     pub fn features(&self) -> &Features {
         &self.features
     }
+
+    pub fn empty_state() -> PkgKey {
+        PkgKey {
+            name_ver: PkgNameVersion::empty_state(),
+            features: Features::Default,
+        }
+    }
 }
 
 impl redb::RedbValue for PkgKey {

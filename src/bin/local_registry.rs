@@ -120,6 +120,12 @@ impl PkgNameVersion {
     pub fn ver_str(&self) -> &str {
         &self.version
     }
+
+    /// An empty pkg for temporary use.
+    pub fn empty_state() -> Self {
+        let (name, version) = Default::default();
+        PkgNameVersion { name, version }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

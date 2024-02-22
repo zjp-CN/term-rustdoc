@@ -99,10 +99,11 @@ impl DataBaseUI {
     /// for now there is no way to cancel a compilation task.
     pub fn downgrade(&mut self) {
         if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
-            let vec = &mut self.inner.lines.caches;
-            let cache = vec.remove(id);
-            vec.push(cache.downgrade());
-            self.sort_caches();
+            if let Some(loaded) = self.inner.lines.caches.get_mut(id) {
+                loaded.downgrade();
+                // sort because of sort kind
+                self.sort_caches();
+            }
         }
     }
 }
@@ -163,10 +164,11 @@ impl DataBaseUI {
     pub fn load_doc(&mut self) {
         if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
             if self.inner.lines.caches[id].loadable() {
-                let unloaded = self.inner.lines.caches.remove(id);
-                let loaded = unloaded.load_doc(&self.inner.lines.db);
-                self.inner.lines.caches.push(loaded);
-                self.sort_caches();
+                if let Some(cache) = self.inner.lines.caches.get_mut(id) {
+                    cache.load_doc(&self.inner.lines.db);
+                    // sort because of sort kind
+                    self.sort_caches();
+                }
             }
         }
     }

@@ -2,10 +2,10 @@ use crate::{
     database::{CachedDocInfo, DataBase, PkgKey},
     ui::LineState,
 };
-use core::cmp::Ordering;
 use ratatui::prelude::{Color, Style};
 use semver::Version;
 use std::time::SystemTime;
+use std::{cmp::Ordering, mem};
 use term_rustdoc::{tree::CrateDoc, util::XString};
 
 pub struct LoadedDoc {
@@ -56,40 +56,53 @@ impl Cache {
         matches!(self.inner, CacheInner::Unloaded(_) | CacheInner::Loaded(_))
     }
 
-    pub fn load_doc(self, db: &DataBase) -> Self {
-        match self.inner {
-            CacheInner::Unloaded(unloaded) => match unloaded.load_doc() {
-                Ok(doc) => {
-                    if let Err(err) = db.send_doc(unloaded.pkg.clone()) {
-                        error!("Loaded Error:\n{err}");
+    /// An empty PkgKey placeholder for temporary use.
+    /// Be aware to write old valid value back after replacement.
+    fn empty_state() -> Cache {
+        Cache {
+            inner: CacheInner::BeingCached(PkgKey::empty_state(), SystemTime::now()),
+            ver: Version::new(0, 0, 0),
+        }
+    }
+
+    pub fn load_doc(&mut self, db: &DataBase) {
+        let mut old = mem::replace(self, Cache::empty_state());
+        match old.inner {
+            CacheInner::Unloaded(unloaded) => {
+                old = match unloaded.load_doc() {
+                    Ok(doc) => {
+                        if let Err(err) = db.send_doc(unloaded.pkg.clone()) {
+                            error!("Loaded Error:\n{err}");
+                        }
+                        Cache {
+                            inner: CacheInner::Loaded(LoadedDoc {
+                                info: unloaded,
+                                doc,
+                            }),
+                            ver: old.ver,
+                        }
                     }
-                    Cache {
-                        inner: CacheInner::Loaded(LoadedDoc {
-                            info: unloaded,
-                            doc,
-                        }),
-                        ver: self.ver,
+                    Err(err) => {
+                        error!("Failed to load {:?}:\n{err}", unloaded.pkg);
+                        Cache {
+                            inner: CacheInner::Unloaded(unloaded),
+                            ver: old.ver,
+                        }
                     }
                 }
-                Err(err) => {
-                    error!("Failed to load {:?}:\n{err}", unloaded.pkg);
-                    Cache {
-                        inner: CacheInner::Unloaded(unloaded),
-                        ver: self.ver,
-                    }
-                }
-            },
+            }
             CacheInner::Loaded(loaded) => {
                 if let Err(err) = db.send_doc(loaded.info.pkg.clone()) {
                     error!("Loaded Error:\n{err}");
                 }
-                Cache {
+                old = Cache {
                     inner: CacheInner::Loaded(loaded),
-                    ver: self.ver,
-                }
+                    ver: old.ver,
+                };
             }
-            _ => self,
+            _ => (),
         }
+        *self = old;
     }
 
     pub fn get_loaded_doc(&self, key: &PkgKey) -> Option<CrateDoc> {
@@ -99,14 +112,13 @@ impl Cache {
         }
     }
 
-    pub fn downgrade(self) -> Self {
-        match self.inner {
-            CacheInner::Loaded(loaded) => {
-                info!("Downgrade a loaded {:?} into cached one.", loaded.info.pkg);
-                Cache::new_unloaded(loaded.info)
-            }
-            _ => self,
-        }
+    pub fn downgrade(&mut self) {
+        let mut old = mem::replace(self, Cache::empty_state());
+        if let CacheInner::Loaded(loaded) = old.inner {
+            info!("Downgrade a loaded {:?} into cached one.", loaded.info.pkg);
+            old = Cache::new_unloaded(loaded.info)
+        };
+        *self = old;
     }
 
     pub fn line(&self) -> [(&str, Style); 3] {

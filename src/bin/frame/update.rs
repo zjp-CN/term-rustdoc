@@ -13,7 +13,7 @@ impl Frame {
             Event::Key(key_event) => self.update_for_key(app, key_event),
             Event::Mouse(mouse_event) => self.update_for_mouse(mouse_event),
             Event::Resize(_, _) => {}
-            Event::MouseDoubleClick => self.page.double_click(),
+            Event::MouseDoubleClick => self.update_for_double_click(),
             Event::DocCompiled(info) => self.dash_board.ui().receive_compiled_doc(*info),
             Event::CrateDoc(pkg_key) => {
                 let ui = &self.dash_board.ui();
@@ -64,6 +64,13 @@ impl Frame {
                 _ => (),
             },
         };
+    }
+
+    fn update_for_double_click(&mut self) {
+        match self.focus {
+            Focus::DashBoard => self.dash_board.ui().compile_or_load_doc(),
+            Focus::Page => self.page.double_click(),
+        }
     }
 }
 

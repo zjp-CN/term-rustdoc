@@ -1,10 +1,12 @@
+use crate::ui::Surround;
 use ratatui::prelude::{Buffer, Color, Rect, Style};
 
 #[derive(Default)]
 pub(super) struct Search {
     pub input: String,
-    pub area: Rect,
+    area: Rect,
     source: Source,
+    border: Surround,
 }
 
 #[derive(Clone, Copy, Default, Debug)]
@@ -16,7 +18,25 @@ enum Source {
 }
 
 impl Search {
+    pub fn set_area(&mut self, border: Surround) {
+        self.area = border.inner();
+        self.border = border;
+    }
+
+    fn render_border(&self, buf: &mut Buffer) {
+        self.border.render(buf);
+        // render border title
+        let text = match self.source {
+            Source::LocalRegistry => " Search Package In Local Registry ",
+            Source::DataBase => " Search Package In Database ",
+            Source::Both => " Search Package In Both Local Registry And Database ",
+        };
+        self.border.render_only_top_left_text(buf, text, 0);
+    }
+
     pub fn render(&self, buf: &mut Buffer) {
+        self.render_border(buf);
+
         let Rect { x, y, width, .. } = self.area;
         let width = width.saturating_sub(1) as usize;
         let mut text = self.input.as_str();

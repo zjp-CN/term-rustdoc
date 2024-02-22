@@ -93,14 +93,6 @@ impl Surround {
         Surround { block, area }
     }
 
-    // pub fn block(&mut self) -> &mut Block<'static> {
-    //     &mut self.block
-    // }
-    //
-    // pub fn area(&self) -> &Rect {
-    //     &self.area
-    // }
-
     pub fn inner(&self) -> Rect {
         self.block.inner(self.area)
     }
@@ -130,6 +122,19 @@ impl Surround {
             }
             let x = area.x + 2;
             let y = area.y + area.height - 1;
+            render_line(Some((text, Style::new())), buf, x, y, rest);
+        }
+    }
+
+    pub fn render_only_top_left_text(&self, buf: &mut Buffer, text: &str, used: usize) {
+        let area = self.area;
+        if let Some(rest) = (area.width as usize).checked_sub(2 + used) {
+            if rest < text.width() {
+                // not enought space to show
+                return;
+            }
+            let x = area.x + 2;
+            let y = area.y;
             render_line(Some((text, Style::new())), buf, x, y, rest);
         }
     }

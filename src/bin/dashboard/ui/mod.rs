@@ -27,9 +27,9 @@ pub struct UI {
 impl UI {
     fn update_area(&mut self, full: Rect) {
         // skip rendering is the same area
-        if let Some([db, registry]) = self.area.update(full) {
+        if let Some([search, db, registry]) = self.area.update(full) {
             // update areas of search, database and registry
-            self.search.area = self.area.search_border.inner();
+            self.search.set_area(search);
             self.database.set_area(db);
             self.registry.set_area(registry);
         }
@@ -152,7 +152,6 @@ impl UI {
 impl Widget for &mut UI {
     fn render(self, full: Rect, buf: &mut Buffer) {
         self.update_area(full);
-        self.area.render(buf);
         self.search.render(buf);
         let [db, reg] = match self.area.current {
             Panel::Database => [true, false],
@@ -167,7 +166,6 @@ impl Widget for &mut UI {
 struct Area {
     full: Rect,
     center: Rect,
-    search_border: Surround,
     current: Panel,
 }
 
@@ -187,7 +185,8 @@ fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {
 }
 
 impl Area {
-    fn update(&mut self, full: Rect) -> Option<[Surround; 2]> {
+    /// returns borders for search, database and registry
+    fn update(&mut self, full: Rect) -> Option<[Surround; 3]> {
         if self.full == full {
             return None;
         }
@@ -197,15 +196,11 @@ impl Area {
         let [search, db_reg] =
             Layout::vertical([Constraint::Length(3), Constraint::Min(0)]).areas(self.center);
         let block = Block::new().borders(Borders::all());
-        self.search_border = Surround::new(block.clone().title("Search Package"), search);
+        let search = Surround::new(block.clone(), search);
         let half = Constraint::Percentage(50);
         let [db, reg] = Layout::horizontal([half, half]).areas(db_reg);
-        let database = Surround::new(block.clone().title("From Database"), db);
-        let registry = Surround::new(block.title("From Local Registry Src Dir"), reg);
-        Some([database, registry])
-    }
-
-    fn render(&self, buf: &mut Buffer) {
-        self.search_border.render(buf);
+        let database = Surround::new(block.clone().title(" From Database "), db);
+        let registry = Surround::new(block.title(" From Local Registry Src Dir "), reg);
+        Some([search, database, registry])
     }
 }

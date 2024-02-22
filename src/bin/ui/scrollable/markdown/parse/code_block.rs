@@ -48,7 +48,11 @@ pub fn rust(code: &str) -> Block {
         let mut h = HighlightLines::new(syntax, &ts.themes["base16-ocean.dark"]);
         let mut lines = Vec::with_capacity(8);
         // filter out the lines starting `# ` used for hidden lines
-        for line in code.lines().filter(|l| !l.starts_with("# ")) {
+        for line in code.lines().filter(|l| !{
+            // a line begins with optional whitespaces and `# `, or a line with mere `#`
+            let line = l.trim();
+            line.starts_with("# ") || line == "#"
+        }) {
             let mut words = Vec::with_capacity(8);
             for (style, text) in h.highlight_line(line, ps).unwrap() {
                 words.push(word(text, style));

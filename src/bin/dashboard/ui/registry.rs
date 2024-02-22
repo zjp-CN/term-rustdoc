@@ -160,7 +160,7 @@ impl Registry {
 
         // write the match result to the border bottom line
         let text = xformat!(
-            " got {} / total {} ",
+            " Got {} / Total {} ",
             self.inner.total_len(),
             self.inner.lines.local.len()
         );

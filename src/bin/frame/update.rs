@@ -5,25 +5,13 @@ use crate::{
     event::Event,
     ui::{Page, ScrollOffset},
 };
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventKind};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 
 impl Frame {
     pub fn consume_event(&mut self, event: Event, app: &mut App) {
         match event {
             Event::Key(key_event) => self.update_for_key(app, key_event),
-            Event::Mouse(mouse_event) => match mouse_event.kind {
-                MouseEventKind::ScrollDown => {
-                    self.page.scrolldown(ScrollOffset::Fixed(5));
-                }
-                MouseEventKind::ScrollUp => {
-                    self.page.scrollup(ScrollOffset::Fixed(5));
-                }
-                MouseEventKind::Down(MouseButton::Left) => {
-                    let (x, y) = (mouse_event.column, mouse_event.row);
-                    self.page.set_current_panel(y, x);
-                }
-                _ => (),
-            },
+            Event::Mouse(mouse_event) => self.update_for_mouse(mouse_event),
             Event::Resize(_, _) => {}
             Event::MouseDoubleClick => self.page.double_click(),
             Event::DocCompiled(info) => self.dash_board.ui().receive_compiled_doc(*info),
@@ -59,7 +47,24 @@ impl Frame {
         };
     }
 
-    fn update_for_mouse(&mut self) {}
+    fn update_for_mouse(&mut self, event: MouseEvent) {
+        match self.focus {
+            Focus::DashBoard => self.dash_board.ui().update_for_mouse(event),
+            Focus::Page => match event.kind {
+                MouseEventKind::ScrollDown => {
+                    self.page.scrolldown(ScrollOffset::Fixed(5));
+                }
+                MouseEventKind::ScrollUp => {
+                    self.page.scrollup(ScrollOffset::Fixed(5));
+                }
+                MouseEventKind::Down(MouseButton::Left) => {
+                    let (x, y) = (event.column, event.row);
+                    self.page.set_current_panel(y, x);
+                }
+                _ => (),
+            },
+        };
+    }
 }
 
 fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {

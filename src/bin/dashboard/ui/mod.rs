@@ -9,6 +9,7 @@ use crate::{
     fuzzy::Fuzzy,
     ui::{ScrollOffset, Surround},
 };
+use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use ratatui::{
     layout::Flex,
     prelude::*,
@@ -146,6 +147,45 @@ impl UI {
 
     pub fn downgrade(&mut self) {
         self.database.downgrade();
+    }
+
+    pub fn update_for_mouse(&mut self, event: MouseEvent) {
+        match event.kind {
+            MouseEventKind::ScrollDown => match self.area.current {
+                Panel::Database => self
+                    .database
+                    .scroll_text()
+                    .scrolldown(ScrollOffset::Fixed(5)),
+                Panel::LocalRegistry => self
+                    .registry
+                    .scroll_text()
+                    .scrolldown(ScrollOffset::Fixed(5)),
+            },
+            MouseEventKind::ScrollUp => match self.area.current {
+                Panel::Database => self.database.scroll_text().scrollup(ScrollOffset::Fixed(5)),
+                Panel::LocalRegistry => {
+                    self.registry.scroll_text().scrollup(ScrollOffset::Fixed(5))
+                }
+            },
+            MouseEventKind::Down(MouseButton::Left) => {
+                let position = (event.column, event.row);
+
+                let registry = self.registry.scroll_text();
+                if registry.area.contains(position.into()) {
+                    let y = registry.area.y;
+                    registry.set_cursor(event.row.saturating_sub(y));
+                    self.area.current = Panel::LocalRegistry;
+                }
+
+                let db = self.database.scroll_text();
+                if db.area.contains(position.into()) {
+                    let y = registry.area.y;
+                    db.set_cursor(event.row.saturating_sub(y));
+                    self.area.current = Panel::Database;
+                }
+            }
+            _ => (),
+        };
     }
 }
 

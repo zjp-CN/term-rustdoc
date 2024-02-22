@@ -9,7 +9,7 @@ use std::fmt;
 /// NOTE: the reason why PkgKey doesn't implement PartialOrd and Ord is
 /// we can't directly compare the version string, and the parsed Version
 /// should be stored outside this struct.
-#[derive(Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone)]
 pub struct PkgKey {
     name_ver: PkgNameVersion,
     /// features enabled/used when the doc is compiled

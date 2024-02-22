@@ -2,14 +2,14 @@ mod cache;
 
 use self::cache::{Cache, CacheID, Count, SortKind};
 use crate::{
-    database::{CachedDocInfo, DataBase},
+    database::{CachedDocInfo, DataBase, PkgKey},
     event::Sender,
     local_registry::PkgInfo,
     ui::{render_line, Scrollable, Surround},
 };
 use ratatui::prelude::{Buffer, Color, Rect};
 use std::path::PathBuf;
-use term_rustdoc::util::xformat;
+use term_rustdoc::{tree::CrateDoc, util::xformat};
 
 #[derive(Default)]
 pub struct PkgDocs {
@@ -143,7 +143,7 @@ impl DataBaseUI {
         if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
             if self.inner.lines.caches[id].loadable() {
                 let unloaded = self.inner.lines.caches.remove(id);
-                let loaded = unloaded.load_doc();
+                let loaded = unloaded.load_doc(&self.inner.lines.db);
                 self.inner.lines.caches.push(loaded);
                 self.sort_caches();
             }
@@ -170,5 +170,10 @@ impl DataBaseUI {
 
     pub fn scroll_text(&mut self) -> &mut Scrollable<PkgDocs> {
         &mut self.inner
+    }
+
+    pub fn get_loaded_doc(&self, key: &PkgKey) -> Option<CrateDoc> {
+        let iter = &mut self.inner.lines.caches.iter();
+        iter.find_map(|cache| cache.get_loaded_doc(key))
     }
 }

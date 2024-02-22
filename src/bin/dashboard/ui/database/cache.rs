@@ -1,15 +1,12 @@
 use crate::{
-    database::{CachedDocInfo, PkgKey},
+    database::{CachedDocInfo, DataBase, PkgKey},
     ui::LineState,
 };
 use core::cmp::Ordering;
 use ratatui::prelude::{Color, Style};
 use semver::Version;
 use std::time::SystemTime;
-use term_rustdoc::{
-    tree::CrateDoc,
-    util::{xformat, XString},
-};
+use term_rustdoc::{tree::CrateDoc, util::XString};
 
 pub struct LoadedDoc {
     info: CachedDocInfo,
@@ -59,13 +56,18 @@ impl Cache {
         matches!(self.inner, CacheInner::Unloaded(_))
     }
 
-    pub fn load_doc(self) -> Self {
+    pub fn load_doc(self, db: &DataBase) -> Self {
         match self.inner {
             CacheInner::Unloaded(info) => match info.load_doc() {
-                Ok(doc) => Cache {
-                    inner: CacheInner::Loaded(LoadedDoc { info, doc }),
-                    ver: self.ver,
-                },
+                Ok(doc) => {
+                    if let Err(err) = db.send_doc(info.pkg.clone()) {
+                        error!("Loaded Error:\n{err}");
+                    }
+                    Cache {
+                        inner: CacheInner::Loaded(LoadedDoc { info, doc }),
+                        ver: self.ver,
+                    }
+                }
                 Err(err) => {
                     error!("Failed to load {:?}:\n{err}", info.pkg);
                     Cache {
@@ -75,6 +77,13 @@ impl Cache {
                 }
             },
             _ => self,
+        }
+    }
+
+    pub fn get_loaded_doc(&self, key: &PkgKey) -> Option<CrateDoc> {
+        match &self.inner {
+            CacheInner::Loaded(loaded) if loaded.info.pkg == *key => Some(loaded.doc.clone()),
+            _ => None,
         }
     }
 

@@ -7,7 +7,6 @@ use ratatui::{
     prelude::{Buffer, Rect, Style, Widget},
     widgets::Block,
 };
-use std::borrow::Cow;
 use term_rustdoc::tree::{CrateDoc, TreeLines};
 use unicode_width::UnicodeWidthStr;
 
@@ -34,14 +33,14 @@ pub struct Page {
 }
 
 impl Page {
-    pub fn new(outline: TreeLines, doc: Option<CrateDoc>, area: Rect) -> Result<Self> {
+    pub fn new(doc: CrateDoc, area: Rect) -> Result<Self> {
         let mut page = Page {
             outline: Outline {
-                display: Scrollable::new(outline)?,
+                display: Scrollable::new(TreeLines::from(doc.clone()))?,
                 ..Default::default()
             },
             content: Content {
-                display: ScrollText::new_text(doc)?,
+                display: ScrollText::new_text(Some(doc))?,
                 ..Default::default()
             },
             // page scrolling like HOME/END will check the current Panel
@@ -60,6 +59,10 @@ impl Page {
             Some(Panel::Outline) => self.outline_fold_expand_toggle(),
             _ => {}
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.area.height == 0 || self.area.width == 0
     }
 }
 

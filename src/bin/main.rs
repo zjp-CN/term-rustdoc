@@ -26,10 +26,10 @@ fn main() -> Result<()> {
     // let outline = app.set_doc()?;
     let full = tui.size()?;
     // let page = ui::Page::new(outline, app.rustdoc(), full)?;
-    let page = Default::default();
+    // let page = Default::default();
     let sender = tui.events.get_sender();
     let dash_board = dashboard::DashBoard::new(full, fuzz, sender)?;
-    let mut frame = Frame { dash_board, page };
+    let mut frame = Frame::new(dash_board);
 
     // Start the main loop.
     while !app.should_quit {

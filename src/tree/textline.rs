@@ -195,6 +195,12 @@ impl TreeLines {
     }
 }
 
+impl From<CrateDoc> for TreeLines {
+    fn from(doc: CrateDoc) -> Self {
+        TreeLines::new(doc)
+    }
+}
+
 impl DocTree {
     fn cache_lines(self) -> (Rc<[TreeLine]>, Tree<Empty>) {
         let (mut lines, layout) = TreeLine::flatten(self);

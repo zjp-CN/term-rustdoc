@@ -1,4 +1,7 @@
-use crate::{database::CachedDocInfo, Result};
+use crate::{
+    database::{CachedDocInfo, PkgKey},
+    Result,
+};
 use crossterm::event::{
     self, Event as CrosstermEvent, KeyEvent, MouseButton, MouseEvent, MouseEventKind,
 };
@@ -21,6 +24,8 @@ pub enum Event {
     Resize(u16, u16),
     /// Pkg doc that's compiled and written into its db file.
     DocCompiled(Box<CachedDocInfo>),
+    /// Compiled and loaded doc for Page.
+    CrateDoc(Box<PkgKey>),
 }
 
 pub type Sender = mpsc::Sender<Event>;

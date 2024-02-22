@@ -10,7 +10,7 @@ mod tag;
 mod textline;
 
 use rustdoc_types::Crate;
-use std::{ops::Deref, rc::Rc};
+use std::{fmt, ops::Deref, rc::Rc};
 
 pub use id::{IDMap, IDs, IdAsStr, IdToID, IndexMap, PathMap, SliceToIds, ID};
 pub use impls::show::{DocTree, Show};
@@ -44,5 +44,11 @@ impl Deref for CrateDoc {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl fmt::Debug for CrateDoc {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "CrateDoc for {}", self.name(&self.dmodule().id))
     }
 }

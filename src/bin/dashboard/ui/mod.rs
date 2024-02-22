@@ -4,7 +4,7 @@ mod search;
 
 use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
-    database::CachedDocInfo,
+    database::{CachedDocInfo, PkgKey},
     event::Sender,
     fuzzy::Fuzzy,
     ui::{ScrollOffset, Surround},
@@ -14,6 +14,7 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Borders},
 };
+use term_rustdoc::tree::CrateDoc;
 
 #[derive(Default)]
 pub struct UI {
@@ -132,6 +133,15 @@ impl UI {
             Panel::Database => self.database.switch_sort(),
             Panel::LocalRegistry => (),
         }
+    }
+
+    pub fn get_loaded_doc(&self, key: &PkgKey) -> Option<CrateDoc> {
+        self.database.get_loaded_doc(key)
+    }
+
+    /// the full screen area
+    pub fn get_full_area(&self) -> Rect {
+        self.area.full
     }
 }
 

@@ -10,7 +10,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventK
 impl Frame {
     pub fn consume_event(&mut self, event: Event, app: &mut App) {
         match event {
-            Event::Key(key_event) => self.update(app, key_event),
+            Event::Key(key_event) => self.update_for_key(app, key_event),
             Event::Mouse(mouse_event) => match mouse_event.kind {
                 MouseEventKind::ScrollDown => {
                     self.page.scrolldown(ScrollOffset::Fixed(5));
@@ -27,16 +27,23 @@ impl Frame {
             Event::Resize(_, _) => {}
             Event::MouseDoubleClick => self.page.double_click(),
             Event::DocCompiled(info) => self.dash_board.ui().receive_compiled_doc(*info),
+            Event::CrateDoc(pkg_key) => {
+                let ui = &self.dash_board.ui();
+                if let Some(doc) = ui.get_loaded_doc(&pkg_key) {
+                    match Page::new(doc, ui.get_full_area()) {
+                        Ok(page) => {
+                            self.page = page;
+                            self.switch_to_page();
+                        }
+                        Err(err) => error!("Failed to construct a Page:\n{err}"),
+                    }
+                }
+            }
         };
-    }
-
-    fn update(&mut self, app: &mut App, key_event: KeyEvent) {
-        update_dash_board(&mut self.dash_board, app, &key_event);
-        // update_page(&mut self.page, app, &key_event);
     }
 }
 
-fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
+pub(super) fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
     let ui = dash.ui();
     if key_event.modifiers == KeyModifiers::CONTROL {
         match key_event.code {
@@ -62,14 +69,16 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
     }
 }
 
-fn update_page(page: &mut Page, app: &mut App, key_event: &KeyEvent) {
-    match key_event.code {
-        KeyCode::Char('q') => app.quit(),
-        KeyCode::Char('c') | KeyCode::Char('C') => {
-            if key_event.modifiers == KeyModifiers::CONTROL {
-                app.quit()
-            }
+pub(super) fn update_page(page: &mut Page, app: &mut App, key_event: &KeyEvent) {
+    if key_event.modifiers == KeyModifiers::CONTROL {
+        #[allow(clippy::single_match)]
+        match key_event.code {
+            KeyCode::Char('q') => app.quit(),
+            _ => (),
         }
+        return;
+    }
+    match key_event.code {
         KeyCode::Home => page.scroll_home(),
         KeyCode::End => page.scroll_end(),
         KeyCode::PageUp => page.scrollup(ScrollOffset::HalfScreen),

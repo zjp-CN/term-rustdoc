@@ -4,7 +4,12 @@ mod pkg_key;
 mod util;
 
 use self::meta::DocMeta;
-use crate::{err, event::Sender, local_registry::PkgInfo, Result};
+use crate::{
+    err,
+    event::{Event, Sender},
+    local_registry::PkgInfo,
+    Result,
+};
 use color_eyre::eyre::WrapErr;
 use serde::{Deserialize, Serialize};
 use std::{fs, path::PathBuf};
@@ -80,9 +85,19 @@ impl DataBase {
         info!("Succeefully read {} CachedDocInfo", info.len());
         Ok(info)
     }
+
+    pub fn send_doc(&self, key: PkgKey) -> Result<()> {
+        if let Some(sender) = &self.sender {
+            Ok(sender.send(Event::CrateDoc(Box::new(key)))?)
+        } else {
+            Err(err!(
+                "DataBase doesn't have a sender to send loaded CrateDoc for {key:?}. This is a bug."
+            ))
+        }
+    }
 }
 
-#[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Clone)]
 #[allow(dead_code)]
 pub enum Features {
     #[default]

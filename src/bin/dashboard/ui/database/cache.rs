@@ -121,21 +121,7 @@ impl Cache {
                 }
             }
             (CacheInner::Loaded(_), _) => Ordering::Less,
-            (CacheInner::Unloaded(a), CacheInner::Unloaded(b)) => {
-                match a.pkg.name().cmp(b.pkg.name()) {
-                    Ordering::Equal => match self.ver.cmp(&other.ver) {
-                        Ordering::Equal => {
-                            let features1 = a.pkg.features();
-                            let features2 = b.pkg.features();
-                            features1.cmp(features2)
-                        }
-                        ord => ord,
-                    },
-                    ord => ord,
-                }
-            }
-            (CacheInner::Unloaded(_), CacheInner::BeingCached(_, _)) => Ordering::Less,
-            (CacheInner::Unloaded(_), CacheInner::Loaded(_)) => Ordering::Greater,
+            (CacheInner::BeingCached(_, _), CacheInner::Loaded(_)) => Ordering::Greater,
             (CacheInner::BeingCached(a, _), CacheInner::BeingCached(b, _)) => {
                 match a.name().cmp(b.name()) {
                     Ordering::Equal => match self.ver.cmp(&other.ver) {
@@ -149,7 +135,21 @@ impl Cache {
                     ord => ord,
                 }
             }
-            (CacheInner::BeingCached(_, _), _) => Ordering::Greater,
+            (CacheInner::BeingCached(_, _), CacheInner::Unloaded(_)) => Ordering::Less,
+            (CacheInner::Unloaded(a), CacheInner::Unloaded(b)) => {
+                match a.pkg.name().cmp(b.pkg.name()) {
+                    Ordering::Equal => match self.ver.cmp(&other.ver) {
+                        Ordering::Equal => {
+                            let features1 = a.pkg.features();
+                            let features2 = b.pkg.features();
+                            features1.cmp(features2)
+                        }
+                        ord => ord,
+                    },
+                    ord => ord,
+                }
+            }
+            (CacheInner::Unloaded(_), _) => Ordering::Greater,
         }
     }
 
@@ -157,16 +157,16 @@ impl Cache {
     pub fn cmp_by_time_grouped(&self, other: &Self) -> Ordering {
         match (&self.inner, &other.inner) {
             (CacheInner::Loaded(a), CacheInner::Loaded(b)) => {
-                a.info.started_time().cmp(&b.info.started_time()).reverse()
+                b.info.started_time().cmp(&a.info.started_time())
             }
             (CacheInner::Loaded(_), _) => Ordering::Less,
+            (CacheInner::BeingCached(_, _), CacheInner::Loaded(_)) => Ordering::Greater,
+            (CacheInner::BeingCached(_, a), CacheInner::BeingCached(_, b)) => b.cmp(a),
+            (CacheInner::BeingCached(_, _), CacheInner::Unloaded(_)) => Ordering::Less,
             (CacheInner::Unloaded(a), CacheInner::Unloaded(b)) => {
-                a.started_time().cmp(&b.started_time()).reverse()
+                b.started_time().cmp(&a.started_time())
             }
-            (CacheInner::Unloaded(_), CacheInner::BeingCached(_, _)) => Ordering::Less,
-            (CacheInner::Unloaded(_), CacheInner::Loaded(_)) => Ordering::Greater,
-            (CacheInner::BeingCached(_, a), CacheInner::BeingCached(_, b)) => a.cmp(b).reverse(),
-            (CacheInner::BeingCached(_, _), _) => Ordering::Greater,
+            (CacheInner::Unloaded(_), _) => Ordering::Greater,
         }
     }
 

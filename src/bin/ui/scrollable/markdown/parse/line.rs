@@ -70,7 +70,13 @@ impl Line {
         let pair2 = Line { words };
         let mut pair1 = pair2.words.clone();
         if let Some(tick) = pair1.last_mut() {
-            let lang = if fence.is_empty() { "rust" } else { &fence };
+            let lang = if fence.is_empty() {
+                "rust"
+            } else {
+                // This keeps rustdoc's attributes, like `ignore` or `should_panic`.
+                // [attributes]: https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html#attributes
+                &fence
+            };
             tick.word.push_str(lang);
         }
         [Line { words: pair1 }, pair2]

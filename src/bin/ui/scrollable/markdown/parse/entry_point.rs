@@ -1,7 +1,8 @@
 use super::{
     code_block,
     element::{Element, FOOTNOTE},
-    list, Block, Blocks, MetaTag, Word,
+    list::{self, parse_codeblock},
+    Block, Blocks, MetaTag, Word,
 };
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use term_rustdoc::util::{xformat, XString};
@@ -21,14 +22,17 @@ pub fn parse(doc: &str) -> Blocks {
                 blocks.push(block);
             }
             Event::Start(Tag::CodeBlock(CodeBlockKind::Indented)) => {
-                if let Some((Event::Text(code_block), _)) = iter.next() {
-                    blocks.push(code_block::rust(&code_block));
-                }
+                let code_block = &doc[range.clone()];
+                blocks.push(code_block::rust(code_block));
+                let _ = ele!(iter, CodeBlock, range);
             }
             Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(fence))) => {
-                if let Some((Event::Text(code_block), _)) = iter.next() {
-                    blocks.push(code_block::parse(&mut XString::from(&*fence), &code_block));
-                }
+                let fence = XString::from(&*fence);
+                let mut block = Block::default();
+                parse_codeblock(doc[range.clone()].trim(), fence, &mut block);
+                blocks.push(block);
+                // consume the codeblock iterator
+                let _ = ele!(iter, CodeBlock, range);
             }
             Event::Start(Tag::Heading { level, .. }) => {
                 let raw = &doc[range.clone()];
@@ -54,7 +58,7 @@ pub fn parse(doc: &str) -> Blocks {
             Event::Start(Tag::Table(_)) => {
                 // the table is rendered via original contents with syntect's highlights
                 blocks.push(code_block::md_table(&doc[range.clone()]));
-                ele!(iter, Table, range).last(); // consume the whole table
+                let _ = ele!(iter, Table, range); // consume the whole table
             }
             Event::Start(Tag::BlockQuote) => {
                 if let Some((Event::Start(Tag::Paragraph), range)) = iter.next() {

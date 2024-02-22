@@ -12,6 +12,7 @@ use std::{cell::RefCell, rc::Rc};
 /// This is cheap to clone, and appropriate for small set of source texts like a list
 /// of short texts, lines in a page of documentation etc, in which case ascii conversion
 /// for `Utf32Str` is free and less frequently to fuzz.
+#[derive(Clone)]
 pub struct Fuzzy {
     fuzzy: Rc<RefCell<FuzzyInner>>,
 }

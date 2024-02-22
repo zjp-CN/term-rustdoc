@@ -131,6 +131,10 @@ impl Cache {
         self.inner.pkg_key()
     }
 
+    pub fn name(&self) -> &str {
+        self.pkg_key().name()
+    }
+
     pub fn add(&self, count: &mut Count) {
         match &self.inner {
             CacheInner::Loaded(_) => count.loaded += 1,

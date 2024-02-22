@@ -4,6 +4,7 @@ use self::cache::{Cache, CacheID, Count, SortKind};
 use crate::{
     database::{CachedDocInfo, DataBase, PkgKey},
     event::Sender,
+    fuzzy::Fuzzy,
     local_registry::PkgInfo,
     ui::{render_line, Scrollable, Surround},
 };
@@ -19,6 +20,7 @@ pub struct PkgDocs {
     /// NOTE: the indices only change when the length of caches changes,
     /// because we need to sort caches for displaying, thus both lengths should equal.
     indices: Vec<CacheID>,
+    fuzzy: Option<Fuzzy>,
 }
 
 impl std::ops::Deref for PkgDocs {
@@ -36,7 +38,7 @@ pub struct DataBaseUI {
 }
 
 impl DataBaseUI {
-    pub fn init(sender: Sender) -> Self {
+    pub fn init(sender: Sender, fuzzy: Fuzzy) -> Self {
         let mut ui = DataBaseUI::default();
         if let Ok(db) = DataBase::init(sender) {
             let caches: Vec<_> = db
@@ -53,11 +55,60 @@ impl DataBaseUI {
             // We could use finish time, but I don't know which is better.
             ui.sort_caches();
         }
+        ui.pkg_docs().fuzzy = Some(fuzzy);
         ui
     }
 
     fn pkg_docs(&mut self) -> &mut PkgDocs {
         &mut self.inner.lines
+    }
+
+    pub fn update_search(&mut self, pattern: &str) {
+        struct Ele<'s>(&'s str, CacheID);
+        impl AsRef<str> for Ele<'_> {
+            fn as_ref(&self) -> &str {
+                self.0
+            }
+        }
+        impl From<Ele<'_>> for CacheID {
+            fn from(value: Ele<'_>) -> Self {
+                value.1
+            }
+        }
+
+        let pkg_docs = self.pkg_docs();
+        if let Some(fuzzy) = &mut pkg_docs.fuzzy {
+            fuzzy.parse(pattern);
+            let iter = pkg_docs.caches.iter().enumerate();
+            let iter = iter.map(|(idx, cache)| Ele(cache.name(), CacheID(idx)));
+            fuzzy.match_list(iter, &mut pkg_docs.indices);
+
+            // fill all if the result is empty
+            if pkg_docs.indices.is_empty() {
+                let indices = (0..pkg_docs.caches.len()).map(CacheID);
+                pkg_docs.indices.extend(indices);
+            }
+
+            self.set_cursor();
+        }
+    }
+
+    /// Reset to all pkgs.
+    pub fn clear_and_reset(&mut self) {
+        self.pkg_docs().indices.clear();
+        let indices = (0..self.pkg_docs().caches.len()).map(CacheID);
+        self.pkg_docs().indices.extend(indices);
+        self.inner.start = 0;
+        self.set_cursor();
+    }
+
+    /// Also see `Registry::set_cursor`.
+    fn set_cursor(&mut self) {
+        self.inner.start = 0;
+        if !self.inner.check_if_can_return_to_previous_cursor() {
+            // NOTE: we reset the cursor to first line on purporse here
+            self.inner.cursor.y = 0;
+        }
     }
 
     /// Usually this appends the in-progress doc to the caches vec.

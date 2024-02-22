@@ -4,6 +4,15 @@ use ratatui::prelude::{Buffer, Color, Rect, Style};
 pub(super) struct Search {
     pub input: String,
     pub area: Rect,
+    source: Source,
+}
+
+#[derive(Clone, Copy, Default, Debug)]
+enum Source {
+    #[default]
+    LocalRegistry,
+    DataBase,
+    Both,
 }
 
 impl Search {
@@ -28,18 +37,46 @@ impl Search {
 impl super::UI {
     pub fn push_char(&mut self, ch: char) {
         self.search.input.push(ch);
-        // update fuzzy matcher
-        self.registry.update_search(&self.search.input);
+        self.update_search();
+    }
+
+    // update fuzzy matcher
+    fn update_search(&mut self) {
+        match self.search.source {
+            Source::LocalRegistry => self.registry.update_search(&self.search.input),
+            Source::DataBase => self.database.update_search(&self.search.input),
+            Source::Both => {
+                self.registry.update_search(&self.search.input);
+                self.database.update_search(&self.search.input);
+            }
+        };
     }
 
     pub fn pop_char(&mut self) {
         self.search.input.pop();
         // update fuzzy matcher
-        self.registry.update_search(&self.search.input);
+        self.update_search();
     }
 
     pub fn clear_input(&mut self) {
         self.search.input.clear();
         self.registry.clear_and_reset();
+
+        match self.search.source {
+            Source::LocalRegistry => self.registry.clear_and_reset(),
+            Source::DataBase => self.database.clear_and_reset(),
+            Source::Both => {
+                self.registry.clear_and_reset();
+                self.database.clear_and_reset();
+            }
+        };
+    }
+
+    pub fn switch_search_source(&mut self) {
+        self.search.source = match self.search.source {
+            Source::LocalRegistry => Source::DataBase,
+            Source::DataBase => Source::Both,
+            Source::Both => Source::LocalRegistry,
+        };
     }
 }

@@ -50,6 +50,7 @@ pub(super) fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: 
             KeyCode::Char('q') => app.quit(),
             KeyCode::Char('c') => ui.clear_input(),
             KeyCode::Char('s') => ui.switch_sort(),
+            KeyCode::Char('f') => ui.switch_search_source(),
             _ => (),
         }
         return;

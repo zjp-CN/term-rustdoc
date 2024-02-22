@@ -37,7 +37,7 @@ impl UI {
 
     pub fn new(full: Rect, fuzzy: Fuzzy, sender: Sender) -> Self {
         let mut ui = UI {
-            database: DataBaseUI::init(sender),
+            database: DataBaseUI::init(sender, fuzzy.clone()),
             registry: Registry::new_local(fuzzy),
             search: Search::default(),
             area: Area::default(),

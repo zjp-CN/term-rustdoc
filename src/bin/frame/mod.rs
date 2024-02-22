@@ -1,7 +1,6 @@
 mod update;
 
-use crate::{app::App, dashboard::DashBoard, ui::Page};
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crate::{dashboard::DashBoard, ui::Page};
 use ratatui::prelude::{Buffer, Rect, Widget};
 
 pub struct Frame {
@@ -38,23 +37,6 @@ impl Frame {
             _ => Focus::DashBoard,
         };
         info!("Frame: swicth from {before:?} to {:?}", self.focus);
-    }
-
-    fn update_for_key(&mut self, app: &mut App, key_event: KeyEvent) {
-        if key_event.modifiers == KeyModifiers::CONTROL {
-            #[allow(clippy::single_match)]
-            match key_event.code {
-                KeyCode::Char('w') => {
-                    self.switch_focus();
-                    return;
-                }
-                _ => (),
-            }
-        }
-        match self.focus {
-            Focus::DashBoard => update::update_dash_board(&mut self.dash_board, app, &key_event),
-            Focus::Page => update::update_page(&mut self.page, app, &key_event),
-        };
     }
 }
 

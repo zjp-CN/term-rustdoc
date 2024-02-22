@@ -1,4 +1,4 @@
-use super::Frame;
+use super::{Focus, Frame};
 use crate::{
     app::App,
     dashboard::DashBoard,
@@ -41,9 +41,28 @@ impl Frame {
             }
         };
     }
+
+    fn update_for_key(&mut self, app: &mut App, key_event: KeyEvent) {
+        if key_event.modifiers == KeyModifiers::CONTROL {
+            #[allow(clippy::single_match)]
+            match key_event.code {
+                KeyCode::Char('w') => {
+                    self.switch_focus();
+                    return;
+                }
+                _ => (),
+            }
+        }
+        match self.focus {
+            Focus::DashBoard => update_dash_board(&mut self.dash_board, app, &key_event),
+            Focus::Page => update_page(&mut self.page, app, &key_event),
+        };
+    }
+
+    fn update_for_mouse(&mut self) {}
 }
 
-pub(super) fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
+fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
     let ui = dash.ui();
     if key_event.modifiers == KeyModifiers::CONTROL {
         match key_event.code {
@@ -71,7 +90,7 @@ pub(super) fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: 
     }
 }
 
-pub(super) fn update_page(page: &mut Page, app: &mut App, key_event: &KeyEvent) {
+fn update_page(page: &mut Page, app: &mut App, key_event: &KeyEvent) {
     if key_event.modifiers == KeyModifiers::CONTROL {
         #[allow(clippy::single_match)]
         match key_event.code {

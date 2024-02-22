@@ -53,29 +53,41 @@ impl Cache {
     }
 
     pub fn loadable(&self) -> bool {
-        matches!(self.inner, CacheInner::Unloaded(_))
+        matches!(self.inner, CacheInner::Unloaded(_) | CacheInner::Loaded(_))
     }
 
     pub fn load_doc(self, db: &DataBase) -> Self {
         match self.inner {
-            CacheInner::Unloaded(info) => match info.load_doc() {
+            CacheInner::Unloaded(unloaded) => match unloaded.load_doc() {
                 Ok(doc) => {
-                    if let Err(err) = db.send_doc(info.pkg.clone()) {
+                    if let Err(err) = db.send_doc(unloaded.pkg.clone()) {
                         error!("Loaded Error:\n{err}");
                     }
                     Cache {
-                        inner: CacheInner::Loaded(LoadedDoc { info, doc }),
+                        inner: CacheInner::Loaded(LoadedDoc {
+                            info: unloaded,
+                            doc,
+                        }),
                         ver: self.ver,
                     }
                 }
                 Err(err) => {
-                    error!("Failed to load {:?}:\n{err}", info.pkg);
+                    error!("Failed to load {:?}:\n{err}", unloaded.pkg);
                     Cache {
-                        inner: CacheInner::Unloaded(info),
+                        inner: CacheInner::Unloaded(unloaded),
                         ver: self.ver,
                     }
                 }
             },
+            CacheInner::Loaded(loaded) => {
+                if let Err(err) = db.send_doc(loaded.info.pkg.clone()) {
+                    error!("Loaded Error:\n{err}");
+                }
+                Cache {
+                    inner: CacheInner::Loaded(loaded),
+                    ver: self.ver,
+                }
+            }
             _ => self,
         }
     }

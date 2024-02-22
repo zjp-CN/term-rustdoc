@@ -1,31 +1,15 @@
-use crate::{
-    database::{CachedDocInfo, DataBase, PkgKey},
-    ui::LineState,
-};
+mod inner;
+mod util;
+
+use self::inner::CacheInner;
+use crate::database::{CachedDocInfo, DataBase, PkgKey};
 use ratatui::prelude::{Color, Style};
 use semver::Version;
 use std::time::SystemTime;
 use std::{cmp::Ordering, mem};
-use term_rustdoc::{tree::CrateDoc, util::XString};
+use term_rustdoc::tree::CrateDoc;
 
-pub struct LoadedDoc {
-    info: CachedDocInfo,
-    doc: CrateDoc,
-}
-
-pub struct CacheID(pub usize);
-
-impl LineState for CacheID {
-    type State = usize;
-
-    fn state(&self) -> Self::State {
-        self.0
-    }
-
-    fn is_identical(&self, state: &Self::State) -> bool {
-        self.0 == *state
-    }
-}
+pub use self::util::{CacheID, Count, LoadedDoc, SortKind};
 
 #[derive(PartialEq, Eq)]
 pub struct Cache {
@@ -147,6 +131,16 @@ impl Cache {
         self.inner.pkg_key()
     }
 
+    pub fn add(&self, count: &mut Count) {
+        match &self.inner {
+            CacheInner::Loaded(_) => count.loaded += 1,
+            CacheInner::Unloaded(_) => count.unloaded += 1,
+            CacheInner::BeingCached(_, _) => count.in_progress += 1,
+        }
+    }
+}
+
+impl Cache {
     /// Sort by name, version and features, in groups.
     pub fn cmp_by_pkg_key_grouped(&self, other: &Self) -> Ordering {
         match (&self.inner, &other.inner) {
@@ -241,86 +235,6 @@ impl Cache {
             CacheInner::BeingCached(_, time) => *time,
         }
     }
-
-    pub fn add(&self, count: &mut Count) {
-        match &self.inner {
-            CacheInner::Loaded(_) => count.loaded += 1,
-            CacheInner::Unloaded(_) => count.unloaded += 1,
-            CacheInner::BeingCached(_, _) => count.in_progress += 1,
-        }
-    }
-}
-
-#[derive(Default, Clone, Copy)]
-pub struct Count {
-    pub loaded: usize,
-    pub unloaded: usize,
-    pub in_progress: usize,
-}
-
-impl Count {
-    pub fn describe(self) -> XString {
-        use std::fmt::Write;
-        let Count {
-            loaded,
-            unloaded,
-            in_progress,
-        } = self;
-        let mut text = XString::new_inline(" ");
-        if loaded != 0 {
-            write!(&mut text, "Loaded: {loaded} / ").unwrap();
-        }
-        if unloaded != 0 {
-            write!(&mut text, "Cached: {unloaded} / ").unwrap();
-        }
-        if in_progress != 0 {
-            write!(&mut text, "HoldOn: {in_progress} / ").unwrap();
-        }
-        let total = loaded + unloaded + in_progress;
-        if total != 0 {
-            write!(&mut text, "Total: {total} ").unwrap();
-        }
-        text
-    }
-}
-
-/// Sort kind for pkg list in database panel.
-#[derive(Clone, Copy, Debug, Default)]
-pub enum SortKind {
-    #[default]
-    TimeForAll,
-    PkgKeyForAll,
-    TimeGrouped,
-    PkgKeyGrouped,
-}
-
-impl SortKind {
-    pub fn cmp_fn(self) -> fn(&Cache, &Cache) -> Ordering {
-        match self {
-            SortKind::TimeForAll => Cache::cmp_by_time_for_all,
-            SortKind::PkgKeyForAll => Cache::cmp_by_pkg_key_for_all,
-            SortKind::TimeGrouped => Cache::cmp_by_time_grouped,
-            SortKind::PkgKeyGrouped => Cache::cmp_by_pkg_key_grouped,
-        }
-    }
-
-    pub fn next(self) -> Self {
-        match self {
-            SortKind::TimeForAll => SortKind::PkgKeyForAll,
-            SortKind::PkgKeyForAll => SortKind::TimeGrouped,
-            SortKind::TimeGrouped => SortKind::PkgKeyGrouped,
-            SortKind::PkgKeyGrouped => SortKind::TimeForAll,
-        }
-    }
-
-    pub fn describe(self) -> &'static str {
-        match self {
-            SortKind::TimeForAll => " [For All] Sort by time ",
-            SortKind::PkgKeyForAll => " [For All] Sort by PkgKey ",
-            SortKind::TimeGrouped => " [In Groups] Sort by time ",
-            SortKind::PkgKeyGrouped => " [In Groups] Sort by PkgKey ",
-        }
-    }
 }
 
 impl PartialEq<PkgKey> for Cache {
@@ -332,52 +246,5 @@ impl PartialEq<PkgKey> for Cache {
 impl PartialEq<Cache> for PkgKey {
     fn eq(&self, other: &Cache) -> bool {
         Cache::eq(other, self)
-    }
-}
-
-pub enum CacheInner {
-    /// cached & loaded pkg docs
-    Loaded(LoadedDoc),
-    /// cached but not loaded docs
-    Unloaded(CachedDocInfo),
-    /// pkgs which is being sent to compile doc
-    BeingCached(PkgKey, SystemTime),
-}
-
-impl CacheInner {
-    fn pkg_key(&self) -> &PkgKey {
-        match self {
-            CacheInner::Loaded(load) => &load.info.pkg,
-            CacheInner::Unloaded(unload) => &unload.pkg,
-            CacheInner::BeingCached(pk, _) => pk,
-        }
-    }
-
-    fn kind(&self) -> (&'static str, Style) {
-        match self {
-            CacheInner::Loaded(_) => ("[Loaded]", Style::new()),
-            CacheInner::Unloaded(_) => (
-                "[Cached]",
-                Style {
-                    fg: Some(Color::DarkGray),
-                    ..Style::new()
-                },
-            ),
-            CacheInner::BeingCached(_, _) => (
-                "[HoldOn]",
-                Style {
-                    fg: Some(Color::LightMagenta),
-                    ..Style::new()
-                },
-            ),
-        }
-    }
-}
-
-impl Eq for CacheInner {}
-impl PartialEq for CacheInner {
-    /// Only use PkgKey to compare if both are equal.
-    fn eq(&self, other: &Self) -> bool {
-        self.pkg_key() == other.pkg_key()
     }
 }

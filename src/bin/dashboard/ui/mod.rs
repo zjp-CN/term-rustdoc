@@ -149,7 +149,8 @@ impl UI {
         self.database.downgrade();
     }
 
-    pub fn update_for_mouse(&mut self, event: MouseEvent) {
+    /// Returns true for hinting Frame can switch to Page, because no mouse interaction in DashBoard.
+    pub fn update_for_mouse(&mut self, event: MouseEvent) -> bool {
         match event.kind {
             MouseEventKind::ScrollDown => match self.area.current {
                 Panel::Database => self
@@ -170,22 +171,40 @@ impl UI {
             MouseEventKind::Down(MouseButton::Left) => {
                 let position = (event.column, event.row);
 
+                if !self.area.center.contains(position.into()) {
+                    return true;
+                }
+
                 let registry = self.registry.scroll_text();
                 if registry.area.contains(position.into()) {
                     let y = registry.area.y;
                     registry.set_cursor(event.row.saturating_sub(y));
                     self.area.current = Panel::LocalRegistry;
+                    return false;
                 }
 
                 let db = self.database.scroll_text();
                 if db.area.contains(position.into()) {
-                    let y = registry.area.y;
+                    let y = db.area.y;
                     db.set_cursor(event.row.saturating_sub(y));
                     self.area.current = Panel::Database;
                 }
             }
+            MouseEventKind::Down(MouseButton::Right) => {
+                let position = (event.column, event.row);
+                let db = self.database.scroll_text();
+                if db.area.contains(position.into()) {
+                    let y = db.area.y;
+                    db.set_cursor(event.row.saturating_sub(y));
+                    self.area.current = Panel::Database;
+                    self.database.downgrade();
+                    return false;
+                }
+                return true;
+            }
             _ => (),
         };
+        false
     }
 }
 

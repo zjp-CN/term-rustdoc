@@ -49,7 +49,11 @@ impl Frame {
 
     fn update_for_mouse(&mut self, event: MouseEvent) {
         match self.focus {
-            Focus::DashBoard => self.dash_board.ui().update_for_mouse(event),
+            Focus::DashBoard => {
+                if self.dash_board.ui().update_for_mouse(event) && !self.page.is_empty() {
+                    self.switch_to_page();
+                }
+            }
             Focus::Page => match event.kind {
                 MouseEventKind::ScrollDown => {
                     self.page.scrolldown(ScrollOffset::Fixed(5));

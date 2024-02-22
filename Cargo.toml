@@ -3,6 +3,10 @@ name = "term-rustdoc"
 version = "0.1.0"
 edition = "2021"
 autobins = false
+exclude = ["**/snapshots/", "tests/"]
+repository = "https://github.com/zjp-CN/term-rustdoc"
+description = "A TUI for Rust docs."
+license = "MIT"
 
 [[bin]]
 name = "term-rustdoc"

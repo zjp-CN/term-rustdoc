@@ -99,6 +99,16 @@ impl Cache {
         }
     }
 
+    pub fn downgrade(self) -> Self {
+        match self.inner {
+            CacheInner::Loaded(loaded) => {
+                info!("Downgrade a loaded {:?} into cached one.", loaded.info.pkg);
+                Cache::new_unloaded(loaded.info)
+            }
+            _ => self,
+        }
+    }
+
     pub fn line(&self) -> [(&str, Style); 3] {
         let kind = self.inner.kind();
         let key = self.inner.pkg_key();

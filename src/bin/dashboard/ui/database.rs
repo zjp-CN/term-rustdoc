@@ -89,6 +89,22 @@ impl DataBaseUI {
         self.pkg_docs().caches_sort = kind;
         self.sort_caches();
     }
+
+    /// Downgrade a loaded doc to cached doc.
+    /// This will free the memory of the loaded doc.
+    ///
+    /// This method doesn't mean deleting the db file, so it won't
+    /// apply for Cached kind.
+    /// It doesn't means removing the being-cached kind either, because
+    /// for now there is no way to cancel a compilation task.
+    pub fn downgrade(&mut self) {
+        if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
+            let vec = &mut self.inner.lines.caches;
+            let cache = vec.remove(id);
+            vec.push(cache.downgrade());
+            self.sort_caches();
+        }
+    }
 }
 
 /// Rendering

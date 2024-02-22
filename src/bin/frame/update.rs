@@ -65,6 +65,7 @@ pub(super) fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: 
         KeyCode::PageDown => ui.scroll_down(),
         KeyCode::Enter => ui.compile_or_load_doc(),
         KeyCode::Tab => ui.switch_panel(),
+        KeyCode::Delete => ui.downgrade(),
         _ => (),
     }
 }

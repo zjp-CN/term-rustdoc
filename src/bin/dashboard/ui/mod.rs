@@ -143,6 +143,10 @@ impl UI {
     pub fn get_full_area(&self) -> Rect {
         self.area.full
     }
+
+    pub fn downgrade(&mut self) {
+        self.database.downgrade();
+    }
 }
 
 impl Widget for &mut UI {

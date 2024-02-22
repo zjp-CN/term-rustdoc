@@ -47,6 +47,11 @@ impl DataBaseUI {
             ui.pkg_docs().indices = (0..caches.len()).map(CacheID).collect();
             ui.pkg_docs().caches = caches;
             ui.pkg_docs().db = db;
+            // NOTE: by default we choose the sort for all by *started* time,
+            // it's the time to start compiling instead of finishing.
+            // But db stores docs sequentially after generation, thus the sort is needed.
+            // We could use finish time, but I don't know which is better.
+            ui.sort_caches();
         }
         ui
     }

@@ -190,9 +190,6 @@ impl DModule {
 }
 
 impl_show! {
-    structs     => Struct    => Structs    => DStruct,
-    unions      => Union     => Unions     => DUnion,
-    enums       => Enum      => Enums      => DEnum,
     traits      => Trait     => Traits     => DTrait,
     functions   => Function  => Functions  => DFunction,
     constants   => Constant  => Constants  => DConstant,
@@ -202,6 +199,9 @@ impl_show! {
     macros_func => MacroFunc => MacroFuncs => DMacroFunc,
     macros_attr => MacroAttr => MacroAttrs => DMacroAttr,
     macros_derv => MacroDerv => MacroDervs => DMacroDerv,
+    structs     => Struct    => Structs    => DStruct,
+    unions      => Union     => Unions     => DUnion,
+    enums       => Enum      => Enums      => DEnum,
 }
 
 /// generate id wrapper types for simple items

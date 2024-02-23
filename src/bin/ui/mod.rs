@@ -1,6 +1,6 @@
 use self::{
     panel::Panel,
-    scrollable::{ScrollHeading, ScrollText, ScrollTreeLines},
+    scrollable::{ScrollText, ScrollTreeLines},
 };
 use crate::Result;
 use ratatui::{
@@ -21,7 +21,9 @@ mod page_scroll;
 mod scrollable;
 
 pub use page_scroll::ScrollOffset;
-pub use scrollable::{render_line, LineState, Scrollable};
+pub use scrollable::{
+    render_line, LineState, MarkdownAndHeading, ScrollHeading, ScrollMarkdown, Scrollable,
+};
 
 #[derive(Default, Debug)]
 pub struct Page {
@@ -99,6 +101,10 @@ impl Surround {
 
     pub fn render(&self, buf: &mut Buffer) {
         (&self.block).render(self.area, buf);
+    }
+
+    pub fn area(&self) -> Rect {
+        self.area
     }
 
     pub fn render_only_bottom_right_text(&self, buf: &mut Buffer, text: &str) -> usize {

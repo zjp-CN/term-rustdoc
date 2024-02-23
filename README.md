@@ -1,3 +1,30 @@
+A TUI for Rust docs that aims to improve the UX on tree view and generic code.
+
+This tool utilizes the nightly compiler to compile JSON doc for a package.
+Therefore, make sure the nightly toolchain is usable on your machine.
+
+It's recommended to have `rust-docs-json` too, so you can run:
+
+```console
+rustup rustup toolchain install nightly --component rust-docs-json
+
+# or add the component if nightly toolchain lacks it
+rustup component add --toolchain nightly rust-docs-json
+rustup update nightly
+```
+
+This tool is very immature, and far from the target for now.
+
+It only provides the basic ability to compile and cache docs, and view markdown docs.
+
+Key shortcuts or usage help can be found via `F1` key press.
+
+![help](https://github.com/zjp-CN/term-rustdoc/assets/25300418/04f90559-8d91-490a-9dc5-9217ff3caf7f)
+
+More screen shots can be found [here][issue1].
+
+[issue1]: https://github.com/zjp-CN/term-rustdoc/issues/1
+
 # Roadmap
 
 - [x] item outline

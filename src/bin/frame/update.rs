@@ -31,23 +31,66 @@ impl Frame {
     }
 
     fn update_for_key(&mut self, app: &mut App, key_event: KeyEvent) {
+        if let KeyCode::F(1) = key_event.code {
+            let help = self.get_help_anyway();
+            help.toggle_show();
+            return;
+        }
+
         if key_event.modifiers == KeyModifiers::CONTROL {
             #[allow(clippy::single_match)]
             match key_event.code {
                 KeyCode::Char('w') => {
                     self.switch_focus();
+                    if let Some(help) = self.get_help() {
+                        help.set_hidden();
+                    }
                     return;
                 }
+                KeyCode::Char('q') => app.quit(),
                 _ => (),
             }
         }
+
+        if let Some(help) = self.get_help().map(|h| h.scroll_text()) {
+            match key_event.code {
+                KeyCode::Up => help.scrollup(ScrollOffset::Fixed(1)),
+                KeyCode::Down => help.scrolldown(ScrollOffset::Fixed(1)),
+                KeyCode::Home => help.scroll_home(),
+                KeyCode::End => help.scroll_end(),
+                KeyCode::PageUp => help.scrollup(ScrollOffset::Fixed(5)),
+                KeyCode::PageDown => help.scrolldown(ScrollOffset::Fixed(5)),
+                _ => (),
+            }
+            return;
+        }
+
         match self.focus {
-            Focus::DashBoard => update_dash_board(&mut self.dash_board, app, &key_event),
-            Focus::Page => update_page(&mut self.page, app, &key_event),
+            Focus::DashBoard => update_dash_board(&mut self.dash_board, &key_event),
+            Focus::Page => update_page(&mut self.page, &key_event),
         };
     }
 
     fn update_for_mouse(&mut self, event: MouseEvent) {
+        if let Some(popup) = self.get_help() {
+            let help = popup.scroll_text();
+            match event.kind {
+                MouseEventKind::ScrollDown => help.scrolldown(ScrollOffset::Fixed(5)),
+                MouseEventKind::ScrollUp => help.scrollup(ScrollOffset::Fixed(5)),
+                MouseEventKind::Down(MouseButton::Left) => {
+                    let position = (event.column, event.row);
+                    if popup.heading_jump(position) {
+                        return;
+                    }
+                    if popup.contains(position) {
+                        popup.set_hidden();
+                    }
+                }
+                _ => (),
+            }
+            return;
+        }
+
         match self.focus {
             Focus::DashBoard => {
                 if self.dash_board.ui().update_for_mouse(event) && !self.page.is_empty() {
@@ -78,11 +121,10 @@ impl Frame {
     }
 }
 
-fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) {
+fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
     let ui = dash.ui();
     if key_event.modifiers == KeyModifiers::CONTROL {
         match key_event.code {
-            KeyCode::Char('q') => app.quit(),
             KeyCode::Char('c') => ui.clear_input(),
             KeyCode::Char('s') => ui.switch_sort(),
             KeyCode::Char('f') => ui.switch_search_source(),
@@ -106,15 +148,7 @@ fn update_dash_board(dash: &mut DashBoard, app: &mut App, key_event: &KeyEvent) 
     }
 }
 
-fn update_page(page: &mut Page, app: &mut App, key_event: &KeyEvent) {
-    if key_event.modifiers == KeyModifiers::CONTROL {
-        #[allow(clippy::single_match)]
-        match key_event.code {
-            KeyCode::Char('q') => app.quit(),
-            _ => (),
-        }
-        return;
-    }
+fn update_page(page: &mut Page, key_event: &KeyEvent) {
     match key_event.code {
         KeyCode::Home => page.scroll_home(),
         KeyCode::End => page.scroll_end(),

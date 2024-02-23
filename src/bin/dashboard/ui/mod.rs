@@ -6,12 +6,12 @@ use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
     database::{CachedDocInfo, PkgKey},
     event::Sender,
+    frame::centered_rect,
     fuzzy::Fuzzy,
     ui::{ScrollOffset, Surround},
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use ratatui::{
-    layout::Flex,
     prelude::*,
     widgets::{Block, Borders},
 };
@@ -233,14 +233,6 @@ enum Panel {
     Database,
     #[default]
     LocalRegistry,
-}
-
-fn centered_rect(area: Rect, width: u16, height: u16) -> Rect {
-    let horizontal = Layout::horizontal([Constraint::Percentage(width)]).flex(Flex::Center);
-    let vertical = Layout::vertical([Constraint::Percentage(height)]).flex(Flex::Center);
-    let [area] = vertical.areas(area);
-    let [area] = horizontal.areas(area);
-    area
 }
 
 impl Area {

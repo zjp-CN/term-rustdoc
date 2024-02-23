@@ -8,7 +8,7 @@ impl ScrollText {
     }
 }
 
-fn write_lines(lines: &[StyledLine], row_start: usize, rect: Rect, buf: &mut Buffer) {
+pub fn write_lines(lines: &[StyledLine], row_start: usize, rect: Rect, buf: &mut Buffer) {
     if lines.is_empty() {
         return;
     }

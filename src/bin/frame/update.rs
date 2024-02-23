@@ -107,7 +107,7 @@ impl Frame {
     fn update_for_double_click(&mut self, position: (u16, u16)) {
         match self.focus {
             Focus::DashBoard if self.dash_board.ui().contains(position) => {
-                self.dash_board.ui().compile_or_load_doc()
+                self.dash_board.ui().compile_or_load_doc(Some(position.1))
             }
             Focus::Page => self.page.double_click(),
             _ => (),
@@ -135,9 +135,9 @@ fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
         KeyCode::End => ui.scroll_end(),
         KeyCode::PageUp => ui.scroll_up(),
         KeyCode::PageDown => ui.scroll_down(),
-        KeyCode::Enter => ui.compile_or_load_doc(),
+        KeyCode::Enter => ui.compile_or_load_doc(None),
         KeyCode::Tab => ui.switch_panel(),
-        KeyCode::Delete => ui.downgrade(),
+        KeyCode::Delete => ui.downgrade(None),
         _ => (),
     }
 }

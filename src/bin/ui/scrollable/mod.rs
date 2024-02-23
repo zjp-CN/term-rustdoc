@@ -82,6 +82,12 @@ impl<Ls: Lines> Scrollable<Ls> {
         })
     }
 
+    /// NOTE: y is the row position in screen, not an index of elements.
+    pub fn get_line_on_screen(&self, y: u16) -> Option<&Ls::Line> {
+        y.checked_sub(self.area.y)
+            .and_then(|offset| self.lines.get(self.start + offset as usize))
+    }
+
     pub fn total_len(&self) -> usize {
         self.lines.len()
     }

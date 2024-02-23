@@ -144,12 +144,18 @@ impl DataBaseUI {
     /// Downgrade a loaded doc to cached doc.
     /// This will free the memory of the loaded doc.
     ///
+    /// y is Some for a mouse click, and None for a key press.
+    ///
     /// This method doesn't mean deleting the db file, so it won't
     /// apply for Cached kind.
     /// It doesn't means removing the being-cached kind either, because
     /// for now there is no way to cancel a compilation task.
-    pub fn downgrade(&mut self) {
-        if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
+    pub fn downgrade(&mut self, y: Option<u16>) {
+        let line = y.map_or_else(
+            || self.inner.get_line_of_current_cursor(),
+            |y| self.inner.get_line_on_screen(y),
+        );
+        if let Some(id) = line.map(|id| id.0) {
             if let Some(loaded) = self.inner.lines.caches.get_mut(id) {
                 if let Some(key) = loaded.downgrade() {
                     self.inner.lines.db.send_downgraded_doc(key);
@@ -214,8 +220,14 @@ impl DataBaseUI {
         self.border.render_only_bottom_left_text(buf, desc, used);
     }
 
-    pub fn load_doc(&mut self) {
-        if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
+    /// When y is Some, it comes from a mouse click posotion.
+    /// When y is None, it comes from a key press.
+    pub fn load_doc(&mut self, y: Option<u16>) {
+        let line = y.map_or_else(
+            || self.inner.get_line_of_current_cursor(),
+            |y| self.inner.get_line_on_screen(y),
+        );
+        if let Some(id) = line.map(|id| id.0) {
             if self.inner.lines.caches[id].loadable() {
                 if let Some(cache) = self.inner.lines.caches.get_mut(id) {
                     cache.load_doc(&self.inner.lines.db);

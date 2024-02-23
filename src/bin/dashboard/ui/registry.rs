@@ -191,9 +191,13 @@ impl Registry {
         }
     }
 
-    pub fn get_pkg_of_current_cursor(&self) -> Option<(PathBuf, PkgInfo)> {
+    pub fn get_pkg(&self, y: Option<u16>) -> Option<(PathBuf, PkgInfo)> {
         let pkgs = &self.inner.lines.local;
-        self.inner.get_line_of_current_cursor().map(|idx| {
+        y.map_or_else(
+            || self.inner.get_line_of_current_cursor(),
+            |y| self.inner.get_line_on_screen(y),
+        )
+        .map(|idx| {
             let pkg = &pkgs[idx.0];
             (pkgs.registry_src_path().join(pkg.path()), pkg.clone())
         })

@@ -103,11 +103,11 @@ impl UI {
         };
     }
 
-    pub fn compile_or_load_doc(&mut self) {
+    pub fn compile_or_load_doc(&mut self, y: Option<u16>) {
         match self.area.current {
-            Panel::Database => self.database.load_doc(),
+            Panel::Database => self.database.load_doc(y),
             Panel::LocalRegistry => {
-                if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg_of_current_cursor() {
+                if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg(y) {
                     self.database.compile_doc(pkg_dir, pkg_info);
                 }
             }
@@ -145,8 +145,8 @@ impl UI {
         self.area.full
     }
 
-    pub fn downgrade(&mut self) {
-        self.database.downgrade();
+    pub fn downgrade(&mut self, y: Option<u16>) {
+        self.database.downgrade(y);
     }
 
     /// Returns true for hinting Frame can switch to Page, because no mouse interaction in DashBoard.
@@ -197,7 +197,7 @@ impl UI {
                     let y = db.area.y;
                     db.set_cursor(event.row.saturating_sub(y));
                     self.area.current = Panel::Database;
-                    self.database.downgrade();
+                    self.database.downgrade(Some(event.row));
                     return false;
                 }
                 return true;

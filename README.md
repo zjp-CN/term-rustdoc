@@ -19,7 +19,7 @@ It only provides the basic ability to compile and cache docs, and view markdown 
 
 Key shortcuts or usage help can be found via `F1` key press.
 
-![help](https://github.com/zjp-CN/term-rustdoc/assets/25300418/04f90559-8d91-490a-9dc5-9217ff3caf7f)
+![help](https://github.com/zjp-CN/term-rustdoc/assets/25300418/62166720-ba49-49af-9da4-77faaef03d02)
 
 More screen shots can be found [here][issue1].
 

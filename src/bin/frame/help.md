@@ -1,3 +1,5 @@
+Use `Ctrl-q` to quit :) Just kidding.
+
 # Cursor
 
 Current cursor is highlighted and controlled by a key press or left click.
@@ -51,6 +53,8 @@ It lies in your `~/.cargo/registry/src/` on Linux system, for example.
 # Doc Page
 
 > **NOTE: meaningless click in DashBoard can switch to Page.**
+
+> **NOTE: Use `Ctrl-w` in both Page and DashBoard to switch between them!**
 
 From left to right, there are *outline* panel, *content* panel and *navi* panel.
 

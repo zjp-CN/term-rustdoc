@@ -43,11 +43,10 @@ impl MarkdownAndHeading {
         &mut self.heading
     }
 
-    /// row is for full screen
-    pub fn heading_jump(&mut self, row: u16) -> bool {
+    /// y is the row in full screen
+    pub fn heading_jump(&mut self, y: u16) -> bool {
         const MARGIN: usize = 1;
-        let y = row.saturating_sub(self.heading.area.y);
-        if let Some(heading) = self.heading.lines.get(y as usize) {
+        if let Some(heading) = self.heading.get_line_on_screen(y) {
             // set the upper bound: usually no need to use this, but who knows if y points
             // to a line out of the doc range.
             let limit = self.md.inner.total_len().saturating_sub(MARGIN);

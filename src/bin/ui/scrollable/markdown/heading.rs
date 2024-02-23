@@ -128,7 +128,7 @@ const HEAD: Style = Style {
 impl Page {
     pub fn heading_jump(&mut self, y: u16) -> bool {
         const MARGIN: usize = 3;
-        if let Some(heading) = self.navi.display.lines.get(y as usize) {
+        if let Some(heading) = self.navi.display.get_line_on_screen(y) {
             // set the upper bound: usually no need to use this, but who knows if y points
             // to a line out of the doc range.
             let limit = self.content.display.total_len().saturating_sub(MARGIN);

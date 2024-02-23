@@ -1,4 +1,3 @@
-mod app;
 mod dashboard;
 mod database;
 mod event;
@@ -20,23 +19,19 @@ fn main() -> Result<()> {
     logger::init()?;
 
     let mut tui = tui::Tui::new(1000)?;
-    let mut app = app::App::default();
     let fuzz = fuzzy::Fuzzy::new();
 
-    // let outline = app.set_doc()?;
     let full = tui.size()?;
-    // let page = ui::Page::new(outline, app.rustdoc(), full)?;
-    // let page = Default::default();
     let sender = tui.events.get_sender();
     let dash_board = dashboard::DashBoard::new(full, fuzz, sender)?;
     let mut frame = Frame::new(dash_board);
 
     // Start the main loop.
-    while !app.should_quit {
+    while !frame.should_quit {
         // Render the user interface.
-        tui.draw(&mut app, &mut frame)?;
+        tui.draw(&mut frame)?;
         // Handle events.
-        frame.consume_event(tui.events.next()?, &mut app);
+        frame.consume_event(tui.events.next()?);
     }
 
     Ok(())

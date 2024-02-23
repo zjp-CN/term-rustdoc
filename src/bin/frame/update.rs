@@ -1,6 +1,5 @@
 use super::{help::Help, Focus, Frame};
 use crate::{
-    app::App,
     dashboard::DashBoard,
     event::Event,
     ui::{Page, ScrollOffset},
@@ -8,9 +7,9 @@ use crate::{
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 
 impl Frame {
-    pub fn consume_event(&mut self, event: Event, app: &mut App) {
+    pub fn consume_event(&mut self, event: Event) {
         match event {
-            Event::Key(key_event) => self.update_for_key(app, key_event),
+            Event::Key(key_event) => self.update_for_key(key_event),
             Event::Mouse(mouse_event) => self.update_for_mouse(mouse_event),
             Event::Resize(_, _) => {}
             Event::MouseDoubleClick(x, y) => self.update_for_double_click((x, y)),
@@ -31,7 +30,7 @@ impl Frame {
         };
     }
 
-    fn update_for_key(&mut self, app: &mut App, key_event: KeyEvent) {
+    fn update_for_key(&mut self, key_event: KeyEvent) {
         if key_event.modifiers == KeyModifiers::CONTROL {
             #[allow(clippy::single_match)]
             match key_event.code {
@@ -40,7 +39,7 @@ impl Frame {
                     return;
                 }
                 KeyCode::Char('q') => {
-                    app.quit();
+                    self.quit();
                     return;
                 }
                 _ => (),

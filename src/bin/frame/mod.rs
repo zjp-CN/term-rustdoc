@@ -9,11 +9,12 @@ use crate::{dashboard::DashBoard, ui::Page};
 use ratatui::prelude::{Buffer, Rect, Widget};
 
 pub struct Frame {
-    pub dash_board: DashBoard,
-    pub page: Page,
+    dash_board: DashBoard,
+    page: Page,
     focus: Focus,
     /// Initialize this when needed the first time.
     help: Option<Box<Help>>,
+    pub should_quit: bool,
 }
 
 #[derive(Default, Debug, Clone, Copy)]
@@ -26,12 +27,13 @@ enum Focus {
 
 impl Frame {
     pub fn new(dash_board: DashBoard) -> Frame {
-        let (page, focus, help) = Default::default();
+        let (page, focus, help, should_quit) = Default::default();
         Frame {
             dash_board,
             page,
             focus,
             help,
+            should_quit,
         }
     }
 
@@ -56,6 +58,10 @@ impl Frame {
             info!("Initialized Help");
             Box::new(help)
         })
+    }
+
+    fn quit(&mut self) {
+        self.should_quit = true;
     }
 }
 

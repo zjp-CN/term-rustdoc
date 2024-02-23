@@ -12,7 +12,6 @@ pub struct Help {
     md: HelpMarkdown,
     /// full screen area
     full: Rect,
-    show: bool,
 }
 
 impl Help {
@@ -21,7 +20,6 @@ impl Help {
         Help {
             md: HelpMarkdown::new(outer),
             full,
-            show: false,
         }
     }
 
@@ -37,18 +35,6 @@ impl Help {
     pub fn render(&self, buf: &mut Buffer) {
         self.md.border.render(buf);
         self.md.inner.render(buf);
-    }
-
-    pub fn show(&self) -> bool {
-        self.show
-    }
-
-    pub fn toggle_show(&mut self) {
-        self.show = !self.show;
-    }
-
-    pub fn set_hidden(&mut self) {
-        self.show = false;
     }
 
     pub fn scroll_text(&mut self) -> &mut ScrollMarkdown {

@@ -86,13 +86,21 @@ impl DataBase {
         Ok(info)
     }
 
-    pub fn send_doc(&self, key: PkgKey) -> Result<()> {
+    pub fn send_doc(&self, key: Box<PkgKey>) -> Result<()> {
         if let Some(sender) = &self.sender {
-            Ok(sender.send(Event::CrateDoc(Box::new(key)))?)
+            Ok(sender.send(Event::CrateDoc(key))?)
         } else {
             Err(err!(
                 "DataBase doesn't have a sender to send loaded CrateDoc for {key:?}. This is a bug."
             ))
+        }
+    }
+
+    pub fn send_downgraded_doc(&self, key: Box<PkgKey>) {
+        if let Some(sender) = &self.sender {
+            if let Err(err) = sender.send(Event::Downgraded(key)) {
+                error!("Fail to send the downgraded pkg_key:\n{err}");
+            }
         }
     }
 }

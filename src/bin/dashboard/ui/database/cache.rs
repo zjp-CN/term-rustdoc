@@ -55,7 +55,8 @@ impl Cache {
             CacheInner::Unloaded(unloaded) => {
                 old = match unloaded.load_doc() {
                     Ok(doc) => {
-                        if let Err(err) = db.send_doc(unloaded.pkg.clone()) {
+                        let key = Box::new(unloaded.pkg.clone());
+                        if let Err(err) = db.send_doc(key) {
                             error!("Loaded Error:\n{err}");
                         }
                         Cache {
@@ -76,7 +77,8 @@ impl Cache {
                 }
             }
             CacheInner::Loaded(loaded) => {
-                if let Err(err) = db.send_doc(loaded.info.pkg.clone()) {
+                let key = Box::new(loaded.info.pkg.clone());
+                if let Err(err) = db.send_doc(key) {
                     error!("Loaded Error:\n{err}");
                 }
                 old = Cache {
@@ -96,13 +98,16 @@ impl Cache {
         }
     }
 
-    pub fn downgrade(&mut self) {
+    pub fn downgrade(&mut self) -> Option<Box<PkgKey>> {
+        let mut key = None;
         let mut old = mem::replace(self, Cache::empty_state());
         if let CacheInner::Loaded(loaded) = old.inner {
+            key = Some(Box::new(loaded.info.pkg.clone()));
             info!("Downgrade a loaded {:?} into cached one.", loaded.info.pkg);
             old = Cache::new_unloaded(loaded.info)
         };
         *self = old;
+        key
     }
 
     pub fn line(&self) -> [(&str, Style); 3] {

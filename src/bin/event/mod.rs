@@ -18,14 +18,16 @@ pub enum Event {
     Key(KeyEvent),
     /// Mouse click/scroll.
     Mouse(MouseEvent),
-    /// Left double click.
-    MouseDoubleClick,
+    /// Left double click in (x, y).
+    MouseDoubleClick(u16, u16),
     /// Terminal resize.
     Resize(u16, u16),
     /// Pkg doc that's compiled and written into its db file.
     DocCompiled(Box<CachedDocInfo>),
     /// Compiled and loaded doc for Page.
     CrateDoc(Box<PkgKey>),
+    /// Downgraded doc which may or may not be the current one.
+    Downgraded(Box<PkgKey>),
 }
 
 pub type Sender = mpsc::Sender<Event>;
@@ -71,7 +73,7 @@ impl EventHandler {
                                     if let Some(diff) = now.checked_duration_since(old) {
                                         if diff < Duration::from_millis(450) {
                                             sender
-                                                .send(Event::MouseDoubleClick)
+                                                .send(Event::MouseDoubleClick(e.column, e.row))
                                                 .expect("failed to send MouseDoubleClick event");
                                             continue; // no need to emit Mouse click event
                                         }

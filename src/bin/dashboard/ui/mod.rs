@@ -206,6 +206,10 @@ impl UI {
         };
         false
     }
+
+    pub fn contains(&self, position: (u16, u16)) -> bool {
+        self.area.center.contains(position.into())
+    }
 }
 
 impl Widget for &mut UI {

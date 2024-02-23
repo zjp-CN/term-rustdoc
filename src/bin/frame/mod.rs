@@ -21,6 +21,7 @@ enum Focus {
     #[default]
     DashBoard,
     Page,
+    Help,
 }
 
 impl Frame {
@@ -41,20 +42,18 @@ impl Frame {
     fn switch_focus(&mut self) {
         let before = self.focus;
         self.focus = match self.focus {
-            Focus::DashBoard if !self.page.is_empty() => Focus::Page,
+            Focus::DashBoard | Focus::Help if !self.page.is_empty() => Focus::Page,
             _ => Focus::DashBoard,
         };
         info!("Frame: swicth from {before:?} to {:?}", self.focus);
     }
 
-    fn get_help(&mut self) -> Option<&mut Help> {
-        self.help.as_deref_mut().filter(|h| h.show())
-    }
-
-    fn get_help_anyway(&mut self) -> &mut Help {
+    fn get_help(&mut self) -> &mut Help {
+        self.focus = Focus::Help;
         self.help.get_or_insert_with(|| {
-            let help = Help::new(self.dash_board.ui().get_full_area());
-            info!("Initialize Help");
+            let full = self.dash_board.ui().get_full_area();
+            let help = Help::new(full);
+            info!("Initialized Help");
             Box::new(help)
         })
     }
@@ -63,14 +62,14 @@ impl Frame {
 impl Widget for &mut Frame {
     /// entry point for all rendering
     fn render(self, full: Rect, buf: &mut Buffer) {
-        if let Some(help) = self.get_help() {
-            help.update_area(full);
-            help.render(buf);
-            return;
-        }
         match self.focus {
             Focus::DashBoard => self.dash_board.ui().render(full, buf),
             Focus::Page => self.page.render(full, buf),
+            Focus::Help => {
+                let help = self.get_help();
+                help.update_area(full);
+                help.render(buf);
+            }
         };
     }
 }

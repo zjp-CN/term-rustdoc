@@ -2,7 +2,7 @@ use self::{
     panel::Panel,
     scrollable::{ScrollText, ScrollTreeLines},
 };
-use crate::Result;
+use crate::{database::PkgKey, Result};
 use ratatui::{
     prelude::{Buffer, Rect, Style, Widget},
     widgets::Block,
@@ -31,11 +31,12 @@ pub struct Page {
     content: Content,
     navi: Navigation,
     current: Option<Panel>,
+    pkg_key: Option<PkgKey>,
     area: Rect,
 }
 
 impl Page {
-    pub fn new(doc: CrateDoc, area: Rect) -> Result<Self> {
+    pub fn new(pkg_key: PkgKey, doc: CrateDoc, area: Rect) -> Result<Self> {
         let mut page = Page {
             outline: Outline {
                 display: Scrollable::new(doc.clone().into())?,
@@ -48,6 +49,7 @@ impl Page {
             // page scrolling like HOME/END will check the current Panel
             current: Some(Panel::Outline),
             area,
+            pkg_key: Some(pkg_key),
             ..Default::default()
         };
         page.update_area_inner(area);
@@ -65,6 +67,18 @@ impl Page {
 
     pub fn is_empty(&self) -> bool {
         self.area.height == 0 || self.area.width == 0
+    }
+
+    /// Drop the data when PkgKey matches.
+    pub fn drop(&mut self, pkg_key: &PkgKey) {
+        if self
+            .pkg_key
+            .as_ref()
+            .map(|key| key == pkg_key)
+            .unwrap_or(false)
+        {
+            *self = Page::default();
+        }
     }
 }
 

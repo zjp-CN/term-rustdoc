@@ -151,7 +151,9 @@ impl DataBaseUI {
     pub fn downgrade(&mut self) {
         if let Some(id) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
             if let Some(loaded) = self.inner.lines.caches.get_mut(id) {
-                loaded.downgrade();
+                if let Some(key) = loaded.downgrade() {
+                    self.inner.lines.db.send_downgraded_doc(key);
+                }
                 // sort because of sort kind
                 self.sort_caches();
             }

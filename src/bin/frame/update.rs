@@ -1,4 +1,4 @@
-use super::{Focus, Frame};
+use super::{help::Help, Focus, Frame};
 use crate::{
     app::App,
     dashboard::DashBoard,
@@ -13,12 +13,12 @@ impl Frame {
             Event::Key(key_event) => self.update_for_key(app, key_event),
             Event::Mouse(mouse_event) => self.update_for_mouse(mouse_event),
             Event::Resize(_, _) => {}
-            Event::MouseDoubleClick => self.update_for_double_click(),
+            Event::MouseDoubleClick(x, y) => self.update_for_double_click((x, y)),
             Event::DocCompiled(info) => self.dash_board.ui().receive_compiled_doc(*info),
             Event::CrateDoc(pkg_key) => {
                 let ui = &self.dash_board.ui();
                 if let Some(doc) = ui.get_loaded_doc(&pkg_key) {
-                    match Page::new(doc, ui.get_full_area()) {
+                    match Page::new(*pkg_key, doc, ui.get_full_area()) {
                         Ok(page) => {
                             self.page = page;
                             self.switch_to_page();
@@ -27,40 +27,31 @@ impl Frame {
                     }
                 }
             }
+            Event::Downgraded(pkg_key) => self.page.drop(&pkg_key),
         };
     }
 
     fn update_for_key(&mut self, app: &mut App, key_event: KeyEvent) {
-        if let KeyCode::F(1) = key_event.code {
-            let help = self.get_help_anyway();
-            help.toggle_show();
-            return;
-        }
-
         if key_event.modifiers == KeyModifiers::CONTROL {
             #[allow(clippy::single_match)]
             match key_event.code {
                 KeyCode::Char('w') => {
                     self.switch_focus();
-                    if let Some(help) = self.get_help() {
-                        help.set_hidden();
-                    }
                     return;
                 }
-                KeyCode::Char('q') => app.quit(),
+                KeyCode::Char('q') => {
+                    app.quit();
+                    return;
+                }
                 _ => (),
             }
         }
 
-        if let Some(help) = self.get_help().map(|h| h.scroll_text()) {
-            match key_event.code {
-                KeyCode::Up => help.scrollup(ScrollOffset::Fixed(1)),
-                KeyCode::Down => help.scrolldown(ScrollOffset::Fixed(1)),
-                KeyCode::Home => help.scroll_home(),
-                KeyCode::End => help.scroll_end(),
-                KeyCode::PageUp => help.scrollup(ScrollOffset::Fixed(5)),
-                KeyCode::PageDown => help.scrolldown(ScrollOffset::Fixed(5)),
-                _ => (),
+        if let KeyCode::F(1) = key_event.code {
+            if !matches!(self.focus, Focus::Help) {
+                self.get_help();
+            } else {
+                self.switch_focus();
             }
             return;
         }
@@ -68,29 +59,11 @@ impl Frame {
         match self.focus {
             Focus::DashBoard => update_dash_board(&mut self.dash_board, &key_event),
             Focus::Page => update_page(&mut self.page, &key_event),
+            Focus::Help => update_help(self.get_help(), &key_event),
         };
     }
 
     fn update_for_mouse(&mut self, event: MouseEvent) {
-        if let Some(popup) = self.get_help() {
-            let help = popup.scroll_text();
-            match event.kind {
-                MouseEventKind::ScrollDown => help.scrolldown(ScrollOffset::Fixed(5)),
-                MouseEventKind::ScrollUp => help.scrollup(ScrollOffset::Fixed(5)),
-                MouseEventKind::Down(MouseButton::Left) => {
-                    let position = (event.column, event.row);
-                    if popup.heading_jump(position) {
-                        return;
-                    }
-                    if popup.contains(position) {
-                        popup.set_hidden();
-                    }
-                }
-                _ => (),
-            }
-            return;
-        }
-
         match self.focus {
             Focus::DashBoard => {
                 if self.dash_board.ui().update_for_mouse(event) && !self.page.is_empty() {
@@ -110,13 +83,34 @@ impl Frame {
                 }
                 _ => (),
             },
+            Focus::Help => {
+                let popup = self.get_help();
+                let help = popup.scroll_text();
+                match event.kind {
+                    MouseEventKind::ScrollDown => help.scrolldown(ScrollOffset::Fixed(5)),
+                    MouseEventKind::ScrollUp => help.scrollup(ScrollOffset::Fixed(5)),
+                    MouseEventKind::Down(MouseButton::Left) => {
+                        let position = (event.column, event.row);
+                        if popup.heading_jump(position) {
+                            return;
+                        }
+                        if !popup.contains(position) {
+                            self.switch_focus();
+                        }
+                    }
+                    _ => (),
+                }
+            }
         };
     }
 
-    fn update_for_double_click(&mut self) {
+    fn update_for_double_click(&mut self, position: (u16, u16)) {
         match self.focus {
-            Focus::DashBoard => self.dash_board.ui().compile_or_load_doc(),
+            Focus::DashBoard if self.dash_board.ui().contains(position) => {
+                self.dash_board.ui().compile_or_load_doc()
+            }
             Focus::Page => self.page.double_click(),
+            _ => (),
         }
     }
 }
@@ -167,4 +161,17 @@ fn update_page(page: &mut Page, key_event: &KeyEvent) {
         KeyCode::Char('d') => page.toggle_sytect(),
         _ => {}
     };
+}
+
+fn update_help(help: &mut Help, event: &KeyEvent) {
+    let help = help.scroll_text();
+    match event.code {
+        KeyCode::Up => help.scrollup(ScrollOffset::Fixed(1)),
+        KeyCode::Down => help.scrolldown(ScrollOffset::Fixed(1)),
+        KeyCode::Home => help.scroll_home(),
+        KeyCode::End => help.scroll_end(),
+        KeyCode::PageUp => help.scrollup(ScrollOffset::Fixed(5)),
+        KeyCode::PageDown => help.scrolldown(ScrollOffset::Fixed(5)),
+        _ => (),
+    }
 }

@@ -48,6 +48,7 @@ impl CachedDocInfo {
     }
 
     pub fn save_doc(&self, json_path: &Path, pkg_info: PkgInfo) -> Result<()> {
+        info!("start saving the doc");
         let file = fs::File::open(json_path).wrap_err_with(|| {
             format!(
                 "Failed to open compiled json doc under {}",
@@ -55,8 +56,10 @@ impl CachedDocInfo {
             )
         })?;
         // parse json doc
+        info!("start parsing as CrateDoc");
         let doc = CrateDoc::new(serde_json::from_reader(file)?);
 
+        info!("start creating a db file");
         let db = redb::Database::create(&self.db_file)?;
 
         // write PkgInfo into db

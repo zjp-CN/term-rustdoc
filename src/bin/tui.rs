@@ -85,6 +85,7 @@ pub fn install_hooks() -> crate::Result<()> {
     // convert from a color_eyre PanicHook to a standard panic hook
     let panic_hook = panic_hook.into_panic_hook();
     panic::set_hook(Box::new(move |panic_info| {
+        error!(?panic_info);
         restore_terminal().unwrap();
         panic_hook(panic_info);
     }));

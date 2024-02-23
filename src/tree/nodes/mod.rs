@@ -69,6 +69,7 @@ impl DModule {
                 None
             })
             .expect("root module not found");
+        info!("found root");
         let mut dmod = Self::new_inner(id, root, index);
         dmod.sort_by_name(map);
         dmod
@@ -96,24 +97,60 @@ impl DModule {
         use ItemEnum::*;
         let id = item.id.to_ID();
         match &item.inner {
-            Module(item) => self.modules.push(Self::new_inner(id, &item.items, index)),
-            Struct(item) => self.structs.push(DStruct::new(id, item, index)),
-            Union(item) => self.unions.push(DUnion::new(id, item, index)),
-            Enum(item) => self.enums.push(DEnum::new(id, item, index)),
-            Trait(item) => self.traits.push(DTrait::new(id, item, index)),
-            Function(_) => self.functions.push(DFunction::new(id)),
-            Constant(_) => self.constants.push(DConstant::new(id)),
-            Static(_) => self.statics.push(DStatic::new(id)),
-            TypeAlias(_) => self.type_alias.push(DTypeAlias::new(id)),
-            Macro(_) => self.macros_decl.push(DMacroDecl::new(id)),
-            ProcMacro(proc) => match proc.kind {
-                MacroKind::Bang => self.macros_func.push(DMacroFunc::new(id)),
-                MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
-                MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
-            },
-            Import(import) => imports::parse_import(id, import, index, self),
+            Module(item) => {
+                info!("Module => {id}");
+                self.modules.push(Self::new_inner(id, &item.items, index))
+            }
+            Struct(item) => {
+                info!("Struct => {id}");
+                self.structs.push(DStruct::new(id, item, index))
+            }
+            Union(item) => {
+                info!("Union => {id}");
+                self.unions.push(DUnion::new(id, item, index))
+            }
+            Enum(item) => {
+                info!("Enum => {id}");
+                self.enums.push(DEnum::new(id, item, index))
+            }
+            Trait(item) => {
+                info!("Trait => {id}");
+                self.traits.push(DTrait::new(id, item, index))
+            }
+            Function(_) => {
+                info!("Function => {id}");
+                self.functions.push(DFunction::new(id))
+            }
+            Constant(_) => {
+                info!("Constant => {id}");
+                self.constants.push(DConstant::new(id))
+            }
+            Static(_) => {
+                info!("Static => {id}");
+                self.statics.push(DStatic::new(id))
+            }
+            TypeAlias(_) => {
+                info!("TypeAlias => {id}");
+                self.type_alias.push(DTypeAlias::new(id))
+            }
+            Macro(_) => {
+                info!("Macro => {id}");
+                self.macros_decl.push(DMacroDecl::new(id))
+            }
+            ProcMacro(proc) => {
+                info!("ProcMacro => {id}");
+                match proc.kind {
+                    MacroKind::Bang => self.macros_func.push(DMacroFunc::new(id)),
+                    MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
+                    MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
+                }
+            }
+            Import(import) => {
+                info!("Import => {id}");
+                imports::parse_import(id, import, index, self)
+            }
             // Primitive(_) => todo!(),
-            _ => (),
+            _ => info!("rest => {id}"),
         }
     }
 }

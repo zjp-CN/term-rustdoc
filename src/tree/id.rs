@@ -107,6 +107,7 @@ impl IDMap {
             dmod: DModule::default(),
             id_buffer: RefCell::new(String::with_capacity(24)),
         };
+        info!("start analyzing DModule");
         map.dmod = DModule::new(&map);
         info!("IDMap and DModule ready");
         map

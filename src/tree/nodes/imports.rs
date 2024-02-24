@@ -22,7 +22,13 @@ use rustdoc_types::{Import, ItemEnum};
 ///
 /// pub-use item shouldn't be a real tree node because the source
 /// can be any other item which should be merged into one of DModule's fields.
-pub(super) fn parse_import(id: ID, import: &Import, map: &IDMap, dmod: &mut DModule) {
+pub(super) fn parse_import(
+    id: ID,
+    import: &Import,
+    map: &IDMap,
+    dmod: &mut DModule,
+    kin: &mut Vec<ID>,
+) {
     // Import's id can be empty when the source is Primitive.
     if let Some(source) = import.id.as_ref().and_then(|id| map.indexmap().get(id)) {
         match &source.inner {
@@ -32,11 +38,22 @@ pub(super) fn parse_import(id: ID, import: &Import, map: &IDMap, dmod: &mut DMod
                 // they can recursively points to each other, causing stack overflows.
                 match map.path_or_name(&id) {
                     Ok(path) => {
-                        info!("Push down the reexported {path} module");
-                        dmod.modules.push(DModule::new_inner(id, &item.items, map))
+                        // usual reexported module
+                        debug!("Push down the reexported `{path}` module.");
+                        dmod.modules
+                            .push(DModule::new_inner(id, &item.items, map, kin))
+                    }
+                    Err(name) if !kin.contains(&id) => {
+                        // Unusual reexported module: copy the items inside until a duplicate
+                        // of ancestor module (if any).
+                        debug!("Push down the reexported `{name}` module that is not found in PathMap.");
+                        dmod.modules
+                            .push(DModule::new_inner(id, &item.items, map, &mut kin.clone()))
                     }
                     Err(name) => warn!(
-                        "Stop at the reexported {name} module. Need to check how to deal with it."
+                        "Stop at the reexported `{name}` module that duplicates as an ancestor module.\n\
+                         Ancestors before this module is {:?}",
+                        kin.iter().map(|id| map.path(id)).collect::<Vec<_>>()
                     ),
                 }
             }

@@ -68,34 +68,47 @@ impl DModule {
                 None
             })
             .expect("root module not found");
-        let mut dmod = Self::new_inner(id, root, map);
+
+        // module component list, used to stop a recursive reexported module
+        let mut ancestor = Vec::with_capacity(8);
+
+        let mut dmod = Self::new_inner(id, root, map, &mut ancestor);
         dmod.sort_by_name(map);
         dmod
     }
 
-    fn new_inner(id: ID, inner_items: &[Id], map: &IDMap) -> Self {
+    fn new_inner(id: ID, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<ID>) -> Self {
+        ancestor.push(id.clone());
+        debug!(
+            "Module Paths = {:?}",
+            ancestor.iter().map(|id| map.path(id)).collect::<Vec<_>>()
+        );
         let mut dmod = DModule {
             id,
             ..Default::default()
         };
-        dmod.extract_items(inner_items, map);
+        dmod.extract_items(inner_items, map, ancestor);
         dmod
     }
 
-    fn extract_items(&mut self, inner_items: &[Id], map: &IDMap) {
+    fn extract_items(&mut self, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<ID>) {
         for item_id in inner_items {
             match map.indexmap().get(item_id) {
-                Some(item) => self.append(item, map),
+                Some(item) => self.append(item, map, ancestor),
                 None => warn!("the local item {item_id:?} not found in Crate's index"),
             }
         }
     }
 
-    fn append(&mut self, item: &Item, map: &IDMap) {
+    fn append(&mut self, item: &Item, map: &IDMap, ancestor: &mut Vec<ID>) {
         use ItemEnum::*;
         let id = item.id.to_ID();
         match &item.inner {
-            Module(item) => self.modules.push(Self::new_inner(id, &item.items, map)),
+            Module(item) => {
+                let mut kin = ancestor.clone();
+                self.modules
+                    .push(Self::new_inner(id, &item.items, map, &mut kin))
+            }
             Struct(item) => self.structs.push(DStruct::new(id, item, map)),
             Union(item) => self.unions.push(DUnion::new(id, item, map)),
             Enum(item) => self.enums.push(DEnum::new(id, item, map)),
@@ -110,7 +123,7 @@ impl DModule {
                 MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
                 MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
             },
-            Import(import) => imports::parse_import(id, import, map, self),
+            Import(import) => imports::parse_import(id, import, map, self, ancestor),
             // Primitive(_) => todo!(),
             _ => (),
         }

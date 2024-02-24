@@ -5,7 +5,8 @@ fn init_logger() {
     let file = File::create("./target/test.log").unwrap();
     tracing_subscriber::fmt()
         .with_writer(file)
-        // .with_ansi(false)
+        .with_ansi(false)
+        .without_time()
         .init();
 }
 
@@ -16,7 +17,8 @@ fn compile_actix_0_13_0() {
         .toolchain("nightly")
         .target_dir("./target")
         .manifest_path(
-            "/root/.cargo/registry/src/rsproxy.cn-0dccff568467c15b/bitvec-1.0.1/Cargo.toml",
+            // "/root/.cargo/registry/src/rsproxy.cn-0dccff568467c15b/tokio-1.35.1/Cargo.toml",
+            "/root/.cargo/registry/src/rsproxy.cn-0dccff568467c15b/actix-0.13.0/Cargo.toml",
         )
         .build()
         .unwrap();

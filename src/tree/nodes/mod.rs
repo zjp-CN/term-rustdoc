@@ -20,7 +20,7 @@ use crate::tree::{
     impls::show::{DocTree, Show},
     IdToID, IndexMap, ID,
 };
-use rustdoc_types::{Id, Item, ItemEnum, MacroKind, Module};
+use rustdoc_types::{Id, Item, ItemEnum, ItemKind, MacroKind, Module};
 use serde::{Deserialize, Serialize};
 use std::ops::Not;
 
@@ -34,11 +34,11 @@ pub struct DModule {
     // If true, this module is not part of the public API,
     // but it contains items that are re-exported as public API.
     // is_stripped: bool,
-    pub modules: Vec<DModule>,
-    pub structs: Vec<DStruct>,
+    pub modules: Vec<Box<DModule>>,
+    pub structs: Vec<Box<DStruct>>,
     pub unions: Vec<DUnion>,
-    pub enums: Vec<DEnum>,
-    pub traits: Vec<DTrait>,
+    pub enums: Vec<Box<DEnum>>,
+    pub traits: Vec<Box<DTrait>>,
     pub functions: Vec<DFunction>,
     pub constants: Vec<DConstant>,
     pub statics: Vec<DStatic>,
@@ -50,10 +50,10 @@ pub struct DModule {
 }
 
 impl DModule {
-    pub fn new(map: &IDMap) -> Self {
+    pub fn new(map: &IDMap) -> Box<Self> {
         // root module/crate name
-        let index = map.indexmap();
-        let (id, root) = index
+        let (id, root) = map
+            .indexmap()
             .iter()
             .find_map(|(id, item)| {
                 if item.crate_id == 0 {
@@ -70,87 +70,93 @@ impl DModule {
             })
             .expect("root module not found");
         info!("found root");
-        let mut dmod = Self::new_inner(id, root, index);
+        let mut level = 0u16;
+        let mut dmod = Self::new_inner(id, root, map, &mut level);
         dmod.sort_by_name(map);
         dmod
     }
 
-    fn new_inner(id: ID, inner_items: &[Id], index: &IndexMap) -> Self {
-        let mut dmod = DModule {
+    fn new_inner(id: ID, inner_items: &[Id], index: &IDMap, level: &mut u16) -> Box<Self> {
+        let mut dmod = Box::new(DModule {
             id,
             ..Default::default()
-        };
-        dmod.extract_items(inner_items, index);
+        });
+        dmod.extract_items(inner_items, index, level);
         dmod
     }
 
-    fn extract_items(&mut self, inner_items: &[Id], index: &IndexMap) {
+    fn extract_items(&mut self, inner_items: &[Id], index: &IDMap, level: &mut u16) {
+        *level += 1;
         for item_id in inner_items {
-            match index.get(item_id) {
-                Some(item) => self.append(item, index),
+            match index.indexmap().get(item_id) {
+                Some(item) => self.append(item, index, level),
                 None => warn!("the local item {item_id:?} not found in Crate's index"),
             }
         }
     }
 
-    fn append(&mut self, item: &Item, index: &IndexMap) {
+    fn append(&mut self, item: &Item, index: &IDMap, level: &mut u16) {
         use ItemEnum::*;
         let id = item.id.to_ID();
+        let name = index.name(&id);
         match &item.inner {
             Module(item) => {
-                info!("Module => {id}");
-                self.modules.push(Self::new_inner(id, &item.items, index))
+                let Some(name) = index.get_path(&id).map(|item| item.path.join("::")) else {
+                    error!("Found an unusual item {name}. Check out the JSON doc with the ID {id}");
+                    return;
+                };
+                info!("Module => {name}, level = {level}");
+                let mut level = *level;
+                self.modules
+                    .push(Self::new_inner(id, &item.items, index, &mut level))
             }
             Struct(item) => {
-                info!("Struct => {id}");
+                info!("Struct => {name}");
                 self.structs.push(DStruct::new(id, item, index))
             }
             Union(item) => {
-                info!("Union => {id}");
+                info!("Union => {name}");
                 self.unions.push(DUnion::new(id, item, index))
             }
             Enum(item) => {
-                info!("Enum => {id}");
+                info!("Enum => {name}");
                 self.enums.push(DEnum::new(id, item, index))
             }
             Trait(item) => {
-                info!("Trait => {id}");
+                info!("Trait => {name}");
                 self.traits.push(DTrait::new(id, item, index))
             }
             Function(_) => {
-                info!("Function => {id}");
+                info!("Function => {name}");
                 self.functions.push(DFunction::new(id))
             }
             Constant(_) => {
-                info!("Constant => {id}");
+                info!("Constant => {name}");
                 self.constants.push(DConstant::new(id))
             }
             Static(_) => {
-                info!("Static => {id}");
+                info!("Static => {name}");
                 self.statics.push(DStatic::new(id))
             }
             TypeAlias(_) => {
-                info!("TypeAlias => {id}");
+                info!("TypeAlias => {name}");
                 self.type_alias.push(DTypeAlias::new(id))
             }
             Macro(_) => {
-                info!("Macro => {id}");
+                info!("Macro => {name}");
                 self.macros_decl.push(DMacroDecl::new(id))
             }
             ProcMacro(proc) => {
-                info!("ProcMacro => {id}");
+                info!("ProcMacro => {name}");
                 match proc.kind {
                     MacroKind::Bang => self.macros_func.push(DMacroFunc::new(id)),
                     MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
                     MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
                 }
             }
-            Import(import) => {
-                info!("Import => {id}");
-                imports::parse_import(id, import, index, self)
-            }
+            Import(import) => imports::parse_import(id, import, index, self, level),
             // Primitive(_) => todo!(),
-            _ => info!("rest => {id}"),
+            _ => info!("rest => {name}"),
         }
     }
 }
@@ -165,7 +171,7 @@ impl Show for DModule {
             $(
                 .chain( impl_show!(@show $field $node $fty self map) )
             )+
-            .chain(self.modules.iter().map(DModule::show))
+            .chain(self.modules.iter().map(|m| m.show()))
         )
     }
 
@@ -216,7 +222,7 @@ impl DModule {
     };
     (@show $field:ident $node:ident $fty:ident $self:ident $map:ident) => {
         $self.$field.is_empty().not().then(|| {
-            $crate::tree::Tag::$node.show().with_leaves($self.$field.iter().map($fty::show))
+            $crate::tree::Tag::$node.show().with_leaves($self.$field.iter().map(|x| x.show()))
         })
     };
     (@pretty $field:ident $node:ident $self:ident $map:ident) => {

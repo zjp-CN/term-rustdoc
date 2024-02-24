@@ -9,11 +9,11 @@ pub struct DStruct {
     pub id: ID,
     pub fields: IDs,
     pub contain_private_fields: bool,
-    pub impls: DImpl,
+    pub impls: Box<DImpl>,
 }
 
 impl DStruct {
-    pub fn new(id: ID, item: &Struct, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Struct, index: &IDMap) -> Box<Self> {
         let mut contain_private_fields = false;
         let fields = match &item.kind {
             StructKind::Unit => IDs::default(),
@@ -36,12 +36,12 @@ impl DStruct {
             }
         };
         let impls = DImpl::new(&item.impls, index);
-        DStruct {
+        Box::new(DStruct {
             id,
             fields,
             contain_private_fields,
             impls,
-        }
+        })
     }
 }
 

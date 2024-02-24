@@ -8,10 +8,10 @@ use rustdoc_types::Union;
 pub struct DUnion {
     pub id: ID,
     pub fields: IDs,
-    pub impls: DImpl,
+    pub impls: Box<DImpl>,
 }
 impl DUnion {
-    pub fn new(id: ID, item: &Union, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Union, index: &IDMap) -> Self {
         DUnion {
             id,
             fields: item.fields.to_ids(),

@@ -41,7 +41,7 @@ impl DModule {
     pub fn recursive_items_counts(&self) -> ItemCount {
         self.modules
             .iter()
-            .map(Self::current_items_counts)
+            .map(|m| m.current_items_counts())
             .fold(self.current_items_counts(), acc_sum)
     }
 }
@@ -149,7 +149,7 @@ impl DModule {
     pub fn recursive_impls_counts(&self) -> ImplCounts {
         self.modules
             .iter()
-            .map(Self::current_impls_counts)
+            .map(|m| m.current_impls_counts())
             .fold(self.current_impls_counts(), acc_sum)
     }
 }

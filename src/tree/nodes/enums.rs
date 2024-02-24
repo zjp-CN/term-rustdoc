@@ -9,15 +9,15 @@ pub struct DEnum {
     pub id: ID,
     pub variants: IDs,
     // variants_stripped: bool, -> Does this really make sense?
-    pub impls: DImpl,
+    pub impls: Box<DImpl>,
 }
 impl DEnum {
-    pub fn new(id: ID, item: &Enum, index: &IndexMap) -> Self {
-        DEnum {
+    pub fn new(id: ID, item: &Enum, index: &IDMap) -> Box<Self> {
+        Box::new(DEnum {
             id,
             variants: item.variants.to_ids(),
             impls: DImpl::new(&item.impls, index),
-        }
+        })
     }
 }
 

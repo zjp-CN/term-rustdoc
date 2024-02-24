@@ -13,11 +13,11 @@ pub struct DTrait {
     pub implementations: IDs,
 }
 impl DTrait {
-    pub fn new(id: ID, item: &Trait, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Trait, index: &IDMap) -> Box<Self> {
         let [mut types, mut constants, mut functions]: [Vec<ID>; 3] = Default::default();
         let trait_id = &id;
         for id in &item.items {
-            if let Some(assoc) = index.get(id) {
+            if let Some(assoc) = index.indexmap().get(id) {
                 let id = id.to_ID(); // id == assoc.id
                 match &assoc.inner {
                     ItemEnum::AssocType { .. } => types.push(id),
@@ -32,13 +32,20 @@ impl DTrait {
                 warn!("the trait item {id:?} not found in Crate's index");
             }
         }
-        DTrait {
+        info!(
+            "[trait] fn = {}, impl = {}, type = {}, const = {}",
+            functions.len(),
+            item.implementations.len(),
+            types.len(),
+            constants.len()
+        );
+        Box::new(DTrait {
             id,
             types: types.into(),
             constants: constants.into(),
             functions: functions.into(),
             implementations: item.implementations.to_ids(),
-        }
+        })
     }
 }
 

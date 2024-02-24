@@ -12,7 +12,7 @@ pub struct DImpl {
     pub blanket: IDs,
 }
 impl DImpl {
-    pub fn new(ids: &[Id], index: &IndexMap) -> Self {
+    pub fn new(ids: &[Id], index: &IDMap) -> Box<Self> {
         if ids.is_empty() {
             return Default::default();
         }
@@ -24,7 +24,7 @@ impl DImpl {
                 blanket.push(id.to_ID());
             } else {
                 let id = Id(id.clone());
-                if let Some(item) = index.get(&id) {
+                if let Some(item) = index.indexmap().get(&id) {
                     if let ItemEnum::Impl(impl_) = &item.inner {
                         if impl_.trait_.is_none() {
                             inherent.push(id.into_ID());
@@ -39,12 +39,20 @@ impl DImpl {
                 }
             }
         }
-        DImpl {
+        info!(
+            "[impls] ids = {}, inherent = {}, trait = {}, auto = {}, blanket = {}",
+            ids.len(),
+            inherent.len(),
+            trait_.len(),
+            auto.len(),
+            blanket.len()
+        );
+        Box::new(DImpl {
             inherent: inherent.into(),
             trait_: trait_.into(),
             auto: auto.into(),
             blanket: blanket.into(),
-        }
+        })
     }
     pub fn is_empty(&self) -> bool {
         self.inherent.is_empty()

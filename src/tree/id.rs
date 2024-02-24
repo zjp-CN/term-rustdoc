@@ -95,7 +95,7 @@ impl<T: IdAsStr> IdAsStr for &T {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct IDMap {
     krate: Crate,
-    dmod: DModule,
+    dmod: Box<DModule>,
     id_buffer: RefCell<String>,
 }
 
@@ -104,7 +104,7 @@ impl IDMap {
         let mut map = IDMap {
             krate,
             // placeholder for DModule: we'll construct it at once
-            dmod: DModule::default(),
+            dmod: Box::default(),
             id_buffer: RefCell::new(String::with_capacity(24)),
         };
         info!("start analyzing DModule");
@@ -136,7 +136,7 @@ impl Default for IDMap {
                 external_crates,
                 format_version,
             },
-            dmod: DModule::default(),
+            dmod: Box::default(),
             id_buffer: RefCell::default(),
         }
     }

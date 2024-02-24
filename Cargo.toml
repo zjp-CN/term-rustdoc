@@ -33,7 +33,7 @@ rustc-hash = "1"
 regex = "1"
 
 tracing = "0.1"
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 constcat = "0.4"
 

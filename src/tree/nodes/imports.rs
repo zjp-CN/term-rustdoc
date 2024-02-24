@@ -36,6 +36,7 @@ pub(super) fn parse_import(
                 // check id for ItemSummary/path existence:
                 // reexported modules are not like other normal items,
                 // they can recursively points to each other, causing stack overflows.
+                // RUST_LOG=term_rustdoc::tree::nodes=debug can be used to quickly check the logs.
                 match map.path_or_name(&id) {
                     Ok(path) => {
                         // usual reexported module

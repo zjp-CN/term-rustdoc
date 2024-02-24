@@ -2,7 +2,6 @@
 mod impls;
 // The inner macro `icon!` can be used afterwards in submods
 
-#[allow(non_snake_case)]
 mod id;
 mod nodes;
 mod stats;

@@ -1,7 +1,7 @@
 use super::TreeLines;
 use crate::tree::{DModule, DocTree, IDMap, ID};
 use rustc_hash::FxHashSet as HashSet;
-use rustdoc_types::{ItemEnum, Module};
+use rustdoc_types::ItemEnum;
 
 /// how to fold the text tree
 #[derive(Default, PartialEq, Eq)]
@@ -121,7 +121,7 @@ impl TreeLines {
         ) {
             for m in &dmod.modules {
                 if should_stop(m) {
-                    let mut node = node!(ModuleFolded: map, Module, &m.id);
+                    let node = node!(ModuleFolded: map, Module, &m.id);
                     parent.push(node);
                 } else {
                     let mut node = m.item_tree_only_in_one_specified_mod(map);
@@ -132,13 +132,13 @@ impl TreeLines {
         }
 
         if self.fold.kind == Kind::CurrentModule {
-            /// FIXME: poor interaction with CurrentModule bahavior
-            ///
-            /// To fix this, we have to remember all the modules' id and an extra
-            /// expand-vs-fold state.
-            ///
-            /// This is a smallUX improvement, but for now, just forbid toggling
-            /// when expanding CurrentModule.
+            // FIXME: poor interaction with CurrentModule bahavior
+            //
+            // To fix this, we have to remember all the modules' id and an extra
+            // expand-vs-fold state.
+            //
+            // This is a smallUX improvement, but for now, just forbid toggling
+            // when expanding CurrentModule.
             return;
         }
 
@@ -213,7 +213,7 @@ impl TreeLines {
 impl TreeLines {
     /// check if the id is a module (or reexported as module)
     fn check_id(&self, id: &ID) -> bool {
-        if !self.dmodule().modules.iter().any(|m| {
+        if !self.dmodule().modules.iter().any(|_m| {
             // only Module or reexported item as Module can be in list
             self.idmap()
                 .get_item(id)

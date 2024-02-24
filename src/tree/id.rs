@@ -1,5 +1,7 @@
+#![allow(non_snake_case)]
 use super::{DModule, DocTree, Show};
 use crate::util::{xformat, CompactStringExt, XString};
+use itertools::intersperse;
 use rustdoc_types::{
     Crate, GenericArg, GenericArgs, Id, Item, ItemEnum, ItemKind, ItemSummary, Path, Type,
 };
@@ -282,21 +284,13 @@ fn resolved_path_name(p: &Path) -> Option<XString> {
             if args.is_empty() {
                 Some(name.into())
             } else {
-                Some(xformat!(
-                    "{name}<{}>",
-                    args.iter()
-                        .filter_map(generic_arg_name)
-                        .intersperse(COMMA)
-                        .collect::<XString>()
-                ))
+                let arg: XString =
+                    intersperse(args.iter().filter_map(generic_arg_name), COMMA).collect();
+                Some(xformat!("{name}<{arg}>"))
             }
         }
         Some(GenericArgs::Parenthesized { inputs, output }) => {
-            let args = inputs
-                .iter()
-                .filter_map(type_name)
-                .intersperse(COMMA)
-                .collect::<XString>();
+            let args: XString = intersperse(inputs.iter().filter_map(type_name), COMMA).collect();
             let ret = output
                 .as_ref()
                 .and_then(|t| Some(xformat!(" -> {}", type_name(t)?)))

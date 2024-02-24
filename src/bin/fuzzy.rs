@@ -1,4 +1,3 @@
-#![allow(unused)]
 use itertools::Itertools;
 use nucleo_matcher::{
     pattern::{Atom, CaseMatching, Normalization},

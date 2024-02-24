@@ -13,7 +13,7 @@
 // }
 
 use super::*;
-use crate::tree::{IndexMap, ID};
+use crate::tree::ID;
 use rustdoc_types::{Import, ItemEnum};
 
 /// Add the item of `pub use source {as name}` to DModule.
@@ -22,17 +22,28 @@ use rustdoc_types::{Import, ItemEnum};
 ///
 /// pub-use item shouldn't be a real tree node because the source
 /// can be any other item which should be merged into one of DModule's fields.
-pub(super) fn parse_import(id: ID, import: &Import, index: &IndexMap, dmod: &mut DModule) {
+pub(super) fn parse_import(id: ID, import: &Import, map: &IDMap, dmod: &mut DModule) {
     // Import's id can be empty when the source is Primitive.
-    if let Some(source) = import.id.as_ref().and_then(|id| index.get(id)) {
+    if let Some(source) = import.id.as_ref().and_then(|id| map.indexmap().get(id)) {
         match &source.inner {
-            ItemEnum::Module(item) => dmod
-                .modules
-                .push(DModule::new_inner(id, &item.items, index)),
-            ItemEnum::Union(item) => dmod.unions.push(DUnion::new(id, item, index)),
-            ItemEnum::Struct(item) => dmod.structs.push(DStruct::new(id, item, index)),
-            ItemEnum::Enum(item) => dmod.enums.push(DEnum::new(id, item, index)),
-            ItemEnum::Trait(item) => dmod.traits.push(DTrait::new(id, item, index)),
+            ItemEnum::Module(item) => {
+                // check id for ItemSummary/path existence:
+                // reexported modules are not like other normal items,
+                // they can recursively points to each other, causing stack overflows.
+                match map.path_or_name(&id) {
+                    Ok(path) => {
+                        info!("Push down the reexported {path} module");
+                        dmod.modules.push(DModule::new_inner(id, &item.items, map))
+                    }
+                    Err(name) => warn!(
+                        "Stop at the reexported {name} module. Need to check how to deal with it."
+                    ),
+                }
+            }
+            ItemEnum::Union(item) => dmod.unions.push(DUnion::new(id, item, map)),
+            ItemEnum::Struct(item) => dmod.structs.push(DStruct::new(id, item, map)),
+            ItemEnum::Enum(item) => dmod.enums.push(DEnum::new(id, item, map)),
+            ItemEnum::Trait(item) => dmod.traits.push(DTrait::new(id, item, map)),
             ItemEnum::Function(_) => dmod.functions.push(DFunction::new(id)),
             ItemEnum::TypeAlias(_) => dmod.type_alias.push(DTypeAlias::new(id)),
             ItemEnum::Constant(_) => dmod.constants.push(DConstant::new(id)),

@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
-    DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
+    DImpl, IDMap, IDs, SliceToIds, ID,
 };
 use rustdoc_types::Union;
 
@@ -11,11 +11,11 @@ pub struct DUnion {
     pub impls: DImpl,
 }
 impl DUnion {
-    pub fn new(id: ID, item: &Union, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Union, map: &IDMap) -> Self {
         DUnion {
             id,
             fields: item.fields.to_ids(),
-            impls: DImpl::new(&item.impls, index),
+            impls: DImpl::new(&item.impls, map),
         }
     }
 }

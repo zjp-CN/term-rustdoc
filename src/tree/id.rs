@@ -331,25 +331,37 @@ impl IDMap {
         }
     }
 
-    /// If the id doesn't refer to an ItemSummary with exact given kind,
-    /// emit a warn and use the id as the result.
-    pub fn path<S, K>(&self, id: &S, kind: K) -> XString
+    /// Like `path`, but with strict item kind checking.
+    /// If the id doesn't refer to an ItemSummary with exact given kind, emit a warn.
+    pub fn path_with_kind_check<S, K>(&self, id: &S, kind: K) -> XString
     where
         S: ?Sized + IdAsStr,
         K: Borrow<ItemKind>,
     {
-        self.use_path_well(id.id_str(), move |item| {
-            let id = id.id_str();
+        let id = id.id_str();
+        self.use_path_well(id, move |item| {
             let kind = kind.borrow();
-            if &item.kind == kind {
-                item.path.join_compact("::")
-            } else {
+            if &item.kind != kind {
                 warn!(
                     "Id({id}) in PathMap is found as {:?}, but {kind:?} is required",
                     item.kind
                 );
-                XString::from(id)
             }
+            item.path.join_compact("::")
         })
+    }
+
+    /// Returns the full path if it exists, or name if it exists or id if neither exists.
+    pub fn path(&self, id: &str) -> XString {
+        self.get_path(id)
+            .map(|item| item.path.join_compact("::"))
+            .unwrap_or_else(|| self.name(id))
+    }
+
+    /// Like `path`, but returns the choice for name/id fallback an Err variant.
+    pub fn path_or_name(&self, id: &str) -> Result<XString, XString> {
+        self.get_path(id)
+            .map(|item| item.path.join_compact("::"))
+            .ok_or_else(|| self.name(id))
     }
 }

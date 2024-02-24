@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
-    IDMap, IDs, IdToID, IndexMap, SliceToIds, Tag, ID,
+    IDMap, IDs, IdToID, SliceToIds, Tag, ID,
 };
 use rustdoc_types::{ItemEnum, Trait};
 
@@ -13,11 +13,12 @@ pub struct DTrait {
     pub implementations: IDs,
 }
 impl DTrait {
-    pub fn new(id: ID, item: &Trait, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Trait, map: &IDMap) -> Self {
         let [mut types, mut constants, mut functions]: [Vec<ID>; 3] = Default::default();
         let trait_id = &id;
+        let indexmap = &map.indexmap();
         for id in &item.items {
-            if let Some(assoc) = index.get(id) {
+            if let Some(assoc) = indexmap.get(id) {
                 let id = id.to_ID(); // id == assoc.id
                 match &assoc.inner {
                     ItemEnum::AssocType { .. } => types.push(id),

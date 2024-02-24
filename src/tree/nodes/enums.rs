@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
-    DImpl, IDMap, IDs, IndexMap, SliceToIds, ID,
+    DImpl, IDMap, IDs, SliceToIds, ID,
 };
 use rustdoc_types::Enum;
 
@@ -12,11 +12,11 @@ pub struct DEnum {
     pub impls: DImpl,
 }
 impl DEnum {
-    pub fn new(id: ID, item: &Enum, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Enum, map: &IDMap) -> Self {
         DEnum {
             id,
             variants: item.variants.to_ids(),
-            impls: DImpl::new(&item.impls, index),
+            impls: DImpl::new(&item.impls, map),
         }
     }
 }

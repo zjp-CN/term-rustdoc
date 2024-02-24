@@ -86,18 +86,10 @@ impl Show for str {
 macro_rules! node {
     // map.path(&self.id, ItemKind::Struct)
     ($tag:ident : $map:ident, $id:expr) => {
-        $crate::tree::DocTree::new(
-            $map.path($id, ::rustdoc_types::ItemKind::$tag),
-            $crate::tree::Tag::$tag,
-            Some($id.into()),
-        )
+        $crate::tree::DocTree::new($map.path($id), $crate::tree::Tag::$tag, Some($id.into()))
     };
     ($tag:ident : $map:ident, $kind:ident, $id:expr) => {
-        $crate::tree::DocTree::new(
-            $map.path($id, ::rustdoc_types::ItemKind::$kind),
-            $crate::tree::Tag::$tag,
-            Some($id.into()),
-        )
+        $crate::tree::DocTree::new($map.path($id), $crate::tree::Tag::$tag, Some($id.into()))
     };
     (@name $tag:ident : $map:ident, $id:expr) => {
         $crate::tree::DocTree::new($map.name($id), $crate::tree::Tag::$tag, Some($id.into()))

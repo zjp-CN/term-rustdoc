@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
-    IDMap, IDs, IdToID, IndexMap, Tag, ID,
+    IDMap, IDs, IdToID, Tag, ID,
 };
 use rustdoc_types::{Id, ItemEnum};
 
@@ -12,10 +12,11 @@ pub struct DImpl {
     pub blanket: IDs,
 }
 impl DImpl {
-    pub fn new(ids: &[Id], index: &IndexMap) -> Self {
+    pub fn new(ids: &[Id], map: &IDMap) -> Self {
         if ids.is_empty() {
             return Default::default();
         }
+        let indexmap = &map.indexmap();
         let [mut inherent, mut trait_, mut auto, mut blanket]: [Vec<ID>; 4] = Default::default();
         for Id(id) in ids {
             if id.starts_with("a:") {
@@ -24,7 +25,7 @@ impl DImpl {
                 blanket.push(id.to_ID());
             } else {
                 let id = Id(id.clone());
-                if let Some(item) = index.get(&id) {
+                if let Some(item) = indexmap.get(&id) {
                     if let ItemEnum::Impl(impl_) = &item.inner {
                         if impl_.trait_.is_none() {
                             inherent.push(id.into_ID());

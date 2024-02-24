@@ -18,7 +18,7 @@ mod imports;
 use super::IDMap;
 use crate::tree::{
     impls::show::{DocTree, Show},
-    IdToID, IndexMap, ID,
+    IdToID, ID,
 };
 use rustdoc_types::{Id, Item, ItemEnum, MacroKind, Module};
 use serde::{Deserialize, Serialize};
@@ -52,9 +52,8 @@ pub struct DModule {
 impl DModule {
     pub fn new(map: &IDMap) -> Self {
         // root module/crate name
-        let index = map.indexmap();
+        let mut index = map.indexmap().iter();
         let (id, root) = index
-            .iter()
             .find_map(|(id, item)| {
                 if item.crate_id == 0 {
                     if let ItemEnum::Module(Module {
@@ -69,38 +68,38 @@ impl DModule {
                 None
             })
             .expect("root module not found");
-        let mut dmod = Self::new_inner(id, root, index);
+        let mut dmod = Self::new_inner(id, root, map);
         dmod.sort_by_name(map);
         dmod
     }
 
-    fn new_inner(id: ID, inner_items: &[Id], index: &IndexMap) -> Self {
+    fn new_inner(id: ID, inner_items: &[Id], map: &IDMap) -> Self {
         let mut dmod = DModule {
             id,
             ..Default::default()
         };
-        dmod.extract_items(inner_items, index);
+        dmod.extract_items(inner_items, map);
         dmod
     }
 
-    fn extract_items(&mut self, inner_items: &[Id], index: &IndexMap) {
+    fn extract_items(&mut self, inner_items: &[Id], map: &IDMap) {
         for item_id in inner_items {
-            match index.get(item_id) {
-                Some(item) => self.append(item, index),
+            match map.indexmap().get(item_id) {
+                Some(item) => self.append(item, map),
                 None => warn!("the local item {item_id:?} not found in Crate's index"),
             }
         }
     }
 
-    fn append(&mut self, item: &Item, index: &IndexMap) {
+    fn append(&mut self, item: &Item, map: &IDMap) {
         use ItemEnum::*;
         let id = item.id.to_ID();
         match &item.inner {
-            Module(item) => self.modules.push(Self::new_inner(id, &item.items, index)),
-            Struct(item) => self.structs.push(DStruct::new(id, item, index)),
-            Union(item) => self.unions.push(DUnion::new(id, item, index)),
-            Enum(item) => self.enums.push(DEnum::new(id, item, index)),
-            Trait(item) => self.traits.push(DTrait::new(id, item, index)),
+            Module(item) => self.modules.push(Self::new_inner(id, &item.items, map)),
+            Struct(item) => self.structs.push(DStruct::new(id, item, map)),
+            Union(item) => self.unions.push(DUnion::new(id, item, map)),
+            Enum(item) => self.enums.push(DEnum::new(id, item, map)),
+            Trait(item) => self.traits.push(DTrait::new(id, item, map)),
             Function(_) => self.functions.push(DFunction::new(id)),
             Constant(_) => self.constants.push(DConstant::new(id)),
             Static(_) => self.statics.push(DStatic::new(id)),
@@ -111,7 +110,7 @@ impl DModule {
                 MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
                 MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
             },
-            Import(import) => imports::parse_import(id, import, index, self),
+            Import(import) => imports::parse_import(id, import, map, self),
             // Primitive(_) => todo!(),
             _ => (),
         }

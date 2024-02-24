@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, show_names, DocTree, Show},
-    DImpl, IDMap, IDs, IdToID, IndexMap, SliceToIds, Tag, ID,
+    DImpl, IDMap, IDs, IdToID, SliceToIds, Tag, ID,
 };
 use rustdoc_types::{Struct, StructKind};
 
@@ -13,7 +13,7 @@ pub struct DStruct {
 }
 
 impl DStruct {
-    pub fn new(id: ID, item: &Struct, index: &IndexMap) -> Self {
+    pub fn new(id: ID, item: &Struct, map: &IDMap) -> Self {
         let mut contain_private_fields = false;
         let fields = match &item.kind {
             StructKind::Unit => IDs::default(),
@@ -35,7 +35,7 @@ impl DStruct {
                 fields.to_ids()
             }
         };
-        let impls = DImpl::new(&item.impls, index);
+        let impls = DImpl::new(&item.impls, map);
         DStruct {
             id,
             fields,

@@ -202,7 +202,6 @@ impl DModule {
 }
 
 impl_show! {
-    traits      => Trait     => Traits     => DTrait,
     functions   => Function  => Functions  => DFunction,
     constants   => Constant  => Constants  => DConstant,
     statics     => Static    => Statics    => DStatic,
@@ -211,6 +210,7 @@ impl_show! {
     macros_func => MacroFunc => MacroFuncs => DMacroFunc,
     macros_attr => MacroAttr => MacroAttrs => DMacroAttr,
     macros_derv => MacroDerv => MacroDervs => DMacroDerv,
+    traits      => Trait     => Traits     => DTrait,
     structs     => Struct    => Structs    => DStruct,
     unions      => Union     => Unions     => DUnion,
     enums       => Enum      => Enums      => DEnum,

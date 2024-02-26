@@ -1,48 +1,48 @@
-                                                                                                      
-   ┌───────────┐                                                                                      
-   │Item Detail│                                                                                      
-   └─────┬─────┘                                                                                      
-         │         ┌───────┐                                                                          
-         ├─────────┤Modules│                                                                          
-         │         └───────┘                                                                          
-         │                                                                                            
-         │         ┌───────────────────┐       ┌───────────────┐                                      
-         │         │Data Structures    ├─┬────►│Fields/Varaints│                                     
-         ├─────────┤(struct/enum/union)│ │     └───────────────┘                                     
-         │         └───────────────────┘ │   
-         │                           ▲   │   
-         │                           │   │     ┌─────┐  For methods in Impls                         
-         │                           │   ├────►│Impls├────────────────────────┐                        
-         │   ┌────────┐              │   │     └───┬─┘                        │                        
-         ├───│Funcions│              │   │         ├─────► Inherent methods   │                        
-         │   └──┬─────┘              │   │         │                          │                        
-         │      │   ┌──────────┐     │   │ Sort    ├─────► Trait methods      │                        
-         │      ├──►│Args Types├───┐ │   │ By Name │                          │                        
-         │      │   └──────────┘   ├─┤   │ In kinds├─────► Auto traits        │                        
-         │      │   ┌───────────┐  ├─┤   │         │                          │                       
-         │      └──►│Return Type├──┘ │   │         └─────► Blanket traits     │                       
+                                                                                                     
+   ┌───────────┐                                                                 Navigation Panel    
+   │Item Detail│                                                               ┌────────────────────┐
+   └─────┬─────┘                                                               │Module Tree         │
+         │         ┌───────┐                                                   │Field/Variant Tree  │
+         ├─────────┤Modules│                                                   │ITAB Impl Tree      │
+         │         └───────┘                                                   │Args Type Tree      │
+         │                                                                     │Return Type Tree    │
+         │         ┌───────────────────┐       ┌───────────────┐               │Construct Fn Tree   │
+         │         │Data Structures    ├─┬────►│Fields/Varaints│               │Non-receiver Fn Tree│
+         ├─────────┤(struct/enum/union)│ │     └───────────────┘               └────────────────────┘
+         │         └───────────────────┘ │                                                           
+         │                           ▲   │                                                           
+         │                           │   │     ┌─────┐ For methods in all Impls                      
+         │                           │   ├────►│Impls├────────────────────────┐                      
+         │   ┌────────┐              │   │     └───┬─┘                        │                      
+         ├───│Funcions│              │   │         ├─────► Inherent methods   │                      
+         │   └──┬─────┘              │   │         │                          │                      
+         │      │   ┌──────────┐     │   │ Sort    ├─────► Trait methods      │                      
+         │      ├──►│Args Types├───┐ │   │ By Name │                          │                      
+         │      │   └──────────┘   ├─┤   │ In kinds├─────► Auto traits        │                      
+         │      │   ┌───────────┐  ├─┤   │         │                          │                      
+         │      └──►│Return Type├──┘ │   │         └─────► Blanket traits     │                      
          │          └───────────┘    │   │                                    │                      
-         │                           │   │                            ┌───────┘                              
+         │                           │   │                            ┌───────┘                      
          │                           │   │                            │    ┌──────────────────┐      
-         │   ┌──────┐                │   │                            ├───►│Sort By Args Types├───┐   
-         └───┤Traits│                │   │                        No  │    └──────────────────┘   │   
-             └─┬────┘                │   │                        ITAB│    ┌───────────────────┐  │   
-               │  ┌────────────────┐ │   │                            └───►│Sort By Return Type├──┤   
-               │  │Sub/Super traits│ │   │                                 └───────────────────┘  │   
-               │  │Assoc Types     │ │   │     ┌───────────────────┐                              │    
-               └──┤Type Parameters │ │   ├─────│Construct Functions│ fn(...) -> Self              │   
-                  │Method Args     │ │   │     └───────────────────┘             │                │   
+         │   ┌──────┐                │   │                            ├───►│Sort By Args Types├───┐  
+         └───┤Traits│                │   │                        No  │    └──────────────────┘   │  
+             └─┬────┘   TODO         │   │                        ITAB│    ┌───────────────────┐  │  
+               │  ┌────────────────┐ │   │                            └───►│Sort By Return Type├──┤  
+               │  │Sub/Super traits│ │   │                                 └───────────────────┘  │  
+               │  │Assoc Types     │ │   │     ┌───────────────────┐                              │  
+               └──┤Type Parameters │ │   ├─────│Construct Functions│ fn(...) -> Self              │  
+                  │Method Args     │ │   │     └───────────────────┘             │                │  
                   │Method Return   │ │   │     ┌───────────────────┐             │                │  
                   └───────┬────────┘ │   └─────│Used as an argument│             │                │  
                           │          │         └───────────────────┘             │                │  
                           │          │          fn(.., Self) -> ...              │                │  
-                          │          │                                           │                │  
-                          ▼          ▼                                           │                │  
-  ┌────────────────────────────────────────────┐                                 │                │  
-  │       ┌──► Concrete Types                  │                                 │                │  
-  │       │                                    │                                 │                │  
-  │Types──┤                                    │                                 │                │  
-  │       │                   ┌─► Semi Generic │◄────────────────────────────────┴────────────────┘  
-  │       └──► Generic Types──┤                │                                                       
-  │                           └─► Fully Generic│                                                       
+                          │          │          i.e. non-receiver fn             │                │  
+                          ▼          ▼                   │                       │                │  
+  ┌────────────────────────────────────────────┐         │                       │                │  
+  │       ┌──► Concrete Types                  │         │                       │                │  
+  │       │                                    │         │                       │                │  
+  │Types──┤                                    │         │                       │                │  
+  │       │                   ┌─► Semi Generic │◄────────┴───────────────────────┴────────────────┘  
+  │       └──► Generic Types──┤                │                                                     
+  │                           └─► Fully Generic│                                                     
   └────────────────────────────────────────────┘                                                     

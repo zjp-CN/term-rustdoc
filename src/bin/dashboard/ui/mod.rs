@@ -4,7 +4,7 @@ mod search;
 
 use self::{database::DataBaseUI, registry::Registry, search::Search};
 use crate::{
-    database::{CachedDocInfo, PkgKey},
+    database::{CachedDocInfo, FeaturesUI, PkgKey},
     event::Sender,
     frame::centered_rect,
     fuzzy::Fuzzy,
@@ -22,7 +22,27 @@ pub struct UI {
     search: Search,
     database: DataBaseUI,
     registry: Registry,
+    features: FeaturesUI,
     area: Area,
+}
+
+macro_rules! scroll {
+    ($self:ident, $($call:tt)+) => {
+        match $self.area.current {
+            Panel::Database => $self
+                .database
+                .scroll_text()
+                .$($call)+,
+            Panel::LocalRegistry => $self
+                .registry
+                .scroll_text()
+                .$($call)+,
+            Panel::Features => $self
+                .features
+                .scroll_text()
+                .$($call)+,
+        }
+    };
 }
 
 impl UI {
@@ -40,8 +60,7 @@ impl UI {
         let mut ui = UI {
             database: DataBaseUI::init(sender, fuzzy.clone()),
             registry: Registry::new_local(fuzzy),
-            search: Search::default(),
-            area: Area::default(),
+            ..Default::default()
         };
         ui.switch_panel(); // switch to database if caches are not empty
         ui.update_area(full);
@@ -50,57 +69,27 @@ impl UI {
     }
 
     pub fn scroll_down(&mut self) {
-        match self.area.current {
-            Panel::Database => self
-                .database
-                .scroll_text()
-                .scrolldown(ScrollOffset::HalfScreen),
-            Panel::LocalRegistry => self
-                .registry
-                .scroll_text()
-                .scrolldown(ScrollOffset::HalfScreen),
-        };
+        scroll!(self, scrolldown(ScrollOffset::HalfScreen));
     }
 
     pub fn scroll_up(&mut self) {
-        match self.area.current {
-            Panel::Database => self
-                .database
-                .scroll_text()
-                .scrollup(ScrollOffset::HalfScreen),
-            Panel::LocalRegistry => self
-                .registry
-                .scroll_text()
-                .scrollup(ScrollOffset::HalfScreen),
-        };
+        scroll!(self, scrollup(ScrollOffset::HalfScreen));
     }
 
     pub fn scroll_home(&mut self) {
-        match self.area.current {
-            Panel::Database => self.database.scroll_text().scroll_home(),
-            Panel::LocalRegistry => self.registry.scroll_text().scroll_home(),
-        };
+        scroll!(self, scroll_home());
     }
 
     pub fn scroll_end(&mut self) {
-        match self.area.current {
-            Panel::Database => self.database.scroll_text().scroll_end(),
-            Panel::LocalRegistry => self.registry.scroll_text().scroll_end(),
-        };
+        scroll!(self, scroll_end());
     }
 
     pub fn move_backward_cursor(&mut self) {
-        match self.area.current {
-            Panel::Database => self.database.scroll_text().move_backward_cursor(),
-            Panel::LocalRegistry => self.registry.scroll_text().move_backward_cursor(),
-        };
+        scroll!(self, move_backward_cursor());
     }
 
     pub fn move_forward_cursor(&mut self) {
-        match self.area.current {
-            Panel::Database => self.database.scroll_text().move_forward_cursor(),
-            Panel::LocalRegistry => self.registry.scroll_text().move_forward_cursor(),
-        };
+        scroll!(self, move_forward_cursor());
     }
 
     pub fn compile_or_load_doc(&mut self, y: Option<u16>) {
@@ -108,10 +97,32 @@ impl UI {
             Panel::Database => self.database.load_doc(y),
             Panel::LocalRegistry => {
                 if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg(y) {
-                    self.database.compile_doc(pkg_dir, pkg_info);
+                    self.features = FeaturesUI::new(pkg_dir, pkg_info, self.area.center);
+                    self.area.current = Panel::Features;
                 }
             }
+            Panel::Features => {
+                self.features.toggle();
+            }
         }
+    }
+
+    fn comfirm_features_and_compile_doc(&mut self) {
+        if let Some(pkg) = self.features.pkg_with_features() {
+            self.database.compile_doc(pkg);
+            self.area.current = Panel::Database;
+        }
+    }
+
+    pub fn respond_to_char(&mut self, ch: char) {
+        match self.area.current {
+            Panel::Features => {
+                if ch == ' ' {
+                    self.comfirm_features_and_compile_doc();
+                }
+            }
+            _ => self.push_char(ch),
+        };
     }
 
     pub fn receive_compiled_doc(&mut self, info: CachedDocInfo) {
@@ -126,13 +137,13 @@ impl UI {
         self.area.current = match self.area.current {
             Panel::Database => Panel::LocalRegistry,
             Panel::LocalRegistry => Panel::Database,
+            Panel::Features => Panel::LocalRegistry,
         };
     }
 
     pub fn switch_sort(&mut self) {
-        match self.area.current {
-            Panel::Database => self.database.switch_sort(),
-            Panel::LocalRegistry => (),
+        if let Panel::Database = self.area.current {
+            self.database.switch_sort()
         }
     }
 
@@ -152,27 +163,20 @@ impl UI {
     /// Returns true for hinting Frame can switch to Page, because no mouse interaction in DashBoard.
     pub fn update_for_mouse(&mut self, event: MouseEvent) -> bool {
         match event.kind {
-            MouseEventKind::ScrollDown => match self.area.current {
-                Panel::Database => self
-                    .database
-                    .scroll_text()
-                    .scrolldown(ScrollOffset::Fixed(5)),
-                Panel::LocalRegistry => self
-                    .registry
-                    .scroll_text()
-                    .scrolldown(ScrollOffset::Fixed(5)),
-            },
-            MouseEventKind::ScrollUp => match self.area.current {
-                Panel::Database => self.database.scroll_text().scrollup(ScrollOffset::Fixed(5)),
-                Panel::LocalRegistry => {
-                    self.registry.scroll_text().scrollup(ScrollOffset::Fixed(5))
-                }
-            },
+            MouseEventKind::ScrollDown => scroll!(self, scrolldown(ScrollOffset::Fixed(5))),
+            MouseEventKind::ScrollUp => scroll!(self, scrollup(ScrollOffset::Fixed(5))),
             MouseEventKind::Down(MouseButton::Left) => {
                 let position = (event.column, event.row);
 
                 if !self.area.center.contains(position.into()) {
                     return true;
+                }
+
+                if matches!(self.area.current, Panel::Features) {
+                    let features = &mut self.features.scroll_text();
+                    let y = features.area.y;
+                    features.set_cursor(event.row.saturating_sub(y));
+                    return false;
                 }
 
                 let registry = self.registry.scroll_text();
@@ -215,11 +219,18 @@ impl UI {
 impl Widget for &mut UI {
     fn render(self, full: Rect, buf: &mut Buffer) {
         self.update_area(full);
-        self.search.render(buf);
+
         let [db, reg] = match self.area.current {
             Panel::Database => [true, false],
             Panel::LocalRegistry => [false, true],
+            Panel::Features => {
+                let features_selection = &mut self.features;
+                features_selection.update_area(self.area.center);
+                features_selection.render(buf);
+                return;
+            }
         };
+        self.search.render(buf);
         self.database.render(buf, db);
         self.registry.render(buf, reg);
     }
@@ -237,6 +248,7 @@ enum Panel {
     Database,
     #[default]
     LocalRegistry,
+    Features,
 }
 
 impl Area {

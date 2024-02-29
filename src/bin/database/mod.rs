@@ -1,4 +1,5 @@
 mod cache_info;
+mod features;
 mod meta;
 mod pkg_key;
 mod util;
@@ -7,15 +8,14 @@ use self::meta::DocMeta;
 use crate::{
     err,
     event::{Event, Sender},
-    local_registry::PkgInfo,
     Result,
 };
 use color_eyre::eyre::WrapErr;
-use serde::{Deserialize, Serialize};
 use std::{fs, path::PathBuf};
-use term_rustdoc::util::XString;
 
-pub use self::{cache_info::CachedDocInfo, pkg_key::PkgKey};
+pub use self::{
+    cache_info::CachedDocInfo, features::FeaturesUI, pkg_key::PkgKey, util::PkgWithFeatures,
+};
 
 #[derive(Default)]
 pub struct DataBase {
@@ -45,7 +45,7 @@ impl DataBase {
         })
     }
 
-    pub fn compile_doc(&self, pkg_dir: PathBuf, pkg_info: PkgInfo) -> Option<PkgKey> {
+    pub fn compile_doc(&self, pkg: PkgWithFeatures) -> Option<PkgKey> {
         let Some(parent) = self.dir.clone() else {
             error!("data_local_dir/term_rustdoc does not exist");
             return None;
@@ -54,7 +54,7 @@ impl DataBase {
             error!("DataBase doesn't have a sender. This is a bug.");
             return None;
         };
-        Some(util::build(sender, parent, pkg_dir, pkg_info))
+        Some(util::build(sender, parent, pkg))
     }
 
     pub fn all_caches(&self) -> Result<Vec<CachedDocInfo>> {
@@ -103,15 +103,4 @@ impl DataBase {
             }
         }
     }
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Clone)]
-#[allow(dead_code)]
-pub enum Features {
-    #[default]
-    Default,
-    All,
-    DefaultPlus(Box<[XString]>),
-    NoDefault,
-    NoDefaultPlus(Box<[XString]>),
 }

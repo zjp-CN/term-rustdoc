@@ -1,4 +1,4 @@
-use super::Features;
+use super::features::Features;
 use crate::local_registry::PkgNameVersion;
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -35,6 +35,10 @@ impl PkgKey {
             name_ver,
             features: Features::Default,
         }
+    }
+
+    pub fn new(name_ver: PkgNameVersion, features: Features) -> PkgKey {
+        PkgKey { name_ver, features }
     }
 
     pub fn name(&self) -> &str {

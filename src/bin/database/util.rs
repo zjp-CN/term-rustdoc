@@ -1,4 +1,4 @@
-use super::PkgKey;
+use super::{features::Features, PkgKey};
 use crate::{
     database::CachedDocInfo,
     event::{Event, Sender},
@@ -11,10 +11,18 @@ use serde::{de::DeserializeOwned, Serialize};
 use std::{io::Write, path::PathBuf};
 use xz2::write::{XzDecoder, XzEncoder};
 
-pub fn build(sender: Sender, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInfo) -> PkgKey {
-    let mut cargo_toml = pkg_dir;
+/// Pkg info and local dir that are used to build the doc.
+#[derive(Clone)]
+pub struct PkgWithFeatures {
+    pub features: Features,
+    pub dir: PathBuf,
+    pub info: PkgInfo,
+}
+
+pub fn build(sender: Sender, db_dir: PathBuf, pkg: PkgWithFeatures) -> PkgKey {
+    let mut cargo_toml = pkg.dir;
     cargo_toml.push("Cargo.toml");
-    let in_progress = PkgKey::new_with_default_feature(pkg_info.to_name_ver());
+    let in_progress = PkgKey::new(pkg.info.to_name_ver(), pkg.features.clone());
     rayon::spawn(move || {
         let dir = match tempfile::tempdir() {
             Ok(dir) => dir,
@@ -24,21 +32,28 @@ pub fn build(sender: Sender, db_dir: PathBuf, pkg_dir: PathBuf, pkg_info: PkgInf
             }
         };
         let mut cache_info =
-            CachedDocInfo::new_with_default_feature(pkg_info.to_name_ver(), db_dir);
+            CachedDocInfo::new(pkg.info.to_name_ver(), pkg.features.clone(), db_dir);
         info!(?cache_info.pkg, "begin to compile the doc under {}", dir.path().display());
-        match rustdoc_json::Builder::default()
+        let compile = rustdoc_json::Builder::default()
             .toolchain("nightly")
             .silent(true)
             .target_dir(&dir)
-            .manifest_path(&cargo_toml)
-            .build()
-        {
+            .manifest_path(&cargo_toml);
+        let built = match pkg.features {
+            Features::Default => compile,
+            Features::All => compile.all_features(true),
+            Features::DefaultPlus(f) => compile.features(f.iter()),
+            Features::NoDefault => compile.no_default_features(true),
+            Features::NoDefaultPlus(f) => compile.no_default_features(true).features(f.iter()),
+        }
+        .build();
+        match built {
             Ok(json_path) => {
                 let meta = cache_info.meta_mut();
                 meta.set_finished_duration();
                 let duration = meta.duration_as_secs();
                 info!(?cache_info.pkg, ?json_path, "succeefully compiled the doc in {duration:.2}s");
-                if let Err(err) = cache_info.save_doc(&json_path, pkg_info) {
+                if let Err(err) = cache_info.save_doc(&json_path, pkg.info) {
                     error!("{err}");
                 }
                 match sender.send(Event::DocCompiled(Box::new(cache_info))) {

@@ -54,6 +54,8 @@ semver = "1"
 nucleo-matcher = "0.3"
 rayon = "1"
 tempfile = "3"
+cargo_toml = { version = "0.19", features = ["features"] }
+self_cell = "1"
 
 [dev-dependencies]
 insta = "1"

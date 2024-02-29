@@ -1,4 +1,5 @@
 use super::{
+    features::Features,
     pkg_key::PkgKey,
     util::{decode, encode},
     DocMeta,
@@ -30,6 +31,17 @@ impl CachedDocInfo {
         let fname = name_ver.doc_db_file_name();
         db_dir.push(&*fname);
         let pkg = PkgKey::new_with_default_feature(name_ver);
+        CachedDocInfo {
+            pkg,
+            db_file: db_dir,
+            meta: DocMeta::new(),
+        }
+    }
+
+    pub fn new(name_ver: PkgNameVersion, features: Features, mut db_dir: PathBuf) -> Self {
+        let fname = name_ver.doc_db_file_name();
+        db_dir.push(&*fname);
+        let pkg = PkgKey::new(name_ver, features);
         CachedDocInfo {
             pkg,
             db_file: db_dir,

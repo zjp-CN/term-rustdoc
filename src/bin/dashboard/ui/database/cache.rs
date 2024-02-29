@@ -3,17 +3,21 @@ mod util;
 
 use self::inner::CacheInner;
 use crate::database::{CachedDocInfo, DataBase, PkgKey};
-use ratatui::prelude::{Color, Style};
+use ratatui::prelude::{Color, Modifier, Style};
 use semver::Version;
 use std::time::SystemTime;
 use std::{cmp::Ordering, mem};
-use term_rustdoc::tree::CrateDoc;
+use term_rustdoc::{
+    tree::CrateDoc,
+    util::{xformat, XString},
+};
 
 pub use self::util::{CacheID, Count, LoadedDoc, SortKind};
 
 #[derive(PartialEq, Eq)]
 pub struct Cache {
     inner: CacheInner,
+    features: XString,
     ver: Version,
 }
 
@@ -21,6 +25,7 @@ impl Cache {
     pub fn new_being_cached(pkg_key: PkgKey) -> Cache {
         Cache {
             ver: pkg_key.version(),
+            features: xformat!("{:?}", pkg_key.features()),
             inner: CacheInner::BeingCached(pkg_key, SystemTime::now()),
         }
     }
@@ -28,6 +33,7 @@ impl Cache {
     pub fn new_unloaded(info: CachedDocInfo) -> Cache {
         Cache {
             ver: info.pkg.version(),
+            features: xformat!("{:?}", info.pkg.features()),
             inner: CacheInner::Unloaded(info),
         }
     }
@@ -45,6 +51,7 @@ impl Cache {
     fn empty_state() -> Cache {
         Cache {
             inner: CacheInner::BeingCached(PkgKey::empty_state(), SystemTime::now()),
+            features: XString::new_inline(""),
             ver: Version::new(0, 0, 0),
         }
     }
@@ -64,6 +71,7 @@ impl Cache {
                                 info: unloaded,
                                 doc,
                             }),
+                            features: old.features,
                             ver: old.ver,
                         }
                     }
@@ -71,6 +79,7 @@ impl Cache {
                         error!("Failed to load {:?}:\n{err}", unloaded.pkg);
                         Cache {
                             inner: CacheInner::Unloaded(unloaded),
+                            features: old.features,
                             ver: old.ver,
                         }
                     }
@@ -83,6 +92,7 @@ impl Cache {
                 }
                 old = Cache {
                     inner: CacheInner::Loaded(loaded),
+                    features: old.features,
                     ver: old.ver,
                 };
             }
@@ -110,7 +120,7 @@ impl Cache {
         key
     }
 
-    pub fn line(&self) -> [(&str, Style); 3] {
+    pub fn line(&self) -> [(&str, Style); 4] {
         let kind = self.inner.kind();
         let key = self.inner.pkg_key();
         [
@@ -126,6 +136,14 @@ impl Cache {
                 key.ver_str(),
                 Style {
                     fg: Some(Color::DarkGray),
+                    ..Style::new()
+                },
+            ),
+            (
+                &self.features,
+                Style {
+                    fg: Some(Color::Cyan),
+                    add_modifier: Modifier::ITALIC,
                     ..Style::new()
                 },
             ),

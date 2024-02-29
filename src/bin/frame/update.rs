@@ -126,7 +126,7 @@ fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
         return;
     }
     match key_event.code {
-        KeyCode::Char(ch) => ui.push_char(ch),
+        KeyCode::Char(ch) => ui.respond_to_char(ch),
         KeyCode::Backspace => ui.pop_char(),
         KeyCode::Up => ui.move_backward_cursor(),
         KeyCode::Down => ui.move_forward_cursor(),

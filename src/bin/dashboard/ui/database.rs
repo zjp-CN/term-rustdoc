@@ -2,14 +2,12 @@ mod cache;
 
 use self::cache::{Cache, CacheID, Count, SortKind};
 use crate::{
-    database::{CachedDocInfo, DataBase, PkgKey},
+    database::{CachedDocInfo, DataBase, PkgKey, PkgWithFeatures},
     event::Sender,
     fuzzy::Fuzzy,
-    local_registry::PkgInfo,
     ui::{render_line, Scrollable, Surround},
 };
 use ratatui::prelude::{Buffer, Color, Rect};
-use std::path::PathBuf;
 use term_rustdoc::{tree::CrateDoc, util::xformat};
 
 #[derive(Default)]
@@ -115,8 +113,8 @@ impl DataBaseUI {
     ///
     /// But when the pkg is cached before, there will be a duplicate.
     /// In this case, this method will change its status.
-    pub fn compile_doc(&mut self, pkg_dir: PathBuf, pkg_info: PkgInfo) {
-        if let Some(pkg_key) = self.pkg_docs().db.compile_doc(pkg_dir, pkg_info) {
+    pub fn compile_doc(&mut self, pkg: PkgWithFeatures) {
+        if let Some(pkg_key) = self.pkg_docs().db.compile_doc(pkg) {
             let caches = &mut self.pkg_docs().caches;
             if let Some(old) = caches.iter_mut().find(|cache| **cache == pkg_key) {
                 *old = Cache::new_being_cached(pkg_key);
@@ -196,7 +194,8 @@ impl DataBaseUI {
         let pkgs = &text.lines.caches;
         for id in ids {
             let num = xformat!("{start:02}. ");
-            let [(kind, style_kind), (name, style_name), (ver, style_ver)] = pkgs[id.0].line();
+            let [(kind, style_kind), (name, style_name), (ver, style_ver), (feat, style_feat)] =
+                pkgs[id.0].line();
             let line = [
                 (kind, style_kind),
                 (" ", style_kind),
@@ -204,6 +203,8 @@ impl DataBaseUI {
                 (name, style_name),
                 (" v", style_ver),
                 (ver, style_ver),
+                (" Features: ", style_feat),
+                (feat, style_feat),
             ];
             render_line(line, buf, x, y, width);
             start += 1;

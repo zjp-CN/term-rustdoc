@@ -121,6 +121,15 @@ impl Surround {
         self.area
     }
 
+    /// Update the border area and then return inner area only when the outer areas differ.
+    pub fn update_area(&mut self, area: Rect) -> Option<Rect> {
+        if self.area == area {
+            return None;
+        }
+        self.area = area;
+        Some(self.inner())
+    }
+
     pub fn render_only_bottom_right_text(&self, buf: &mut Buffer, text: &str) -> usize {
         let area = self.area;
         let text_width = text.width();

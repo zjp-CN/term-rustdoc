@@ -92,7 +92,7 @@ pub struct StyledLines {
     /// Use syntect's highlighting, but with no text wrapped, which means contents won't be shown
     /// if they exceed the area width.
     ///
-    /// To switch between non-wrapping and wrapping behavior, press `<space>` shortcut.
+    /// To switch between non-wrapping and wrapping behavior, press `d` key.
     syntect: bool,
     lines: Vec<StyledLine>,
     blocks: Blocks,

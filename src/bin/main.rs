@@ -1,3 +1,4 @@
+mod color;
 mod dashboard;
 mod database;
 mod event;

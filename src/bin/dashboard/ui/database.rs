@@ -2,12 +2,13 @@ mod cache;
 
 use self::cache::{Cache, CacheID, Count, SortKind};
 use crate::{
+    color::BG_CURSOR_LINE,
     database::{CachedDocInfo, DataBase, PkgKey, PkgWithFeatures},
     event::Sender,
     fuzzy::Fuzzy,
     ui::{render_line, Scrollable, Surround},
 };
-use ratatui::prelude::{Buffer, Color, Rect};
+use ratatui::prelude::{Buffer, Rect};
 use term_rustdoc::{tree::CrateDoc, util::xformat};
 
 #[derive(Default)]
@@ -187,7 +188,7 @@ impl DataBaseUI {
         if current && text.get_line_of_current_cursor().is_some() {
             let row = text.area.y + text.cursor.y;
             for col in x..text.area.width + x {
-                buf.get_mut(col, row).set_bg(Color::from_u32(0x005DA063)); // #5DA063
+                buf.get_mut(col, row).set_bg(BG_CURSOR_LINE);
             }
         }
 

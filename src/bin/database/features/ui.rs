@@ -3,6 +3,7 @@ use super::{
     Features,
 };
 use crate::{
+    color::{BG_CURSOR_LINE, FG_FEATURES},
     database::util::PkgWithFeatures,
     local_registry::PkgInfo,
     ui::{render_line, LineState, Scrollable, Surround},
@@ -86,12 +87,12 @@ impl Selected {
     fn render_line(&self, feat: &XString) -> LineTexts {
         const E: Style = Style::new();
         const Y: Style = Style {
-            fg: Some(Color::Cyan),
+            fg: Some(FG_FEATURES),
             add_modifier: Modifier::BOLD,
             ..Style::new()
         };
         const H: Style = Style {
-            fg: Some(Color::Cyan),
+            fg: Some(FG_FEATURES),
             add_modifier: Modifier::ITALIC,
             ..Style::new()
         };
@@ -288,8 +289,7 @@ impl FeaturesUI {
         let cursor = self.inner.cursor.y;
         if lines.get(cursor as usize).is_some() {
             for offset in 0..area.width {
-                // #29335b
-                buf.get_mut(x + offset, y + cursor).bg = Color::from_u32(0x0029335b);
+                buf.get_mut(x + offset, y + cursor).bg = BG_CURSOR_LINE;
             }
         }
         for feat in lines {

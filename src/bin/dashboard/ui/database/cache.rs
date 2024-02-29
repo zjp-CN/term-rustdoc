@@ -2,8 +2,9 @@ mod inner;
 mod util;
 
 use self::inner::CacheInner;
+use crate::color::{PKG_FEATURES, PKG_NAME, PKG_VERSION};
 use crate::database::{CachedDocInfo, DataBase, PkgKey};
-use ratatui::prelude::{Color, Modifier, Style};
+use ratatui::prelude::Style;
 use semver::Version;
 use std::time::SystemTime;
 use std::{cmp::Ordering, mem};
@@ -125,28 +126,9 @@ impl Cache {
         let key = self.inner.pkg_key();
         [
             kind,
-            (
-                key.name(),
-                Style {
-                    fg: Some(Color::White),
-                    ..Style::new()
-                },
-            ),
-            (
-                key.ver_str(),
-                Style {
-                    fg: Some(Color::DarkGray),
-                    ..Style::new()
-                },
-            ),
-            (
-                &self.features,
-                Style {
-                    fg: Some(Color::Cyan),
-                    add_modifier: Modifier::ITALIC,
-                    ..Style::new()
-                },
-            ),
+            (key.name(), PKG_NAME),
+            (key.ver_str(), PKG_VERSION),
+            (&self.features, PKG_FEATURES),
         ]
     }
 

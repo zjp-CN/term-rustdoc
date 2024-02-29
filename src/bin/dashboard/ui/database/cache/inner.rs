@@ -27,7 +27,7 @@ impl CacheInner {
             CacheInner::Unloaded(_) => (
                 "[Cached]",
                 Style {
-                    fg: Some(Color::DarkGray),
+                    fg: Some(Color::from_u32(0x00A39900)), // #A39900
                     ..Style::new()
                 },
             ),

@@ -1,6 +1,9 @@
-use crate::Result;
+use crate::{
+    color::{PKG_NAME, PKG_VERSION},
+    Result,
+};
 use itertools::Itertools;
-use ratatui::prelude::{Color, Style};
+use ratatui::prelude::Style;
 use regex::Regex;
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -177,15 +180,7 @@ impl PkgInfo {
     }
 
     pub fn styled_name_ver(&self) -> [(&str, Style); 2] {
-        let style_name = Style {
-            fg: Some(Color::White),
-            ..Style::new()
-        };
-        let style_ver = Style {
-            fg: Some(Color::DarkGray),
-            ..Style::new()
-        };
-        [(self.name(), style_name), (self.ver(), style_ver)]
+        [(self.name(), PKG_NAME), (self.ver(), PKG_VERSION)]
     }
 
     pub fn path(&self) -> &Path {

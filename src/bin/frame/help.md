@@ -46,9 +46,29 @@ It lies in your `~/.cargo/registry/src/` on Linux system, for example.
 
 ### KeyMap
 
-* `Enter`: start a task to compile the doc
+* `Enter`: pop up feature selection for selected pkg.
 
-> **NOTE: there is no way to cancel a starting doc compilation.**
+## Feature
+
+Feature selection is an interactive panel to select features to compile doc with.
+
+Features that are checked ( ) or emit warnings ( ) will be passed to compilation.
+
+There are four signs:
+* no sign: not selected and not passed to doc compilation
+*  : selected and passed
+* 🔒: not selected, but implies the feature will be enabled by other features,
+      thus you don't need to enable it.
+*  : selected and passed, but implies the feature has already been enabled by 
+      other features, thus you don't need to enable it.
+
+### KeyMap
+
+* `Enter`: toggle a feature.
+* `Space`: compile doc with selected features.
+* `Tab`: back to Registry panel.
+
+> **NOTE: there is no way to cancel once doc compilation starts.**
 
 # Doc Page
 

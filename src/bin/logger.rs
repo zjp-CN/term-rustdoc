@@ -8,7 +8,7 @@ pub fn init() -> Result<()> {
     // RUST_LOG="debug" or RUST_LOG="module_path=debug" environment variable
     // https://docs.rs/tracing-subscriber/0.3.18/tracing_subscriber/filter/struct.EnvFilter.html#example-syntax
     let env_filter = EnvFilter::builder()
-        .with_default_directive(LevelFilter::ERROR.into())
+        .with_default_directive(LevelFilter::INFO.into())
         .from_env_lossy();
     tracing_subscriber::fmt()
         .with_env_filter(env_filter)

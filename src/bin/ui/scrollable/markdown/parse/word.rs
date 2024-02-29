@@ -6,10 +6,8 @@ use term_rustdoc::util::XString;
 use textwrap::core::Fragment;
 use unicode_width::UnicodeWidthStr;
 
-/// A word that has styling and metadata.
+/// A unwrappable word that has styling and metadata.
 ///
-/// For Paragraphs or QuoteBlocks, words are wrapped in a line.
-/// For non-wrappable blocks, like in CodeBlocks, words in a line are truncated.
 #[derive(Default, Clone)]
 pub struct Word {
     /// NOTE: the word doesn't contain trailling whitespace,

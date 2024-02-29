@@ -5,6 +5,11 @@ use std::fmt;
 use term_rustdoc::util::XString;
 
 /// A block that represents a region like Paragraph, CodeBlock, QuoteBlock, Rule etc.
+///
+/// For a Paragraph or QuoteBlock, a block usually has one line which will
+/// be render as wrapped multiple lines.
+/// For a codeblock, a block has multiple Lines, and one line in source markdown
+/// is equivalently to one Line in the block.
 #[derive(Default, Debug)]
 pub struct Block {
     lines: Vec<Line>,

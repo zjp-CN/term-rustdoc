@@ -97,7 +97,9 @@ impl UI {
             Panel::Database => self.database.load_doc(y),
             Panel::LocalRegistry => {
                 if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg(y) {
-                    self.features = FeaturesUI::new(pkg_dir, pkg_info, self.area.center);
+                    if !self.features.is_same_pkg(&pkg_info) {
+                        self.features = FeaturesUI::new(pkg_dir, pkg_info, self.area.center);
+                    }
                     self.area.current = Panel::Features;
                 }
             }

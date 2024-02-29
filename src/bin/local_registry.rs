@@ -193,6 +193,12 @@ impl PkgInfo {
             version: self.ver_str.clone(),
         }
     }
+
+    /// This is not the same as PartialEq/Eq (`==`), because this method only
+    /// compares with name and version.
+    pub fn is_same_pkg(&self, pkg: &Self) -> bool {
+        self.name == pkg.name && self.ver_str == pkg.ver_str
+    }
 }
 
 thread_local! {

@@ -253,6 +253,13 @@ impl FeaturesUI {
         &mut self.inner
     }
 
+    /// If this returns true, it means we don't need to generate a new instance
+    /// and reuse the FeaturesUI based on selected features.
+    pub fn is_same_pkg(&self, info: &PkgInfo) -> bool {
+        let pkg = self.inner.lines.pkg.as_ref();
+        pkg.map(|pkg| pkg.info.is_same_pkg(info)).unwrap_or(false)
+    }
+
     pub fn pkg_with_features(&mut self) -> Option<PkgWithFeatures> {
         self.inner.lines.pkg_with_features()
     }

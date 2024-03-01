@@ -14,7 +14,7 @@
 
 use super::*;
 use crate::tree::ID;
-use rustdoc_types::{Import, ItemEnum};
+use rustdoc_types::{Import, ItemEnum, ItemKind};
 
 /// Add the item of `pub use source {as name}` to DModule.
 ///
@@ -75,14 +75,35 @@ pub(super) fn parse_import(
             },
             _ => (),
         }
-        return;
-    }
-
-    if let Some(_extern_item) = map.pathmap().get(import_id) {
+    } else if let Some(extern_item) = map.pathmap().get(import_id) {
+        let id = import_id.to_ID();
         // TODO: external items are in path map, which means no further information
         // except full path and item kind will be known.
         // To get details of an external item, we need to compile the external crate,
         // and search it with the full path and kind.
         // A simple example of this is `nucleo` crate.
+        match extern_item.kind {
+            ItemKind::Module if !kin.contains(&id) => {
+                // We don't know items inside external modules.
+                debug!(
+                    "Push down the reexported external `{}` without inner items.",
+                    extern_item.path.join("::")
+                );
+                dmod.modules.push(DModule::new_external(id))
+            }
+            ItemKind::Struct => dmod.structs.push(DStruct::new_external(id)),
+            ItemKind::Union => dmod.unions.push(DUnion::new_external(id)),
+            ItemKind::Enum => dmod.enums.push(DEnum::new_external(id)),
+            ItemKind::Function => dmod.functions.push(DFunction::new(id)),
+            ItemKind::TypeAlias => dmod.type_alias.push(DTypeAlias::new(id)),
+            ItemKind::Constant => dmod.constants.push(DConstant::new(id)),
+            ItemKind::Trait => dmod.traits.push(DTrait::new_external(id)),
+            ItemKind::Static => dmod.statics.push(DStatic::new(id)),
+            ItemKind::Macro => dmod.macros_decl.push(DMacroDecl::new(id)),
+            ItemKind::ProcAttribute => dmod.macros_attr.push(DMacroAttr::new(id)),
+            ItemKind::ProcDerive => dmod.macros_derv.push(DMacroDerv::new(id)),
+            ItemKind::Primitive => (),
+            _ => (),
+        }
     }
 }

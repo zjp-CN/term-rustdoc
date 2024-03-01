@@ -18,6 +18,13 @@ impl DUnion {
             impls: DImpl::new(&item.impls, map),
         }
     }
+
+    /// External items need external crates compiled to know details,
+    /// and the ID here is for PathMap, not IndexMap.
+    pub fn new_external(id: ID) -> Self {
+        let (fields, impls) = Default::default();
+        DUnion { id, fields, impls }
+    }
 }
 
 impl Show for DUnion {

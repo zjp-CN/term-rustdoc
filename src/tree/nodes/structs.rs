@@ -43,6 +43,18 @@ impl DStruct {
             impls,
         }
     }
+
+    /// External items need external crates compiled to know details,
+    /// and the ID here is for PathMap, not IndexMap.
+    pub fn new_external(id: ID) -> Self {
+        let (fields, impls) = Default::default();
+        DStruct {
+            id,
+            fields,
+            impls,
+            contain_private_fields: true,
+        }
+    }
 }
 
 fn private_fields() -> DocTree {

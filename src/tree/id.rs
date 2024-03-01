@@ -222,29 +222,36 @@ impl IDMap {
     // }
     //
 
-    /// If the id doesn't refer to an Item, emit a warn and use the id as the result.
-    fn use_item_well(&self, id: &str, f: impl FnOnce(&Item) -> XString) -> XString {
-        match self.get_item(id).map(f) {
-            Some(s) => s,
-            None => {
-                warn!("Id({id}) doesn't refer to an Item in IndexMap");
-                XString::from(id)
-            }
-        }
-    }
+    // /// If the id doesn't refer to an Item, emit a warn and use the id as the result.
+    // fn use_item_well(&self, id: &str, f: impl FnOnce(&Item) -> XString) -> XString {
+    //     match self.get_item(id).map(f) {
+    //         Some(s) => s,
+    //         None => {
+    //             warn!("Id({id}) doesn't refer to an Item in IndexMap");
+    //             XString::from(id)
+    //         }
+    //     }
+    // }
 
     /// * If the id refers to an Item with a name, use the name;
-    /// * if not, try getting the name depending on item type;
-    /// * id will be used as the result when name parsing is not yet supported.
+    ///     * if name is None, try getting the name depending on item type (reexported local items
+    ///       may hit this);
+    /// * If id isn't in IndexMap, try searching the PathMap for last path component (reexported
+    ///   external items may hit this);
+    /// * otherwise id.
     pub fn name<S>(&self, id: &S) -> XString
     where
         S: ?Sized + IdAsStr,
     {
         let id = id.id_str();
-        self.use_item_well(id, |item| {
+        if let Some(item) = self.get_item(id) {
             let name = item.name.as_deref().map(XString::from);
             name.unwrap_or_else(|| item_name(item).unwrap_or_else(|| id.into()))
-        })
+        } else if let Some(path) = self.get_path(id) {
+            path.path.last().map(|p| p.as_str()).unwrap_or(id).into()
+        } else {
+            id.into()
+        }
     }
 }
 

@@ -41,6 +41,19 @@ impl DTrait {
             implementations: item.implementations.to_ids(),
         }
     }
+
+    /// External items need external crates compiled to know details,
+    /// and the ID here is for PathMap, not IndexMap.
+    pub fn new_external(id: ID) -> Self {
+        let (types, constants, functions, implementations) = Default::default();
+        DTrait {
+            id,
+            types,
+            constants,
+            functions,
+            implementations,
+        }
+    }
 }
 
 impl Show for DTrait {

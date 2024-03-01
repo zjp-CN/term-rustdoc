@@ -19,6 +19,17 @@ impl DEnum {
             impls: DImpl::new(&item.impls, map),
         }
     }
+
+    /// External items need external crates compiled to know details,
+    /// and the ID here is for PathMap, not IndexMap.
+    pub fn new_external(id: ID) -> Self {
+        let (variants, impls) = Default::default();
+        DEnum {
+            id,
+            variants,
+            impls,
+        }
+    }
 }
 
 impl Show for DEnum {

@@ -91,6 +91,15 @@ impl DModule {
         dmod
     }
 
+    /// External items need external crates compiled to know details,
+    /// and the ID here is for PathMap, not IndexMap.
+    fn new_external(id: ID) -> Self {
+        DModule {
+            id,
+            ..Default::default()
+        }
+    }
+
     fn extract_items(&mut self, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<ID>) {
         for item_id in inner_items {
             match map.indexmap().get(item_id) {

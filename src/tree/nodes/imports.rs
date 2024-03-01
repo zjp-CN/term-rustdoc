@@ -29,8 +29,9 @@ pub(super) fn parse_import(
     dmod: &mut DModule,
     kin: &mut Vec<ID>,
 ) {
+    let Some(import_id) = &import.id else { return };
     // Import's id can be empty when the source is Primitive.
-    if let Some(source) = import.id.as_ref().and_then(|id| map.indexmap().get(id)) {
+    if let Some(source) = map.indexmap().get(import_id) {
         match &source.inner {
             ItemEnum::Module(item) => {
                 // check id for ItemSummary/path existence:
@@ -74,5 +75,14 @@ pub(super) fn parse_import(
             },
             _ => (),
         }
+        return;
+    }
+
+    if let Some(_extern_item) = map.pathmap().get(import_id) {
+        // TODO: external items are in path map, which means no further information
+        // except full path and item kind will be known.
+        // To get details of an external item, we need to compile the external crate,
+        // and search it with the full path and kind.
+        // A simple example of this is `nucleo` crate.
     }
 }

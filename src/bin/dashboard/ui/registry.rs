@@ -57,7 +57,7 @@ impl PkgLists {
             .take_while(|info| info.name() == name)
             .count();
         let mut all = all[found.saturating_sub(before)..found.saturating_add(after)].to_owned();
-        all.sort_unstable_by(|a, b| b.ver().cmp(a.ver()));
+        all.sort_unstable_by(|a, b| b.version().cmp(a.version()));
         all
     }
 

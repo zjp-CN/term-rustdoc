@@ -189,6 +189,10 @@ impl PkgInfo {
         &self.ver_str
     }
 
+    pub fn version(&self) -> &Version {
+        &self.version
+    }
+
     pub fn styled_name_ver(&self) -> [(&str, Style); 2] {
         [(self.name(), PKG_NAME), (self.ver(), PKG_VERSION)]
     }

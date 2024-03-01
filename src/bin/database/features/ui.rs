@@ -188,10 +188,17 @@ impl Select {
                         .list
                         .iter()
                         .filter_map(|l| {
-                            matches!(l.selected, Selected::Yes | Selected::NeedlesslyEnabledBy(_))
-                                .then_some(&l.feature)
+                            if matches!(
+                                l.selected,
+                                Selected::Yes | Selected::NeedlesslyEnabledBy(_)
+                            ) && l.feature != "default"
+                            {
+                                // Skip default here because this is checked below,
+                                // otherwise, we'll see `DefaultPlus(["default", ...])`.
+                                return Some(l.feature.clone());
+                            }
+                            None
                         })
-                        .cloned()
                         .collect::<Box<[_]>>();
                     let default = select
                         .features
@@ -251,6 +258,18 @@ impl FeaturesUI {
 
     pub fn scroll_text(&mut self) -> &mut Scrollable<Select> {
         &mut self.inner
+    }
+
+    /// If there is no feature available to select, returns true.
+    pub fn skip_selection(&self) -> bool {
+        let select = self.inner.lines.select.as_ref();
+        select
+            .map(|s| {
+                s.features.is_empty() || {
+                    s.features.len() == 1 && s.manifest.default_for_nothing()
+                }
+            })
+            .unwrap_or(true)
     }
 
     /// If this returns true, it means we don't need to generate a new instance

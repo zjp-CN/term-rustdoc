@@ -210,6 +210,14 @@ impl ManifestFeatures {
             Resolver::new_with_hasher_and_filter(&|_| false).parse(manifest)
         }))
     }
+
+    /// `default` feature doesn't enable anything
+    pub fn default_for_nothing(&self) -> bool {
+        let default = self.borrow_dependent().features.get("default");
+        default
+            .map(|f| f.enables_features.is_empty() && f.enables_deps.is_empty())
+            .unwrap_or(false)
+    }
 }
 
 #[test]

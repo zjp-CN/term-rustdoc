@@ -100,7 +100,14 @@ impl UI {
                     if !self.features.is_same_pkg(&pkg_info) {
                         self.features = FeaturesUI::new(pkg_dir, pkg_info, self.area.center);
                     }
-                    self.area.current = Panel::Features;
+                    if self.features.skip_selection() {
+                        // no feature to select, thus compile the doc directly
+                        if let Some(pkg) = self.features.pkg_with_features() {
+                            self.database.compile_doc(pkg)
+                        }
+                    } else {
+                        self.area.current = Panel::Features;
+                    }
                 }
             }
             Panel::Features => {

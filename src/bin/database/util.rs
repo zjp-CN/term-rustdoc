@@ -15,13 +15,11 @@ use xz2::write::{XzDecoder, XzEncoder};
 #[derive(Clone)]
 pub struct PkgWithFeatures {
     pub features: Features,
-    pub dir: PathBuf,
     pub info: PkgInfo,
 }
 
 pub fn build(sender: Sender, db_dir: PathBuf, pkg: PkgWithFeatures) -> PkgKey {
-    let mut cargo_toml = pkg.dir;
-    cargo_toml.push("Cargo.toml");
+    let cargo_toml = pkg.info.path().join("Cargo.toml");
     let in_progress = PkgKey::new(pkg.info.to_name_ver(), pkg.features.clone());
     rayon::spawn(move || {
         let dir = match tempfile::tempdir() {

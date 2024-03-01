@@ -5,19 +5,23 @@ use crate::{
     ui::{render_line, LineState, Scrollable, Surround},
 };
 use ratatui::prelude::{Buffer, Rect};
-use std::path::PathBuf;
 use term_rustdoc::util::xformat;
 
 #[derive(Default)]
 pub(super) struct PkgLists {
+    /// Local pkgs shown with latest version.
     local: LocalRegistry,
+    /// Index of latest local pkgs.
     filter: Vec<LocalPkgsIndex>,
+    /// Local pkgs with all versions, which are used in FeaturesUI to select
+    /// a version and corresponding features.
+    local_all_versions: LocalRegistry,
     fuzzy: Option<Fuzzy>,
 }
 
 impl PkgLists {
     fn new_local(fuzzy: Fuzzy) -> Self {
-        let registry = match LocalRegistry::lastest_pkgs_in_latest_registry() {
+        let [registry, all] = match LocalRegistry::all_pkgs_with_latest_and_all_versions() {
             Ok(registry) => registry,
             Err(err) => {
                 error!("{err}");
@@ -32,8 +36,29 @@ impl PkgLists {
         PkgLists {
             filter: (0..registry.len()).map(LocalPkgsIndex).collect(),
             local: registry,
+            local_all_versions: all,
             fuzzy: Some(fuzzy),
         }
+    }
+
+    /// Get all versions for a pkg, but in reverse order. (Latest is first)
+    pub fn get_all_version(&self, name: &str) -> Vec<PkgInfo> {
+        let all = &self.local_all_versions;
+        let Ok(found) = all.binary_search_by(|info| info.name().cmp(name)) else {
+            return Vec::new();
+        };
+        let before = all[..found]
+            .iter()
+            .rev()
+            .take_while(|info| info.name() == name)
+            .count();
+        let after = all[found..]
+            .iter()
+            .take_while(|info| info.name() == name)
+            .count();
+        let mut all = all[found.saturating_sub(before)..found.saturating_add(after)].to_owned();
+        all.sort_unstable_by(|a, b| b.ver().cmp(a.ver()));
+        all
     }
 
     fn fill_filter(&mut self) {
@@ -192,15 +217,12 @@ impl Registry {
         }
     }
 
-    pub fn get_pkg(&self, y: Option<u16>) -> Option<(PathBuf, PkgInfo)> {
+    pub fn get_pkg(&self, y: Option<u16>) -> Option<PkgInfo> {
         let pkgs = &self.inner.lines.local;
         y.map_or_else(
             || self.inner.get_line_of_current_cursor(),
             |y| self.inner.get_line_on_screen(y),
         )
-        .map(|idx| {
-            let pkg = &pkgs[idx.0];
-            (pkgs.registry_src_path().join(pkg.path()), pkg.clone())
-        })
+        .map(|idx| pkgs[idx.0].clone())
     }
 }

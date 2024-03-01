@@ -13,7 +13,6 @@ use ratatui::{
     widgets::{Block, Borders},
 };
 use smallvec::{smallvec, SmallVec};
-use std::path::PathBuf;
 use term_rustdoc::{
     tree::Text,
     util::{xformat, XString},
@@ -145,9 +144,8 @@ pub struct Select {
 }
 
 impl Select {
-    pub fn from_registry(mut pkg_dir: PathBuf, pkg_info: PkgInfo) -> Select {
-        pkg_dir.push("Cargo.toml");
-        let path = &pkg_dir;
+    pub fn from_registry(pkg_info: PkgInfo) -> Select {
+        let path = &pkg_info.path().join("Cargo.toml");
         let select = FeaturesControlledByUsers::new(path)
             .map_err(|err| {
                 error!("Features not parsed from {}:\n{err}", path.display());
@@ -155,12 +153,10 @@ impl Select {
             .ok()
             // Don't display selection popup if no feature
             .filter(|f| !f.features.is_empty() || f.features.keys().eq(Some(&"default")));
-        pkg_dir.pop();
         let mut select = Select {
             select,
             pkg: Some(PkgWithFeatures {
                 features: Features::Default,
-                dir: pkg_dir,
                 info: pkg_info,
             }),
             list: Vec::new(),
@@ -241,7 +237,7 @@ pub struct FeaturesUI {
 }
 
 impl FeaturesUI {
-    pub fn new(pkg_dir: PathBuf, pkg_info: PkgInfo, outer: Rect) -> FeaturesUI {
+    pub fn new(pkg_info: PkgInfo, outer: Rect) -> FeaturesUI {
         let border = Surround::new(
             Block::new()
                 .borders(Borders::ALL)
@@ -249,7 +245,7 @@ impl FeaturesUI {
             outer,
         );
         let inner = Scrollable::<Select> {
-            lines: Select::from_registry(pkg_dir, pkg_info),
+            lines: Select::from_registry(pkg_info),
             area: border.inner(),
             ..Default::default()
         };

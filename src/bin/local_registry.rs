@@ -82,12 +82,22 @@ impl LocalRegistry {
         Ok(LocalRegistry { pkgs, path })
     }
 
+    #[allow(unused)]
     pub fn lastest_pkgs_in_latest_registry() -> Result<Self> {
         let Some(path) = latest_registry()? else {
             return Ok(Self::default());
         };
         let pkgs = lastest_pkgs_in_latest_registry(&path);
         Ok(LocalRegistry { pkgs, path })
+    }
+
+    pub fn all_pkgs_with_latest_and_all_versions() -> Result<[Self; 2]> {
+        let all = Self::all_pkgs_in_latest_registry()?;
+        let latest = LocalRegistry {
+            pkgs: all_versions_to_latest_version(&all.pkgs),
+            path: all.path.clone(),
+        };
+        Ok([latest, all])
     }
 
     pub fn len(&self) -> usize {
@@ -99,7 +109,7 @@ impl LocalRegistry {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PkgNameVersion {
     name: XString,
     version: XString,
@@ -139,7 +149,7 @@ pub struct PkgInfo {
     ver_str: XString,
     /// Pkg version parsed from ver_str.
     version: Version,
-    /// The pkg dir path not including Cargo.toml.
+    /// The full pkg dir path not including Cargo.toml but including registry src path.
     path: PathBuf,
     /// The last modified time for pkg dir.
     modified: SystemTime,
@@ -227,6 +237,22 @@ pub fn lastest_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgInfo> {
             pkg.into_iter()
                 .max_by(|a, b| a.version.cmp(&b.version))
                 .unwrap()
+        })
+        .collect();
+    pkgs.shrink_to_fit();
+    pkgs
+}
+
+fn all_versions_to_latest_version(all: &[PkgInfo]) -> Vec<PkgInfo> {
+    let mut pkgs: Vec<_> = all
+        .iter()
+        .group_by(|pkg| pkg.name.clone())
+        .into_iter()
+        .map(|(_, pkg)| {
+            pkg.into_iter()
+                .max_by(|a, b| a.version.cmp(&b.version))
+                .unwrap()
+                .clone()
         })
         .collect();
     pkgs.shrink_to_fit();

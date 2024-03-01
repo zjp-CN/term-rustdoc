@@ -1,10 +1,13 @@
 mod database;
 mod registry;
 mod search;
+mod version_features;
 
-use self::{database::DataBaseUI, registry::Registry, search::Search};
+use self::{
+    database::DataBaseUI, registry::Registry, search::Search, version_features::VersionFeatures,
+};
 use crate::{
-    database::{CachedDocInfo, FeaturesUI, PkgKey},
+    database::{CachedDocInfo, PkgKey},
     event::Sender,
     frame::centered_rect,
     fuzzy::Fuzzy,
@@ -22,7 +25,7 @@ pub struct UI {
     search: Search,
     database: DataBaseUI,
     registry: Registry,
-    features: FeaturesUI,
+    ver_feat: VersionFeatures,
     area: Area,
 }
 
@@ -37,8 +40,9 @@ macro_rules! scroll {
                 .registry
                 .scroll_text()
                 .$($call)+,
-            Panel::Features => $self
-                .features
+            Panel::VersionFeatures => $self
+                .ver_feat
+                .features()
                 .scroll_text()
                 .$($call)+,
         }
@@ -54,6 +58,7 @@ impl UI {
             self.database.set_area(db);
             self.registry.set_area(registry);
         }
+        self.ver_feat.update_area(self.area.center);
     }
 
     pub fn new(full: Rect, fuzzy: Fuzzy, sender: Sender) -> Self {
@@ -96,28 +101,33 @@ impl UI {
         match self.area.current {
             Panel::Database => self.database.load_doc(y),
             Panel::LocalRegistry => {
-                if let Some((pkg_dir, pkg_info)) = self.registry.get_pkg(y) {
-                    if !self.features.is_same_pkg(&pkg_info) {
-                        self.features = FeaturesUI::new(pkg_dir, pkg_info, self.area.center);
+                if let Some(pkg_info) = self.registry.get_pkg(y) {
+                    if !self.ver_feat.features().is_same_pkg(&pkg_info) {
+                        let all = self
+                            .registry
+                            .scroll_text()
+                            .lines
+                            .get_all_version(pkg_info.name());
+                        self.ver_feat = VersionFeatures::new(pkg_info, all, self.area.center);
                     }
-                    if self.features.skip_selection() {
+                    if self.ver_feat.features().skip_selection() {
                         // no feature to select, thus compile the doc directly
-                        if let Some(pkg) = self.features.pkg_with_features() {
+                        if let Some(pkg) = self.ver_feat.features().pkg_with_features() {
                             self.database.compile_doc(pkg)
                         }
                     } else {
-                        self.area.current = Panel::Features;
+                        self.area.current = Panel::VersionFeatures;
                     }
                 }
             }
-            Panel::Features => {
-                self.features.toggle();
+            Panel::VersionFeatures => {
+                self.ver_feat.features().toggle();
             }
         }
     }
 
     fn comfirm_features_and_compile_doc(&mut self) {
-        if let Some(pkg) = self.features.pkg_with_features() {
+        if let Some(pkg) = self.ver_feat.features().pkg_with_features() {
             self.database.compile_doc(pkg);
             self.area.current = Panel::Database;
         }
@@ -125,7 +135,7 @@ impl UI {
 
     pub fn respond_to_char(&mut self, ch: char) {
         match self.area.current {
-            Panel::Features => {
+            Panel::VersionFeatures => {
                 if ch == ' ' {
                     self.comfirm_features_and_compile_doc();
                 }
@@ -146,7 +156,7 @@ impl UI {
         self.area.current = match self.area.current {
             Panel::Database => Panel::LocalRegistry,
             Panel::LocalRegistry => Panel::Database,
-            Panel::Features => Panel::LocalRegistry,
+            Panel::VersionFeatures => Panel::LocalRegistry,
         };
     }
 
@@ -181,8 +191,8 @@ impl UI {
                     return true;
                 }
 
-                if matches!(self.area.current, Panel::Features) {
-                    let features = &mut self.features.scroll_text();
+                if matches!(self.area.current, Panel::VersionFeatures) {
+                    let features = &mut self.ver_feat.features().scroll_text();
                     let y = features.area.y;
                     features.set_cursor(event.row.saturating_sub(y));
                     return false;
@@ -232,10 +242,8 @@ impl Widget for &mut UI {
         let [db, reg] = match self.area.current {
             Panel::Database => [true, false],
             Panel::LocalRegistry => [false, true],
-            Panel::Features => {
-                let features_selection = &mut self.features;
-                features_selection.update_area(self.area.center);
-                features_selection.render(buf);
+            Panel::VersionFeatures => {
+                self.ver_feat.render(buf);
                 return;
             }
         };
@@ -257,7 +265,7 @@ enum Panel {
     Database,
     #[default]
     LocalRegistry,
-    Features,
+    VersionFeatures,
 }
 
 impl Area {

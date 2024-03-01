@@ -23,3 +23,17 @@ pub const PKG_FEATURES: Style = Style {
     add_modifier: Modifier::ITALIC,
     ..Style::new()
 };
+
+// Database Panel
+pub const LOADED: Style = Style {
+    fg: Some(Color::from_u32(0x00FFD48E)), // #FFD48E
+    ..Style::new()
+};
+pub const CACHED: Style = Style {
+    fg: Some(Color::from_u32(0x006FA2FF)), // #6FA2FF
+    ..Style::new()
+};
+pub const HOLDON: Style = Style {
+    fg: Some(Color::from_u32(0x00FF768C)), // #FF768C
+    ..Style::new()
+};

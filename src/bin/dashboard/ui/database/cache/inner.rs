@@ -1,6 +1,9 @@
 use super::LoadedDoc;
-use crate::database::{CachedDocInfo, PkgKey};
-use ratatui::prelude::{Color, Style};
+use crate::{
+    color::{CACHED, HOLDON, LOADED},
+    database::{CachedDocInfo, PkgKey},
+};
+use ratatui::prelude::Style;
 use std::time::SystemTime;
 
 pub enum CacheInner {
@@ -23,21 +26,9 @@ impl CacheInner {
 
     pub fn kind(&self) -> (&'static str, Style) {
         match self {
-            CacheInner::Loaded(_) => ("[Loaded]", Style::new()),
-            CacheInner::Unloaded(_) => (
-                "[Cached]",
-                Style {
-                    fg: Some(Color::from_u32(0x00A39900)), // #A39900
-                    ..Style::new()
-                },
-            ),
-            CacheInner::BeingCached(_, _) => (
-                "[HoldOn]",
-                Style {
-                    fg: Some(Color::LightMagenta),
-                    ..Style::new()
-                },
-            ),
+            CacheInner::Loaded(_) => ("[Loaded]", LOADED),
+            CacheInner::Unloaded(_) => ("[Cached]", CACHED),
+            CacheInner::BeingCached(_, _) => ("[HoldOn]", HOLDON),
         }
     }
 }

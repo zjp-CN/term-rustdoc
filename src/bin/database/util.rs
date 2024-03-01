@@ -19,9 +19,9 @@ pub struct PkgWithFeatures {
 }
 
 pub fn build(sender: Sender, db_dir: PathBuf, pkg: PkgWithFeatures) -> PkgKey {
-    let cargo_toml = pkg.info.path().join("Cargo.toml");
     let in_progress = PkgKey::new(pkg.info.to_name_ver(), pkg.features.clone());
     rayon::spawn(move || {
+        let cargo_toml = pkg.info.path().join("Cargo.toml");
         let dir = match tempfile::tempdir() {
             Ok(dir) => dir,
             Err(err) => {

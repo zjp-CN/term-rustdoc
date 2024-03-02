@@ -204,7 +204,7 @@ impl DataBaseUI {
                 (name, style_name),
                 (" v", style_ver),
                 (ver, style_ver),
-                (" Features: ", style_feat),
+                (" ", style_feat),
                 (feat, style_feat),
             ];
             render_line(line, buf, x, y, width);

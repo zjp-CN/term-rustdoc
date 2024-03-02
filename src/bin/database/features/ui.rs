@@ -6,7 +6,7 @@ use crate::{
     color::{BG_CURSOR_LINE, FG_CURSOR_LINE, FG_FEATURES},
     database::util::PkgWithFeatures,
     local_registry::PkgInfo,
-    ui::{render_line, LineState, Scrollable, Surround},
+    ui::{render_line, LineState, Scroll, Surround},
 };
 use ratatui::{
     prelude::{Buffer, Color, Modifier, Rect, Span, Style},
@@ -232,7 +232,7 @@ impl std::ops::Deref for Select {
 
 #[derive(Default)]
 pub struct FeaturesUI {
-    inner: Scrollable<Select>,
+    inner: Scroll<Select>,
     border: Surround,
 }
 
@@ -255,7 +255,7 @@ impl FeaturesUI {
             ])),
             outer,
         );
-        let inner = Scrollable::<Select> {
+        let inner = Scroll::<Select> {
             lines: Select::from_registry(pkg_info),
             area: border.inner(),
             ..Default::default()
@@ -263,7 +263,7 @@ impl FeaturesUI {
         FeaturesUI { inner, border }
     }
 
-    pub fn scroll_text(&mut self) -> &mut Scrollable<Select> {
+    pub fn scroll_text(&mut self) -> &mut Scroll<Select> {
         &mut self.inner
     }
 

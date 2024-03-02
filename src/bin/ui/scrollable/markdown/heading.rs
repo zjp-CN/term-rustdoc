@@ -2,7 +2,7 @@ use super::region::SelectedRegion;
 use crate::ui::{
     scrollable::{
         generics::{render_line, render_line_fill_gap, LineState},
-        Scrollable,
+        Scroll,
     },
     Page,
 };
@@ -10,7 +10,7 @@ use ratatui::prelude::{Buffer, Color, Style};
 use term_rustdoc::{tree::Text, util::XString};
 use unicode_width::UnicodeWidthStr;
 
-pub type ScrollHeading = Scrollable<Headings>;
+pub type ScrollHeading = Scroll<Headings>;
 
 #[derive(Debug)]
 pub struct Heading {

@@ -1,10 +1,10 @@
-use super::{LineState, Lines, Scrollable};
+use super::{LineState, Lines, Scroll};
 use crate::ui::ScrollOffset;
 
 /// Trait object that is used when a widget containing multiple scrollable components
 /// needs to unifiy the behavior of scrolling or moving the cursor.
 #[allow(dead_code)]
-pub trait Scroll {
+pub trait Scrollable {
     fn scroll_down(&mut self, offset: ScrollOffset);
     fn scroll_up(&mut self, offset: ScrollOffset);
     fn scroll_home(&mut self);
@@ -17,7 +17,7 @@ pub trait Scroll {
     fn set_cursor(&mut self, y: u16);
 }
 
-impl<Ls: Lines> Scroll for Scrollable<Ls> {
+impl<Ls: Lines> Scrollable for Scroll<Ls> {
     fn scroll_down(&mut self, offset: ScrollOffset) {
         self.scroll_down(offset);
     }
@@ -60,7 +60,7 @@ impl<Ls: Lines> Scroll for Scrollable<Ls> {
 }
 
 /// Scrolling
-impl<Ls: Lines> Scrollable<Ls> {
+impl<Ls: Lines> Scroll<Ls> {
     pub fn scroll_down(&mut self, offset: ScrollOffset) {
         let height = self.area.height as usize;
         let len = self.total_len();
@@ -111,7 +111,7 @@ impl<Ls: Lines> Scrollable<Ls> {
 }
 
 /// Cursor state
-impl<Ls: Lines> Scrollable<Ls> {
+impl<Ls: Lines> Scroll<Ls> {
     /// Check the cursor position and its state after redrawing.
     ///
     /// NOTE: this should always be called when the length of lines is changed,
@@ -155,7 +155,7 @@ impl<Ls: Lines> Scrollable<Ls> {
 }
 
 /// Cursor movement
-impl<Ls: Lines> Scrollable<Ls> {
+impl<Ls: Lines> Scroll<Ls> {
     pub fn move_forward_cursor(&mut self) {
         let height = self.area.height;
         let reach_sceen_bottom = (self.cursor.y + 1) == height;

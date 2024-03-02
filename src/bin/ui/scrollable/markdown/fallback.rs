@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     ui::{
-        scrollable::{generics::LineState, Scrollable},
+        scrollable::{generics::LineState, Scroll},
         Page,
     },
     Result,
@@ -16,7 +16,7 @@ use term_rustdoc::{tree::CrateDoc, util::XString};
 use unicode_width::UnicodeWidthStr;
 
 /// Scrollable text area for displaying markdown.
-pub type ScrollText = Scrollable<StyledLines>;
+pub type ScrollText = Scroll<StyledLines>;
 
 pub struct StyledLine {
     line: Vec<StyledText>,
@@ -163,7 +163,7 @@ impl Page {
 
 impl ScrollText {
     pub fn new_text(doc: CrateDoc) -> Result<Self> {
-        Ok(Scrollable {
+        Ok(Scroll {
             lines: StyledLines::new(doc),
             ..Default::default()
         })

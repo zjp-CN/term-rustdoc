@@ -1,5 +1,5 @@
 use super::{fallback::StyledLine, parse::Blocks, render::write_lines, ScrollHeading};
-use crate::ui::{scrollable::markdown::parse::parse_doc, Scrollable};
+use crate::ui::{scrollable::markdown::parse::parse_doc, Scroll};
 use ratatui::prelude::{Buffer, Constraint, Layout, Rect};
 
 pub struct MarkdownAndHeading {
@@ -7,7 +7,7 @@ pub struct MarkdownAndHeading {
     heading: ScrollHeading,
 }
 
-pub type ScrollMarkdown = Scrollable<MarkdownInner>;
+pub type ScrollMarkdown = Scroll<MarkdownInner>;
 
 const TOC_WIDTH: u16 = 12;
 
@@ -66,14 +66,14 @@ fn split_area(area: Rect) -> [Rect; 2] {
 }
 
 pub struct MarkdownArea {
-    inner: Scrollable<MarkdownInner>,
+    inner: Scroll<MarkdownInner>,
     #[allow(dead_code)]
     blocks: Blocks,
 }
 
 impl MarkdownArea {
     fn new(area: Rect, lines: Vec<StyledLine>, blocks: Blocks) -> Self {
-        let md = Scrollable::<MarkdownInner> {
+        let md = Scroll::<MarkdownInner> {
             area,
             lines: MarkdownInner { lines },
             ..Default::default()

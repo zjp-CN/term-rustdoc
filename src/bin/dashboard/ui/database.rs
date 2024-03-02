@@ -6,7 +6,7 @@ use crate::{
     database::{CachedDocInfo, DataBase, PkgKey, PkgWithFeatures},
     event::Sender,
     fuzzy::Fuzzy,
-    ui::{render_line, Scrollable, Surround},
+    ui::{render_line, Scroll, Surround},
 };
 use ratatui::prelude::{Buffer, Rect};
 use term_rustdoc::{tree::CrateDoc, util::xformat};
@@ -32,7 +32,7 @@ impl std::ops::Deref for PkgDocs {
 
 #[derive(Default)]
 pub struct DataBaseUI {
-    inner: Scrollable<PkgDocs>,
+    inner: Scroll<PkgDocs>,
     border: Surround,
 }
 
@@ -258,7 +258,7 @@ impl DataBaseUI {
         self.inner.all_lines().is_empty()
     }
 
-    pub fn scroll_text(&mut self) -> &mut Scrollable<PkgDocs> {
+    pub fn scroll_text(&mut self) -> &mut Scroll<PkgDocs> {
         &mut self.inner
     }
 

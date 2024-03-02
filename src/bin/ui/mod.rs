@@ -39,7 +39,7 @@ impl Page {
     pub fn new(pkg_key: PkgKey, doc: CrateDoc, area: Rect) -> Result<Self> {
         let mut page = Page {
             outline: Outline {
-                display: Scrollable::new(doc.clone().into())?,
+                display: Scroll::new(doc.clone().into())?,
                 ..Default::default()
             },
             content: Content {

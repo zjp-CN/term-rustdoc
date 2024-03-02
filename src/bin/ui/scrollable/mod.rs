@@ -9,11 +9,11 @@ mod markdown;
 mod render;
 
 pub use self::generics::{render_line, LineState, Lines};
-pub use self::interaction::Scroll;
+pub use self::interaction::Scrollable;
 pub use self::markdown::{MarkdownAndHeading, ScrollHeading, ScrollMarkdown, ScrollText};
 
 /// Scrollable tree view but stored in lines.
-pub type ScrollTreeLines = Scrollable<TreeLines>;
+pub type ScrollTreeLines = Scroll<TreeLines>;
 
 pub struct Cursor<State> {
     /// The row position because scrollable area only highlights row.
@@ -37,7 +37,7 @@ impl<State: Default> Default for Cursor<State> {
 }
 
 /// A text panel that can be scrolled and select texts when the cursor is inside of it.
-pub struct Scrollable<Ls: Lines> {
+pub struct Scroll<Ls: Lines> {
     /// Styled texts on each line
     pub lines: Ls,
     /// The start of row to be displayed
@@ -50,7 +50,7 @@ pub struct Scrollable<Ls: Lines> {
     pub area: Rect,
 }
 
-impl<Ls: Lines> Scrollable<Ls> {
+impl<Ls: Lines> Scroll<Ls> {
     /// The whole lines including non-visible lines.
     pub fn all_lines(&self) -> &[Ls::Line] {
         &self.lines
@@ -94,14 +94,14 @@ impl<Ls: Lines> Scrollable<Ls> {
     }
 }
 
-impl<Ls> Default for Scrollable<Ls>
+impl<Ls> Default for Scroll<Ls>
 where
     Ls: Default + Lines,
     <Ls::Line as LineState>::State: Default,
 {
     fn default() -> Self where {
         let (lines, start, cursor, max_windth, area) = Default::default();
-        Scrollable {
+        Scroll {
             lines,
             start,
             cursor,
@@ -111,7 +111,7 @@ where
     }
 }
 
-impl<Ls> Scrollable<Ls>
+impl<Ls> Scroll<Ls>
 where
     Ls: Default + Lines<Line = TreeLine>,
 {
@@ -139,7 +139,7 @@ where
     }
 }
 
-impl<Ls: Lines> fmt::Debug for Scrollable<Ls> {
+impl<Ls: Lines> fmt::Debug for Scroll<Ls> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("Scrollable");
         s.field("lines.len", &self.total_len())

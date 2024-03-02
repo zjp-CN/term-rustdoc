@@ -43,7 +43,7 @@ impl VersionFeatures {
         }
     }
 
-    pub fn scroll_text(&mut self) -> &mut dyn Scroll {
+    pub fn scroll_text(&mut self) -> &mut dyn Scrollable {
         self.features.scroll_text()
     }
 
@@ -68,7 +68,7 @@ impl VersionFeatures {
 
 #[derive(Default)]
 struct Versions {
-    inner: Scrollable<VersionsInner>,
+    inner: Scroll<VersionsInner>,
     border: Surround,
 }
 
@@ -76,7 +76,7 @@ impl Versions {
     fn new(all_verions: Vec<PkgInfo>, max_width: u16, area: Rect) -> Self {
         let border = Surround::new(Block::new().title("Version").borders(Borders::ALL), area);
         Self {
-            inner: Scrollable {
+            inner: Scroll {
                 lines: VersionsInner { all: all_verions },
                 area: border.inner(),
                 max_width,

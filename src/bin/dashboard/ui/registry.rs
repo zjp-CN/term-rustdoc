@@ -2,7 +2,7 @@ use crate::{
     color::BG_CURSOR_LINE,
     fuzzy::Fuzzy,
     local_registry::{LocalRegistry, PkgInfo},
-    ui::{render_line, LineState, Scrollable, Surround},
+    ui::{render_line, LineState, Scroll, Surround},
 };
 use ratatui::prelude::{Buffer, Rect};
 use term_rustdoc::util::xformat;
@@ -124,14 +124,14 @@ impl LineState for LocalPkgsIndex {
 
 #[derive(Default)]
 pub struct Registry {
-    pub inner: Scrollable<PkgLists>,
+    pub inner: Scroll<PkgLists>,
     border: Surround,
 }
 
 impl Registry {
     pub fn new_local(fuzzy: Fuzzy) -> Self {
         Registry {
-            inner: Scrollable {
+            inner: Scroll {
                 lines: PkgLists::new_local(fuzzy),
                 ..Default::default()
             },
@@ -144,7 +144,7 @@ impl Registry {
         self.border = border;
     }
 
-    pub fn scroll_text(&mut self) -> &mut Scrollable<PkgLists> {
+    pub fn scroll_text(&mut self) -> &mut Scroll<PkgLists> {
         &mut self.inner
     }
 

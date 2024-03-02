@@ -11,7 +11,7 @@ use crate::{
     event::Sender,
     frame::centered_rect,
     fuzzy::Fuzzy,
-    ui::{Scroll, ScrollOffset, Surround},
+    ui::{ScrollOffset, Scrollable, Surround},
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use ratatui::{
@@ -53,9 +53,9 @@ impl UI {
         ui
     }
 
-    pub fn scroll_text(&mut self) -> &mut dyn Scroll {
+    pub fn scroll_text(&mut self) -> &mut dyn Scrollable {
         match self.area.current {
-            Panel::Database => self.database.scroll_text() as &mut dyn Scroll,
+            Panel::Database => self.database.scroll_text() as &mut dyn Scrollable,
             Panel::LocalRegistry => self.registry.scroll_text(),
             Panel::VersionFeatures => self.ver_feat.scroll_text(),
         }

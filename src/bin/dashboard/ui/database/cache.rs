@@ -3,7 +3,7 @@ mod util;
 
 use self::inner::CacheInner;
 use crate::color::{PKG_FEATURES, PKG_NAME, PKG_VERSION};
-use crate::database::{CachedDocInfo, DataBase, PkgKey};
+use crate::database::{CachedDocInfo, DataBase, Features, PkgKey};
 use ratatui::prelude::Style;
 use semver::Version;
 use std::time::SystemTime;
@@ -37,6 +37,11 @@ impl Cache {
             features: xformat!("{:?}", info.pkg.features()),
             inner: CacheInner::Unloaded(info),
         }
+    }
+
+    pub fn pkg_feat(&self) -> (&str, &str, &Features) {
+        let pkg = self.inner.pkg_key();
+        (pkg.name(), pkg.ver_str(), pkg.features())
     }
 
     pub fn is_in_progress(&self, key: &PkgKey) -> bool {

@@ -1,11 +1,11 @@
 use ratatui::prelude::{Color, Modifier, Style};
 
+pub const BG_CURSOR: Color = Color::Green;
 pub const BG_CURSOR_LINE: Color = Color::from_u32(0x0029335b); // #29335b
 pub const FG_CURSOR_LINE: Color = Color::from_u32(0x00FFD48E); // #FFD48E
 
 pub const FG_FEATURES: Color = Color::Cyan;
-/// #686363
-pub const FG_VERSION: Color = Color::from_u32(0x00686363);
+pub const FG_VERSION: Color = Color::from_u32(0x00686363); // #686363
 
 pub const PKG_NAME: Style = Style {
     fg: Some(Color::White),
@@ -35,5 +35,11 @@ pub const CACHED: Style = Style {
 };
 pub const HOLDON: Style = Style {
     fg: Some(Color::from_u32(0x00FF768C)), // #FF768C
+    ..Style::new()
+};
+
+pub const PKG_TOML: Style = Style {
+    fg: Some(Color::Green),
+    add_modifier: Modifier::BOLD,
     ..Style::new()
 };

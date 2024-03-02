@@ -225,4 +225,13 @@ impl Registry {
         )
         .map(|idx| pkgs[idx.0].clone())
     }
+
+    pub fn get_current_pkg(&self) -> Option<(&str, &str)> {
+        if let Some(idx) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
+            if let Some(pkg) = self.inner.lines.local.get(idx) {
+                return Some((pkg.name(), pkg.ver()));
+            }
+        }
+        None
+    }
 }

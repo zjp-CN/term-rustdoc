@@ -14,7 +14,10 @@ use color_eyre::eyre::WrapErr;
 use std::{fs, path::PathBuf};
 
 pub use self::{
-    cache_info::CachedDocInfo, features::FeaturesUI, pkg_key::PkgKey, util::PkgWithFeatures,
+    cache_info::CachedDocInfo,
+    features::{Features, FeaturesUI},
+    pkg_key::PkgKey,
+    util::PkgWithFeatures,
 };
 
 #[derive(Default)]

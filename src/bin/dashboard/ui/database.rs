@@ -3,7 +3,7 @@ mod cache;
 use self::cache::{Cache, CacheID, Count, SortKind};
 use crate::{
     color::BG_CURSOR_LINE,
-    database::{CachedDocInfo, DataBase, PkgKey, PkgWithFeatures},
+    database::{CachedDocInfo, DataBase, Features, PkgKey, PkgWithFeatures},
     event::Sender,
     fuzzy::Fuzzy,
     ui::{render_line, Scroll, Surround},
@@ -265,5 +265,14 @@ impl DataBaseUI {
     pub fn get_loaded_doc(&self, key: &PkgKey) -> Option<CrateDoc> {
         let iter = &mut self.inner.lines.caches.iter();
         iter.find_map(|cache| cache.get_loaded_doc(key))
+    }
+
+    pub fn get_current_pkg(&self) -> Option<(&str, &str, &Features)> {
+        if let Some(idx) = self.inner.get_line_of_current_cursor().map(|id| id.0) {
+            if let Some(cache) = self.inner.lines.caches.get(idx) {
+                return Some(cache.pkg_feat());
+            }
+        }
+        None
     }
 }

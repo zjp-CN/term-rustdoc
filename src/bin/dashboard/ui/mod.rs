@@ -1,10 +1,12 @@
 mod database;
 mod registry;
 mod search;
+mod ver_feat_toml;
 mod version_features;
 
 use self::{
-    database::DataBaseUI, registry::Registry, search::Search, version_features::VersionFeatures,
+    database::DataBaseUI, registry::Registry, search::Search, ver_feat_toml::PkgToml,
+    version_features::VersionFeatures,
 };
 use crate::{
     database::{CachedDocInfo, PkgKey},
@@ -15,7 +17,7 @@ use crate::{
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use ratatui::{
-    prelude::*,
+    prelude::{Buffer, Constraint, Layout, Rect, Widget},
     widgets::{Block, Borders},
 };
 use term_rustdoc::tree::CrateDoc;
@@ -25,6 +27,7 @@ pub struct UI {
     search: Search,
     database: DataBaseUI,
     registry: Registry,
+    pkg_toml: PkgToml,
     ver_feat: VersionFeatures,
     area: Area,
 }
@@ -32,7 +35,8 @@ pub struct UI {
 impl UI {
     fn update_area(&mut self, full: Rect) {
         // skip rendering is the same area
-        if let Some([search, db, registry]) = self.area.update(full) {
+        if let Some([pkg_toml, search, db, registry]) = self.area.update(full) {
+            self.pkg_toml.set_area(pkg_toml);
             // update areas of search, database and registry
             self.search.set_area(search);
             self.database.set_area(db);
@@ -49,6 +53,7 @@ impl UI {
         };
         ui.switch_panel(); // switch to database if caches are not empty
         ui.update_area(full);
+        ui.update_pkg_toml();
         info!("DashBoard UI initialized.");
         ui
     }
@@ -61,28 +66,50 @@ impl UI {
         }
     }
 
+    fn update_pkg_toml(&mut self) {
+        match self.area.current {
+            Panel::Database => {
+                if let Some((name, ver, features)) = self.database.get_current_pkg() {
+                    self.pkg_toml.update_toml(name, ver, features);
+                }
+            }
+            Panel::LocalRegistry => {
+                if let Some((name, ver)) = self.registry.get_current_pkg() {
+                    self.pkg_toml.update_toml(name, ver, &Default::default());
+                }
+            }
+            _ => (),
+        };
+    }
+
     pub fn scroll_down(&mut self) {
         self.scroll_text().scroll_down(ScrollOffset::HalfScreen);
+        self.update_pkg_toml();
     }
 
     pub fn scroll_up(&mut self) {
         self.scroll_text().scroll_up(ScrollOffset::HalfScreen);
+        self.update_pkg_toml();
     }
 
     pub fn scroll_home(&mut self) {
         self.scroll_text().scroll_home();
+        self.update_pkg_toml();
     }
 
     pub fn scroll_end(&mut self) {
         self.scroll_text().scroll_end();
+        self.update_pkg_toml();
     }
 
     pub fn move_backward_cursor(&mut self) {
         self.scroll_text().move_backward_cursor();
+        self.update_pkg_toml();
     }
 
     pub fn move_forward_cursor(&mut self) {
         self.scroll_text().move_forward_cursor();
+        self.update_pkg_toml();
     }
 
     pub fn compile_or_load_doc(&mut self, y: Option<u16>) {
@@ -176,8 +203,8 @@ impl UI {
     /// Returns true for hinting Frame can switch to Page, because no mouse interaction in DashBoard.
     pub fn update_for_mouse(&mut self, event: MouseEvent) -> bool {
         match event.kind {
-            MouseEventKind::ScrollDown => self.scroll_text().scroll_down(ScrollOffset::Fixed(5)),
-            MouseEventKind::ScrollUp => self.scroll_text().scroll_up(ScrollOffset::Fixed(5)),
+            MouseEventKind::ScrollDown => self.scroll_down(),
+            MouseEventKind::ScrollUp => self.scroll_up(),
             MouseEventKind::Down(MouseButton::Left) => {
                 let position = (event.column, event.row);
 
@@ -200,6 +227,7 @@ impl UI {
                     let y = registry.area.y;
                     registry.set_cursor(event.row.saturating_sub(y));
                     self.area.current = Panel::LocalRegistry;
+                    self.update_pkg_toml();
                     return false;
                 }
 
@@ -208,6 +236,7 @@ impl UI {
                     let y = db.area.y;
                     db.set_cursor(event.row.saturating_sub(y));
                     self.area.current = Panel::Database;
+                    self.update_pkg_toml();
                 }
             }
             MouseEventKind::Down(MouseButton::Right) => {
@@ -220,6 +249,7 @@ impl UI {
                             db.set_cursor(event.row.saturating_sub(y));
                             self.area.current = Panel::Database;
                             self.database.downgrade(Some(event.row));
+                            self.update_pkg_toml();
                             return false;
                         }
                     }
@@ -256,6 +286,7 @@ impl Widget for &mut UI {
         self.search.render(buf);
         self.database.render(buf, db);
         self.registry.render(buf, reg);
+        self.pkg_toml.render(buf);
     }
 }
 
@@ -276,21 +307,24 @@ enum Panel {
 
 impl Area {
     /// returns borders for search, database and registry
-    fn update(&mut self, full: Rect) -> Option<[Surround; 3]> {
+    fn update(&mut self, full: Rect) -> Option<[Surround; 4]> {
         if self.full == full {
             return None;
         }
         self.full = full;
-        self.center = centered_rect(full, 80, 80);
+        let center = centered_rect(full, 80, 85);
+        let [center, pkg_toml] = self::ver_feat_toml::split_for_pkg_toml(center);
+        let pkg_toml = self::ver_feat_toml::block(pkg_toml);
+        self.center = center;
         // database area: lined borders and one inner line
         let [search, db_reg] =
             Layout::vertical([Constraint::Length(3), Constraint::Min(0)]).areas(self.center);
-        let block = Block::new().borders(Borders::all());
+        let block = Block::new().borders(Borders::ALL);
         let search = Surround::new(block.clone(), search);
         let half = Constraint::Percentage(50);
         let [db, reg] = Layout::horizontal([half, half]).areas(db_reg);
         let database = Surround::new(block.clone().title(" From Database "), db);
         let registry = Surround::new(block.title(" From Local Registry Src Dir "), reg);
-        Some([search, database, registry])
+        Some([pkg_toml, search, database, registry])
     }
 }

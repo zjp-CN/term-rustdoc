@@ -1,5 +1,6 @@
 [![](https://img.shields.io/crates/v/term-rustdoc)](https://crates.io/crates/term-rustdoc)
 [![](https://img.shields.io/crates/l/term-rustdoc/0.1.0)](https://github.com/zjp-CN/term-rustdoc/)
+[![Release](https://github.com/zjp-CN/term-rustdoc/actions/workflows/release.yml/badge.svg)](https://github.com/zjp-CN/term-rustdoc)
 
 A TUI for Rust docs that aims to improve the UX on tree view and generic code.
 

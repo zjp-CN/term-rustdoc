@@ -137,6 +137,7 @@ fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
         KeyCode::Enter => ui.compile_or_load_doc(None),
         KeyCode::Tab => ui.switch_panel(),
         KeyCode::Delete => ui.downgrade(None),
+        KeyCode::Esc => ui.close_ver_feat(),
         _ => (),
     }
 }

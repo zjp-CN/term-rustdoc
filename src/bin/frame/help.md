@@ -48,7 +48,20 @@ It lies in your `~/.cargo/registry/src/` on Linux system, for example.
 
 * `Enter`: pop up feature selection for selected pkg.
 
-## Feature
+## Selection
+
+Select a version with features to compile.
+
+Mouse click is supported:
+* left click in range: choose/switch between Features and Version panel.
+* right click out of range: back to Registry panel.
+
+KeyMap:
+
+* `Space`: compile doc with selected features.
+* `Tab`: switch between Features and Version panel.
+
+### Features
 
 Feature selection is an interactive panel to select features to compile doc with.
 
@@ -62,13 +75,16 @@ There are four signs:
 *  : selected and passed, but implies the feature has already been enabled by 
       other features, thus you don't need to enable it.
 
-### KeyMap
+KeyMap:
 
-* `Enter`: toggle a feature.
-* `Space`: compile doc with selected features.
-* `Tab`: back to Registry panel.
+* `Enter`: toggle a feature. (same as double left click)
+* `Tab`: switch to Version Selection panel.
 
 > **NOTE: there is no way to cancel once doc compilation starts.**
+
+### Version
+
+Single left click to choose a version, then Features candidates will be updated.
 
 # Doc Page
 

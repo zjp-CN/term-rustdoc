@@ -13,7 +13,15 @@ use ratatui::{
 pub struct VersionFeatures {
     features: FeaturesUI,
     versions: Versions,
+    current: Panel,
     area: Rect,
+}
+
+#[derive(Default, Clone, Copy)]
+enum Panel {
+    #[default]
+    Features,
+    Versions,
 }
 
 fn split_ver_feat(outer: Rect, ver_width: u16) -> [Rect; 2] {
@@ -39,16 +47,60 @@ impl VersionFeatures {
         VersionFeatures {
             features: FeaturesUI::new(pkg_info, feat),
             versions: Versions::new(all_verions, ver_width, ver),
+            current: Panel::Features,
             area: outer,
         }
     }
 
+    pub fn switch_panel(&mut self) {
+        self.current = match self.current {
+            Panel::Features => Panel::Versions,
+            Panel::Versions => Panel::Features,
+        };
+    }
+
     pub fn scroll_text(&mut self) -> &mut dyn Scrollable {
-        self.features.scroll_text()
+        match self.current {
+            Panel::Features => self.features.scroll_text(),
+            Panel::Versions => &mut self.versions.inner,
+        }
+    }
+
+    pub fn contains(&self, position: (u16, u16)) -> bool {
+        self.area.contains(position.into())
+    }
+
+    pub fn respond_to_left_click(&mut self, position @ (_, y): (u16, u16)) {
+        let features = self.features().scroll_text();
+        if features.area.contains(position.into()) {
+            features.set_cursor(y.saturating_sub(features.area.y));
+            self.current = Panel::Features;
+            return;
+        }
+
+        let versions = self.versions.scroll_text();
+        if versions.area.contains(position.into()) {
+            versions.set_cursor(y.saturating_sub(versions.area.y));
+            if let Some(info) = versions.get_line_of_current_cursor() {
+                self.features.update_pkg(info.clone());
+            }
+            self.current = Panel::Versions;
+        }
     }
 
     pub fn features(&mut self) -> &mut FeaturesUI {
         &mut self.features
+    }
+
+    pub fn toggle_features(&mut self) {
+        if matches!(self.current, Panel::Features) {
+            self.features.toggle();
+        }
+    }
+
+    /// Skip selection popup when features requirements are met and single version.
+    pub fn skip_selection(&self) -> bool {
+        self.versions.inner.total_len() == 1 && self.features.skip_selection()
     }
 
     pub fn update_area(&mut self, outer: Rect) {
@@ -61,8 +113,12 @@ impl VersionFeatures {
     }
 
     pub fn render(&self, buf: &mut Buffer) {
-        self.features.render(buf);
-        self.versions.render(buf);
+        let (feat, ver) = match self.current {
+            Panel::Features => (true, false),
+            Panel::Versions => (false, true),
+        };
+        self.features.render(buf, feat);
+        self.versions.render(buf, ver);
     }
 }
 
@@ -86,18 +142,21 @@ impl Versions {
         }
     }
 
+    fn scroll_text(&mut self) -> &mut Scroll<VersionsInner> {
+        &mut self.inner
+    }
+
     fn update_area(&mut self, area: Rect) {
         if let Some(inner) = self.border.update_area(area) {
             self.inner.area = inner;
         }
     }
 
-    fn render(&self, buf: &mut Buffer) {
+    fn render(&self, buf: &mut Buffer, current_line: bool) {
         self.border.render(buf);
 
         let width = self.inner.area.width as usize;
         let Rect { x, mut y, .. } = self.inner.area;
-        let current = y + self.inner.cursor.y;
         if let Some(lines) = self.inner.visible_lines() {
             for info in lines {
                 let line = [(info.ver(), Style::new())];
@@ -106,9 +165,12 @@ impl Versions {
             }
         }
         if self.inner.get_line_of_current_cursor().is_some() {
+            let current = self.inner.area.y + self.inner.cursor.y;
             for w in 0..self.inner.area.width {
                 let cell = buf.get_mut(x + w, current);
-                cell.bg = BG_CURSOR_LINE;
+                if current_line {
+                    cell.bg = BG_CURSOR_LINE;
+                }
                 cell.fg = FG_CURSOR_LINE;
                 cell.modifier = Modifier::BOLD;
             }

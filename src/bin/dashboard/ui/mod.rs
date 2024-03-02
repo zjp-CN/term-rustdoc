@@ -98,8 +98,8 @@ impl UI {
                             .get_all_version(pkg_info.name());
                         self.ver_feat = VersionFeatures::new(pkg_info, all, self.area.center);
                     }
-                    if self.ver_feat.features().skip_selection() {
-                        // no feature to select, thus compile the doc directly
+                    if self.ver_feat.skip_selection() {
+                        // no feature to select for sole local pkg, thus compile the doc directly
                         if let Some(pkg) = self.ver_feat.features().pkg_with_features() {
                             self.database.compile_doc(pkg)
                         }
@@ -109,7 +109,7 @@ impl UI {
                 }
             }
             Panel::VersionFeatures => {
-                self.ver_feat.features().toggle();
+                self.ver_feat.toggle_features();
             }
         }
     }
@@ -141,11 +141,17 @@ impl UI {
             self.area.current = Panel::LocalRegistry;
             return;
         }
-        self.area.current = match self.area.current {
-            Panel::Database => Panel::LocalRegistry,
-            Panel::LocalRegistry => Panel::Database,
-            Panel::VersionFeatures => Panel::LocalRegistry,
+        match self.area.current {
+            Panel::Database => self.area.current = Panel::LocalRegistry,
+            Panel::LocalRegistry => self.area.current = Panel::Database,
+            Panel::VersionFeatures => self.ver_feat.switch_panel(),
         };
+    }
+
+    pub fn close_ver_feat(&mut self) {
+        if matches!(self.area.current, Panel::VersionFeatures) {
+            self.area.current = Panel::LocalRegistry;
+        }
     }
 
     pub fn switch_sort(&mut self) {
@@ -180,9 +186,12 @@ impl UI {
                 }
 
                 if matches!(self.area.current, Panel::VersionFeatures) {
-                    let features = &mut self.ver_feat.features().scroll_text();
-                    let y = features.area.y;
-                    features.set_cursor(event.row.saturating_sub(y));
+                    if self.ver_feat.contains(position) {
+                        self.ver_feat.respond_to_left_click(position);
+                    } else {
+                        // left click out of range will back to LocalRegistry panel
+                        self.area.current = Panel::LocalRegistry;
+                    }
                     return false;
                 }
 
@@ -203,13 +212,22 @@ impl UI {
             }
             MouseEventKind::Down(MouseButton::Right) => {
                 let position = (event.column, event.row);
-                let db = self.database.scroll_text();
-                if db.area.contains(position.into()) {
-                    let y = db.area.y;
-                    db.set_cursor(event.row.saturating_sub(y));
-                    self.area.current = Panel::Database;
-                    self.database.downgrade(Some(event.row));
-                    return false;
+                match self.area.current {
+                    Panel::Database => {
+                        let db = self.database.scroll_text();
+                        if db.area.contains(position.into()) {
+                            let y = db.area.y;
+                            db.set_cursor(event.row.saturating_sub(y));
+                            self.area.current = Panel::Database;
+                            self.database.downgrade(Some(event.row));
+                            return false;
+                        }
+                    }
+                    Panel::VersionFeatures if !self.ver_feat.contains(position) => {
+                        // right click out of range will back to LocalRegistry panel
+                        self.area.current = Panel::LocalRegistry
+                    }
+                    _ => (),
                 }
                 return true;
             }

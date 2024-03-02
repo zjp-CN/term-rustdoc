@@ -1,9 +1,9 @@
 use super::{LineState, Lines, Scroll};
 use crate::ui::ScrollOffset;
+use ratatui::prelude::Rect;
 
 /// Trait object that is used when a widget containing multiple scrollable components
 /// needs to unifiy the behavior of scrolling or moving the cursor.
-#[allow(dead_code)]
 pub trait Scrollable {
     fn scroll_down(&mut self, offset: ScrollOffset);
     fn scroll_up(&mut self, offset: ScrollOffset);
@@ -15,6 +15,11 @@ pub trait Scrollable {
     fn move_bottom_cursor(&mut self);
     fn move_middle_cursor(&mut self);
     fn set_cursor(&mut self, y: u16);
+    fn area(&self) -> Rect;
+    /// position in (x, y)
+    fn contains(&mut self, position: (u16, u16)) -> bool {
+        self.area().contains(position.into())
+    }
 }
 
 impl<Ls: Lines> Scrollable for Scroll<Ls> {
@@ -56,6 +61,10 @@ impl<Ls: Lines> Scrollable for Scroll<Ls> {
 
     fn set_cursor(&mut self, y: u16) {
         self.set_cursor(y);
+    }
+
+    fn area(&self) -> Rect {
+        self.area
     }
 }
 

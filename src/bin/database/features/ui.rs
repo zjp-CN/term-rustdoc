@@ -263,6 +263,10 @@ impl FeaturesUI {
         FeaturesUI { inner, border }
     }
 
+    pub fn update_pkg(&mut self, pkg_info: PkgInfo) {
+        self.inner.lines = Select::from_registry(pkg_info);
+    }
+
     pub fn scroll_text(&mut self) -> &mut Scroll<Select> {
         &mut self.inner
     }
@@ -309,7 +313,7 @@ impl FeaturesUI {
         }
     }
 
-    pub fn render(&self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer, current_line: bool) {
         self.border.render(buf);
 
         // render feature list
@@ -320,9 +324,10 @@ impl FeaturesUI {
         let area @ Rect { x, mut y, .. } = self.inner.area;
         // hightlight current line
         let cursor = self.inner.cursor.y;
-        if lines.get(cursor as usize).is_some() {
+        if current_line && lines.get(cursor as usize).is_some() {
+            let current = y + cursor;
             for offset in 0..area.width {
-                buf.get_mut(x + offset, y + cursor).bg = BG_CURSOR_LINE;
+                buf.get_mut(x + offset, current).bg = BG_CURSOR_LINE;
             }
         }
         for feat in lines {

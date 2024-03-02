@@ -1,3 +1,6 @@
+[![](https://img.shields.io/crates/v/term-rustdoc)](https://crates.io/crates/term-rustdoc)
+[![](https://img.shields.io/crates/l/term-rustdoc/0.1.0)](https://github.com/zjp-CN/term-rustdoc/)
+
 A TUI for Rust docs that aims to improve the UX on tree view and generic code.
 
 This tool utilizes the nightly compiler to compile JSON doc for a package.
@@ -13,9 +16,8 @@ rustup component add --toolchain nightly rust-docs-json
 rustup update nightly
 ```
 
-This tool is very immature, and far from the target for now.
-
-It only provides the basic ability to compile and cache docs, and view markdown docs.
+This tool is very immature, and far from the target for now. It only provides 
+the basic ability to compile and cache docs, and view markdown docs.
 
 Key shortcuts or usage help can be found via `F1` key press.
 

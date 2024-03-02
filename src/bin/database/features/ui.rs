@@ -144,7 +144,7 @@ pub struct Select {
 }
 
 impl Select {
-    pub fn from_registry(pkg_info: PkgInfo) -> Select {
+    fn from_registry(pkg_info: PkgInfo) -> Select {
         let path = &pkg_info.path().join("Cargo.toml");
         let select = FeaturesControlledByUsers::new(path)
             .map_err(|err| {
@@ -172,10 +172,11 @@ impl Select {
                 .iter()
                 .map(|(f, control)| Line::new(f, control))
                 .collect();
+            self.update_features();
         }
     }
 
-    pub fn update_features(&mut self) {
+    fn update_features(&mut self) {
         if let Some(pkg) = &mut self.pkg {
             let features_controlled_by_users = self.select.as_ref();
             pkg.features = features_controlled_by_users
@@ -212,14 +213,10 @@ impl Select {
         }
     }
 
-    pub fn pkg_with_features(&mut self) -> Option<PkgWithFeatures> {
-        self.update_features();
+    fn pkg_with_features(&mut self) -> Option<PkgWithFeatures> {
+        // self.update_features();
         self.pkg.clone()
     }
-
-    // pub fn take_pkg_with_features(&mut self) -> Option<PkgWithFeatures> {
-    //     self.pkg.take()
-    // }
 }
 
 impl std::ops::Deref for Select {
@@ -292,6 +289,13 @@ impl FeaturesUI {
 
     pub fn pkg_with_features(&mut self) -> Option<PkgWithFeatures> {
         self.inner.lines.pkg_with_features()
+    }
+
+    pub fn get_current_pkg(&self) -> Option<(&str, &str, &Features)> {
+        if let Some(pkg) = &self.inner.lines.pkg {
+            return Some((pkg.info.name(), pkg.info.ver(), &pkg.features));
+        }
+        None
     }
 
     pub fn toggle(&mut self) {

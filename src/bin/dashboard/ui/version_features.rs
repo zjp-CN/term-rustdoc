@@ -1,3 +1,4 @@
+use super::ver_feat_toml;
 use crate::{
     color::{BG_CURSOR_LINE, FG_CURSOR_LINE},
     database::FeaturesUI,
@@ -13,7 +14,9 @@ use ratatui::{
 pub struct VersionFeatures {
     features: FeaturesUI,
     versions: Versions,
+    pkg_toml: ver_feat_toml::PkgToml,
     current: Panel,
+    /// Area covering features, versions and pkg_toml.
     area: Rect,
 }
 
@@ -43,10 +46,15 @@ impl VersionFeatures {
             .map(|v| 4 + v.ver().len() as u16)
             .max()
             .unwrap_or(0);
-        let [ver, feat] = split_ver_feat(outer, ver_width);
+        let [remain, pkg_toml_area] = ver_feat_toml::split_for_pkg_toml(outer);
+        let mut pkg_toml = ver_feat_toml::PkgToml::default();
+        pkg_toml.set_area(ver_feat_toml::surround(pkg_toml_area));
+        pkg_toml.update_toml(pkg_info.name(), pkg_info.ver(), &Default::default());
+        let [ver, feat] = split_ver_feat(remain, ver_width);
         VersionFeatures {
             features: FeaturesUI::new(pkg_info, feat),
             versions: Versions::new(all_verions, ver_width, ver),
+            pkg_toml,
             current: Panel::Features,
             area: outer,
         }
@@ -59,12 +67,19 @@ impl VersionFeatures {
         };
     }
 
-    pub fn scroll_text(&mut self) -> &mut dyn Scrollable {
-        match self.current {
-            Panel::Features => self.features.scroll_text(),
-            Panel::Versions => &mut self.versions.inner,
+    pub fn update_pkg_toml(&mut self) {
+        if let Some(a @ (name, ver, feat)) = self.features.get_current_pkg() {
+            info!(?a);
+            self.pkg_toml.update_toml(name, ver, feat);
         }
     }
+
+    // pub fn scroll_text(&mut self) -> &mut dyn Scrollable {
+    //     match self.current {
+    //         Panel::Features => self.features.scroll_text(),
+    //         Panel::Versions => &mut self.versions.inner,
+    //     }
+    // }
 
     pub fn contains(&self, position: (u16, u16)) -> bool {
         self.area.contains(position.into())
@@ -75,17 +90,17 @@ impl VersionFeatures {
         if features.area.contains(position.into()) {
             features.set_cursor(y.saturating_sub(features.area.y));
             self.current = Panel::Features;
-            return;
-        }
-
-        let versions = self.versions.scroll_text();
-        if versions.area.contains(position.into()) {
-            versions.set_cursor(y.saturating_sub(versions.area.y));
-            if let Some(info) = versions.get_line_of_current_cursor() {
-                self.features.update_pkg(info.clone());
+        } else {
+            let versions = self.versions.scroll_text();
+            if versions.area.contains(position.into()) {
+                versions.set_cursor(y.saturating_sub(versions.area.y));
+                if let Some(info) = versions.get_line_of_current_cursor() {
+                    self.features.update_pkg(info.clone());
+                }
+                self.current = Panel::Versions;
             }
-            self.current = Panel::Versions;
         }
+        self.update_pkg_toml();
     }
 
     pub fn features(&mut self) -> &mut FeaturesUI {
@@ -95,6 +110,7 @@ impl VersionFeatures {
     pub fn toggle_features(&mut self) {
         if matches!(self.current, Panel::Features) {
             self.features.toggle();
+            self.update_pkg_toml();
         }
     }
 
@@ -107,6 +123,8 @@ impl VersionFeatures {
         if self.area == outer {
             return;
         }
+        let [outer, pkg_toml] = ver_feat_toml::split_for_pkg_toml(outer);
+        self.pkg_toml.update_area(pkg_toml);
         let [ver, feat] = split_ver_feat(outer, self.versions.inner.max_width);
         self.features.update_area(feat);
         self.versions.update_area(ver);
@@ -119,6 +137,66 @@ impl VersionFeatures {
         };
         self.features.render(buf, feat);
         self.versions.render(buf, ver);
+        self.pkg_toml.render(buf);
+    }
+
+    fn scroll_inner(&mut self, f: impl FnOnce(&mut dyn Scrollable)) {
+        match self.current {
+            Panel::Features => f(self.features().scroll_text()),
+            Panel::Versions => {
+                f(&mut self.versions.inner);
+                if let Some(info) = self.versions.inner.get_line_of_current_cursor() {
+                    self.features.update_pkg(info.clone());
+                    self.update_pkg_toml();
+                }
+            }
+        }
+    }
+}
+
+impl Scrollable for VersionFeatures {
+    fn scroll_down(&mut self, offset: crate::ui::ScrollOffset) {
+        self.scroll_inner(|s| s.scroll_down(offset));
+    }
+
+    fn scroll_up(&mut self, offset: crate::ui::ScrollOffset) {
+        self.scroll_inner(|s| s.scroll_up(offset));
+    }
+
+    fn scroll_home(&mut self) {
+        self.scroll_inner(|s| s.scroll_home());
+    }
+
+    fn scroll_end(&mut self) {
+        self.scroll_inner(|s| s.scroll_end());
+    }
+
+    fn move_forward_cursor(&mut self) {
+        self.scroll_inner(|s| s.move_forward_cursor());
+    }
+
+    fn move_backward_cursor(&mut self) {
+        self.scroll_inner(|s| s.move_backward_cursor());
+    }
+
+    fn move_top_cursor(&mut self) {
+        self.scroll_inner(|s| s.move_top_cursor());
+    }
+
+    fn move_bottom_cursor(&mut self) {
+        self.scroll_inner(|s| s.move_bottom_cursor());
+    }
+
+    fn move_middle_cursor(&mut self) {
+        self.scroll_inner(|s| s.move_middle_cursor());
+    }
+
+    fn set_cursor(&mut self, y: u16) {
+        self.scroll_inner(|s| s.set_cursor(y));
+    }
+
+    fn area(&self) -> Rect {
+        self.area
     }
 }
 

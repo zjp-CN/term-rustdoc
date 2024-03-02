@@ -42,7 +42,7 @@ impl UI {
             self.database.set_area(db);
             self.registry.set_area(registry);
         }
-        self.ver_feat.update_area(self.area.center);
+        self.ver_feat.update_area(self.center());
     }
 
     pub fn new(full: Rect, fuzzy: Fuzzy, sender: Sender) -> Self {
@@ -62,7 +62,7 @@ impl UI {
         match self.area.current {
             Panel::Database => self.database.scroll_text() as &mut dyn Scrollable,
             Panel::LocalRegistry => self.registry.scroll_text(),
-            Panel::VersionFeatures => self.ver_feat.scroll_text(),
+            Panel::VersionFeatures => &mut self.ver_feat,
         }
     }
 
@@ -78,7 +78,7 @@ impl UI {
                     self.pkg_toml.update_toml(name, ver, &Default::default());
                 }
             }
-            _ => (),
+            Panel::VersionFeatures => (),
         };
     }
 
@@ -123,7 +123,7 @@ impl UI {
                             .scroll_text()
                             .lines
                             .get_all_version(pkg_info.name());
-                        self.ver_feat = VersionFeatures::new(pkg_info, all, self.area.center);
+                        self.ver_feat = VersionFeatures::new(pkg_info, all, self.center());
                     }
                     if self.ver_feat.skip_selection() {
                         // no feature to select for sole local pkg, thus compile the doc directly
@@ -208,7 +208,7 @@ impl UI {
             MouseEventKind::Down(MouseButton::Left) => {
                 let position = (event.column, event.row);
 
-                if !self.area.center.contains(position.into()) {
+                if !self.center().contains(position.into()) {
                     return true;
                 }
 
@@ -267,7 +267,12 @@ impl UI {
     }
 
     pub fn contains(&self, position: (u16, u16)) -> bool {
-        self.area.center.contains(position.into())
+        self.center().contains(position.into())
+    }
+
+    /// This is the center area for panels of Database, Registry and PkgToml.
+    fn center(&self) -> Rect {
+        self.area.center
     }
 }
 
@@ -313,12 +318,13 @@ impl Area {
         }
         self.full = full;
         let center = centered_rect(full, 80, 85);
-        let [center, pkg_toml] = self::ver_feat_toml::split_for_pkg_toml(center);
-        let pkg_toml = self::ver_feat_toml::block(pkg_toml);
+        // NOTE: center contains the panels of Database, Registry and PkgToml
         self.center = center;
+        let [remain, pkg_toml] = self::ver_feat_toml::split_for_pkg_toml(center);
+        let pkg_toml = self::ver_feat_toml::surround(pkg_toml);
         // database area: lined borders and one inner line
         let [search, db_reg] =
-            Layout::vertical([Constraint::Length(3), Constraint::Min(0)]).areas(self.center);
+            Layout::vertical([Constraint::Length(3), Constraint::Min(0)]).areas(remain);
         let block = Block::new().borders(Borders::ALL);
         let search = Surround::new(block.clone(), search);
         let half = Constraint::Percentage(50);

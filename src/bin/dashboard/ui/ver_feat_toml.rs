@@ -23,7 +23,7 @@ pub struct PkgToml {
     border: Surround,
 }
 
-pub fn block(area: Rect) -> Surround {
+pub fn surround(area: Rect) -> Surround {
     Surround::new(
         Block::new()
             .title_bottom(Line::from(" Selected Pkg ").alignment(Alignment::Right))
@@ -68,6 +68,12 @@ impl PkgToml {
     pub fn set_area(&mut self, border: Surround) {
         self.inner = border.inner();
         self.border = border;
+    }
+
+    pub fn update_area(&mut self, area: Rect) {
+        if let Some(inner) = self.border.update_area(area) {
+            self.inner = inner;
+        }
     }
 
     pub fn render(&self, buf: &mut Buffer) {

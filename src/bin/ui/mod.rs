@@ -22,7 +22,7 @@ mod scrollable;
 
 pub use page_scroll::ScrollOffset;
 pub use scrollable::{
-    render_line, LineState, MarkdownAndHeading, ScrollHeading, ScrollMarkdown, Scrollable,
+    render_line, LineState, MarkdownAndHeading, Scroll, ScrollHeading, ScrollMarkdown, Scrollable,
 };
 
 #[derive(Default, Debug)]

@@ -30,11 +30,11 @@ impl Page {
     pub fn scrolldown(&mut self, offset: ScrollOffset) {
         current! { self :
             {
-                self.outline().scrolldown(offset);
+                self.outline().scroll_down(offset);
                 self.update_content();
             };
             {
-                self.content().scrolldown(offset);
+                self.content().scroll_down(offset);
             }
         }
     }
@@ -42,11 +42,11 @@ impl Page {
     pub fn scrollup(&mut self, offset: ScrollOffset) {
         current! { self :
             {
-                self.outline().scrollup(offset);
+                self.outline().scroll_up(offset);
                 self.update_content();
             };
             {
-                self.content().scrollup(offset)
+                self.content().scroll_up(offset)
             }
         }
     }

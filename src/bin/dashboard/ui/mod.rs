@@ -11,7 +11,7 @@ use crate::{
     event::Sender,
     frame::centered_rect,
     fuzzy::Fuzzy,
-    ui::{ScrollOffset, Surround},
+    ui::{Scroll, ScrollOffset, Surround},
 };
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use ratatui::{
@@ -27,26 +27,6 @@ pub struct UI {
     registry: Registry,
     ver_feat: VersionFeatures,
     area: Area,
-}
-
-macro_rules! scroll {
-    ($self:ident, $($call:tt)+) => {
-        match $self.area.current {
-            Panel::Database => $self
-                .database
-                .scroll_text()
-                .$($call)+,
-            Panel::LocalRegistry => $self
-                .registry
-                .scroll_text()
-                .$($call)+,
-            Panel::VersionFeatures => $self
-                .ver_feat
-                .features()
-                .scroll_text()
-                .$($call)+,
-        }
-    };
 }
 
 impl UI {
@@ -73,28 +53,36 @@ impl UI {
         ui
     }
 
+    pub fn scroll_text(&mut self) -> &mut dyn Scroll {
+        match self.area.current {
+            Panel::Database => self.database.scroll_text() as &mut dyn Scroll,
+            Panel::LocalRegistry => self.registry.scroll_text(),
+            Panel::VersionFeatures => self.ver_feat.scroll_text(),
+        }
+    }
+
     pub fn scroll_down(&mut self) {
-        scroll!(self, scrolldown(ScrollOffset::HalfScreen));
+        self.scroll_text().scroll_down(ScrollOffset::HalfScreen);
     }
 
     pub fn scroll_up(&mut self) {
-        scroll!(self, scrollup(ScrollOffset::HalfScreen));
+        self.scroll_text().scroll_up(ScrollOffset::HalfScreen);
     }
 
     pub fn scroll_home(&mut self) {
-        scroll!(self, scroll_home());
+        self.scroll_text().scroll_home();
     }
 
     pub fn scroll_end(&mut self) {
-        scroll!(self, scroll_end());
+        self.scroll_text().scroll_end();
     }
 
     pub fn move_backward_cursor(&mut self) {
-        scroll!(self, move_backward_cursor());
+        self.scroll_text().move_backward_cursor();
     }
 
     pub fn move_forward_cursor(&mut self) {
-        scroll!(self, move_forward_cursor());
+        self.scroll_text().move_forward_cursor();
     }
 
     pub fn compile_or_load_doc(&mut self, y: Option<u16>) {
@@ -182,8 +170,8 @@ impl UI {
     /// Returns true for hinting Frame can switch to Page, because no mouse interaction in DashBoard.
     pub fn update_for_mouse(&mut self, event: MouseEvent) -> bool {
         match event.kind {
-            MouseEventKind::ScrollDown => scroll!(self, scrolldown(ScrollOffset::Fixed(5))),
-            MouseEventKind::ScrollUp => scroll!(self, scrollup(ScrollOffset::Fixed(5))),
+            MouseEventKind::ScrollDown => self.scroll_text().scroll_down(ScrollOffset::Fixed(5)),
+            MouseEventKind::ScrollUp => self.scroll_text().scroll_up(ScrollOffset::Fixed(5)),
             MouseEventKind::Down(MouseButton::Left) => {
                 let position = (event.column, event.row);
 

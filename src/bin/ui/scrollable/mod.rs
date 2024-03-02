@@ -9,6 +9,7 @@ mod markdown;
 mod render;
 
 pub use self::generics::{render_line, LineState, Lines};
+pub use self::interaction::Scroll;
 pub use self::markdown::{MarkdownAndHeading, ScrollHeading, ScrollMarkdown, ScrollText};
 
 /// Scrollable tree view but stored in lines.

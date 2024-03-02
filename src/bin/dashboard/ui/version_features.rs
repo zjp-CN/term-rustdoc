@@ -2,7 +2,7 @@ use crate::{
     color::{BG_CURSOR_LINE, FG_CURSOR_LINE},
     database::FeaturesUI,
     local_registry::{PkgInfo, PkgNameVersion},
-    ui::{render_line, LineState, Scrollable, Surround},
+    ui::{render_line, LineState, Scroll, Scrollable, Surround},
 };
 use ratatui::{
     prelude::{Buffer, Constraint, Layout, Modifier, Rect, Style},
@@ -41,6 +41,10 @@ impl VersionFeatures {
             versions: Versions::new(all_verions, ver_width, ver),
             area: outer,
         }
+    }
+
+    pub fn scroll_text(&mut self) -> &mut dyn Scroll {
+        self.features.scroll_text()
     }
 
     pub fn features(&mut self) -> &mut FeaturesUI {

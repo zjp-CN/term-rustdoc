@@ -86,8 +86,8 @@ impl Frame {
                 let popup = self.get_help();
                 let help = popup.scroll_text();
                 match event.kind {
-                    MouseEventKind::ScrollDown => help.scrolldown(ScrollOffset::Fixed(5)),
-                    MouseEventKind::ScrollUp => help.scrollup(ScrollOffset::Fixed(5)),
+                    MouseEventKind::ScrollDown => help.scroll_down(ScrollOffset::Fixed(5)),
+                    MouseEventKind::ScrollUp => help.scroll_up(ScrollOffset::Fixed(5)),
                     MouseEventKind::Down(MouseButton::Left) => {
                         let position = (event.column, event.row);
                         if popup.heading_jump(position) {
@@ -165,12 +165,12 @@ fn update_page(page: &mut Page, key_event: &KeyEvent) {
 fn update_help(help: &mut Help, event: &KeyEvent) {
     let help = help.scroll_text();
     match event.code {
-        KeyCode::Up => help.scrollup(ScrollOffset::Fixed(1)),
-        KeyCode::Down => help.scrolldown(ScrollOffset::Fixed(1)),
+        KeyCode::Up => help.scroll_up(ScrollOffset::Fixed(1)),
+        KeyCode::Down => help.scroll_down(ScrollOffset::Fixed(1)),
         KeyCode::Home => help.scroll_home(),
         KeyCode::End => help.scroll_end(),
-        KeyCode::PageUp => help.scrollup(ScrollOffset::Fixed(5)),
-        KeyCode::PageDown => help.scrolldown(ScrollOffset::Fixed(5)),
+        KeyCode::PageUp => help.scroll_up(ScrollOffset::Fixed(5)),
+        KeyCode::PageDown => help.scroll_down(ScrollOffset::Fixed(5)),
         _ => (),
     }
 }

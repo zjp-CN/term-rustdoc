@@ -1,9 +1,67 @@
 use super::{LineState, Lines, Scrollable};
 use crate::ui::ScrollOffset;
 
+/// Trait object that is used when a widget containing multiple scrollable components
+/// needs to unifiy the behavior of scrolling or moving the cursor.
+#[allow(dead_code)]
+pub trait Scroll {
+    fn scroll_down(&mut self, offset: ScrollOffset);
+    fn scroll_up(&mut self, offset: ScrollOffset);
+    fn scroll_home(&mut self);
+    fn scroll_end(&mut self);
+    fn move_forward_cursor(&mut self);
+    fn move_backward_cursor(&mut self);
+    fn move_top_cursor(&mut self);
+    fn move_bottom_cursor(&mut self);
+    fn move_middle_cursor(&mut self);
+    fn set_cursor(&mut self, y: u16);
+}
+
+impl<Ls: Lines> Scroll for Scrollable<Ls> {
+    fn scroll_down(&mut self, offset: ScrollOffset) {
+        self.scroll_down(offset);
+    }
+
+    fn scroll_up(&mut self, offset: ScrollOffset) {
+        self.scroll_up(offset);
+    }
+
+    fn scroll_home(&mut self) {
+        self.scroll_home();
+    }
+
+    fn scroll_end(&mut self) {
+        self.scroll_end();
+    }
+
+    fn move_forward_cursor(&mut self) {
+        self.move_forward_cursor();
+    }
+
+    fn move_backward_cursor(&mut self) {
+        self.move_backward_cursor();
+    }
+
+    fn move_top_cursor(&mut self) {
+        self.move_top_cursor();
+    }
+
+    fn move_bottom_cursor(&mut self) {
+        self.move_bottom_cursor();
+    }
+
+    fn move_middle_cursor(&mut self) {
+        self.move_middle_cursor();
+    }
+
+    fn set_cursor(&mut self, y: u16) {
+        self.set_cursor(y);
+    }
+}
+
 /// Scrolling
 impl<Ls: Lines> Scrollable<Ls> {
-    pub fn scrolldown(&mut self, offset: ScrollOffset) {
+    pub fn scroll_down(&mut self, offset: ScrollOffset) {
         let height = self.area.height as usize;
         let len = self.total_len();
         let nrows = match offset {
@@ -22,7 +80,7 @@ impl<Ls: Lines> Scrollable<Ls> {
         self.check_if_can_return_to_previous_cursor();
     }
 
-    pub fn scrollup(&mut self, offset: ScrollOffset) {
+    pub fn scroll_up(&mut self, offset: ScrollOffset) {
         let height = self.area.height as usize;
         let nrows = match offset {
             ScrollOffset::Fixed(n) => n,
@@ -103,7 +161,7 @@ impl<Ls: Lines> Scrollable<Ls> {
         let reach_sceen_bottom = (self.cursor.y + 1) == height;
         if reach_sceen_bottom {
             // scroll down for a new line
-            self.scrolldown(ScrollOffset::Fixed(1));
+            self.scroll_down(ScrollOffset::Fixed(1));
         }
         // still be careful to cross the screen's bottom
         self.cursor.y += if (self.cursor.y + 1) == height { 0 } else { 1 };
@@ -113,7 +171,7 @@ impl<Ls: Lines> Scrollable<Ls> {
     pub fn move_backward_cursor(&mut self) {
         if self.cursor.y == 0 {
             // scroll up for a new line
-            self.scrollup(ScrollOffset::Fixed(1));
+            self.scroll_up(ScrollOffset::Fixed(1));
         }
         // still be careful to cross the screen's top
         self.cursor.y = self.cursor.y.saturating_sub(1);

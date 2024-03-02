@@ -157,6 +157,7 @@ impl UI {
             }
             _ => self.push_char(ch),
         };
+        self.update_pkg_toml();
     }
 
     pub fn receive_compiled_doc(&mut self, info: CachedDocInfo) {
@@ -173,6 +174,7 @@ impl UI {
             Panel::LocalRegistry => self.area.current = Panel::Database,
             Panel::VersionFeatures => self.ver_feat.switch_panel(),
         };
+        self.update_pkg_toml();
     }
 
     pub fn close_ver_feat(&mut self) {

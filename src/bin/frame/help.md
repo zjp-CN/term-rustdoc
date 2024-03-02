@@ -24,6 +24,8 @@ Press `Ctrl-f` to switch between these:
 * fuzzy search docs in database panel
 * fuzzy search in both local registry and database panels
 
+Press `Ctrl-c` to clear out the input.
+
 ## DataBase
 
 > **NOTE: to switch between database and registry panel, use `Tab` key press.**

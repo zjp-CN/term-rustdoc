@@ -263,9 +263,9 @@ dependencies = [
 
 [[package]]
 name = "constcat"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d5cd0c57ef83705837b1cb872c973eff82b070846d3e23668322b2c0f8246d0"
+checksum = "1f2e5af989b1955b092db01462980c0a286217f86817e12b2c09aea46bd03651"
 
 [[package]]
 name = "core_maths"
@@ -1391,7 +1391,7 @@ dependencies = [
 
 [[package]]
 name = "term-rustdoc"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bincode 2.0.0-rc.3",
  "bytesize",

@@ -1,6 +1,6 @@
 [package]
 name = "term-rustdoc"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 autobins = false
 exclude = ["**/snapshots/", "tests/", "outline-design.txt"]
@@ -35,7 +35,7 @@ regex = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-constcat = "0.4"
+constcat = "0.5"
 
 ratatui = "0.26.0"
 crossterm = "0.27"

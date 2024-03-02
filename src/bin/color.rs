@@ -1,7 +1,7 @@
 use ratatui::prelude::{Color, Modifier, Style};
 
-/// #29335b
-pub const BG_CURSOR_LINE: Color = Color::from_u32(0x0029335b);
+pub const BG_CURSOR_LINE: Color = Color::from_u32(0x0029335b); // #29335b
+pub const FG_CURSOR_LINE: Color = Color::from_u32(0x00FFD48E); // #FFD48E
 
 pub const FG_FEATURES: Color = Color::Cyan;
 /// #686363

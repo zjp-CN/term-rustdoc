@@ -3,13 +3,13 @@ use super::{
     Features,
 };
 use crate::{
-    color::{BG_CURSOR_LINE, FG_FEATURES},
+    color::{BG_CURSOR_LINE, FG_CURSOR_LINE, FG_FEATURES},
     database::util::PkgWithFeatures,
     local_registry::PkgInfo,
     ui::{render_line, LineState, Scrollable, Surround},
 };
 use ratatui::{
-    prelude::{Buffer, Color, Modifier, Rect, Style},
+    prelude::{Buffer, Color, Modifier, Rect, Span, Style},
     widgets::{Block, Borders},
 };
 use smallvec::{smallvec, SmallVec};
@@ -239,9 +239,20 @@ pub struct FeaturesUI {
 impl FeaturesUI {
     pub fn new(pkg_info: PkgInfo, outer: Rect) -> FeaturesUI {
         let border = Surround::new(
-            Block::new()
-                .borders(Borders::ALL)
-                .title(" Features Selection "),
+            Block::new().borders(Borders::ALL).title(Vec::from([
+                Span {
+                    content: " Features Selection For ".into(),
+                    style: Style::new(),
+                },
+                Span {
+                    content: format!("{} ", pkg_info.name()).into(),
+                    style: Style {
+                        fg: Some(FG_CURSOR_LINE),
+                        add_modifier: Modifier::BOLD,
+                        ..Style::new()
+                    },
+                },
+            ])),
             outer,
         );
         let inner = Scrollable::<Select> {

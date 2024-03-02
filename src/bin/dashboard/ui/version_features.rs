@@ -1,11 +1,11 @@
 use crate::{
-    color::BG_CURSOR_LINE,
+    color::{BG_CURSOR_LINE, FG_CURSOR_LINE},
     database::FeaturesUI,
     local_registry::{PkgInfo, PkgNameVersion},
     ui::{render_line, LineState, Scrollable, Surround},
 };
 use ratatui::{
-    prelude::{Buffer, Constraint, Layout, Rect},
+    prelude::{Buffer, Constraint, Layout, Modifier, Rect, Style},
     widgets::{Block, Borders},
 };
 
@@ -16,16 +16,29 @@ pub struct VersionFeatures {
     area: Rect,
 }
 
-fn split_ver_feat(outer: Rect) -> [Rect; 2] {
-    Layout::vertical([Constraint::Percentage(75), Constraint::Percentage(25)]).areas(outer)
+fn split_ver_feat(outer: Rect, ver_width: u16) -> [Rect; 2] {
+    if ver_width == 0 {
+        // don't show versions if zero width
+        [Rect::default(), outer]
+    } else {
+        Layout::horizontal([Constraint::Length(ver_width), Constraint::Min(0)]).areas(outer)
+    }
 }
 
 impl VersionFeatures {
     pub fn new(pkg_info: PkgInfo, all_verions: Vec<PkgInfo>, outer: Rect) -> Self {
-        let [feat, ver] = split_ver_feat(outer);
+        // used this fixed width to show versions on the left
+        let ver_width = all_verions
+            .iter()
+            // should be .width() here, but assume a version consists of ascii chars,
+            // which is always upheld for pkgs from crate.io
+            .map(|v| 4 + v.ver().len() as u16)
+            .max()
+            .unwrap_or(0);
+        let [ver, feat] = split_ver_feat(outer, ver_width);
         VersionFeatures {
             features: FeaturesUI::new(pkg_info, feat),
-            versions: Versions::new(all_verions, ver),
+            versions: Versions::new(all_verions, ver_width, ver),
             area: outer,
         }
     }
@@ -38,7 +51,7 @@ impl VersionFeatures {
         if self.area == outer {
             return;
         }
-        let [feat, ver] = split_ver_feat(outer);
+        let [ver, feat] = split_ver_feat(outer, self.versions.inner.max_width);
         self.features.update_area(feat);
         self.versions.update_area(ver);
     }
@@ -56,17 +69,13 @@ struct Versions {
 }
 
 impl Versions {
-    fn new(all_verions: Vec<PkgInfo>, area: Rect) -> Self {
-        let border = Surround::new(
-            Block::new()
-                .title(" Version Selection ")
-                .borders(Borders::ALL),
-            area,
-        );
+    fn new(all_verions: Vec<PkgInfo>, max_width: u16, area: Rect) -> Self {
+        let border = Surround::new(Block::new().title("Version").borders(Borders::ALL), area);
         Self {
             inner: Scrollable {
                 lines: VersionsInner { all: all_verions },
                 area: border.inner(),
+                max_width,
                 ..Default::default()
             },
             border,
@@ -84,17 +93,20 @@ impl Versions {
 
         let width = self.inner.area.width as usize;
         let Rect { x, mut y, .. } = self.inner.area;
-        if self.inner.get_line_of_current_cursor().is_some() {
-            let current = y + self.inner.cursor.y;
-            for w in 0..self.inner.area.width {
-                buf.get_mut(x + w, current).bg = BG_CURSOR_LINE;
-            }
-        }
+        let current = y + self.inner.cursor.y;
         if let Some(lines) = self.inner.visible_lines() {
             for info in lines {
-                let line = info.styled_name_ver();
+                let line = [(info.ver(), Style::new())];
                 render_line(line, buf, x, y, width);
                 y += 1;
+            }
+        }
+        if self.inner.get_line_of_current_cursor().is_some() {
+            for w in 0..self.inner.area.width {
+                let cell = buf.get_mut(x + w, current);
+                cell.bg = BG_CURSOR_LINE;
+                cell.fg = FG_CURSOR_LINE;
+                cell.modifier = Modifier::BOLD;
             }
         }
     }

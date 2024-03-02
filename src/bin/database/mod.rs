@@ -11,7 +11,7 @@ use crate::{
     Result,
 };
 use color_eyre::eyre::WrapErr;
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 pub use self::{
     cache_info::CachedDocInfo,
@@ -36,12 +36,7 @@ pub struct DataBase {
 
 impl DataBase {
     pub fn init(sender: Sender) -> Result<Self> {
-        let mut dir =
-            dirs::data_local_dir().ok_or_else(|| err!("Can't find the config_local_dir"))?;
-        dir.push("term-rustdoc");
-        if !dir.exists() {
-            fs::create_dir(&dir)?;
-        }
+        let dir = crate::logger::data_dir()?;
         Ok(DataBase {
             dir: Some(dir),
             sender: Some(sender),

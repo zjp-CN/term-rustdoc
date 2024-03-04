@@ -43,3 +43,12 @@ pub const PKG_TOML: Style = Style {
     add_modifier: Modifier::BOLD,
     ..Style::new()
 };
+
+// Page
+pub const HEAD: Style = Style {
+    fg: Some(Color::DarkGray),
+    bg: Some(Color::LightCyan),
+    ..Style::new()
+};
+pub const SET: Style = Style::new().bg(Color::Rgb(20, 19, 18)); // #141312
+pub const NEW: Style = Style::new();

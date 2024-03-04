@@ -6,6 +6,7 @@ mod frame;
 mod fuzzy;
 mod local_registry;
 mod logger;
+mod page;
 mod tui;
 mod ui;
 

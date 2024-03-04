@@ -1,11 +1,5 @@
-use super::{scrollable::ScrollText, Page, Panel, ScrollTreeLines};
-
-/// Scroll by fixed rows or half/full screen
-pub enum ScrollOffset {
-    Fixed(usize),
-    HalfScreen,
-    FullScreen,
-}
+use super::{Page, Panel};
+use crate::ui::scrollable::{ScrollOffset, ScrollText, ScrollTreeLines};
 
 macro_rules! current {
     ($self:ident: $outline:block; $content:block $(;)?) => {
@@ -120,5 +114,24 @@ impl Page {
             self.content.display.lines.reset_doc();
             self.navi.display.lines = Default::default();
         }
+    }
+}
+
+impl Page {
+    pub fn heading_jump(&mut self, y: u16) -> bool {
+        const MARGIN: usize = 3;
+        if let Some(heading) = self.navi.display.get_line_on_screen(y) {
+            // set the upper bound: usually no need to use this, but who knows if y points
+            // to a line out of the doc range.
+            let limit = self.content.display.total_len().saturating_sub(MARGIN);
+            self.content().start = heading.jump_row_start().saturating_sub(MARGIN).min(limit);
+            return true;
+        }
+        false
+    }
+
+    pub fn toggle_sytect(&mut self) {
+        self.content().lines.toggle_sytect();
+        self.update_content();
     }
 }

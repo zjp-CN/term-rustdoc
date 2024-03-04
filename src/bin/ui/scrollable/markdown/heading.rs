@@ -1,12 +1,12 @@
 use super::region::SelectedRegion;
-use crate::ui::{
-    scrollable::{
+use crate::{
+    color::HEAD,
+    ui::scrollable::{
         generics::{render_line, render_line_fill_gap, LineState},
         Scroll,
     },
-    Page,
 };
-use ratatui::prelude::{Buffer, Color, Style};
+use ratatui::prelude::Buffer;
 use term_rustdoc::{tree::Text, util::XString};
 use unicode_width::UnicodeWidthStr;
 
@@ -116,25 +116,5 @@ impl ScrollHeading {
             }
             y += 1;
         }
-    }
-}
-
-const HEAD: Style = Style {
-    fg: Some(Color::DarkGray),
-    bg: Some(Color::LightCyan),
-    ..Style::new()
-};
-
-impl Page {
-    pub fn heading_jump(&mut self, y: u16) -> bool {
-        const MARGIN: usize = 3;
-        if let Some(heading) = self.navi.display.get_line_on_screen(y) {
-            // set the upper bound: usually no need to use this, but who knows if y points
-            // to a line out of the doc range.
-            let limit = self.content.display.total_len().saturating_sub(MARGIN);
-            self.content().start = heading.jump.row_start().saturating_sub(MARGIN).min(limit);
-            return true;
-        }
-        false
     }
 }

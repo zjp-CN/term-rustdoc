@@ -4,10 +4,7 @@ use super::{
     StyledText,
 };
 use crate::{
-    ui::{
-        scrollable::{generics::LineState, Scroll},
-        Page,
-    },
+    ui::scrollable::{generics::LineState, Scroll},
     Result,
 };
 use ratatui::style::Style;
@@ -151,13 +148,6 @@ impl StyledLines {
 
     pub fn toggle_sytect(&mut self) {
         self.syntect = !self.syntect;
-    }
-}
-
-impl Page {
-    pub fn toggle_sytect(&mut self) {
-        self.content().lines.toggle_sytect();
-        self.update_content();
     }
 }
 

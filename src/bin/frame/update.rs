@@ -1,9 +1,5 @@
 use super::{help::Help, Focus, Frame};
-use crate::{
-    dashboard::DashBoard,
-    event::Event,
-    ui::{Page, ScrollOffset},
-};
+use crate::{dashboard::DashBoard, event::Event, page::Page, ui::ScrollOffset};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 
 impl Frame {

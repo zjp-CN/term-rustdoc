@@ -1,6 +1,12 @@
 use super::{LineState, Lines, Scroll};
-use crate::ui::ScrollOffset;
 use ratatui::prelude::Rect;
+
+/// Scroll by fixed rows or half/full screen
+pub enum ScrollOffset {
+    Fixed(usize),
+    HalfScreen,
+    FullScreen,
+}
 
 /// Trait object that is used when a widget containing multiple scrollable components
 /// needs to unifiy the behavior of scrolling or moving the cursor.

@@ -1,4 +1,5 @@
-use super::{panel::SET, Page, Panel, Surround};
+use super::{Page, Panel, Surround};
+use crate::color::SET;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
     widgets::{Block, BorderType, Borders},
@@ -39,19 +40,16 @@ impl Page {
         let outline_border = Block::new()
             .borders(Borders::RIGHT)
             .border_type(BorderType::Thick);
-        self.outline.border = Surround {
-            block: if matches!(self.current, None | Some(Panel::Outline)) {
+        self.outline.border = Surround::new(
+            if matches!(self.current, None | Some(Panel::Outline)) {
                 outline_border.style(SET)
             } else {
                 outline_border
             },
-            area: layout[0],
-        };
+            layout[0],
+        );
         let outline_area = self.outline.border.inner();
-        self.content.border = Surround {
-            block: Block::new(),
-            area: layout[1],
-        };
+        self.content.border = Surround::new(Block::new(), layout[1]);
         let content_area = self.content.border.inner();
 
         // display.area
@@ -70,12 +68,12 @@ impl Page {
         self.content.display.max_width = content_area.width;
 
         if let Some(&navi_outer_area) = layout.get(2) {
-            self.navi.border = Surround {
-                block: Block::new()
+            self.navi.border = Surround::new(
+                Block::new()
                     .borders(Borders::LEFT)
                     .border_type(BorderType::Thick),
-                area: navi_outer_area,
-            };
+                navi_outer_area,
+            );
             self.navi.display.area = self.navi.border.inner();
         }
 

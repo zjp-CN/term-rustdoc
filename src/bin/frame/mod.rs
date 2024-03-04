@@ -5,7 +5,7 @@ mod util;
 pub use self::util::centered_rect;
 
 use self::help::Help;
-use crate::{dashboard::DashBoard, ui::Page};
+use crate::{dashboard::DashBoard, page::Page};
 use ratatui::prelude::{Buffer, Rect, Widget};
 
 pub struct Frame {

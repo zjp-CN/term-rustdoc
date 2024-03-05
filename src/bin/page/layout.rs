@@ -68,13 +68,12 @@ impl Page {
         self.content.display.max_width = content_area.width;
 
         if let Some(&navi_outer_area) = layout.get(2) {
-            *self.navi.border() = Surround::new(
+            self.navi.update_area(Surround::new(
                 Block::new()
                     .borders(Borders::LEFT)
                     .border_type(BorderType::Thick),
                 navi_outer_area,
-            );
-            self.navi.heading().area = self.navi.border().inner();
+            ));
         }
 
         // auto update content when screen size changes

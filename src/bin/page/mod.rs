@@ -83,10 +83,7 @@ impl Widget for &mut Page {
         self.content.border.render(buf);
         self.outline.display.render(buf);
         self.content.display.render(buf);
-        self.navi.border().render(buf);
-        let content_start = self.content().start;
-        let content_end = self.content().area.height as usize + content_start;
-        self.navi.heading().render(buf, content_start, content_end);
+        self.navi.render(buf, &self.content.display);
         debug!("Page rendered");
     }
 }

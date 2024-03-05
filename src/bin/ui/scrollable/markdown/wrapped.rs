@@ -55,4 +55,14 @@ impl StyledText {
     pub fn span(&self) -> ColumnSpan {
         self.span.clone()
     }
+
+    pub fn remove_trailing_whitespace(&mut self) -> bool {
+        if let Some(last) = self.text.text.pop() {
+            if last == ' ' {
+                return true;
+            }
+            self.text.text.push(last);
+        }
+        false
+    }
 }

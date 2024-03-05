@@ -41,7 +41,7 @@ impl Word {
         }
         let mut start = 0;
         let iter = words.iter().cloned();
-        StyledLine::from(
+        let mut line = StyledLine::from(
             iter.map(|word| {
                 let (text, tag) = word.into_text(start);
                 #[allow(clippy::single_match)]
@@ -53,7 +53,9 @@ impl Word {
                 text
             })
             .collect::<Vec<_>>(),
-        )
+        );
+        line.remove_trailing_whitespace();
+        line
     }
 
     /// StyledText is a Word with ColumnSpan in a line.

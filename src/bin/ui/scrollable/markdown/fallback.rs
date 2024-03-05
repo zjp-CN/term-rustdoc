@@ -46,6 +46,14 @@ impl StyledLine {
     pub fn iter_text_style(&self) -> impl Iterator<Item = (&'_ str, Style)> {
         self.line.iter().map(|l| (l.as_str(), l.style()))
     }
+
+    pub fn remove_trailing_whitespace(&mut self) {
+        if let Some(last_word) = self.line.last_mut() {
+            if last_word.remove_trailing_whitespace() {
+                self.width -= 1;
+            }
+        }
+    }
 }
 
 /// NOTE: [`StyledText`]s must have correct [`ColumnSpan`]s here.

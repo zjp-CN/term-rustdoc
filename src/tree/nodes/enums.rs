@@ -4,7 +4,7 @@ use crate::tree::{
 };
 use rustdoc_types::Enum;
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct DEnum {
     pub id: ID,
     pub variants: IDs,

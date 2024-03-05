@@ -15,6 +15,9 @@ pub use traits::DTrait;
 
 mod imports;
 
+mod item_inner;
+pub use item_inner::ItemInnerKind;
+
 use super::IDMap;
 use crate::tree::{
     impls::show::{DocTree, Show},

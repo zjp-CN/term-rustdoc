@@ -4,7 +4,7 @@ use crate::tree::{
 };
 use rustdoc_types::{Struct, StructKind};
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct DStruct {
     pub id: ID,
     pub fields: IDs,

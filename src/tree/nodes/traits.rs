@@ -4,7 +4,7 @@ use crate::tree::{
 };
 use rustdoc_types::{ItemEnum, Trait};
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct DTrait {
     pub id: ID,
     pub types: IDs,

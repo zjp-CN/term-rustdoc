@@ -4,7 +4,7 @@ use crate::tree::{
 };
 use rustdoc_types::Union;
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct DUnion {
     pub id: ID,
     pub fields: IDs,

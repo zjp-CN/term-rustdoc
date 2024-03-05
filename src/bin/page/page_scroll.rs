@@ -114,6 +114,16 @@ impl Page {
             self.content.display.lines.reset_doc();
             self.navi.heading().lines = Default::default();
         }
+        self.update_navi();
+    }
+
+    fn update_navi(&mut self) {
+        if let Some(id) = self.outline.display.get_id() {
+            if let Some(item_inner) = self.content.display.get_item_inner(id) {
+                self.navi.set_item_inner(item_inner);
+                info!("update ItemInnerKind for {id}");
+            }
+        }
     }
 }
 

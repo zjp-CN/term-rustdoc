@@ -9,7 +9,10 @@ use crate::{
 };
 use ratatui::style::Style;
 use std::{fmt, ops::Deref};
-use term_rustdoc::{tree::CrateDoc, util::XString};
+use term_rustdoc::{
+    tree::{CrateDoc, ItemInnerKind},
+    util::XString,
+};
 use unicode_width::UnicodeWidthStr;
 
 /// Scrollable text area for displaying markdown.
@@ -172,5 +175,10 @@ impl ScrollText {
     pub fn update_doc(&mut self, id: &str) -> Option<Headings> {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
+    }
+
+    pub fn get_item_inner(&self, id: &str) -> Option<ItemInnerKind> {
+        let doc = self.lines.doc.as_deref();
+        doc.and_then(|doc| doc.dmodule().get_item_inner(id))
     }
 }

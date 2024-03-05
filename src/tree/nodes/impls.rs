@@ -4,7 +4,7 @@ use crate::tree::{
 };
 use rustdoc_types::{Id, ItemEnum};
 
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+#[derive(Default, serde::Deserialize, serde::Serialize, Clone)]
 pub struct DImpl {
     pub inherent: IDs,
     pub trait_: IDs,

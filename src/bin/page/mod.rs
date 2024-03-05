@@ -12,12 +12,11 @@ use term_rustdoc::tree::CrateDoc;
 
 mod layout;
 mod navi;
-mod panel;
-
 /// fold/expand a tree view
 mod page_fold;
 /// scroll up/down behavior and with what offset
 mod page_scroll;
+mod panel;
 
 #[derive(Default, Debug)]
 pub struct Page {

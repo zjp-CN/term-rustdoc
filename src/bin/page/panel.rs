@@ -18,7 +18,7 @@ impl super::Page {
                 let block = (
                     self.outline.border.block_mut(),
                     self.content.border.block_mut(),
-                    self.navi.border.block_mut(),
+                    self.navi.border().block_mut(),
                 );
                 *block.$a = block.$a.clone().style(SET);
                 *block.$b = block.$b.clone().style(NEW);
@@ -34,7 +34,7 @@ impl super::Page {
             set!(outline)
         } else if self.content.border.area().contains(position) {
             set!(content)
-        } else if self.navi.border.area().contains(position) {
+        } else if self.navi.contains(position) {
             if self.heading_jump(y) {
                 // succeed to jump to a heading, thus focus on content panel
                 set!(content)

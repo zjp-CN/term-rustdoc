@@ -1,8 +1,8 @@
-use self::panel::Panel;
+use self::{navi::Navigation, panel::Panel};
 use crate::{
     database::PkgKey,
     ui::{
-        scrollable::{Scroll, ScrollHeading, ScrollText, ScrollTreeLines},
+        scrollable::{Scroll, ScrollText, ScrollTreeLines},
         Surround,
     },
     Result,
@@ -11,6 +11,7 @@ use ratatui::prelude::{Buffer, Rect, Widget};
 use term_rustdoc::tree::CrateDoc;
 
 mod layout;
+mod navi;
 mod panel;
 
 /// fold/expand a tree view
@@ -100,11 +101,5 @@ struct Outline {
 #[derive(Default, Debug)]
 struct Content {
     display: ScrollText,
-    border: Surround,
-}
-
-#[derive(Default, Debug)]
-struct Navigation {
-    display: ScrollHeading,
     border: Surround,
 }

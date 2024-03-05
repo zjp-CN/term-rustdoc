@@ -30,6 +30,12 @@ impl DModule {
                 return Some(ItemInnerKind::Union(item.clone()));
             }
         }
+        for m in &self.modules {
+            let item = m.get_item_inner(id);
+            if item.is_some() {
+                return item;
+            }
+        }
         None
     }
 }

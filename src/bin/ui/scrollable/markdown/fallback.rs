@@ -181,8 +181,4 @@ impl ScrollText {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
     }
-
-    pub fn doc(&self) -> Option<CrateDoc> {
-        self.lines.doc.clone()
-    }
 }

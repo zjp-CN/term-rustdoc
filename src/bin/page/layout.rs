@@ -63,6 +63,7 @@ impl Page {
                 "Outline width exceeds the area width, so lines may be truncated."
             );
         }
+        self.outline.inner_item.update_area(outline_area);
 
         self.content.display.area = content_area;
         self.content.display.max_width = content_area.width;

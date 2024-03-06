@@ -119,7 +119,7 @@ impl Page {
 
     fn update_navi(&mut self) {
         if let Some(id) = self.navi.set_item_inner(self.outline.display.get_id()) {
-            self.outline.inner_item = Some(InnerItem::new(id));
+            self.outline.inner_item = InnerItem::new(id);
         }
     }
 }

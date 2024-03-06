@@ -1,9 +1,16 @@
 use ratatui::prelude::Buffer;
 use term_rustdoc::tree::{CrateDoc, ID};
 
+#[derive(Default, Debug, Clone, Copy)]
+pub enum OutlineKind {
+    #[default]
+    Modules,
+    InnerItem,
+}
+
+#[derive(Default)]
 pub struct InnerItem {
     outer_item: ID,
-    show: bool,
 }
 
 impl std::fmt::Debug for InnerItem {
@@ -14,16 +21,8 @@ impl std::fmt::Debug for InnerItem {
 
 impl InnerItem {
     pub fn new(outer_item: ID) -> Self {
-        Self {
-            outer_item,
-            show: false,
-        }
+        Self { outer_item }
     }
 
-    pub fn render(&self, buf: &mut Buffer, doc: &CrateDoc) -> bool {
-        if !self.show {
-            return false;
-        }
-        true
-    }
+    pub fn render(&self, buf: &mut Buffer, doc: &CrateDoc) {}
 }

@@ -91,22 +91,21 @@ impl Widget for &mut Page {
 #[derive(Default, Debug)]
 struct Outline {
     display: ScrollTreeLines,
-    inner_item: Option<outline::InnerItem>,
+    inner_item: outline::InnerItem,
+    render: outline::OutlineKind,
     border: Surround,
 }
 
 impl Outline {
     fn render(&self, buf: &mut Buffer) {
         self.border.render(buf);
-        let doc = self.display.lines.doc_ref();
-        if self
-            .inner_item
-            .as_ref()
-            .map(|val| !val.render(buf, doc))
-            .unwrap_or(true)
-        {
-            self.display.render(buf);
-        }
+        match self.render {
+            outline::OutlineKind::Modules => self.display.render(buf),
+            outline::OutlineKind::InnerItem => {
+                let doc = self.display.lines.doc_ref();
+                self.inner_item.render(buf, doc);
+            }
+        };
     }
 }
 

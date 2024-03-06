@@ -7,7 +7,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders},
 };
 use rustdoc_types::ItemEnum;
-use term_rustdoc::tree::{CrateDoc, ID};
+use term_rustdoc::tree::{CrateDoc, ItemInnerKind, ID};
 
 #[derive(Default)]
 pub struct NaviOutline {
@@ -21,6 +21,12 @@ pub struct NaviOutline {
 pub struct Selected {
     id: ID,
     kind: Kind,
+}
+
+impl Selected {
+    fn inner_item(&self, doc: &CrateDoc) -> Option<ItemInnerKind> {
+        doc.dmodule().get_item_inner(&self.id)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -46,19 +52,26 @@ impl Kind {
 }
 
 impl NaviOutline {
-    pub fn set_item_inner(&mut self, id: Option<&str>) {
+    pub fn set_item_inner(&mut self, id: Option<&str>) -> Option<ItemInnerKind> {
         self.inner_area = self.border.inner();
-        self.selected = id.zip(self.doc.as_ref()).and_then(|(id, doc)| {
-            Kind::new(id, doc).map(|kind| Selected {
-                id: id.into(),
-                kind,
-            })
-        });
-        *self.border.block_mut() = if self.selected.is_some() {
-            block()
-        } else {
-            Default::default()
-        };
+        if let Some(doc) = &self.doc {
+            self.selected = id.and_then(|id| {
+                Kind::new(id, doc).map(|kind| Selected {
+                    id: id.into(),
+                    kind,
+                })
+            });
+            if let Some(selected) = &self.selected {
+                *self.border.block_mut() = block();
+                return selected.inner_item(doc);
+            }
+            *self.border.block_mut() = Default::default();
+        }
+        None
+    }
+
+    fn kind(&self) -> Option<Kind> {
+        self.selected.as_ref().map(|v| v.kind)
     }
 
     pub fn render(&self, buf: &mut Buffer) {
@@ -66,7 +79,7 @@ impl NaviOutline {
 
         let width = self.inner_area.width as usize;
         let Rect { x, y, .. } = self.inner_area;
-        match self.selected.as_ref().map(|v| v.kind) {
+        match self.kind() {
             Some(Kind::Struct | Kind::Union) => {
                 render_line(Some(("👉 Fields", NEW)), buf, x, y, width);
             }

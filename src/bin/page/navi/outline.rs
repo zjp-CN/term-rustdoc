@@ -1,6 +1,6 @@
 use crate::{
     color::NEW,
-    ui::{render_line, Surround},
+    ui::{render_line, LineState, Scroll, Surround},
 };
 use ratatui::{
     prelude::{Buffer, Rect},
@@ -10,15 +10,39 @@ use rustdoc_types::ItemEnum;
 use term_rustdoc::tree::{CrateDoc, ID};
 
 #[derive(Default)]
-pub struct NaviOutline {
-    pub doc: Option<CrateDoc>,
+struct NaviOutlineInner {
     /// Selected item that has inner data of a kind like fields/variants/impls.
-    pub selected: Option<Selected>,
-    pub inner_area: Rect,
-    pub border: Surround,
+    selected: Option<Selected>,
+    lines: &'static [&'static str],
 }
 
-pub struct Selected {
+impl std::ops::Deref for NaviOutlineInner {
+    type Target = [&'static str];
+
+    fn deref(&self) -> &Self::Target {
+        self.lines
+    }
+}
+
+impl LineState for &'static str {
+    type State = &'static str;
+
+    fn state(&self) -> Self::State {
+        self
+    }
+
+    fn is_identical(&self, state: &Self::State) -> bool {
+        self == state
+    }
+}
+
+#[derive(Default)]
+pub struct NaviOutline {
+    display: Scroll<NaviOutlineInner>,
+    border: Surround,
+}
+
+struct Selected {
     id: ID,
     kind: Kind,
 }
@@ -46,33 +70,46 @@ impl Kind {
 }
 
 impl NaviOutline {
-    pub fn set_item_inner(&mut self, id: Option<&str>) -> Option<ID> {
-        self.inner_area = self.border.inner();
-        if let Some(doc) = &self.doc {
-            self.selected = id.and_then(|id| {
-                Kind::new(id, doc).map(|kind| Selected {
-                    id: id.into(),
-                    kind,
-                })
-            });
-            if let Some(selected) = &self.selected {
-                *self.border.block_mut() = block();
-                return Some(selected.id.clone());
-            }
-            *self.border.block_mut() = Default::default();
+    pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
+        // self.inner_area = self.border.inner();
+        let inner = &mut self.display.lines;
+        inner.selected = id.and_then(|id| {
+            Kind::new(id, doc).map(|kind| Selected {
+                id: id.into(),
+                kind,
+            })
+        });
+        if let Some(selected) = &inner.selected {
+            *self.border.block_mut() = block();
+            return Some(selected.id.clone());
         }
+        *self.border.block_mut() = Default::default();
         None
     }
 
+    pub fn update_area(&mut self, area: Rect) {
+        if let Some(inner) = self.border.update_area(area) {
+            self.display.area = inner;
+        }
+    }
+
+    fn inner(&mut self) -> &mut NaviOutlineInner {
+        &mut self.display.lines
+    }
+
+    fn inner_ref(&self) -> &NaviOutlineInner {
+        &self.display.lines
+    }
+
     fn kind(&self) -> Option<Kind> {
-        self.selected.as_ref().map(|v| v.kind)
+        self.inner_ref().selected.as_ref().map(|v| v.kind)
     }
 
     pub fn render(&self, buf: &mut Buffer) {
         self.border.render(buf);
 
-        let width = self.inner_area.width as usize;
-        let Rect { x, y, .. } = self.inner_area;
+        let width = self.display.area.width as usize;
+        let Rect { x, y, .. } = self.display.area;
         match self.kind() {
             Some(Kind::Struct | Kind::Union) => {
                 render_line(Some(("👉 Fields", NEW)), buf, x, y, width);

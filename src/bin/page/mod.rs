@@ -44,7 +44,7 @@ impl Page {
             current: Some(Panel::Outline),
             area,
             pkg_key: Some(pkg_key),
-            navi: Navigation::new(doc),
+            navi: Default::default(),
         };
         page.update_area_inner(area);
         info!("Page ready");

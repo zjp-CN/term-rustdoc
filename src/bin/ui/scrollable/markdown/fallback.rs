@@ -181,4 +181,8 @@ impl ScrollText {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
     }
+
+    pub fn doc_ref(&self) -> Option<&CrateDoc> {
+        self.lines.doc.as_ref()
+    }
 }

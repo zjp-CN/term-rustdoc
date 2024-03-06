@@ -20,19 +20,6 @@ pub struct Navigation {
 }
 
 impl Navigation {
-    pub fn new(doc: CrateDoc) -> Self {
-        Navigation {
-            display: Navi {
-                outline: NaviOutline {
-                    doc: Some(doc),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            ..Default::default()
-        }
-    }
-
     pub fn heading(&mut self) -> &mut ScrollHeading {
         &mut self.display.heading
     }
@@ -46,8 +33,8 @@ impl Navigation {
         &mut self.border
     }
 
-    pub fn set_item_inner(&mut self, id: Option<&str>) -> Option<ID> {
-        self.display.outline.set_item_inner(id)
+    pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
+        self.display.outline.set_item_inner(id, doc)
     }
 
     pub fn update_area(&mut self, border: Surround) {
@@ -55,9 +42,7 @@ impl Navigation {
         let [heading, outline] = split(inner);
         self.display.heading.area = heading;
         self.border = border;
-        if let Some(inner) = self.display.outline.border.update_area(outline) {
-            self.display.outline.inner_area = inner;
-        }
+        self.display.outline.update_area(outline);
     }
 
     pub fn render(&self, buf: &mut Buffer, content: &ScrollText) {

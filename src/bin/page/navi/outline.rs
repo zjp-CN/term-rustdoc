@@ -63,6 +63,16 @@ impl Kind {
                 ItemEnum::Enum(_) => Kind::Enum,
                 ItemEnum::Trait(_) => Kind::Trait,
                 ItemEnum::Union(_) => Kind::Union,
+                ItemEnum::Import(reexport) => {
+                    let id = reexport.id.as_ref()?;
+                    match &doc.get_item(&id.0)?.inner {
+                        ItemEnum::Struct(_) => Kind::Struct,
+                        ItemEnum::Enum(_) => Kind::Enum,
+                        ItemEnum::Trait(_) => Kind::Trait,
+                        ItemEnum::Union(_) => Kind::Union,
+                        _ => return None,
+                    }
+                }
                 _ => return None,
             })
         })

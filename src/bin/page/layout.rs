@@ -12,8 +12,9 @@ impl Page {
             .direction(Direction::Horizontal)
             .constraints([
                 Constraint::Length(outline_width),
-                Constraint::Min(0),
-                Constraint::Percentage(10),
+                Constraint::Percentage(75),
+                // leave the minimum space for NaviOutline
+                Constraint::Min(18),
             ])
     }
 

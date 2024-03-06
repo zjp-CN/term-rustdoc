@@ -69,5 +69,6 @@ impl std::fmt::Debug for Navi {
 }
 
 fn split(area: Rect) -> [Rect; 2] {
-    Layout::vertical([Constraint::Percentage(70), Constraint::Percentage(30)]).areas(area)
+    // leave the minimum height for NaviOutline
+    Layout::vertical([Constraint::Percentage(70), Constraint::Min(3)]).areas(area)
 }

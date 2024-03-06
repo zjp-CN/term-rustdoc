@@ -11,7 +11,7 @@ use ratatui::{
     layout::Position,
     prelude::{Buffer, Constraint, Layout, Rect},
 };
-use term_rustdoc::tree::ItemInnerKind;
+use term_rustdoc::tree::CrateDoc;
 
 #[derive(Default, Debug)]
 pub struct Navigation {
@@ -20,6 +20,19 @@ pub struct Navigation {
 }
 
 impl Navigation {
+    pub fn new(doc: CrateDoc) -> Self {
+        Navigation {
+            display: Navi {
+                outline: NaviOutline {
+                    doc: Some(doc),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        }
+    }
+
     pub fn heading(&mut self) -> &mut ScrollHeading {
         &mut self.display.heading
     }
@@ -33,8 +46,8 @@ impl Navigation {
         &mut self.border
     }
 
-    pub fn set_item_inner(&mut self, item_inner: Option<ItemInnerKind>) {
-        self.display.outline.set_item_inner(item_inner);
+    pub fn set_item_inner(&mut self, id: Option<&str>) {
+        self.display.outline.set_item_inner(id);
     }
 
     pub fn update_area(&mut self, border: Surround) {

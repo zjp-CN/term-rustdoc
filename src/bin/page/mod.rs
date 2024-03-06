@@ -36,14 +36,14 @@ impl Page {
                 ..Default::default()
             },
             content: Content {
-                display: ScrollText::new_text(doc)?,
+                display: ScrollText::new_text(doc.clone())?,
                 ..Default::default()
             },
             // page scrolling like HOME/END will check the current Panel
             current: Some(Panel::Outline),
             area,
             pkg_key: Some(pkg_key),
-            ..Default::default()
+            navi: Navigation::new(doc),
         };
         page.update_area_inner(area);
         info!("Page ready");

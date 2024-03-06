@@ -6,25 +6,59 @@ use ratatui::{
     prelude::{Buffer, Rect},
     widgets::{Block, BorderType, Borders},
 };
-use term_rustdoc::tree::ItemInnerKind;
+use rustdoc_types::ItemEnum;
+use term_rustdoc::tree::{CrateDoc, ID};
 
 #[derive(Default)]
 pub struct NaviOutline {
-    /// Fields/Variants and impls.
-    pub item_inner: Option<ItemInnerKind>,
+    pub doc: Option<CrateDoc>,
+    /// Selected item that has inner data of a kind like fields/variants/impls.
+    pub selected: Option<Selected>,
     pub inner_area: Rect,
     pub border: Surround,
 }
 
+pub struct Selected {
+    id: ID,
+    kind: Kind,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Kind {
+    Struct,
+    Enum,
+    Trait,
+    Union,
+}
+
+impl Kind {
+    fn new(id: &str, doc: &CrateDoc) -> Option<Kind> {
+        doc.get_item(id).and_then(|item| {
+            Some(match &item.inner {
+                ItemEnum::Struct(_) => Kind::Struct,
+                ItemEnum::Enum(_) => Kind::Enum,
+                ItemEnum::Trait(_) => Kind::Trait,
+                ItemEnum::Union(_) => Kind::Union,
+                _ => return None,
+            })
+        })
+    }
+}
+
 impl NaviOutline {
-    pub fn set_item_inner(&mut self, item_inner: Option<ItemInnerKind>) {
-        *self.border.block_mut() = if item_inner.is_some() {
+    pub fn set_item_inner(&mut self, id: Option<&str>) {
+        self.inner_area = self.border.inner();
+        self.selected = id.zip(self.doc.as_ref()).and_then(|(id, doc)| {
+            Kind::new(id, doc).map(|kind| Selected {
+                id: id.into(),
+                kind,
+            })
+        });
+        *self.border.block_mut() = if self.selected.is_some() {
             block()
         } else {
             Default::default()
         };
-        self.inner_area = self.border.inner();
-        self.item_inner = item_inner;
     }
 
     pub fn render(&self, buf: &mut Buffer) {
@@ -32,11 +66,11 @@ impl NaviOutline {
 
         let width = self.inner_area.width as usize;
         let Rect { x, y, .. } = self.inner_area;
-        match &self.item_inner {
-            Some(ItemInnerKind::Struct(_) | ItemInnerKind::Union(_)) => {
+        match self.selected.as_ref().map(|v| v.kind) {
+            Some(Kind::Struct | Kind::Union) => {
                 render_line(Some(("👉 Fields", NEW)), buf, x, y, width);
             }
-            Some(ItemInnerKind::Enum(_)) => {
+            Some(Kind::Enum) => {
                 render_line(Some(("👉 Variants", NEW)), buf, x, y, width);
             }
             _ => (),

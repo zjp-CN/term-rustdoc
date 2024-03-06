@@ -184,9 +184,4 @@ impl ScrollText {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
     }
-
-    pub fn get_item_inner(&self, id: &str) -> Option<ItemInnerKind> {
-        let doc = self.lines.doc.as_deref();
-        doc.and_then(|doc| doc.dmodule().get_item_inner(id))
-    }
 }

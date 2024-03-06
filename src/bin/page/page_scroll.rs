@@ -118,11 +118,7 @@ impl Page {
     }
 
     fn update_navi(&mut self) {
-        if let Some(id) = self.outline.display.get_id() {
-            let item_inner = self.content.display.get_item_inner(id);
-            self.navi.set_item_inner(item_inner);
-            info!("update ItemInnerKind for {id}");
-        }
+        self.navi.set_item_inner(self.outline.display.get_id());
     }
 }
 

@@ -67,11 +67,18 @@ impl Kind {
             })
         })
     }
+
+    fn lines(self) -> &'static [&'static str] {
+        match self {
+            Kind::Struct | Kind::Union => &["Fields", "Impls"],
+            Kind::Enum => &["Varaints", "Impls"],
+            Kind::Trait => &["Implementors"],
+        }
+    }
 }
 
 impl NaviOutline {
     pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
-        // self.inner_area = self.border.inner();
         let inner = &mut self.display.lines;
         inner.selected = id.and_then(|id| {
             Kind::new(id, doc).map(|kind| Selected {
@@ -79,12 +86,18 @@ impl NaviOutline {
                 kind,
             })
         });
-        if let Some(selected) = &inner.selected {
+
+        let ret = if let Some(selected) = &inner.selected {
             *self.border.block_mut() = block();
-            return Some(selected.id.clone());
-        }
-        *self.border.block_mut() = Default::default();
-        None
+            Some(selected.id.clone())
+        } else {
+            *self.border.block_mut() = Default::default();
+            None
+        };
+        // border changes, thus inner area should change
+        self.display.area = self.border.inner();
+
+        ret
     }
 
     pub fn update_area(&mut self, area: Rect) {
@@ -108,16 +121,14 @@ impl NaviOutline {
     pub fn render(&self, buf: &mut Buffer) {
         self.border.render(buf);
 
-        let width = self.display.area.width as usize;
-        let Rect { x, y, .. } = self.display.area;
-        match self.kind() {
-            Some(Kind::Struct | Kind::Union) => {
-                render_line(Some(("👉 Fields", NEW)), buf, x, y, width);
+        if let Some(lines) = self.kind().map(Kind::lines) {
+            let width = self.display.area.width as usize;
+            let Rect { x, mut y, .. } = self.display.area;
+            for &line in lines {
+                let line = ["👉 ", line].map(|s| (s, NEW));
+                render_line(line, buf, x, y, width);
+                y += 1;
             }
-            Some(Kind::Enum) => {
-                render_line(Some(("👉 Variants", NEW)), buf, x, y, width);
-            }
-            _ => (),
         }
     }
 }

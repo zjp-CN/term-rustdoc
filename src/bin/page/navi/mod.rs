@@ -11,7 +11,7 @@ use ratatui::{
     layout::Position,
     prelude::{Buffer, Constraint, Layout, Rect},
 };
-use term_rustdoc::tree::CrateDoc;
+use term_rustdoc::tree::{CrateDoc, ID};
 
 #[derive(Default, Debug)]
 pub struct Navigation {
@@ -46,8 +46,8 @@ impl Navigation {
         &mut self.border
     }
 
-    pub fn set_item_inner(&mut self, id: Option<&str>) {
-        self.display.outline.set_item_inner(id);
+    pub fn set_item_inner(&mut self, id: Option<&str>) -> Option<ID> {
+        self.display.outline.set_item_inner(id)
     }
 
     pub fn update_area(&mut self, border: Surround) {

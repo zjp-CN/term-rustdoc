@@ -7,7 +7,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders},
 };
 use rustdoc_types::ItemEnum;
-use term_rustdoc::tree::{CrateDoc, ItemInnerKind, ID};
+use term_rustdoc::tree::{CrateDoc, ID};
 
 #[derive(Default)]
 pub struct NaviOutline {
@@ -21,12 +21,6 @@ pub struct NaviOutline {
 pub struct Selected {
     id: ID,
     kind: Kind,
-}
-
-impl Selected {
-    fn inner_item(&self, doc: &CrateDoc) -> Option<ItemInnerKind> {
-        doc.dmodule().get_item_inner(&self.id)
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -52,7 +46,7 @@ impl Kind {
 }
 
 impl NaviOutline {
-    pub fn set_item_inner(&mut self, id: Option<&str>) -> Option<ItemInnerKind> {
+    pub fn set_item_inner(&mut self, id: Option<&str>) -> Option<ID> {
         self.inner_area = self.border.inner();
         if let Some(doc) = &self.doc {
             self.selected = id.and_then(|id| {
@@ -63,7 +57,7 @@ impl NaviOutline {
             });
             if let Some(selected) = &self.selected {
                 *self.border.block_mut() = block();
-                return selected.inner_item(doc);
+                return Some(selected.id.clone());
             }
             *self.border.block_mut() = Default::default();
         }

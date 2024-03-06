@@ -1,4 +1,4 @@
-use super::{Page, Panel};
+use super::{outline::InnerItem, Page, Panel};
 use crate::ui::scrollable::{ScrollOffset, ScrollText, ScrollTreeLines};
 
 macro_rules! current {
@@ -118,7 +118,9 @@ impl Page {
     }
 
     fn update_navi(&mut self) {
-        self.navi.set_item_inner(self.outline.display.get_id());
+        if let Some(id) = self.navi.set_item_inner(self.outline.display.get_id()) {
+            self.outline.inner_item = Some(InnerItem::new(id));
+        }
     }
 }
 

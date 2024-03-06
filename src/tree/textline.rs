@@ -193,6 +193,10 @@ impl TreeLines {
     pub fn doc(&self) -> CrateDoc {
         self.doc.clone()
     }
+
+    pub fn doc_ref(&self) -> &CrateDoc {
+        &self.doc
+    }
 }
 
 impl From<CrateDoc> for TreeLines {

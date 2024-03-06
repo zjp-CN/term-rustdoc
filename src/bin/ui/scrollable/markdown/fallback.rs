@@ -9,10 +9,7 @@ use crate::{
 };
 use ratatui::style::Style;
 use std::{fmt, ops::Deref};
-use term_rustdoc::{
-    tree::{CrateDoc, ItemInnerKind},
-    util::XString,
-};
+use term_rustdoc::{tree::CrateDoc, util::XString};
 use unicode_width::UnicodeWidthStr;
 
 /// Scrollable text area for displaying markdown.
@@ -183,5 +180,9 @@ impl ScrollText {
     pub fn update_doc(&mut self, id: &str) -> Option<Headings> {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
+    }
+
+    pub fn doc(&self) -> Option<CrateDoc> {
+        self.lines.doc.clone()
     }
 }

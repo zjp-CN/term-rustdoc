@@ -12,6 +12,7 @@ use term_rustdoc::tree::CrateDoc;
 
 mod layout;
 mod navi;
+mod outline;
 /// fold/expand a tree view
 mod page_fold;
 /// scroll up/down behavior and with what offset
@@ -79,9 +80,8 @@ impl Widget for &mut Page {
     fn render(self, area: Rect, buf: &mut Buffer) {
         debug!("Page rendering starts");
         self.update_area(area);
-        self.outline.border.render(buf);
+        self.outline.render(buf);
         self.content.border.render(buf);
-        self.outline.display.render(buf);
         self.content.display.render(buf);
         self.navi.render(buf, &self.content.display);
         debug!("Page rendered");
@@ -91,7 +91,23 @@ impl Widget for &mut Page {
 #[derive(Default, Debug)]
 struct Outline {
     display: ScrollTreeLines,
+    inner_item: Option<outline::InnerItem>,
     border: Surround,
+}
+
+impl Outline {
+    fn render(&self, buf: &mut Buffer) {
+        self.border.render(buf);
+        let doc = self.display.lines.doc_ref();
+        if self
+            .inner_item
+            .as_ref()
+            .map(|val| !val.render(buf, doc))
+            .unwrap_or(true)
+        {
+            self.display.render(buf);
+        }
+    }
 }
 
 #[derive(Default, Debug)]

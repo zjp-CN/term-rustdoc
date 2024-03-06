@@ -3,7 +3,7 @@ use ratatui::prelude::{Buffer, Color, Rect};
 use term_rustdoc::tree::TreeLine;
 
 impl ScrollTreeLines {
-    pub fn render(&mut self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer) {
         // if no visible lines, we won't render anything
         let Some(visible) = self.visible_lines() else {
             return;

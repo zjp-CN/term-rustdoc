@@ -37,10 +37,18 @@ impl LineState for NaviAction {
     }
 }
 
-#[derive(Default)]
 pub struct NaviOutline {
     display: Scroll<NaviOutlineInner>,
     border: Surround,
+}
+
+impl Default for NaviOutline {
+    fn default() -> Self {
+        Self {
+            display: Default::default(),
+            border: Surround::new(block(), Default::default()),
+        }
+    }
 }
 
 struct Selected {
@@ -146,26 +154,22 @@ pub fn width() -> u16 {
 
 impl NaviOutline {
     pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
-        let inner = &mut self.display.lines;
-        inner.selected = id.and_then(|id| {
-            Kind::new(id, doc).map(|kind| Selected {
-                id: id.into(),
-                kind,
-            })
-        });
-
-        let ret = if let Some(selected) = &inner.selected {
-            *self.border.block_mut() = block();
-            inner.lines = selected.kind.lines();
-            Some(selected.id.clone())
-        } else {
-            *self.border.block_mut() = Default::default();
-            None
+        let id = id?;
+        let selected = Selected {
+            id: id.into(),
+            kind: Kind::new(id, doc)?,
         };
-        // border changes, thus inner area should change
-        self.display.area = self.border.inner();
 
+        let inner = &mut self.display.lines;
+        inner.lines = selected.kind.lines();
+        let ret = Some(selected.id.clone());
+        inner.selected = Some(selected);
         ret
+    }
+
+    pub fn reset(&mut self) {
+        *self.inner() = Default::default();
+        self.display.start = 0;
     }
 
     pub fn update_area(&mut self, area: Rect) {

@@ -114,12 +114,16 @@ impl Outline {
 
     fn action(&mut self, action: NaviAction) {
         match action {
-            NaviAction::BackToHome => self.render = OutlineKind::Modules,
+            NaviAction::BackToHome => self.back_to_home(),
             _ => {
                 self.inner_item.update_lines(&self.display);
                 self.render = OutlineKind::InnerItem;
             }
         };
+    }
+
+    fn back_to_home(&mut self) {
+        self.render = OutlineKind::Modules;
     }
 }
 

@@ -39,6 +39,10 @@ impl Navigation {
         self.display.outline.set_item_inner(id, doc)
     }
 
+    pub fn reset_navi_outline(&mut self) {
+        self.display.outline.reset();
+    }
+
     pub fn update_area(&mut self, border: Surround) {
         let inner = border.inner();
         let [heading, outline] = split(inner);

@@ -121,6 +121,8 @@ impl Page {
         if let Some(doc) = self.content.display.doc_ref() {
             if let Some(id) = self.navi.set_item_inner(self.outline.display.get_id(), doc) {
                 self.outline.inner_item = InnerItem::new(id);
+            } else {
+                self.navi.reset_navi_outline();
             }
         }
     }

@@ -122,6 +122,7 @@ impl NaviOutline {
 
         let ret = if let Some(selected) = &inner.selected {
             *self.border.block_mut() = block();
+            inner.lines = selected.kind.lines();
             Some(selected.id.clone())
         } else {
             *self.border.block_mut() = Default::default();
@@ -154,7 +155,7 @@ impl NaviOutline {
     pub fn render(&self, buf: &mut Buffer) {
         self.border.render(buf);
 
-        if let Some(lines) = self.kind().map(Kind::lines) {
+        if let Some(lines) = self.display.visible_lines() {
             let width = self.display.area.width as usize;
             let Rect { x, mut y, .. } = self.display.area;
             for &line in lines {
@@ -163,6 +164,11 @@ impl NaviOutline {
                 y += 1;
             }
         }
+    }
+
+    /// Returns true if user clicks on the item to ask for update of outline.
+    pub fn update_outline(&mut self, y: u16) -> bool {
+        self.display.get_line_on_screen(y).is_some()
     }
 }
 

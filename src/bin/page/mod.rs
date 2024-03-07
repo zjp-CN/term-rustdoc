@@ -107,6 +107,11 @@ impl Outline {
             }
         };
     }
+
+    fn switch_to_inner_item(&mut self) {
+        self.inner_item.update_lines(&self.display);
+        self.render = outline::OutlineKind::InnerItem;
+    }
 }
 
 #[derive(Default, Debug)]

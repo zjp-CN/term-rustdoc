@@ -33,13 +33,18 @@ impl InnerItem {
         self.display.area = area;
     }
 
-    pub fn update_lines(&mut self, doc: CrateDoc) {
+    pub fn update_lines(&mut self, outline: &ScrollTreeLines) {
+        let doc = outline.lines.doc();
         self.display.lines = TreeLines::new_with(doc, |doc| {
             doc.dmodule()
                 .item_inner_tree(&self.outer_item, doc)
                 .unwrap()
         })
         .0;
+        if self.display.total_len() == 0 {
+            error!("{} generated unexpected empty TreeLines", self.outer_item);
+        }
+        self.display.area = outline.area;
     }
 
     pub fn render(&self, buf: &mut Buffer, _doc: &CrateDoc) {

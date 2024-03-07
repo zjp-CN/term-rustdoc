@@ -56,6 +56,10 @@ impl Navigation {
 
         self.display.outline.render(buf);
     }
+
+    pub fn update_outline(&mut self, y: u16) -> bool {
+        self.display.outline.update_outline(y)
+    }
 }
 
 #[derive(Default)]

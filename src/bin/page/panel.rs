@@ -38,6 +38,9 @@ impl super::Page {
             if self.heading_jump(y) {
                 // succeed to jump to a heading, thus focus on content panel
                 set!(content)
+            } else if self.navi.update_outline(y) {
+                self.outline.switch_to_inner_item();
+                set!(outline)
             } else {
                 set!(navi)
             }

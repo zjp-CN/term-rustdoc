@@ -1,4 +1,8 @@
-use self::{navi::Navigation, panel::Panel};
+use self::{
+    navi::{NaviAction, Navigation},
+    outline::OutlineKind,
+    panel::Panel,
+};
 use crate::{
     database::PkgKey,
     ui::{
@@ -92,7 +96,7 @@ impl Widget for &mut Page {
 struct Outline {
     display: ScrollTreeLines,
     inner_item: outline::InnerItem,
-    render: outline::OutlineKind,
+    render: OutlineKind,
     border: Surround,
 }
 
@@ -100,17 +104,22 @@ impl Outline {
     fn render(&self, buf: &mut Buffer) {
         self.border.render(buf);
         match self.render {
-            outline::OutlineKind::Modules => self.display.render(buf),
-            outline::OutlineKind::InnerItem => {
+            OutlineKind::Modules => self.display.render(buf),
+            OutlineKind::InnerItem => {
                 let doc = self.display.lines.doc_ref();
                 self.inner_item.render(buf, doc);
             }
         };
     }
 
-    fn switch_to_inner_item(&mut self) {
-        self.inner_item.update_lines(&self.display);
-        self.render = outline::OutlineKind::InnerItem;
+    fn action(&mut self, action: NaviAction) {
+        match action {
+            NaviAction::BackToHome => self.render = OutlineKind::Modules,
+            _ => {
+                self.inner_item.update_lines(&self.display);
+                self.render = OutlineKind::InnerItem;
+            }
+        };
     }
 }
 

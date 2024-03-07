@@ -13,7 +13,7 @@ use ratatui::{
 };
 use term_rustdoc::tree::{CrateDoc, ID};
 
-pub use outline::width as navi_outline_width;
+pub use self::outline::{width as navi_outline_width, NaviAction};
 
 #[derive(Default, Debug)]
 pub struct Navigation {
@@ -57,7 +57,7 @@ impl Navigation {
         self.display.outline.render(buf);
     }
 
-    pub fn update_outline(&mut self, y: u16) -> bool {
+    pub fn update_outline(&mut self, y: u16) -> Option<NaviAction> {
         self.display.outline.update_outline(y)
     }
 }

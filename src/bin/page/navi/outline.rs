@@ -14,26 +14,26 @@ use term_rustdoc::tree::{CrateDoc, ID};
 struct NaviOutlineInner {
     /// Selected item that has inner data of a kind like fields/variants/impls.
     selected: Option<Selected>,
-    lines: &'static [&'static str],
+    lines: &'static [NaviAction],
 }
 
 impl std::ops::Deref for NaviOutlineInner {
-    type Target = [&'static str];
+    type Target = [NaviAction];
 
     fn deref(&self) -> &Self::Target {
         self.lines
     }
 }
 
-impl LineState for &'static str {
-    type State = &'static str;
+impl LineState for NaviAction {
+    type State = NaviAction;
 
     fn state(&self) -> Self::State {
-        self
+        *self
     }
 
     fn is_identical(&self, state: &Self::State) -> bool {
-        self == state
+        *self == *state
     }
 }
 
@@ -79,7 +79,7 @@ impl Kind {
         })
     }
 
-    fn lines(self) -> &'static [&'static str] {
+    fn lines(self) -> &'static [NaviAction] {
         match self {
             Kind::Struct | Kind::Union => STRUCT,
             Kind::Enum => ENUM,
@@ -88,9 +88,43 @@ impl Kind {
     }
 }
 
-const STRUCT: &'static [&'static str] = &["Fields", "Impls"];
-const ENUM: &'static [&'static str] = &["Varaints", "Impls"];
-const TRAIT: &'static [&'static str] = &["Implementors"];
+const STRUCT: &'static [NaviAction] = &[
+    NaviAction::StructInner,
+    NaviAction::ITABImpls,
+    NaviAction::BackToHome,
+];
+const ENUM: &'static [NaviAction] = &[
+    NaviAction::EnumInner,
+    NaviAction::ITABImpls,
+    NaviAction::BackToHome,
+];
+const TRAIT: &'static [NaviAction] = &[NaviAction::TraitInner, NaviAction::BackToHome];
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum NaviAction {
+    StructInner,
+    EnumInner,
+    TraitInner,
+    ITABImpls,
+    #[default]
+    BackToHome,
+}
+
+impl NaviAction {
+    fn text(self) -> &'static str {
+        match self {
+            NaviAction::StructInner => "Fields",
+            NaviAction::EnumInner => "Varaints",
+            NaviAction::TraitInner => "Implementors",
+            NaviAction::ITABImpls => "Impls",
+            NaviAction::BackToHome => "Back To Home",
+        }
+    }
+
+    fn len(self) -> u16 {
+        self.text().len() as u16
+    }
+}
 
 pub fn height() -> u16 {
     [STRUCT.len(), ENUM.len(), TRAIT.len()]
@@ -106,7 +140,7 @@ pub fn width() -> u16 {
         .into_iter()
         .flatten()
         .max()
-        .unwrap_or(0) as u16
+        .unwrap_or(0u16)
         + 5u16
 }
 
@@ -159,7 +193,7 @@ impl NaviOutline {
             let width = self.display.area.width as usize;
             let Rect { x, mut y, .. } = self.display.area;
             for &line in lines {
-                let line = ["👉 ", line].map(|s| (s, NEW));
+                let line = ["👉 ", line.text()].map(|s| (s, NEW));
                 render_line(line, buf, x, y, width);
                 y += 1;
             }
@@ -167,8 +201,8 @@ impl NaviOutline {
     }
 
     /// Returns true if user clicks on the item to ask for update of outline.
-    pub fn update_outline(&mut self, y: u16) -> bool {
-        self.display.get_line_on_screen(y).is_some()
+    pub fn update_outline(&mut self, y: u16) -> Option<NaviAction> {
+        self.display.get_line_on_screen(y).copied()
     }
 }
 

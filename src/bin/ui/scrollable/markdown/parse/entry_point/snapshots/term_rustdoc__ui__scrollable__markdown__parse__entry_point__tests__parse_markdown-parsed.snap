@@ -162,6 +162,20 @@ Blocks {
                 Line {
                     words: [
                         Word {
+                            word: "",
+                        },
+                        Word {
+                            word: "```rust",
+                            style.add_modifier: BOLD,
+                            tag: CodeBlock(
+                                "",
+                            ),
+                        },
+                    ],
+                },
+                Line {
+                    words: [
+                        Word {
                             word: "let",
                             tag: CodeBlock(
                                 "rust",
@@ -195,6 +209,20 @@ Blocks {
                             word: ";",
                             tag: CodeBlock(
                                 "rust",
+                            ),
+                        },
+                    ],
+                },
+                Line {
+                    words: [
+                        Word {
+                            word: "",
+                        },
+                        Word {
+                            word: "```",
+                            style.add_modifier: BOLD,
+                            tag: CodeBlock(
+                                "",
                             ),
                         },
                     ],

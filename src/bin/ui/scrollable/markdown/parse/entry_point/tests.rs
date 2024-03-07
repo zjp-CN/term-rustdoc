@@ -32,7 +32,9 @@ let a = 1;
 
     1 c ss d sadsad xxx `yyyy`
 
+    ```rust
     let a = 1;
+    ```
 
     rrr sss tt
 

@@ -88,4 +88,30 @@ fn parse_module() {
         },
     }
     "###);
+
+    // struct inner
+    let (struct_, _) = TreeLines::new_with(treelines.doc(), |doc| {
+        doc.dmodule().structs[0].show_prettier(doc)
+    });
+    shot!(struct_.display_as_plain_text(), @r###"
+    integration::AUnitStruct
+    ├── No Fields!
+    └── Implementations
+        ├── Trait Impls
+        │   └── AUnitStruct: ATrait
+        ├── Auto Impls
+        │   ├── AUnitStruct: UnwindSafe
+        │   ├── AUnitStruct: Sync
+        │   ├── AUnitStruct: RefUnwindSafe
+        │   ├── AUnitStruct: Send
+        │   └── AUnitStruct: Unpin
+        └── Blanket Impls
+            ├── T: Any
+            ├── T: Borrow<T>
+            ├── T: TryFrom<U>
+            ├── T: TryInto<U>
+            ├── T: From<T>
+            ├── T: Into<U>
+            └── T: BorrowMut<T>
+    "###);
 }

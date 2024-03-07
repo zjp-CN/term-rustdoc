@@ -9,6 +9,71 @@ expression: treelines.all_lines()
         name.text: "integration",
     },
     TreeLine {
+        tag: Functions,
+        level: 1,
+        name.text: "Functions",
+    },
+    TreeLine {
+        tag: Function,
+        level: 2,
+        name.text: "func_with_1arg",
+    },
+    TreeLine {
+        tag: Function,
+        level: 2,
+        name.text: "func_with_1arg_and_ret",
+    },
+    TreeLine {
+        tag: Function,
+        level: 2,
+        name.text: "func_with_no_args",
+    },
+    TreeLine {
+        tag: Constants,
+        level: 1,
+        name.text: "Constants",
+    },
+    TreeLine {
+        tag: Constant,
+        level: 2,
+        name.text: "ACONSTANT",
+    },
+    TreeLine {
+        tag: Constant,
+        level: 2,
+        name.text: "ASTATIC",
+    },
+    TreeLine {
+        tag: MacroDecls,
+        level: 1,
+        name.text: "Macros - Declarative",
+    },
+    TreeLine {
+        tag: MacroDecl,
+        level: 2,
+        name.text: "a_decl_macro",
+    },
+    TreeLine {
+        tag: Traits,
+        level: 1,
+        name.text: "Traits",
+    },
+    TreeLine {
+        tag: Trait,
+        level: 2,
+        name.text: "integration::ATrait",
+    },
+    TreeLine {
+        tag: Implementors,
+        level: 3,
+        name.text: "Implementors",
+    },
+    TreeLine {
+        tag: Implementor,
+        level: 4,
+        name.text: "AUnitStruct: ATrait",
+    },
+    TreeLine {
         tag: Structs,
         level: 1,
         name.text: "Structs",
@@ -46,7 +111,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplAuto,
         level: 5,
-        name.text: "AUnitStruct: Send",
+        name.text: "AUnitStruct: UnwindSafe",
     },
     TreeLine {
         tag: ImplAuto,
@@ -56,17 +121,17 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplAuto,
         level: 5,
-        name.text: "AUnitStruct: UnwindSafe",
+        name.text: "AUnitStruct: RefUnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 5,
+        name.text: "AUnitStruct: Send",
     },
     TreeLine {
         tag: ImplAuto,
         level: 5,
         name.text: "AUnitStruct: Unpin",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 5,
-        name.text: "AUnitStruct: RefUnwindSafe",
     },
     TreeLine {
         tag: BlanketImpls,
@@ -76,12 +141,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: Into<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 5,
-        name.text: "T: TryInto<U>",
+        name.text: "T: Any",
     },
     TreeLine {
         tag: ImplBlanket,
@@ -91,12 +151,12 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: BorrowMut<T>",
+        name.text: "T: TryFrom<U>",
     },
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: Any",
+        name.text: "T: TryInto<U>",
     },
     TreeLine {
         tag: ImplBlanket,
@@ -106,7 +166,12 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: TryFrom<U>",
+        name.text: "T: Into<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 5,
+        name.text: "T: BorrowMut<T>",
     },
     TreeLine {
         tag: Struct,
@@ -171,7 +236,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplAuto,
         level: 5,
-        name.text: "FieldsNamedStruct: Send",
+        name.text: "FieldsNamedStruct: UnwindSafe",
     },
     TreeLine {
         tag: ImplAuto,
@@ -181,17 +246,17 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplAuto,
         level: 5,
-        name.text: "FieldsNamedStruct: UnwindSafe",
+        name.text: "FieldsNamedStruct: RefUnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 5,
+        name.text: "FieldsNamedStruct: Send",
     },
     TreeLine {
         tag: ImplAuto,
         level: 5,
         name.text: "FieldsNamedStruct: Unpin",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 5,
-        name.text: "FieldsNamedStruct: RefUnwindSafe",
     },
     TreeLine {
         tag: BlanketImpls,
@@ -201,12 +266,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: Into<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 5,
-        name.text: "T: TryInto<U>",
+        name.text: "T: Any",
     },
     TreeLine {
         tag: ImplBlanket,
@@ -216,12 +276,12 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: BorrowMut<T>",
+        name.text: "T: TryFrom<U>",
     },
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: Any",
+        name.text: "T: TryInto<U>",
     },
     TreeLine {
         tag: ImplBlanket,
@@ -231,72 +291,12 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 5,
-        name.text: "T: TryFrom<U>",
+        name.text: "T: Into<U>",
     },
     TreeLine {
-        tag: Traits,
-        level: 1,
-        name.text: "Traits",
-    },
-    TreeLine {
-        tag: Trait,
-        level: 2,
-        name.text: "integration::ATrait",
-    },
-    TreeLine {
-        tag: Implementors,
-        level: 3,
-        name.text: "Implementors",
-    },
-    TreeLine {
-        tag: Implementor,
-        level: 4,
-        name.text: "AUnitStruct: ATrait",
-    },
-    TreeLine {
-        tag: Functions,
-        level: 1,
-        name.text: "Functions",
-    },
-    TreeLine {
-        tag: Function,
-        level: 2,
-        name.text: "func_with_1arg",
-    },
-    TreeLine {
-        tag: Function,
-        level: 2,
-        name.text: "func_with_1arg_and_ret",
-    },
-    TreeLine {
-        tag: Function,
-        level: 2,
-        name.text: "func_with_no_args",
-    },
-    TreeLine {
-        tag: Constants,
-        level: 1,
-        name.text: "Constants",
-    },
-    TreeLine {
-        tag: Constant,
-        level: 2,
-        name.text: "ACONSTANT",
-    },
-    TreeLine {
-        tag: Constant,
-        level: 2,
-        name.text: "ASTATIC",
-    },
-    TreeLine {
-        tag: MacroDecls,
-        level: 1,
-        name.text: "Macros - Declarative",
-    },
-    TreeLine {
-        tag: MacroDecl,
-        level: 2,
-        name.text: "a_decl_macro",
+        tag: ImplBlanket,
+        level: 5,
+        name.text: "T: BorrowMut<T>",
     },
     TreeLine {
         tag: Module,
@@ -366,7 +366,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplAuto,
         level: 6,
-        name.text: "AUnitEnum: Send",
+        name.text: "AUnitEnum: UnwindSafe",
     },
     TreeLine {
         tag: ImplAuto,
@@ -376,7 +376,12 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplAuto,
         level: 6,
-        name.text: "AUnitEnum: UnwindSafe",
+        name.text: "AUnitEnum: RefUnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 6,
+        name.text: "AUnitEnum: Send",
     },
     TreeLine {
         tag: ImplAuto,
@@ -384,34 +389,9 @@ expression: treelines.all_lines()
         name.text: "AUnitEnum: Unpin",
     },
     TreeLine {
-        tag: ImplAuto,
-        level: 6,
-        name.text: "AUnitEnum: RefUnwindSafe",
-    },
-    TreeLine {
         tag: BlanketImpls,
         level: 5,
         name.text: "Blanket Impls",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 6,
-        name.text: "T: Into<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 6,
-        name.text: "T: TryInto<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 6,
-        name.text: "T: Borrow<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 6,
-        name.text: "T: BorrowMut<T>",
     },
     TreeLine {
         tag: ImplBlanket,
@@ -421,212 +401,37 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplBlanket,
         level: 6,
-        name.text: "T: From<T>",
+        name.text: "T: Borrow<T>",
     },
     TreeLine {
         tag: ImplBlanket,
         level: 6,
         name.text: "T: TryFrom<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 6,
+        name.text: "T: TryInto<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 6,
+        name.text: "T: From<T>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 6,
+        name.text: "T: Into<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 6,
+        name.text: "T: BorrowMut<T>",
     },
     TreeLine {
         tag: Module,
         level: 2,
         name.text: "integration::submod1::submod2",
-    },
-    TreeLine {
-        tag: Structs,
-        level: 3,
-        name.text: "Structs",
-    },
-    TreeLine {
-        tag: Struct,
-        level: 4,
-        name.text: "0:13-0:3:1785",
-    },
-    TreeLine {
-        tag: NoFields,
-        level: 5,
-        name.text: "No Fields!",
-    },
-    TreeLine {
-        tag: Implementations,
-        level: 5,
-        name.text: "Implementations",
-    },
-    TreeLine {
-        tag: TraitImpls,
-        level: 6,
-        name.text: "Trait Impls",
-    },
-    TreeLine {
-        tag: ImplTrait,
-        level: 7,
-        name.text: "AUnitStruct: ATrait",
-    },
-    TreeLine {
-        tag: AutoImpls,
-        level: 6,
-        name.text: "Auto Impls",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: Send",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: Sync",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: UnwindSafe",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: Unpin",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: RefUnwindSafe",
-    },
-    TreeLine {
-        tag: BlanketImpls,
-        level: 6,
-        name.text: "Blanket Impls",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: Into<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: TryInto<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: Borrow<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: BorrowMut<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: Any",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: From<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: TryFrom<U>",
-    },
-    TreeLine {
-        tag: Struct,
-        level: 4,
-        name.text: "0:12-0:3:1785",
-    },
-    TreeLine {
-        tag: NoFields,
-        level: 5,
-        name.text: "No Fields!",
-    },
-    TreeLine {
-        tag: Implementations,
-        level: 5,
-        name.text: "Implementations",
-    },
-    TreeLine {
-        tag: TraitImpls,
-        level: 6,
-        name.text: "Trait Impls",
-    },
-    TreeLine {
-        tag: ImplTrait,
-        level: 7,
-        name.text: "AUnitStruct: ATrait",
-    },
-    TreeLine {
-        tag: AutoImpls,
-        level: 6,
-        name.text: "Auto Impls",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: Send",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: Sync",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: UnwindSafe",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: Unpin",
-    },
-    TreeLine {
-        tag: ImplAuto,
-        level: 7,
-        name.text: "AUnitStruct: RefUnwindSafe",
-    },
-    TreeLine {
-        tag: BlanketImpls,
-        level: 6,
-        name.text: "Blanket Impls",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: Into<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: TryInto<U>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: Borrow<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: BorrowMut<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: Any",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: From<T>",
-    },
-    TreeLine {
-        tag: ImplBlanket,
-        level: 7,
-        name.text: "T: TryFrom<U>",
     },
     TreeLine {
         tag: Traits,
@@ -642,5 +447,200 @@ expression: treelines.all_lines()
         tag: NoAssocOrImpls,
         level: 5,
         name.text: "No Associated Items Or Implementors!",
+    },
+    TreeLine {
+        tag: Structs,
+        level: 3,
+        name.text: "Structs",
+    },
+    TreeLine {
+        tag: Struct,
+        level: 4,
+        name.text: "AStructAlias",
+    },
+    TreeLine {
+        tag: NoFields,
+        level: 5,
+        name.text: "No Fields!",
+    },
+    TreeLine {
+        tag: Implementations,
+        level: 5,
+        name.text: "Implementations",
+    },
+    TreeLine {
+        tag: TraitImpls,
+        level: 6,
+        name.text: "Trait Impls",
+    },
+    TreeLine {
+        tag: ImplTrait,
+        level: 7,
+        name.text: "AUnitStruct: ATrait",
+    },
+    TreeLine {
+        tag: AutoImpls,
+        level: 6,
+        name.text: "Auto Impls",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: UnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: Sync",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: RefUnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: Send",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: Unpin",
+    },
+    TreeLine {
+        tag: BlanketImpls,
+        level: 6,
+        name.text: "Blanket Impls",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: Any",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: Borrow<T>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: TryFrom<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: TryInto<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: From<T>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: Into<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: BorrowMut<T>",
+    },
+    TreeLine {
+        tag: Struct,
+        level: 4,
+        name.text: "AUnitStruct",
+    },
+    TreeLine {
+        tag: NoFields,
+        level: 5,
+        name.text: "No Fields!",
+    },
+    TreeLine {
+        tag: Implementations,
+        level: 5,
+        name.text: "Implementations",
+    },
+    TreeLine {
+        tag: TraitImpls,
+        level: 6,
+        name.text: "Trait Impls",
+    },
+    TreeLine {
+        tag: ImplTrait,
+        level: 7,
+        name.text: "AUnitStruct: ATrait",
+    },
+    TreeLine {
+        tag: AutoImpls,
+        level: 6,
+        name.text: "Auto Impls",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: UnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: Sync",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: RefUnwindSafe",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: Send",
+    },
+    TreeLine {
+        tag: ImplAuto,
+        level: 7,
+        name.text: "AUnitStruct: Unpin",
+    },
+    TreeLine {
+        tag: BlanketImpls,
+        level: 6,
+        name.text: "Blanket Impls",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: Any",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: Borrow<T>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: TryFrom<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: TryInto<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: From<T>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: Into<U>",
+    },
+    TreeLine {
+        tag: ImplBlanket,
+        level: 7,
+        name.text: "T: BorrowMut<T>",
     },
 ]

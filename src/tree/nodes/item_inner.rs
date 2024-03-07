@@ -69,4 +69,34 @@ impl DModule {
         }
         None
     }
+
+    pub fn impl_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+        for item in &self.structs {
+            if item.id.as_str() == id {
+                return Some(item.impls.show_prettier(map));
+            }
+        }
+        for item in &self.enums {
+            if item.id.as_str() == id {
+                return Some(item.impls.show_prettier(map));
+            }
+        }
+        for item in &self.traits {
+            if item.id.as_str() == id {
+                return Some(item.show_prettier(map));
+            }
+        }
+        for item in &self.unions {
+            if item.id.as_str() == id {
+                return Some(item.impls.show_prettier(map));
+            }
+        }
+        for m in &self.modules {
+            let tree = m.impl_tree(id, map);
+            if tree.is_some() {
+                return tree;
+            }
+        }
+        None
+    }
 }

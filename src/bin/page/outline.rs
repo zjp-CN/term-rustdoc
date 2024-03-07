@@ -1,3 +1,4 @@
+use super::navi::NaviAction;
 use crate::ui::scrollable::ScrollTreeLines;
 use ratatui::prelude::{Buffer, Rect};
 use term_rustdoc::tree::{CrateDoc, TreeLines, ID};
@@ -33,12 +34,16 @@ impl InnerItem {
         self.display.area = area;
     }
 
-    pub fn update_lines(&mut self, outline: &ScrollTreeLines) {
+    pub fn update_lines(&mut self, outline: &ScrollTreeLines, action: NaviAction) {
         let doc = outline.lines.doc();
         self.display.lines = TreeLines::new_with(doc, |doc| {
-            doc.dmodule()
-                .item_inner_tree(&self.outer_item, doc)
-                .unwrap()
+            let id = &self.outer_item;
+            let dmod = doc.dmodule();
+            match action {
+                NaviAction::ITABImpls => dmod.impl_tree(id, doc),
+                _ => dmod.item_inner_tree(id, doc),
+            }
+            .unwrap()
         })
         .0;
         if self.display.total_len() == 0 {

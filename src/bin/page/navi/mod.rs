@@ -13,6 +13,8 @@ use ratatui::{
 };
 use term_rustdoc::tree::{CrateDoc, ID};
 
+pub use outline::width as navi_outline_width;
+
 #[derive(Default, Debug)]
 pub struct Navigation {
     display: Navi,
@@ -70,5 +72,9 @@ impl std::fmt::Debug for Navi {
 
 fn split(area: Rect) -> [Rect; 2] {
     // leave the minimum height for NaviOutline
-    Layout::vertical([Constraint::Percentage(70), Constraint::Min(3)]).areas(area)
+    Layout::vertical([
+        Constraint::Percentage(70),
+        Constraint::Min(outline::height()),
+    ])
+    .areas(area)
 }

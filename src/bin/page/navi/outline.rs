@@ -1,3 +1,4 @@
+#![allow(clippy::redundant_static_lifetimes)]
 use crate::{
     color::NEW,
     ui::{render_line, LineState, Scroll, Surround},
@@ -80,11 +81,33 @@ impl Kind {
 
     fn lines(self) -> &'static [&'static str] {
         match self {
-            Kind::Struct | Kind::Union => &["Fields", "Impls"],
-            Kind::Enum => &["Varaints", "Impls"],
-            Kind::Trait => &["Implementors"],
+            Kind::Struct | Kind::Union => STRUCT,
+            Kind::Enum => ENUM,
+            Kind::Trait => TRAIT,
         }
     }
+}
+
+const STRUCT: &'static [&'static str] = &["Fields", "Impls"];
+const ENUM: &'static [&'static str] = &["Varaints", "Impls"];
+const TRAIT: &'static [&'static str] = &["Implementors"];
+
+pub fn height() -> u16 {
+    [STRUCT.len(), ENUM.len(), TRAIT.len()]
+        .into_iter()
+        .max()
+        .unwrap_or(0) as u16
+        + 1u16
+}
+
+pub fn width() -> u16 {
+    [STRUCT, ENUM, TRAIT]
+        .map(|val| val.iter().map(|s| s.len()))
+        .into_iter()
+        .flatten()
+        .max()
+        .unwrap_or(0) as u16
+        + 5u16
 }
 
 impl NaviOutline {

@@ -1,4 +1,4 @@
-use super::{Page, Panel, Surround};
+use super::{navi::navi_outline_width, Page, Panel, Surround};
 use crate::color::SET;
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
@@ -14,7 +14,7 @@ impl Page {
                 Constraint::Length(outline_width),
                 Constraint::Percentage(75),
                 // leave the minimum space for NaviOutline
-                Constraint::Min(18),
+                Constraint::Min(navi_outline_width()),
             ])
     }
 

@@ -41,6 +41,14 @@ impl fmt::Display for DocTree {
     }
 }
 
+impl Default for DocTree {
+    fn default() -> Self {
+        DocTree {
+            tree: Tree::new(TextTag::default()),
+        }
+    }
+}
+
 impl std::iter::Extend<DocTree> for DocTree {
     fn extend<T: IntoIterator<Item = DocTree>>(&mut self, iter: T) {
         self.tree.extend(iter.into_iter().map(|t| t.tree));

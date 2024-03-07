@@ -2,7 +2,7 @@ use super::DocTree;
 use ratatui::style::{Color::*, Modifier, Style};
 use termtree::GlyphPalette;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Tag {
     Module,
     ModuleFolded,
@@ -19,6 +19,7 @@ pub enum Tag {
     MacroFunc,
     MacroAttr,
     MacroDerv,
+    #[default]
     Unknown,
     NoImpls,
     Implementations,

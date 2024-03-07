@@ -14,7 +14,7 @@ use unicode_width::UnicodeWidthStr;
 mod fold;
 
 /// Tagged text including headings and nodes.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct TextTag {
     pub text: XString,
     pub tag: Tag,

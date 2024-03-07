@@ -43,7 +43,7 @@ impl InnerItem {
                 NaviAction::ITABImpls => dmod.impl_tree(id, doc),
                 _ => dmod.item_inner_tree(id, doc),
             }
-            .unwrap()
+            .unwrap_or_default()
         })
         .0;
         if self.display.total_len() == 0 {

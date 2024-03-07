@@ -211,6 +211,7 @@ impl<Ls: Lines> Scroll<Ls> {
         self.set_cursor_state();
     }
 
+    /// TODO: make y on screen, instead of in area
     pub fn set_cursor(&mut self, y: u16) {
         if y < self.area.height && (y as usize) < self.all_lines().len() {
             self.cursor.y = y;

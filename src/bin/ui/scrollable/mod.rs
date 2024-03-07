@@ -1,5 +1,6 @@
 use crate::{err, Result};
-use ratatui::prelude::Rect;
+use ratatui::buffer::Cell;
+use ratatui::prelude::{Buffer, Rect};
 use std::fmt;
 use term_rustdoc::tree::{TreeLine, TreeLines};
 
@@ -89,8 +90,40 @@ impl<Ls: Lines> Scroll<Ls> {
             .and_then(|offset| self.visible_lines()?.get(self.start + offset as usize))
     }
 
+    /// Try to force the current cursor and return the newly current line.
+    /// Set and return Some only if the operation is successful.
+    /// Force means we won't check_if_can_return_to_previous_cursor.
+    ///
+    /// NOTE: y is the row position in screen, not an index of elements.
+    pub fn force_line_on_screen(&mut self, y: u16) -> Option<&Ls::Line> {
+        if !self.is_empty() && y >= self.area.y && y < self.area.y + self.area.height {
+            let y = y - self.area.y;
+            if let Some(current) = self.lines.get(self.start + y as usize) {
+                self.cursor.y = y;
+                return Some(current);
+            }
+        }
+        None
+    }
+
+    pub fn highlight_current_line(&self, buf: &mut Buffer, mut f: impl FnMut(&mut Cell)) {
+        let current = self.start + self.cursor.y as usize;
+        // y is always made sure to be in area!
+        if self.lines.get(current).is_some() {
+            let area = self.area;
+            let y = self.cursor.y + area.y;
+            for x in area.x..(area.x + area.width) {
+                f(buf.get_mut(x, y));
+            }
+        }
+    }
+
     pub fn total_len(&self) -> usize {
         self.lines.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.total_len() == 0
     }
 }
 

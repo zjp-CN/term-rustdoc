@@ -1,6 +1,6 @@
 #![allow(clippy::redundant_static_lifetimes)]
 use crate::{
-    color::NEW,
+    color::{BG_CURSOR_LINE, FG_CURSOR_LINE, NEW},
     ui::{render_line, LineState, Scroll, Surround},
 };
 use ratatui::{
@@ -197,12 +197,16 @@ impl NaviOutline {
                 render_line(line, buf, x, y, width);
                 y += 1;
             }
+            self.display.highlight_current_line(buf, |cell| {
+                cell.bg = BG_CURSOR_LINE;
+                cell.fg = FG_CURSOR_LINE;
+            });
         }
     }
 
     /// Returns true if user clicks on the item to ask for update of outline.
     pub fn update_outline(&mut self, y: u16) -> Option<NaviAction> {
-        self.display.get_line_on_screen(y).copied()
+        self.display.force_line_on_screen(y).copied()
     }
 }
 

@@ -47,7 +47,8 @@ impl InnerItem {
         })
         .0;
         if self.display.total_len() == 0 {
-            error!("{} generated unexpected empty TreeLines", self.outer_item);
+            let path = outline.lines.doc_ref().path(&self.outer_item);
+            error!("{path} generated unexpected empty TreeLines");
         }
         self.display.area = outline.area;
     }

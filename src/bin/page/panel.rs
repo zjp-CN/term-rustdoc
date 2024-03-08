@@ -40,6 +40,7 @@ impl super::Page {
                 set!(content)
             } else if let Some(action) = self.navi.update_outline(y) {
                 self.outline.action(action);
+                self.update_area_inner(self.area);
                 set!(outline)
             } else {
                 set!(navi)

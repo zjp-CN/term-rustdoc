@@ -122,7 +122,7 @@ impl InnerItem {
             let path = modules.lines.doc_ref().path(&self.outer_item);
             error!("{path} generated unexpected empty TreeLines");
         }
-        self.display.area = modules.area;
+        self.display.update_maxwidth();
     }
 
     pub fn render(&self, buf: &mut Buffer, _doc: &CrateDoc) {

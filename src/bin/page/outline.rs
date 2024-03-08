@@ -7,7 +7,7 @@ use term_rustdoc::tree::{CrateDoc, TreeLines, ID};
 pub struct OutlineInner {
     kind: OutlineKind,
     modules: ScrollTreeLines,
-    inner_item: InnerItem,
+    setu: Setu,
 }
 
 impl std::fmt::Debug for OutlineInner {
@@ -33,48 +33,44 @@ impl OutlineInner {
         }
     }
 
-    // pub fn kind(&self) -> OutlineKind {
-    //     self.kind
-    // }
-
     pub fn display(&mut self) -> &mut ScrollTreeLines {
         match self.kind {
             OutlineKind::Modules => &mut self.modules,
-            OutlineKind::InnerItem => &mut self.inner_item.display,
+            OutlineKind::InnerItem => &mut self.setu.display,
         }
     }
 
     pub fn display_ref(&self) -> &ScrollTreeLines {
         match self.kind {
             OutlineKind::Modules => &self.modules,
-            OutlineKind::InnerItem => &self.inner_item.display,
+            OutlineKind::InnerItem => &self.setu.display,
         }
     }
 
     pub fn update_area(&mut self, area: Rect) {
         self.modules.area = area;
-        self.inner_item.update_area(area);
+        self.setu.update_area(area);
     }
 
     pub fn render(&self, buf: &mut Buffer) {
         match self.kind {
             OutlineKind::Modules => self.modules.render(buf),
-            OutlineKind::InnerItem => self.inner_item.render(buf),
+            OutlineKind::InnerItem => self.setu.render(buf),
         };
     }
 }
 
 /// Action from Navi
 impl OutlineInner {
-    pub fn set_inner_item_id(&mut self, id: ID) {
-        self.inner_item.outer_item = id;
+    pub fn set_setu_id(&mut self, id: ID) {
+        self.setu.outer_item = id;
     }
 
     pub fn action(&mut self, action: NaviAction) {
         match action {
             NaviAction::BackToHome => self.back_to_home(),
             x => {
-                self.inner_item.update_lines(&self.modules, x);
+                self.setu.update_lines(&self.modules, x);
                 self.kind = OutlineKind::InnerItem;
             }
         };
@@ -92,13 +88,14 @@ pub enum OutlineKind {
     InnerItem,
 }
 
+/// Stands for struct/enum/trait/union.
 #[derive(Default)]
-pub struct InnerItem {
+pub struct Setu {
     outer_item: ID,
     display: ScrollTreeLines,
 }
 
-impl InnerItem {
+impl Setu {
     pub fn update_area(&mut self, area: Rect) {
         self.display.area = area;
     }

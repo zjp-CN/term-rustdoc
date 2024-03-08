@@ -124,8 +124,8 @@ impl Outline {
         self.border = border;
     }
 
-    fn set_inner_item_id(&mut self, id: ID) {
-        self.inner.set_inner_item_id(id);
+    fn set_setu_id(&mut self, id: ID) {
+        self.inner.set_setu_id(id);
     }
 }
 

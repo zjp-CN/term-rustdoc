@@ -123,7 +123,7 @@ impl Page {
                 .navi
                 .set_item_inner(self.outline.display().get_id(), doc)
             {
-                self.outline.set_inner_item_id(id);
+                self.outline.set_setu_id(id);
             } else {
                 self.navi.reset_navi_outline();
             }

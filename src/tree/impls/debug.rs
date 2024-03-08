@@ -46,6 +46,15 @@ impl Debug for DImpl {
     }
 }
 
+impl Debug for DImplInner {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut base = f.debug_struct("DImplInner");
+        base.field("id", &self.id);
+        skip_fmt!(base, self . functions constants types);
+        base.finish()
+    }
+}
+
 impl Debug for DStruct {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut base = f.debug_struct("DStruct");

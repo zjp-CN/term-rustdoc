@@ -1,5 +1,5 @@
 mod impls;
-pub use impls::DImpl;
+pub use impls::{DImpl, DImplInner};
 
 mod structs;
 pub use structs::DStruct;

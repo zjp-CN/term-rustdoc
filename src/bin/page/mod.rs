@@ -127,6 +127,10 @@ impl Outline {
     fn set_setu_id(&mut self, id: ID) {
         self.inner.set_setu_id(id);
     }
+
+    fn is_module_tree(&self) -> bool {
+        self.inner.is_module_tree()
+    }
 }
 
 #[derive(Default, Debug)]

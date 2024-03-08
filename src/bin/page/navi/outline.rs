@@ -20,7 +20,7 @@ impl Default for NaviOutlineInner {
     fn default() -> Self {
         NaviOutlineInner {
             selected: None,
-            lines: &[NaviAction::BackToHome],
+            lines: &[NaviAction::Item, NaviAction::BackToHome],
         }
     }
 }
@@ -81,14 +81,8 @@ impl Kind {
                 ItemEnum::Trait(_) => Kind::Trait,
                 ItemEnum::Union(_) => Kind::Union,
                 ItemEnum::Import(reexport) => {
-                    let id = reexport.id.as_ref()?;
-                    match &doc.get_item(&id.0)?.inner {
-                        ItemEnum::Struct(_) => Kind::Struct,
-                        ItemEnum::Enum(_) => Kind::Enum,
-                        ItemEnum::Trait(_) => Kind::Trait,
-                        ItemEnum::Union(_) => Kind::Union,
-                        _ => return None,
-                    }
+                    let id = reexport.id.as_ref().map(|id| &*id.0)?;
+                    Kind::new(id, doc)?
                 }
                 _ => return None,
             })
@@ -105,16 +99,22 @@ impl Kind {
 }
 
 const STRUCT: &'static [NaviAction] = &[
+    NaviAction::Item,
     NaviAction::StructInner,
     NaviAction::ITABImpls,
     NaviAction::BackToHome,
 ];
 const ENUM: &'static [NaviAction] = &[
+    NaviAction::Item,
     NaviAction::EnumInner,
     NaviAction::ITABImpls,
     NaviAction::BackToHome,
 ];
-const TRAIT: &'static [NaviAction] = &[NaviAction::TraitInner, NaviAction::BackToHome];
+const TRAIT: &'static [NaviAction] = &[
+    NaviAction::Item,
+    NaviAction::TraitInner,
+    NaviAction::BackToHome,
+];
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum NaviAction {
@@ -122,6 +122,7 @@ pub enum NaviAction {
     EnumInner,
     TraitInner,
     ITABImpls,
+    Item,
     #[default]
     BackToHome,
 }
@@ -133,6 +134,7 @@ impl NaviAction {
             NaviAction::EnumInner => "Varaints",
             NaviAction::TraitInner => "Implementors",
             NaviAction::ITABImpls => "Impls",
+            NaviAction::Item => "Current Item",
             NaviAction::BackToHome => "Back To Home",
         }
     }
@@ -164,9 +166,12 @@ impl NaviOutline {
     pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
         let id = id?;
         let selected = Selected {
-            id: id.into(),
             kind: Kind::new(id, doc)?,
+            id: id.into(),
         };
+
+        self.display.start = 0;
+        self.display.cursor.y = 0;
 
         let inner = &mut self.display.lines;
         inner.lines = selected.kind.lines();
@@ -178,6 +183,7 @@ impl NaviOutline {
     pub fn reset(&mut self) {
         *self.inner() = Default::default();
         self.display.start = 0;
+        self.display.cursor.y = 0;
     }
 
     pub fn update_area(&mut self, area: Rect) {

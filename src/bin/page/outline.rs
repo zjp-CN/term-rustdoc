@@ -33,6 +33,10 @@ impl OutlineInner {
         }
     }
 
+    pub fn is_module_tree(&self) -> bool {
+        matches!(self.kind, OutlineKind::Modules)
+    }
+
     pub fn display(&mut self) -> &mut ScrollTreeLines {
         match self.kind {
             OutlineKind::Modules => &mut self.modules,
@@ -102,12 +106,13 @@ impl Setu {
 
     pub fn update_lines(&mut self, modules: &ScrollTreeLines, action: NaviAction) {
         let doc = modules.lines.doc();
-        self.display.lines = TreeLines::new_with(doc, |doc| {
+        self.display.lines = TreeLines::new_with(doc, |map| {
             let id = &self.outer_item;
-            let dmod = doc.dmodule();
+            let dmod = map.dmodule();
             match action {
-                NaviAction::ITABImpls => dmod.impl_tree(id, doc),
-                _ => dmod.item_inner_tree(id, doc),
+                NaviAction::ITABImpls => dmod.impl_tree(id, map),
+                NaviAction::Item => dmod.item_inner_tree(id, map),
+                _ => dmod.item_inner_tree(id, map),
             }
             .unwrap_or_default()
         })

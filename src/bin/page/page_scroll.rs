@@ -119,12 +119,10 @@ impl Page {
 
     fn update_navi(&mut self) {
         if let Some(doc) = self.content.display.doc_ref() {
-            if let Some(id) = self
-                .navi
-                .set_item_inner(self.outline.display().get_id(), doc)
-            {
+            let id = self.outline.display().get_id();
+            if let Some(id) = self.navi.set_item_inner(id, doc) {
                 self.outline.set_setu_id(id);
-            } else {
+            } else if self.outline.is_module_tree() {
                 self.navi.reset_navi_outline();
             }
         }

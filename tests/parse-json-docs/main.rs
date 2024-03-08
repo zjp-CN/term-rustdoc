@@ -208,8 +208,8 @@ fn compression() -> Result<()> {
     );
     shot!(bin_compression, @r###"
     [raw json text => bb] 368.4 KB => 178.7 KB (-51%)
-    [binary bytes  => xz] 178.7 KB => 42.4 KB (-76%)
-    [raw json text => xz] 368.4 KB => 42.4 KB (-88%) 
+    [binary bytes  => xz] 178.7 KB => 42.5 KB (-76%)
+    [raw json text => xz] 368.4 KB => 42.5 KB (-88%) 
     "###);
 
     Ok(())

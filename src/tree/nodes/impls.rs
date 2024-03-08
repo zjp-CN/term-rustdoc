@@ -142,11 +142,17 @@ impl DImplInner {
     }
 
     fn show(&self) -> DocTree {
-        self.id.show().with_leaves([
-            "Functions".show().with_leaves(show_ids(&self.functions)),
-            "Constants".show().with_leaves(show_ids(&self.functions)),
-            "Types".show().with_leaves(show_ids(&self.functions)),
-        ])
+        let mut root = self.id.show();
+        if !self.functions.is_empty() {
+            root.push("Functions".show().with_leaves(show_ids(&self.functions)));
+        }
+        if !self.constants.is_empty() {
+            root.push("Constants".show().with_leaves(show_ids(&self.constants)));
+        }
+        if !self.types.is_empty() {
+            root.push("Types".show().with_leaves(show_ids(&self.types)));
+        }
+        root
     }
 
     fn show_prettier(&self, tag: Tag, map: &IDMap) -> DocTree {

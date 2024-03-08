@@ -23,19 +23,19 @@ integration
 │   │       ├── Trait Impls
 │   │       │   └── AUnitStruct: ATrait
 │   │       ├── Auto Impls
-│   │       │   ├── AUnitStruct: UnwindSafe
-│   │       │   ├── AUnitStruct: Sync
 │   │       │   ├── AUnitStruct: RefUnwindSafe
 │   │       │   ├── AUnitStruct: Send
-│   │       │   └── AUnitStruct: Unpin
+│   │       │   ├── AUnitStruct: Sync
+│   │       │   ├── AUnitStruct: Unpin
+│   │       │   └── AUnitStruct: UnwindSafe
 │   │       └── Blanket Impls
 │   │           ├── T: Any
 │   │           ├── T: Borrow<T>
-│   │           ├── T: TryFrom<U>
-│   │           ├── T: TryInto<U>
+│   │           ├── T: BorrowMut<T>
 │   │           ├── T: From<T>
 │   │           ├── T: Into<U>
-│   │           └── T: BorrowMut<T>
+│   │           ├── T: TryFrom<U>
+│   │           └── T: TryInto<U>
 │   └── [Struct] integration::FieldsNamedStruct
 │       ├── Fields
 │       │   ├── [field] field1
@@ -45,22 +45,25 @@ integration
 │       └── Implementations
 │           ├── Inherent Impls
 │           │   └── FieldsNamedStruct
+│           │       ├── [Fn] consume
+│           │       └── [Fn] new
 │           ├── Trait Impls
 │           │   └── FieldsNamedStruct: Default
+│           │       └── [Fn] default
 │           ├── Auto Impls
-│           │   ├── FieldsNamedStruct: UnwindSafe
-│           │   ├── FieldsNamedStruct: Sync
 │           │   ├── FieldsNamedStruct: RefUnwindSafe
 │           │   ├── FieldsNamedStruct: Send
-│           │   └── FieldsNamedStruct: Unpin
+│           │   ├── FieldsNamedStruct: Sync
+│           │   ├── FieldsNamedStruct: Unpin
+│           │   └── FieldsNamedStruct: UnwindSafe
 │           └── Blanket Impls
 │               ├── T: Any
 │               ├── T: Borrow<T>
-│               ├── T: TryFrom<U>
-│               ├── T: TryInto<U>
+│               ├── T: BorrowMut<T>
 │               ├── T: From<T>
 │               ├── T: Into<U>
-│               └── T: BorrowMut<T>
+│               ├── T: TryFrom<U>
+│               └── T: TryInto<U>
 └── [Mod] integration::submod1
     ├── Enums
     │   └── [Enum] integration::submod1::AUnitEnum
@@ -71,22 +74,24 @@ integration
     │       └── Implementations
     │           ├── Inherent Impls
     │           │   └── AUnitEnum
+    │           │       └── [Fn] print
     │           ├── Trait Impls
     │           │   └── AUnitEnum: Debug
+    │           │       └── [Fn] fmt
     │           ├── Auto Impls
-    │           │   ├── AUnitEnum: UnwindSafe
-    │           │   ├── AUnitEnum: Sync
     │           │   ├── AUnitEnum: RefUnwindSafe
     │           │   ├── AUnitEnum: Send
-    │           │   └── AUnitEnum: Unpin
+    │           │   ├── AUnitEnum: Sync
+    │           │   ├── AUnitEnum: Unpin
+    │           │   └── AUnitEnum: UnwindSafe
     │           └── Blanket Impls
     │               ├── T: Any
     │               ├── T: Borrow<T>
-    │               ├── T: TryFrom<U>
-    │               ├── T: TryInto<U>
+    │               ├── T: BorrowMut<T>
     │               ├── T: From<T>
     │               ├── T: Into<U>
-    │               └── T: BorrowMut<T>
+    │               ├── T: TryFrom<U>
+    │               └── T: TryInto<U>
     └── [Mod] integration::submod1::submod2
         ├── Traits
         │   └── [Trait] integration::submod1::submod2::ATraitNeverImplementedForTypes
@@ -98,35 +103,35 @@ integration
             │       ├── Trait Impls
             │       │   └── AUnitStruct: ATrait
             │       ├── Auto Impls
-            │       │   ├── AUnitStruct: UnwindSafe
-            │       │   ├── AUnitStruct: Sync
             │       │   ├── AUnitStruct: RefUnwindSafe
             │       │   ├── AUnitStruct: Send
-            │       │   └── AUnitStruct: Unpin
+            │       │   ├── AUnitStruct: Sync
+            │       │   ├── AUnitStruct: Unpin
+            │       │   └── AUnitStruct: UnwindSafe
             │       └── Blanket Impls
             │           ├── T: Any
             │           ├── T: Borrow<T>
-            │           ├── T: TryFrom<U>
-            │           ├── T: TryInto<U>
+            │           ├── T: BorrowMut<T>
             │           ├── T: From<T>
             │           ├── T: Into<U>
-            │           └── T: BorrowMut<T>
+            │           ├── T: TryFrom<U>
+            │           └── T: TryInto<U>
             └── [Struct] AUnitStruct
                 ├── No Fields!
                 └── Implementations
                     ├── Trait Impls
                     │   └── AUnitStruct: ATrait
                     ├── Auto Impls
-                    │   ├── AUnitStruct: UnwindSafe
-                    │   ├── AUnitStruct: Sync
                     │   ├── AUnitStruct: RefUnwindSafe
                     │   ├── AUnitStruct: Send
-                    │   └── AUnitStruct: Unpin
+                    │   ├── AUnitStruct: Sync
+                    │   ├── AUnitStruct: Unpin
+                    │   └── AUnitStruct: UnwindSafe
                     └── Blanket Impls
                         ├── T: Any
                         ├── T: Borrow<T>
-                        ├── T: TryFrom<U>
-                        ├── T: TryInto<U>
+                        ├── T: BorrowMut<T>
                         ├── T: From<T>
                         ├── T: Into<U>
-                        └── T: BorrowMut<T>
+                        ├── T: TryFrom<U>
+                        └── T: TryInto<U>

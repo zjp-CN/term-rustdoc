@@ -100,18 +100,18 @@ fn parse_module() {
         ├── Trait Impls
         │   └── AUnitStruct: ATrait
         ├── Auto Impls
-        │   ├── AUnitStruct: UnwindSafe
-        │   ├── AUnitStruct: Sync
         │   ├── AUnitStruct: RefUnwindSafe
         │   ├── AUnitStruct: Send
-        │   └── AUnitStruct: Unpin
+        │   ├── AUnitStruct: Sync
+        │   ├── AUnitStruct: Unpin
+        │   └── AUnitStruct: UnwindSafe
         └── Blanket Impls
             ├── T: Any
             ├── T: Borrow<T>
-            ├── T: TryFrom<U>
-            ├── T: TryInto<U>
+            ├── T: BorrowMut<T>
             ├── T: From<T>
             ├── T: Into<U>
-            └── T: BorrowMut<T>
+            ├── T: TryFrom<U>
+            └── T: TryInto<U>
     "###);
 }

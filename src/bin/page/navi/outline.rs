@@ -10,11 +10,19 @@ use ratatui::{
 use rustdoc_types::ItemEnum;
 use term_rustdoc::tree::{CrateDoc, ID};
 
-#[derive(Default)]
 struct NaviOutlineInner {
     /// Selected item that has inner data of a kind like fields/variants/impls.
     selected: Option<Selected>,
     lines: &'static [NaviAction],
+}
+
+impl Default for NaviOutlineInner {
+    fn default() -> Self {
+        NaviOutlineInner {
+            selected: None,
+            lines: &[NaviAction::BackToHome],
+        }
+    }
 }
 
 impl std::ops::Deref for NaviOutlineInner {

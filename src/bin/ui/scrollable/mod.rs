@@ -148,7 +148,7 @@ impl<Ls> Scroll<Ls>
 where
     Ls: Default + Lines<Line = TreeLine>,
 {
-    pub fn new(lines: Ls) -> Result<Self> {
+    pub fn new_tree_lines(lines: Ls) -> Result<Self> {
         let w = lines.iter().map(TreeLine::width).max();
         let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
 

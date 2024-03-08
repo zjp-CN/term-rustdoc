@@ -1,18 +1,17 @@
 use self::{
     navi::{NaviAction, Navigation},
-    outline::OutlineKind,
     panel::Panel,
 };
 use crate::{
     database::PkgKey,
     ui::{
-        scrollable::{Scroll, ScrollText, ScrollTreeLines},
+        scrollable::{ScrollText, ScrollTreeLines},
         Surround,
     },
     Result,
 };
 use ratatui::prelude::{Buffer, Rect, Widget};
-use term_rustdoc::tree::CrateDoc;
+use term_rustdoc::tree::{CrateDoc, ID};
 
 mod layout;
 mod navi;
@@ -36,10 +35,7 @@ pub struct Page {
 impl Page {
     pub fn new(pkg_key: PkgKey, doc: CrateDoc, area: Rect) -> Result<Self> {
         let mut page = Page {
-            outline: Outline {
-                display: Scroll::new(doc.clone().into())?,
-                ..Default::default()
-            },
+            outline: Outline::new(&doc),
             content: Content {
                 display: ScrollText::new_text(doc.clone())?,
                 ..Default::default()
@@ -94,36 +90,42 @@ impl Widget for &mut Page {
 
 #[derive(Default, Debug)]
 struct Outline {
-    display: ScrollTreeLines,
-    inner_item: outline::InnerItem,
-    render: OutlineKind,
+    inner: outline::OutlineInner,
     border: Surround,
 }
 
 impl Outline {
+    fn new(doc: &CrateDoc) -> Self {
+        Outline {
+            inner: outline::OutlineInner::new(doc),
+            ..Default::default()
+        }
+    }
+
     fn render(&self, buf: &mut Buffer) {
         self.border.render(buf);
-        match self.render {
-            OutlineKind::Modules => self.display.render(buf),
-            OutlineKind::InnerItem => {
-                let doc = self.display.lines.doc_ref();
-                self.inner_item.render(buf, doc);
-            }
-        };
+        self.inner.render(buf);
     }
 
     fn action(&mut self, action: NaviAction) {
-        match action {
-            NaviAction::BackToHome => self.back_to_home(),
-            x => {
-                self.inner_item.update_lines(&self.display, x);
-                self.render = OutlineKind::InnerItem;
-            }
-        };
+        self.inner.action(action);
     }
 
-    fn back_to_home(&mut self) {
-        self.render = OutlineKind::Modules;
+    fn display(&mut self) -> &mut ScrollTreeLines {
+        self.inner.display()
+    }
+
+    fn display_ref(&self) -> &ScrollTreeLines {
+        self.inner.display_ref()
+    }
+
+    fn update_area(&mut self, border: Surround) {
+        self.inner.update_area(border.inner());
+        self.border = border;
+    }
+
+    fn set_inner_item_id(&mut self, id: ID) {
+        self.inner.set_inner_item_id(id);
     }
 }
 

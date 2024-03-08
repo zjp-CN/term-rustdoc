@@ -1,4 +1,4 @@
-use super::{outline::InnerItem, Page, Panel};
+use super::{Page, Panel};
 use crate::ui::scrollable::{ScrollOffset, ScrollText, ScrollTreeLines};
 
 macro_rules! current {
@@ -14,7 +14,7 @@ macro_rules! current {
 /// Scrolling
 impl Page {
     pub(super) fn outline(&mut self) -> &mut ScrollTreeLines {
-        &mut self.outline.display
+        self.outline.display()
     }
 
     pub(super) fn content(&mut self) -> &mut ScrollText {
@@ -102,7 +102,7 @@ impl Page {
 
     /// update content's StyledLines and Headings aftet setting the cursor
     pub fn update_content(&mut self) {
-        if let Some(id) = self.outline.display.get_id() {
+        if let Some(id) = self.outline.display().get_id() {
             if let Some(headings) = self.content.display.update_doc(id) {
                 // Only reset start after the update.
                 // TODO: would it be better to remember the
@@ -119,8 +119,11 @@ impl Page {
 
     fn update_navi(&mut self) {
         if let Some(doc) = self.content.display.doc_ref() {
-            if let Some(id) = self.navi.set_item_inner(self.outline.display.get_id(), doc) {
-                self.outline.inner_item = InnerItem::new(id);
+            if let Some(id) = self
+                .navi
+                .set_item_inner(self.outline.display().get_id(), doc)
+            {
+                self.outline.set_inner_item_id(id);
             } else {
                 self.navi.reset_navi_outline();
             }

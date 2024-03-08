@@ -7,7 +7,7 @@ use ratatui::{
 
 impl Page {
     fn layout(&self) -> Layout {
-        let outline_width = self.outline.display.max_width + 1;
+        let outline_width = self.outline.display_ref().max_width + 1;
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
@@ -37,11 +37,11 @@ impl Page {
         self.area = full;
         let layout = self.layout().split(full);
 
-        // border
+        // outline
         let outline_border = Block::new()
             .borders(Borders::RIGHT)
             .border_type(BorderType::Thick);
-        self.outline.border = Surround::new(
+        let outline_border = Surround::new(
             if matches!(self.current, None | Some(Panel::Outline)) {
                 outline_border.style(SET)
             } else {
@@ -49,26 +49,15 @@ impl Page {
             },
             layout[0],
         );
-        let outline_area = self.outline.border.inner();
+        self.outline.update_area(outline_border);
+
+        // content
         self.content.border = Surround::new(Block::new(), layout[1]);
         let content_area = self.content.border.inner();
-
-        // display.area
-        self.outline.display.area = outline_area;
-        // self.outline.display.cursor = outline_area.y;
-        let outline_max_width = self.outline.display.max_width;
-        if outline_area.width < outline_max_width {
-            warn!(
-                outline_area.width,
-                outline_max_width,
-                "Outline width exceeds the area width, so lines may be truncated."
-            );
-        }
-        self.outline.inner_item.update_area(outline_area);
-
         self.content.display.area = content_area;
         self.content.display.max_width = content_area.width;
 
+        // navi
         if let Some(&navi_outer_area) = layout.get(2) {
             self.navi.update_area(Surround::new(
                 Block::new()

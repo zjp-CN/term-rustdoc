@@ -265,8 +265,11 @@ fn item_name(item: &Item) -> Option<XString> {
                 .and_then(type_name)
                 .or_else(|| type_name(&item.for_))
                 .unwrap_or_default();
-            let trait_ = item.trait_.as_ref().and_then(resolved_path_name)?;
-            Some(xformat!("{implementor}: {trait_}"))
+            if let Some(trait_) = item.trait_.as_ref().and_then(resolved_path_name) {
+                Some(xformat!("{implementor}: {trait_}"))
+            } else {
+                Some(xformat!("{implementor}"))
+            }
         }
         ItemEnum::Import(item) => Some(item.name.as_str().into()),
         _ => None,

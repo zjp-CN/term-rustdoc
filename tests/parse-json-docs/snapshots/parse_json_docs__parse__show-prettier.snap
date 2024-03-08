@@ -44,7 +44,7 @@ integration
 │       │   └── /* private fields */
 │       └── Implementations
 │           ├── Inherent Impls
-│           │   └── 0:22
+│           │   └── FieldsNamedStruct
 │           ├── Trait Impls
 │           │   └── FieldsNamedStruct: Default
 │           ├── Auto Impls
@@ -70,7 +70,7 @@ integration
     │       │   └── [variant] C
     │       └── Implementations
     │           ├── Inherent Impls
-    │           │   └── 0:15
+    │           │   └── AUnitEnum
     │           ├── Trait Impls
     │           │   └── AUnitEnum: Debug
     │           ├── Auto Impls

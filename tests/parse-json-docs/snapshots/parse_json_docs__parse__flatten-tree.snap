@@ -216,7 +216,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplInherent,
         level: 5,
-        name.text: "0:22",
+        name.text: "FieldsNamedStruct",
     },
     TreeLine {
         tag: TraitImpls,
@@ -346,7 +346,7 @@ expression: treelines.all_lines()
     TreeLine {
         tag: ImplInherent,
         level: 6,
-        name.text: "0:15",
+        name.text: "AUnitEnum",
     },
     TreeLine {
         tag: TraitImpls,

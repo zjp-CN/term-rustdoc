@@ -7,8 +7,7 @@ use ratatui::{
     prelude::{Buffer, Rect},
     widgets::{Block, BorderType, Borders},
 };
-use rustdoc_types::ItemEnum;
-use term_rustdoc::tree::{CrateDoc, ID};
+use term_rustdoc::tree::{DataItemKind as Kind, IDMap, ID};
 
 struct NaviOutlineInner {
     /// Selected item that has inner data of a kind like fields/variants/impls.
@@ -64,37 +63,11 @@ struct Selected {
     kind: Kind,
 }
 
-#[derive(Debug, Clone, Copy)]
-enum Kind {
-    Struct,
-    Enum,
-    Trait,
-    Union,
-}
-
-impl Kind {
-    fn new(id: &str, doc: &CrateDoc) -> Option<Kind> {
-        doc.get_item(id).and_then(|item| {
-            Some(match &item.inner {
-                ItemEnum::Struct(_) => Kind::Struct,
-                ItemEnum::Enum(_) => Kind::Enum,
-                ItemEnum::Trait(_) => Kind::Trait,
-                ItemEnum::Union(_) => Kind::Union,
-                ItemEnum::Import(reexport) => {
-                    let id = reexport.id.as_ref().map(|id| &*id.0)?;
-                    Kind::new(id, doc)?
-                }
-                _ => return None,
-            })
-        })
-    }
-
-    fn lines(self) -> &'static [NaviAction] {
-        match self {
-            Kind::Struct | Kind::Union => STRUCT,
-            Kind::Enum => ENUM,
-            Kind::Trait => TRAIT,
-        }
+fn lines(kind: Kind) -> &'static [NaviAction] {
+    match kind {
+        Kind::Struct | Kind::Union => STRUCT,
+        Kind::Enum => ENUM,
+        Kind::Trait => TRAIT,
     }
 }
 
@@ -163,10 +136,10 @@ pub fn width() -> u16 {
 }
 
 impl NaviOutline {
-    pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
+    pub fn set_item_inner(&mut self, id: Option<&str>, map: &IDMap) -> Option<ID> {
         let id = id?;
         let selected = Selected {
-            kind: Kind::new(id, doc)?,
+            kind: Kind::new(id, map)?,
             id: id.into(),
         };
 
@@ -174,7 +147,7 @@ impl NaviOutline {
         self.display.cursor.y = 0;
 
         let inner = &mut self.display.lines;
-        inner.lines = selected.kind.lines();
+        inner.lines = lines(selected.kind);
         let ret = Some(selected.id.clone());
         inner.selected = Some(selected);
         ret

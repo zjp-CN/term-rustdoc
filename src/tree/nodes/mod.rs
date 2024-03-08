@@ -16,7 +16,7 @@ pub use traits::DTrait;
 mod imports;
 
 mod item_inner;
-pub use item_inner::ItemInnerKind;
+pub use item_inner::DataItemKind;
 
 use super::IDMap;
 use crate::tree::{

@@ -59,10 +59,7 @@ impl OutlineInner {
     pub fn render(&self, buf: &mut Buffer) {
         match self.kind {
             OutlineKind::Modules => self.modules.render(buf),
-            OutlineKind::InnerItem => {
-                let doc = self.inner_item.display.lines.doc_ref();
-                self.inner_item.render(buf, doc);
-            }
+            OutlineKind::InnerItem => self.inner_item.render(buf),
         };
     }
 }
@@ -125,7 +122,7 @@ impl InnerItem {
         self.display.update_maxwidth();
     }
 
-    pub fn render(&self, buf: &mut Buffer, _doc: &CrateDoc) {
+    pub fn render(&self, buf: &mut Buffer) {
         if self.display.lines.is_empty() {
             return;
         }

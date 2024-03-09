@@ -2,7 +2,7 @@ use super::{
     features::Features,
     pkg_key::PkgKey,
     util::{decode, encode},
-    DocMeta,
+    DocMeta, PkgWithFeatures,
 };
 use crate::{
     database::util,
@@ -57,6 +57,24 @@ impl CachedDocInfo {
         let doc = util::decode_with_xz(&bytes)?;
         info!(?self.pkg, "Loaded in {:.2}s", now.elapsed().as_secs_f32());
         Ok(doc)
+    }
+
+    /// Get PkgInfo from db and use PkgWithFeatures to recompile the doc.
+    ///
+    /// FIXME: PkgInfo may contain invalid data because registry caches can be cleaned up.
+    /// We should put forward a better way to determin if the broken doc can be recompiled.
+    pub fn load_pkg_info_features(&self) -> Result<PkgWithFeatures> {
+        let db = redb::Database::create(&self.db_file)?;
+
+        // read PkgInfo from db
+        let bytes = read_from_doc_db::<PkgKey, Vec<u8>>(&db, "host-pkg-info", &self.pkg)?;
+        let info = decode::<PkgInfo>(&bytes)?;
+        info!(?self.pkg, "PkgInfo is succeefully read from db file `{}`", self.db_file.display());
+
+        Ok(PkgWithFeatures {
+            features: self.pkg.features().clone(),
+            info,
+        })
     }
 
     pub fn save_doc(&self, json_path: &Path, pkg_info: PkgInfo) -> Result<()> {

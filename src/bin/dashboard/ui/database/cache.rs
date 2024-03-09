@@ -82,7 +82,23 @@ impl Cache {
                         }
                     }
                     Err(err) => {
-                        error!("Failed to load {:?}:\n{err}", unloaded.pkg);
+                        error!(
+                            "Failed to load {:?}, but trying to recompile the doc:\n{err}",
+                            unloaded.pkg
+                        );
+                        match unloaded.load_pkg_info_features() {
+                            Ok(pkg) => match db.compile_doc(pkg) {
+                                Some(key) => {
+                                    // FIXME: use UI to notify the doc is being recompiled,
+                                    // for now we only see a HOLDON icon after clicking CACHE.
+                                    info!("Recompiling the doc for {key:?}!");
+                                    *self = Cache::new_being_cached(key);
+                                    return;
+                                }
+                                None => error!("Failed to recompile the doc"),
+                            },
+                            Err(err) => error!("Failed to load info:\n{err}"),
+                        }
                         Cache {
                             inner: CacheInner::Unloaded(unloaded),
                             features: old.features,

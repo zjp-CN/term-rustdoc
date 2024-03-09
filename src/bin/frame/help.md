@@ -98,9 +98,21 @@ From left to right, there are *outline* panel, *content* panel and *navi* panel.
 
 ## Outline
 
-### KeyMap
+### Navi Action
 
-Mainly to control the outline tree nodes by folding/expansion:
+Navigation action displayed on right bottom will replace module tree by a detail
+tree into the inner of an item from module tree:
+* `l` or `Right` arrow key: next action
+* `h` or `Left` arrow key: previous action
+
+These actions are:
+* for structs/unions, fields and impls
+* for enums, variants and impls
+* for traits, associated items and implementors
+
+### Module Tree
+
+Control the outline module tree nodes by folding/expansion:
 * `Enter`: expand/fold a single node.
 * `/`: expand all nodes.
 * `0`: only expand zero level nodes that directly under the root node.
@@ -114,6 +126,8 @@ Some keymaps to control cursor position like Vim:
 * `L`: move the cursor to bottom node in current view range.
 * `H`: move the cursor to top line in current view range.
 * `M`: move the cursor to middle line in current view range.
+* `j`: alias for `Down` arrow key for moving the cursor down a line
+* `k`: alias for `Up` arrow key for moving the cursor down a line
 
 ### Mouse
 

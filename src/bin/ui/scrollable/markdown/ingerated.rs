@@ -9,7 +9,7 @@ pub struct MarkdownAndHeading {
 
 pub type ScrollMarkdown = Scroll<MarkdownInner>;
 
-const TOC_WIDTH: u16 = 12;
+const TOC_WIDTH: u16 = 16;
 
 impl MarkdownAndHeading {
     pub fn new(mut md: &str, area: Rect) -> Self {
@@ -17,13 +17,13 @@ impl MarkdownAndHeading {
         if width < TOC_WIDTH {
             md = "too narrow to show anything";
         }
-        let (lines, blocks, headings) = parse_doc(md, (width - TOC_WIDTH) as f64);
+        let [md_area, head_area] = split_area(area);
+        let (lines, blocks, headings) = parse_doc(md, md_area.width as f64);
         let mut heading = ScrollHeading::default();
         heading.update_headings(headings);
-        let [md, head] = split_area(area);
-        heading.area = head;
+        heading.area = head_area;
         MarkdownAndHeading {
-            md: MarkdownArea::new(md, lines, blocks),
+            md: MarkdownArea::new(md_area, lines, blocks),
             heading,
         }
     }
@@ -62,7 +62,10 @@ impl MarkdownAndHeading {
 
 fn split_area(area: Rect) -> [Rect; 2] {
     // in case heading is too wide
-    Layout::horizontal([Constraint::Min(0), Constraint::Length(TOC_WIDTH)]).areas(area)
+    let [md, head] =
+        Layout::horizontal([Constraint::Min(0), Constraint::Length(TOC_WIDTH)]).areas(area);
+    let [md, _] = Layout::horizontal([Constraint::Min(0), Constraint::Length(4)]).areas(md);
+    [md, head]
 }
 
 pub struct MarkdownArea {

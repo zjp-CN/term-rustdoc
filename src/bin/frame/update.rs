@@ -140,8 +140,8 @@ fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
 
 fn update_page(page: &mut Page, key_event: &KeyEvent) {
     match key_event.code {
-        KeyCode::Up | KeyCode::Char('k') => page.move_backward_cursor(),
         KeyCode::Down | KeyCode::Char('j') => page.move_forward_cursor(),
+        KeyCode::Up | KeyCode::Char('k') => page.move_backward_cursor(),
         KeyCode::Right | KeyCode::Tab | KeyCode::Char('l') => page.set_next_action(),
         KeyCode::Left | KeyCode::Char('h') => page.set_previous_action(),
         KeyCode::Home => page.scroll_home(),

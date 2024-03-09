@@ -11,10 +11,15 @@ impl Page {
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
+                // The width is dynamic, always fits the max_width.
+                // User will see variable widths of outline and content.
                 Constraint::Length(outline_width),
-                Constraint::Percentage(75),
-                // leave the minimum space for NaviOutline
-                Constraint::Min(navi_outline_width()),
+                Constraint::Min(20),
+                // Leave the exact space for NaviOutline.
+                // navi_outline_width is not dynamic.
+                // If the constraint is flexible by Min(width),
+                // we'll see variable widths on both side, which is not good UX.
+                Constraint::Length(navi_outline_width()),
             ])
     }
 

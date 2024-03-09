@@ -140,13 +140,14 @@ fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
 
 fn update_page(page: &mut Page, key_event: &KeyEvent) {
     match key_event.code {
+        KeyCode::Up | KeyCode::Char('k') => page.move_backward_cursor(),
+        KeyCode::Down | KeyCode::Char('j') => page.move_forward_cursor(),
+        KeyCode::Right | KeyCode::Tab | KeyCode::Char('l') => page.set_next_action(),
         KeyCode::Left | KeyCode::Char('h') => page.set_previous_action(),
         KeyCode::Home => page.scroll_home(),
         KeyCode::End => page.scroll_end(),
         KeyCode::PageUp => page.scrollup(ScrollOffset::HalfScreen),
         KeyCode::PageDown => page.scrolldown(ScrollOffset::HalfScreen),
-        KeyCode::Up => page.move_backward_cursor(),
-        KeyCode::Down => page.move_forward_cursor(),
         KeyCode::Char('L') => page.move_bottom_cursor(),
         KeyCode::Char('H') => page.move_top_cursor(),
         KeyCode::Char('M') => page.move_middle_cursor(),
@@ -156,7 +157,6 @@ fn update_page(page: &mut Page, key_event: &KeyEvent) {
         KeyCode::Char('1') => page.outline_fold_expand_to_first_level_modules(),
         KeyCode::Enter => page.outline_fold_expand_toggle(),
         KeyCode::Char('d') => page.toggle_sytect(),
-        KeyCode::Tab => page.set_next_action(),
         _ => {}
     };
 }

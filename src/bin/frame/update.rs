@@ -140,6 +140,7 @@ fn update_dash_board(dash: &mut DashBoard, key_event: &KeyEvent) {
 
 fn update_page(page: &mut Page, key_event: &KeyEvent) {
     match key_event.code {
+        KeyCode::Left | KeyCode::Char('h') => page.set_previous_action(),
         KeyCode::Home => page.scroll_home(),
         KeyCode::End => page.scroll_end(),
         KeyCode::PageUp => page.scrollup(ScrollOffset::HalfScreen),

@@ -53,7 +53,17 @@ impl super::Page {
 
     pub fn set_next_action(&mut self) {
         let next_action = self.navi.next_action();
-        info!(?next_action);
+        debug!(?next_action);
+        if let Some(action) = next_action {
+            self.outline.action(action);
+            self.update_area_inner(self.area);
+            // set!(outline)
+        }
+    }
+
+    pub fn set_previous_action(&mut self) {
+        let next_action = self.navi.previous_action();
+        debug!(?next_action);
         if let Some(action) = next_action {
             self.outline.action(action);
             self.update_area_inner(self.area);

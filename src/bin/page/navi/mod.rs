@@ -72,6 +72,10 @@ impl Navigation {
     pub fn next_action(&mut self) -> Option<NaviAction> {
         self.display.outline.next_action()
     }
+
+    pub fn previous_action(&mut self) -> Option<NaviAction> {
+        self.display.outline.previous_action()
+    }
 }
 
 #[derive(Default)]

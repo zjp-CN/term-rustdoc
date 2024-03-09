@@ -207,11 +207,20 @@ impl NaviOutline {
     }
 
     pub fn next_action(&mut self) -> Option<NaviAction> {
-        let current = self.display.get_line_of_current_cursor().copied();
-        if matches!(current, Some(NaviAction::BackToHome)) {
+        let current = self.display.get_line_of_current_cursor()?;
+        if matches!(current, NaviAction::BackToHome) {
             self.display.move_top_cursor();
         } else {
             self.display.move_forward_cursor();
+        }
+        self.display.get_line_of_current_cursor().copied()
+    }
+
+    pub fn previous_action(&mut self) -> Option<NaviAction> {
+        if self.display.cursor.y == 0 && self.display.start == 0 {
+            self.display.move_bottom_cursor();
+        } else {
+            self.display.move_backward_cursor();
         }
         self.display.get_line_of_current_cursor().copied()
     }

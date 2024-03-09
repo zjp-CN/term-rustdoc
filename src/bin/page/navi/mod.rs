@@ -64,6 +64,10 @@ impl Navigation {
     pub fn update_outline(&mut self, y: u16) -> Option<NaviAction> {
         self.display.outline.update_outline(y)
     }
+
+    pub fn next_action(&mut self) -> Option<NaviAction> {
+        self.display.outline.next_action()
+    }
 }
 
 #[derive(Default)]

@@ -155,6 +155,7 @@ fn update_page(page: &mut Page, key_event: &KeyEvent) {
         KeyCode::Char('1') => page.outline_fold_expand_to_first_level_modules(),
         KeyCode::Enter => page.outline_fold_expand_toggle(),
         KeyCode::Char('d') => page.toggle_sytect(),
+        KeyCode::Tab => page.set_next_action(),
         _ => {}
     };
 }

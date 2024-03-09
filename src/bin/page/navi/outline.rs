@@ -143,8 +143,8 @@ impl NaviOutline {
             id: id.into(),
         };
 
-        self.display.start = 0;
-        self.display.cursor.y = 0;
+        // self.display.start = 0;
+        // self.display.cursor.y = 0;
 
         let inner = &mut self.display.lines;
         inner.lines = lines(selected.kind);
@@ -198,6 +198,16 @@ impl NaviOutline {
     /// Returns true if user clicks on the item to ask for update of outline.
     pub fn update_outline(&mut self, y: u16) -> Option<NaviAction> {
         self.display.force_line_on_screen(y).copied()
+    }
+
+    pub fn next_action(&mut self) -> Option<NaviAction> {
+        let current = self.display.get_line_of_current_cursor().copied();
+        if matches!(current, Some(NaviAction::BackToHome)) {
+            self.display.move_top_cursor();
+        } else {
+            self.display.move_forward_cursor();
+        }
+        self.display.get_line_of_current_cursor().copied()
     }
 }
 

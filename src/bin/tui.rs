@@ -92,7 +92,7 @@ pub fn install_hooks() -> crate::Result<()> {
     // convert from a color_eyre EyreHook to a eyre ErrorHook
     let eyre_hook = eyre_hook.into_eyre_hook();
     eyre::set_hook(Box::new(move |error| {
-        restore_terminal().unwrap();
+        // restore_terminal().unwrap();
         eyre_hook(error)
     }))?;
 

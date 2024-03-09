@@ -62,9 +62,12 @@ impl MarkdownAndHeading {
 
 fn split_area(area: Rect) -> [Rect; 2] {
     // in case heading is too wide
-    let [md, head] =
-        Layout::horizontal([Constraint::Min(0), Constraint::Length(TOC_WIDTH)]).areas(area);
-    let [md, _] = Layout::horizontal([Constraint::Min(0), Constraint::Length(4)]).areas(md);
+    let [md, _, head] = Layout::horizontal([
+        Constraint::Min(0),
+        Constraint::Length(4),
+        Constraint::Length(TOC_WIDTH),
+    ])
+    .areas(area);
     [md, head]
 }
 

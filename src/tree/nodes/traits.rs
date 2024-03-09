@@ -17,19 +17,25 @@ impl DTrait {
         let [mut types, mut constants, mut functions]: [Vec<ID>; 3] = Default::default();
         let trait_id = &id;
         for id in &item.items {
-            if let Some(assoc) = map.get_item(&id.0) {
-                let id = id.to_ID(); // id == assoc.id
+            let item_id = &*id.0;
+            if let Some(assoc) = map.get_item(item_id) {
+                let id = item_id.to_ID();
                 match &assoc.inner {
                     ItemEnum::AssocType { .. } => types.push(id),
                     ItemEnum::AssocConst { .. } => constants.push(id),
                     ItemEnum::Function(_) => functions.push(id),
                     _ => warn!(
-                        "`{id}` should refer to an associated item \
-                         (type/constant/function) in Trait `{trait_id}`"
+                        "`{}` ({item_id}) should refer to an associated item \
+                         (type/constant/function) in Trait `{}` ({trait_id})",
+                        map.name(item_id),
+                        map.name(trait_id)
                     ),
                 }
             } else {
-                warn!("the trait item {id:?} not found in Crate's index");
+                warn!(
+                    "the trait item `{}` ({item_id:?}) not found in Crate's index",
+                    map.name(item_id)
+                );
             }
         }
         types.sort_unstable_by_key(|id| map.name(id));

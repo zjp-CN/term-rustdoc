@@ -59,10 +59,10 @@ impl DTrait {
 impl Show for DTrait {
     fn show(&self) -> DocTree {
         format!("[trait] {}", self.id).show().with_leaves([
-            "Associated Types".show().with_leaves(show_ids(&self.types)),
             "Associated Constants"
                 .show()
                 .with_leaves(show_ids(&self.constants)),
+            "Associated Types".show().with_leaves(show_ids(&self.types)),
             "Associated Functions"
                 .show()
                 .with_leaves(show_ids(&self.functions)),
@@ -76,8 +76,8 @@ impl Show for DTrait {
         let root = node!(Trait: map, &self.id);
         let leaves = names_node!(
             self map root.with_leaves([Tag::NoAssocOrImpls.show()]),
-            AssocTypes   types     AssocType,
             AssocConsts  constants AssocConst,
+            AssocTypes   types     AssocType,
             AssocFns     functions AssocFn,
             Implementors implementations Implementor,
         );

@@ -85,7 +85,8 @@ const ENUM: &'static [NaviAction] = &[
 ];
 const TRAIT: &'static [NaviAction] = &[
     NaviAction::Item,
-    NaviAction::TraitInner,
+    NaviAction::TraitAssociated,
+    NaviAction::TraitImplementors,
     NaviAction::BackToHome,
 ];
 
@@ -93,7 +94,8 @@ const TRAIT: &'static [NaviAction] = &[
 pub enum NaviAction {
     StructInner,
     EnumInner,
-    TraitInner,
+    TraitAssociated,
+    TraitImplementors,
     ITABImpls,
     Item,
     #[default]
@@ -105,7 +107,8 @@ impl NaviAction {
         match self {
             NaviAction::StructInner => "Fields",
             NaviAction::EnumInner => "Varaints",
-            NaviAction::TraitInner => "Implementors",
+            NaviAction::TraitAssociated => "Associated",
+            NaviAction::TraitImplementors => "Implementors",
             NaviAction::ITABImpls => "Impls",
             NaviAction::Item => "Current Item",
             NaviAction::BackToHome => "Back To Home",

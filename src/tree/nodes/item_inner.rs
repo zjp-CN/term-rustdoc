@@ -87,4 +87,12 @@ impl DModule {
             DataItemKind::Union => self.search_for_union(id, map, |x| x.impls.show_prettier(map)),
         }
     }
+
+    pub fn implementor_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+        self.search_for_trait(id, map, |x| x.implementors(map))
+    }
+
+    pub fn associated_item_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+        self.search_for_trait(id, map, |x| x.associated_items(map))
+    }
 }

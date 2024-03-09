@@ -112,6 +112,8 @@ impl Setu {
             match action {
                 NaviAction::ITABImpls => dmod.impl_tree(id, map),
                 NaviAction::Item => dmod.item_inner_tree(id, map),
+                NaviAction::TraitAssociated => dmod.associated_item_tree(id, map),
+                NaviAction::TraitImplementors => dmod.implementor_tree(id, map),
                 _ => dmod.item_inner_tree(id, map),
             }
             .unwrap_or_default()

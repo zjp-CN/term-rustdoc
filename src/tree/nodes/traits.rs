@@ -62,6 +62,24 @@ impl DTrait {
             implementations,
         }
     }
+
+    pub fn associated_items(&self, map: &IDMap) -> DocTree {
+        let mut root = node!(Trait: map, &self.id);
+        names_node!(@iter self map root
+            constants AssocConst,
+            types     AssocType,
+            functions AssocFn,
+        );
+        root
+    }
+
+    pub fn implementors(&self, map: &IDMap) -> DocTree {
+        let mut root = node!(Trait: map, &self.id);
+        names_node!(@iter self map root
+            implementations Implementor,
+        );
+        root
+    }
 }
 
 impl Show for DTrait {

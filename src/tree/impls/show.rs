@@ -163,6 +163,15 @@ macro_rules! names_node {
             ))
         }
     };
+    // no node tag
+    (@iter $self:ident $map:ident $root:ident
+     $( $field:ident $tag:ident ,)+ ) => {$(
+        (!$self.$field.is_empty()).then(|| {
+            $root.extend($crate::tree::impls::show::show_names(
+                &*$self.$field, $crate::tree::Tag::$tag, $map
+            ));
+        });
+    )+};
 }
 
 // pub fn show_paths<'id, S: 'id + ?Sized + IdAsStr>(

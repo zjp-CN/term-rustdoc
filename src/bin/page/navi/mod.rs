@@ -43,6 +43,10 @@ impl Navigation {
         self.display.outline.reset();
     }
 
+    pub fn set_outline_cursor_back_to_home(&mut self) {
+        self.display.outline.set_cursor_back_to_home();
+    }
+
     pub fn update_area(&mut self, border: Surround) {
         let inner = border.inner();
         let [heading, outline] = split(inner);

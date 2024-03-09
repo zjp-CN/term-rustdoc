@@ -111,6 +111,10 @@ impl Outline {
         self.inner.action(action);
     }
 
+    fn reset_to_module_tree(&mut self) {
+        self.inner.reset_to_module_tree();
+    }
+
     fn display(&mut self) -> &mut ScrollTreeLines {
         self.inner.display()
     }

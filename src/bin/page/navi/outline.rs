@@ -158,8 +158,11 @@ impl NaviOutline {
 
     pub fn reset(&mut self) {
         *self.inner() = Default::default();
-        self.display.start = 0;
-        self.display.cursor.y = 0;
+        self.set_cursor_back_to_home();
+    }
+
+    pub fn set_cursor_back_to_home(&mut self) {
+        self.display.move_bottom_cursor();
     }
 
     pub fn update_area(&mut self, area: Rect) {

@@ -150,6 +150,20 @@ impl TreeLines {
         )
     }
 
+    pub fn try_new_with(
+        doc: &CrateDoc,
+        init: impl FnOnce(&CrateDoc) -> Option<DocTree>,
+    ) -> Option<Self> {
+        let doctree = init(doc)?;
+        let (lines, _) = doctree.cache_lines();
+
+        Some(TreeLines {
+            doc: doc.clone(),
+            lines,
+            fold: Fold::default(),
+        })
+    }
+
     pub fn new(doc: CrateDoc) -> Self {
         // item tree is more concise and convenient for user
         // because it directly can offer item's doc

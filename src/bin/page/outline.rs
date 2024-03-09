@@ -74,14 +74,23 @@ impl OutlineInner {
         match action {
             NaviAction::BackToHome => self.back_to_home(),
             x => {
-                self.setu.update_lines(&self.modules, x);
-                self.kind = OutlineKind::InnerItem;
+                // keep Modules kind if invalid id for outer item
+                if self.setu.update_lines(&self.modules, x).is_some() {
+                    self.kind = OutlineKind::InnerItem;
+                }
             }
         };
     }
 
     fn back_to_home(&mut self) {
         self.kind = OutlineKind::Modules;
+    }
+
+    pub fn reset_to_module_tree(&mut self) {
+        self.setu.outer_item = ID::default();
+        // we don't have to overwrite the real lines because we only check by id
+        // self.setu.display = Default::default();
+        self.back_to_home();
     }
 }
 
@@ -104,9 +113,10 @@ impl Setu {
         self.display.area = area;
     }
 
-    pub fn update_lines(&mut self, modules: &ScrollTreeLines, action: NaviAction) {
-        let doc = modules.lines.doc();
-        self.display.lines = TreeLines::new_with(doc, |map| {
+    pub fn update_lines(&mut self, modules: &ScrollTreeLines, action: NaviAction) -> Option<()> {
+        let doc = modules.lines.doc_ref();
+        // If id is not valid, lines won't be updated.
+        self.display.lines = TreeLines::try_new_with(doc, |map| {
             let id = &self.outer_item;
             let dmod = map.dmodule();
             match action {
@@ -116,14 +126,14 @@ impl Setu {
                 NaviAction::TraitImplementors => dmod.implementor_tree(id, map),
                 _ => dmod.item_inner_tree(id, map),
             }
-            .unwrap_or_default()
-        })
-        .0;
+        })?;
         if self.display.total_len() == 0 {
             let path = modules.lines.doc_ref().path(&self.outer_item);
             error!("{path} generated unexpected empty TreeLines");
         }
+        // self.update_area(modules.area);
         self.display.update_maxwidth();
+        Some(())
     }
 
     pub fn render(&self, buf: &mut Buffer) {

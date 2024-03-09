@@ -16,9 +16,8 @@ impl DTrait {
     pub fn new(id: ID, item: &Trait, map: &IDMap) -> Self {
         let [mut types, mut constants, mut functions]: [Vec<ID>; 3] = Default::default();
         let trait_id = &id;
-        let indexmap = &map.indexmap();
         for id in &item.items {
-            if let Some(assoc) = indexmap.get(id) {
+            if let Some(assoc) = map.get_item(&id.0) {
                 let id = id.to_ID(); // id == assoc.id
                 match &assoc.inner {
                     ItemEnum::AssocType { .. } => types.push(id),
@@ -33,6 +32,9 @@ impl DTrait {
                 warn!("the trait item {id:?} not found in Crate's index");
             }
         }
+        types.sort_unstable_by_key(|id| map.name(id));
+        constants.sort_unstable_by_key(|id| map.name(id));
+        functions.sort_unstable_by_key(|id| map.name(id));
         DTrait {
             id,
             types: types.into(),

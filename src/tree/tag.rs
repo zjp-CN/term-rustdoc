@@ -158,9 +158,9 @@ impl Tag {
             // Tag::ImplBlanket => icon!("[blkt]"),
             Tag::Field => icon!("[field]"),
             Tag::Variant => icon!("[variant]"),
-            Tag::AssocType => icon!("[assoc type]"),
-            Tag::AssocConst => icon!("[assoc constant]"),
-            Tag::AssocFn => icon!("[assoc fn]"),
+            Tag::AssocType => icon!("[type]"),
+            Tag::AssocConst => icon!("[const]"),
+            Tag::AssocFn => icon!("[fn]"),
             _ => GlyphPalette::default(),
         }
     }

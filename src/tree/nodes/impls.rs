@@ -2,16 +2,24 @@ use crate::tree::{
     impls::show::{show_ids, show_names, DocTree, Show},
     IDMap, IDs, IdToID, Tag, ID,
 };
+use itertools::Itertools;
 use rustdoc_types::{Id, Impl, ItemEnum};
 use serde::{Deserialize, Serialize};
 
+/// All elements in slice are ordered by name.
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct DImpl {
     pub inherent: Box<[DImplInner]>,
     pub trait_: Box<[DImplInner]>,
     pub auto: Box<[DImplInner]>,
     pub blanket: Box<[DImplInner]>,
+    /// Inherent items from multiple impl blocks are merged into one block
+    /// with themselves sorted by name.
+    ///
+    /// NOTE: the impl block id is empty and invalid!
+    pub merged_inherent: Box<DImplInner>,
 }
+
 impl DImpl {
     pub fn new(ids: &[Id], map: &IDMap) -> Self {
         if ids.is_empty() {
@@ -42,11 +50,13 @@ impl DImpl {
         trait_.sort_unstable_by_key(|x| map.name(&x.id));
         auto.sort_unstable_by_key(|x| map.name(&x.id));
         blanket.sort_unstable_by_key(|x| map.name(&x.id));
+        let merged_inherent = DImplInner::merge_inherent_impls(&inherent, map);
         DImpl {
             inherent: inherent.into(),
             trait_: trait_.into(),
             auto: auto.into(),
             blanket: blanket.into(),
+            merged_inherent: Box::new(merged_inherent),
         }
     }
     pub fn is_empty(&self) -> bool {
@@ -80,10 +90,11 @@ impl Show for DImpl {
             return Tag::NoImpls.show();
         }
         let mut root = Tag::Implementations.show();
-        if !self.inherent.is_empty() {
+        if !self.merged_inherent.is_empty() {
             let tree = Tag::InherentImpls.show();
-            let tag = Tag::ImplInherent;
-            root.push(tree.with_leaves(self.inherent.iter().map(|i| i.show_prettier(tag, map))));
+            // let tag = Tag::ImplInherent;
+            // root.push(tree.with_leaves(self.inherent.iter().map(|i| i.show_prettier(tag, map))));
+            root.push(tree.with_leaves(self.merged_inherent.show_prettier_iter(map)));
         }
         if !self.trait_.is_empty() {
             let tree = Tag::TraitImpls.show();
@@ -164,10 +175,44 @@ impl DImplInner {
         //     Constants  constants Constant,
         //     TypeAliass types     TypeAlias,
         // );
-        root.with_leaves(
-            show_names(&*self.constants, Tag::Constant, map)
-                .chain(show_names(&*self.types, Tag::TypeAlias, map))
-                .chain(show_names(&*self.functions, Tag::Function, map)),
-        )
+        root.with_leaves(self.show_prettier_iter(map))
+    }
+
+    /// mainly for inherent impls
+    fn show_prettier_iter<'s: 'ret, 'map: 'ret, 'ret>(
+        &'s self,
+        map: &'map IDMap,
+    ) -> impl 'ret + Iterator<Item = DocTree> {
+        show_names(&*self.constants, Tag::Constant, map)
+            .chain(show_names(&*self.types, Tag::TypeAlias, map))
+            .chain(show_names(&*self.functions, Tag::Function, map))
+    }
+
+    fn merge_inherent_impls(impls: &[Self], map: &IDMap) -> Self {
+        let iter = impls.iter();
+        Self {
+            id: ID::default(),
+            functions: iter
+                .clone()
+                .flat_map(|x| x.functions.iter())
+                .sorted_unstable_by_key(|id| map.name(id))
+                .cloned()
+                .collect(),
+            constants: iter
+                .clone()
+                .flat_map(|x| x.constants.iter())
+                .sorted_unstable_by_key(|id| map.name(id))
+                .cloned()
+                .collect(),
+            types: iter
+                .flat_map(|x| x.types.iter())
+                .sorted_unstable_by_key(|id| map.name(id))
+                .cloned()
+                .collect(),
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.functions.is_empty() && self.constants.is_empty() && self.types.is_empty()
     }
 }

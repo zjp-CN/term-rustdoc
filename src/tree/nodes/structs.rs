@@ -55,6 +55,23 @@ impl DStruct {
             contain_private_fields: true,
         }
     }
+
+    pub fn fields_tree(&self, map: &IDMap) -> DocTree {
+        let mut root = node!(Struct: map, &self.id);
+        match (self.fields.len(), self.contain_private_fields) {
+            (0, true) => root.push(private_fields()),
+            (0, false) => root.push(Tag::NoFields.show()),
+            (_, true) => {
+                root.push(fields_root().with_leaves(
+                    show_names(&*self.fields, Tag::Field, map).chain([private_fields()]),
+                ))
+            }
+            (_, false) => {
+                root.push(fields_root().with_leaves(show_names(&*self.fields, Tag::Field, map)))
+            }
+        };
+        root
+    }
 }
 
 fn private_fields() -> DocTree {
@@ -76,20 +93,8 @@ impl Show for DStruct {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let mut node = node!(Struct: map, &self.id);
-        match (self.fields.len(), self.contain_private_fields) {
-            (0, true) => node.push(private_fields()),
-            (0, false) => node.push(Tag::NoFields.show()),
-            (_, true) => {
-                node.push(fields_root().with_leaves(
-                    show_names(&*self.fields, Tag::Field, map).chain([private_fields()]),
-                ))
-            }
-            (_, false) => {
-                node.push(fields_root().with_leaves(show_names(&*self.fields, Tag::Field, map)))
-            }
-        };
-        node.push(self.impls.show_prettier(map));
-        node
+        let mut root = self.fields_tree(map);
+        root.push(self.impls.show_prettier(map));
+        root
     }
 }

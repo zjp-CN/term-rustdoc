@@ -95,4 +95,8 @@ impl DModule {
     pub fn associated_item_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
         self.search_for_trait(id, map, |x| x.associated_items(map))
     }
+
+    pub fn field_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+        self.search_for_struct(id, map, |x| x.fields_tree(map))
+    }
 }

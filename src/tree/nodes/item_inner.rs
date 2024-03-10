@@ -100,6 +100,7 @@ impl DModule {
         let kind = DataItemKind::new(id, map)?;
         match kind {
             DataItemKind::Struct => self.search_for_struct(id, map, |x| x.fields_tree(map)),
+            DataItemKind::Enum => self.search_for_enum(id, map, |x| x.variants_tree(map)),
             DataItemKind::Union => self.search_for_union(id, map, |x| x.fields_tree(map)),
             _ => None,
         }

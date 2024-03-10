@@ -1,12 +1,19 @@
 use super::Page;
 
+/// For now, the expand/fold behavior only works for Module tree.
 impl Page {
     pub fn outline_fold_expand_all(&mut self) {
+        if !self.outline.is_module_tree() {
+            return;
+        }
         self.outline().lines.expand_all();
         self.update_after_folding_outline();
     }
 
     pub fn outline_fold_expand_current_module_only(&mut self) {
+        if !self.outline.is_module_tree() {
+            return;
+        }
         if let Some(id) = self.outline().get_id().map(Into::into) {
             self.outline().lines.expand_current_module_only(id);
             self.update_after_folding_outline();
@@ -14,16 +21,25 @@ impl Page {
     }
 
     pub fn outline_fold_expand_zero_level(&mut self) {
+        if !self.outline.is_module_tree() {
+            return;
+        }
         self.outline().lines.expand_zero_level();
         self.update_after_folding_outline();
     }
 
     pub fn outline_fold_expand_to_first_level_modules(&mut self) {
+        if !self.outline.is_module_tree() {
+            return;
+        }
         self.outline().lines.expand_to_first_level_modules();
         self.update_after_folding_outline();
     }
 
     pub fn outline_fold_expand_toggle(&mut self) {
+        if !self.outline.is_module_tree() {
+            return;
+        }
         if let Some(id) = self.outline().get_id().map(Into::into) {
             self.outline().lines.expand_toggle(id);
             self.update_after_folding_outline();

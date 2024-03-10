@@ -163,14 +163,15 @@ macro_rules! names_node {
             ))
         }
     };
-    // no node tag
+    // No node tag: usually for inner details from an item.
+    // E.g. we don't the `Fields` tag when fields-only tree is specified.
     (@iter $self:ident $map:ident $root:ident
      $( $field:ident $tag:ident ),+  $(,)?) => {$(
-        (!$self.$field.is_empty()).then(|| {
+        if !$self.$field.is_empty() {
             $root.extend($crate::tree::impls::show::show_names(
                 &*$self.$field, $crate::tree::Tag::$tag, $map
             ));
-        });
+        }
     )+};
 }
 

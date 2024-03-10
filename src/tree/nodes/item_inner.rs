@@ -97,6 +97,11 @@ impl DModule {
     }
 
     pub fn field_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
-        self.search_for_struct(id, map, |x| x.fields_tree(map))
+        let kind = DataItemKind::new(id, map)?;
+        match kind {
+            DataItemKind::Struct => self.search_for_struct(id, map, |x| x.fields_tree(map)),
+            DataItemKind::Union => self.search_for_union(id, map, |x| x.fields_tree(map)),
+            _ => None,
+        }
     }
 }

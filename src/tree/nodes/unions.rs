@@ -25,6 +25,14 @@ impl DUnion {
         let (fields, impls) = Default::default();
         DUnion { id, fields, impls }
     }
+
+    pub fn fields_tree(&self, map: &IDMap) -> DocTree {
+        let fields = names_node!(@single
+            self map NoFields,
+            Fields fields Field
+        );
+        node!(Union: map, &self.id).with_leaves([fields])
+    }
 }
 
 impl Show for DUnion {
@@ -36,10 +44,8 @@ impl Show for DUnion {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let fields = names_node!(@single
-            self map NoFields,
-            Fields fields Field
-        );
-        node!(Union: map, &self.id).with_leaves([fields, self.impls.show_prettier(map)])
+        let mut root = self.fields_tree(map);
+        root.push(self.impls.show_prettier(map));
+        root
     }
 }

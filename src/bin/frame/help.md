@@ -102,13 +102,15 @@ From left to right, there are *outline* panel, *content* panel and *navi* panel.
 
 Navigation action displayed on right bottom will replace module tree by a detail
 tree into the inner of an item from module tree:
-* `l` or `Right` arrow key: next action
+* `Tab` or `l` or `Right` arrow key: next action
 * `h` or `Left` arrow key: previous action
 
 These actions are:
-* for structs/unions, fields and impls
-* for enums, variants and impls
-* for traits, associated items and implementors
+* for struct/union under cursor, fields and impls
+* for enum under cursor, variants and impls
+* for trait under cursor, associated items and implementors
+* for module under cursor, make the module node as new root with items tree expanded.
+  This is very immature.
 
 ### Module Tree
 

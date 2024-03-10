@@ -102,6 +102,8 @@ pub enum OutlineKind {
 }
 
 /// Stands for struct/enum/trait/union.
+///
+/// This also supports focus on a module, but not very much designed.
 #[derive(Default)]
 pub struct Setu {
     outer_item: ID,

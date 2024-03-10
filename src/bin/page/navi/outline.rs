@@ -68,9 +68,11 @@ fn lines(kind: Kind) -> &'static [NaviAction] {
         Kind::Struct | Kind::Union => STRUCT,
         Kind::Enum => ENUM,
         Kind::Trait => TRAIT,
+        Kind::Module => MODULE,
     }
 }
 
+const MODULE: &'static [NaviAction] = &[NaviAction::Item, NaviAction::BackToHome];
 const STRUCT: &'static [NaviAction] = &[
     NaviAction::Item,
     NaviAction::StructInner,

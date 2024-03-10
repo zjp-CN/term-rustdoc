@@ -134,6 +134,7 @@ impl Setu {
         }
         // self.update_area(modules.area);
         self.display.update_maxwidth();
+        self.display.start = 0;
         self.display.cursor.y = 0;
         Some(())
     }

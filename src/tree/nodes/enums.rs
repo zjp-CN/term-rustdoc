@@ -32,11 +32,11 @@ impl DEnum {
     }
 
     pub fn variants_tree(&self, map: &IDMap) -> DocTree {
-        let variants = names_node!(@single
-            self map NoVariants,
-            Variants variants Variant
+        let mut root = node!(Enum: map, &self.id);
+        names_node!(@iter self map root
+            variants Variant
         );
-        node!(Enum: map, &self.id).with_leaves([variants])
+        root
     }
 }
 
@@ -49,8 +49,10 @@ impl Show for DEnum {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        let mut root = self.variants_tree(map);
-        root.push(self.impls.show_prettier(map));
-        root
+        let variants = names_node!(@single
+            self map NoVariants,
+            Variants variants Variant
+        );
+        node!(Enum: map, &self.id).with_leaves([variants, self.impls.show_prettier(map)])
     }
 }

@@ -6,6 +6,16 @@ pub fn type_name(ty: &Type) -> Option<XString> {
     match ty {
         Type::ResolvedPath(p) => resolved_path_name(p),
         Type::Generic(t) => Some(t.as_str().into()),
+        Type::BorrowedRef {
+            lifetime,
+            mutable,
+            type_,
+        } => type_name(type_).map(|ty| match (lifetime, mutable) {
+            (None, false) => xformat!("&{ty}"),
+            (None, true) => xformat!("&mut {ty}"),
+            (Some(life), false) => xformat!("&'{life} {ty}"),
+            (Some(life), true) => xformat!("&'{life} mut {ty}"),
+        }),
         _ => None,
     }
 }

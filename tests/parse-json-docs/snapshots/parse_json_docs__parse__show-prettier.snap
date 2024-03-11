@@ -44,9 +44,11 @@ integration
 │       │   └── /* private fields */
 │       └── Implementations
 │           ├── Inherent Impls
-│           │   └── FieldsNamedStruct
-│           │       ├── [Fn] consume
-│           │       └── [Fn] new
+│           │   ├── [Fn] by_rc
+│           │   ├── [Fn] by_ref
+│           │   ├── [Fn] by_ref_mut
+│           │   ├── [Fn] consume
+│           │   └── [Fn] new
 │           ├── Trait Impls
 │           │   └── FieldsNamedStruct: Default
 │           │       └── [Fn] default
@@ -73,8 +75,7 @@ integration
     │       │   └── [variant] C
     │       └── Implementations
     │           ├── Inherent Impls
-    │           │   └── AUnitEnum
-    │           │       └── [Fn] print
+    │           │   └── [Fn] print
     │           ├── Trait Impls
     │           │   └── AUnitEnum: Debug
     │           │       └── [Fn] fmt

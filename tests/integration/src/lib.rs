@@ -47,6 +47,9 @@ impl FieldsNamedStruct {
     }
 
     pub fn consume(self) {}
+    pub fn by_ref(&self) {}
+    pub fn by_ref_mut(&mut self) {}
+    pub fn by_rc(self: std::rc::Rc<Self>) {}
 }
 
 impl Default for FieldsNamedStruct {

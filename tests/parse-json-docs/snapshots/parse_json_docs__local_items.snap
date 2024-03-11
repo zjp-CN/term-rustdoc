@@ -4,9 +4,9 @@ expression: local_items
 ---
 [
     (
-        "0:0:1812",
+        "0:0:1816",
         [
-            "integration                                        0:0:1812             [Module: (integration)]",
+            "integration                                        0:0:1816             [Module: (integration)]",
         ],
     ),
     (
@@ -78,71 +78,77 @@ expression: local_items
         [],
     ),
     (
-        "0:25",
+        "0:25:1805",
         [],
     ),
     (
-        "0:26:60",
+        "0:26:1806",
         [],
     ),
     (
-        "0:27:1805",
-        [
-            "integration::func_with_no_args                     0:27:1805            [Function: (func_with_no_args)]",
-        ],
+        "0:27:1807",
+        [],
     ),
     (
-        "0:28:1806",
-        [
-            "integration::func_with_1arg                        0:28:1806            [Function: (func_with_1arg)]",
-        ],
+        "0:28",
+        [],
     ),
     (
-        "0:29:1807",
-        [
-            "integration::func_with_1arg_and_ret                0:29:1807            [Function: (func_with_1arg_and_ret)]",
-        ],
+        "0:29:60",
+        [],
     ),
     (
-        "0:30:1808",
+        "0:30:1809",
         [
-            "integration::ACONSTANT                             0:30:1808            [Constant: (ACONSTANT)]",
+            "integration::func_with_no_args                     0:30:1809            [Function: (func_with_no_args)]",
         ],
     ),
     (
         "0:31:1810",
         [
-            "integration::ASTATIC                               0:31:1810            [Constant: (ASTATIC)]",
+            "integration::func_with_1arg                        0:31:1810            [Function: (func_with_1arg)]",
         ],
     ),
     (
         "0:32:1811",
         [
-            "integration::a_decl_macro                          0:32:1811            [Macro: (a_decl_macro)]",
+            "integration::func_with_1arg_and_ret                0:32:1811            [Function: (func_with_1arg_and_ret)]",
         ],
     ),
     (
-        "0:33:1793",
+        "0:33:1812",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum: (AUnitEnum)]",
+            "integration::ACONSTANT                             0:33:1812            [Constant: (ACONSTANT)]",
         ],
     ),
     (
-        "0:34:1794",
+        "0:34:1814",
         [
-            "integration::submod1::AUnitEnum::A                 0:34:1794            [Variant: (A)]",
+            "integration::ASTATIC                               0:34:1814            [Constant: (ASTATIC)]",
         ],
     ),
     (
-        "0:36:1795",
+        "0:35:1815",
         [
-            "integration::submod1::AUnitEnum::B                 0:36:1795            [Variant: (B)]",
+            "integration::a_decl_macro                          0:35:1815            [Macro: (a_decl_macro)]",
         ],
     ),
     (
-        "0:38:106",
+        "0:36:1793",
         [
-            "integration::submod1::AUnitEnum::C                 0:38:106             [Variant: (C)]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum: (AUnitEnum)]",
+        ],
+    ),
+    (
+        "0:37:1794",
+        [
+            "integration::submod1::AUnitEnum::A                 0:37:1794            [Variant: (A)]",
+        ],
+    ),
+    (
+        "0:39:1795",
+        [
+            "integration::submod1::AUnitEnum::B                 0:39:1795            [Variant: (B)]",
         ],
     ),
     (
@@ -152,11 +158,17 @@ expression: local_items
         ],
     ),
     (
-        "0:40",
+        "0:41:106",
+        [
+            "integration::submod1::AUnitEnum::C                 0:41:106             [Variant: (C)]",
+        ],
+    ),
+    (
+        "0:43",
         [],
     ),
     (
-        "0:41:724",
+        "0:44:724",
         [],
     ),
     (
@@ -177,10 +189,10 @@ expression: local_items
         ],
     ),
     (
-        "a:2:2997:246-0:33:1793",
+        "a:2:2997:246-0:36:1793",
         [
             "core::marker::Sync                                 2:2997:246           [Trait]",
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -198,10 +210,10 @@ expression: local_items
         ],
     ),
     (
-        "a:2:32833:237-0:33:1793",
+        "a:2:32833:237-0:36:1793",
         [
             "core::marker::Send                                 2:32833:237          [Trait]",
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -212,65 +224,65 @@ expression: local_items
         ],
     ),
     (
-        "a:2:32890:2069-0:17:1799",
+        "a:2:32890:2072-0:17:1799",
         [
-            "core::marker::Unpin                                2:32890:2069         [Trait]",
+            "core::marker::Unpin                                2:32890:2072         [Trait]",
             "integration::FieldsNamedStruct                     0:17:1799            [Struct]",
         ],
     ),
     (
-        "a:2:32890:2069-0:33:1793",
+        "a:2:32890:2072-0:36:1793",
         [
-            "core::marker::Unpin                                2:32890:2069         [Trait]",
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "core::marker::Unpin                                2:32890:2072         [Trait]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
-        "a:2:32890:2069-0:3:1786",
+        "a:2:32890:2072-0:3:1786",
         [
-            "core::marker::Unpin                                2:32890:2069         [Trait]",
+            "core::marker::Unpin                                2:32890:2072         [Trait]",
             "integration::AUnitStruct                           0:3:1786             [Struct]",
         ],
     ),
     (
-        "a:2:42468:5572-0:17:1799",
+        "a:2:42468:2321-0:17:1799",
         [
-            "core::panic::unwind_safe::UnwindSafe               2:42468:5572         [Trait]",
+            "core::panic::unwind_safe::UnwindSafe               2:42468:2321         [Trait]",
             "integration::FieldsNamedStruct                     0:17:1799            [Struct]",
         ],
     ),
     (
-        "a:2:42468:5572-0:33:1793",
+        "a:2:42468:2321-0:36:1793",
         [
-            "core::panic::unwind_safe::UnwindSafe               2:42468:5572         [Trait]",
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "core::panic::unwind_safe::UnwindSafe               2:42468:2321         [Trait]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
-        "a:2:42468:5572-0:3:1786",
+        "a:2:42468:2321-0:3:1786",
         [
-            "core::panic::unwind_safe::UnwindSafe               2:42468:5572         [Trait]",
+            "core::panic::unwind_safe::UnwindSafe               2:42468:2321         [Trait]",
             "integration::AUnitStruct                           0:3:1786             [Struct]",
         ],
     ),
     (
-        "a:2:42469:5768-0:17:1799",
+        "a:2:42469:2320-0:17:1799",
         [
-            "core::panic::unwind_safe::RefUnwindSafe            2:42469:5768         [Trait]",
+            "core::panic::unwind_safe::RefUnwindSafe            2:42469:2320         [Trait]",
             "integration::FieldsNamedStruct                     0:17:1799            [Struct]",
         ],
     ),
     (
-        "a:2:42469:5768-0:33:1793",
+        "a:2:42469:2320-0:36:1793",
         [
-            "core::panic::unwind_safe::RefUnwindSafe            2:42469:5768         [Trait]",
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "core::panic::unwind_safe::RefUnwindSafe            2:42469:2320         [Trait]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
-        "a:2:42469:5768-0:3:1786",
+        "a:2:42469:2320-0:3:1786",
         [
-            "core::panic::unwind_safe::RefUnwindSafe            2:42469:5768         [Trait]",
+            "core::panic::unwind_safe::RefUnwindSafe            2:42469:2320         [Trait]",
             "integration::AUnitStruct                           0:3:1786             [Struct]",
         ],
     ),
@@ -281,9 +293,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:2471-0:33:1793",
+        "b:2:2471-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -299,9 +311,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:2474-0:33:1793",
+        "b:2:2474-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -317,9 +329,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:2774-0:33:1793",
+        "b:2:2774-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -335,9 +347,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:2778-0:33:1793",
+        "b:2:2778-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -353,9 +365,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:2784-0:33:1793",
+        "b:2:2784-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -371,9 +383,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:2789-0:33:1793",
+        "b:2:2789-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (
@@ -389,9 +401,9 @@ expression: local_items
         ],
     ),
     (
-        "b:2:3610-0:33:1793",
+        "b:2:3610-0:36:1793",
         [
-            "integration::submod1::AUnitEnum                    0:33:1793            [Enum]",
+            "integration::submod1::AUnitEnum                    0:36:1793            [Enum]",
         ],
     ),
     (

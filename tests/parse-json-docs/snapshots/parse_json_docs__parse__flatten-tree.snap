@@ -214,18 +214,28 @@ expression: treelines.all_lines()
         name.text: "Inherent Impls",
     },
     TreeLine {
-        tag: ImplInherent,
+        tag: Function,
         level: 5,
-        name.text: "FieldsNamedStruct",
+        name.text: "by_rc",
     },
     TreeLine {
         tag: Function,
-        level: 6,
+        level: 5,
+        name.text: "by_ref",
+    },
+    TreeLine {
+        tag: Function,
+        level: 5,
+        name.text: "by_ref_mut",
+    },
+    TreeLine {
+        tag: Function,
+        level: 5,
         name.text: "consume",
     },
     TreeLine {
         tag: Function,
-        level: 6,
+        level: 5,
         name.text: "new",
     },
     TreeLine {
@@ -359,13 +369,8 @@ expression: treelines.all_lines()
         name.text: "Inherent Impls",
     },
     TreeLine {
-        tag: ImplInherent,
-        level: 6,
-        name.text: "AUnitEnum",
-    },
-    TreeLine {
         tag: Function,
-        level: 7,
+        level: 6,
         name.text: "print",
     },
     TreeLine {

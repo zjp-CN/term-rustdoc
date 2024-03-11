@@ -34,6 +34,9 @@ fn fn_items() {
         "pub func_with_1arg(_: FieldsNamedStruct)",
         "pub func_with_1arg_and_ret(f: FieldsNamedStruct) -> submod1::AUnitEnum",
         "pub func_with_no_args()",
+        "pub by_rc(self: std::rc::Rc<Self>)",
+        "pub by_ref(self: )",
+        "pub by_ref_mut(self: )",
         "pub consume(self: Self)",
         "pub new() -> Self",
     ]

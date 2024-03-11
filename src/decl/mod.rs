@@ -1,9 +1,8 @@
+use crate::{tree::IDMap, type_name::short_type_name as type_name};
 use itertools::Itertools;
 use rustdoc_types::{Abi, FnDecl, Function, Header, ItemEnum, Type, Visibility};
 use std::fmt::Write;
 use std::format_args as f;
-
-use crate::{tree::IDMap, type_name::type_name};
 
 fn vis(v: &Visibility, buf: &mut String) {
     match v {

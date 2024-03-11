@@ -32,9 +32,9 @@ fn fn_items() {
     snap!(fns_str, @r###"
     [
         "pub func_with_1arg(_: FieldsNamedStruct)",
-        "pub func_with_1arg_and_ret(f: FieldsNamedStruct) -> submod1::AUnitEnum",
+        "pub func_with_1arg_and_ret(f: FieldsNamedStruct) -> AUnitEnum",
         "pub func_with_no_args()",
-        "pub by_rc(self: std::rc::Rc<Self>)",
+        "pub by_rc(self: Rc<Self>)",
         "pub by_ref(&Self)",
         "pub by_ref_mut(&mut Self)",
         "pub consume(self)",

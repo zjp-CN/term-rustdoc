@@ -1,6 +1,7 @@
 use itertools::Itertools;
-use rustdoc_types::{Abi, FnDecl, Function, Header, ItemEnum, Visibility};
+use rustdoc_types::{Abi, FnDecl, Function, Header, ItemEnum, Type, Visibility};
 use std::fmt::Write;
+use std::format_args as f;
 
 use crate::{tree::IDMap, type_name::type_name};
 
@@ -45,9 +46,29 @@ fn header(h: &Header, buf: &mut String) {
 
 fn fndecl(f: &FnDecl, buf: &mut String) {
     buf.push('(');
-    let args = f.inputs.iter().format_with(", ", |(name, ty), f| {
+    let iter = f.inputs.iter().enumerate();
+    let args = iter.format_with(", ", |(idx, (name, ty)), f| {
+        if idx == 0 && name == "self" {
+            match ty {
+                Type::BorrowedRef {
+                    lifetime,
+                    mutable,
+                    type_,
+                } => {
+                    let ty = type_name(type_).unwrap_or_default();
+                    return match (lifetime, mutable) {
+                        (None, false) => f(&f!("&{ty}")),
+                        (None, true) => f(&f!("&mut {ty}")),
+                        (Some(life), false) => f(&f!("&'{life} {ty}")),
+                        (Some(life), true) => f(&f!("&'{life} mut {ty}")),
+                    };
+                }
+                Type::Generic(s) if s == "Self" => return f(&"self"),
+                _ => (),
+            }
+        }
         let ty = type_name(ty).unwrap_or_default();
-        f(&format_args!("{name}: {ty}"))
+        f(&f!("{name}: {ty}"))
     });
     write!(buf, "{args}").unwrap();
     buf.push(')');

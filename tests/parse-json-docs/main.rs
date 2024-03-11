@@ -12,8 +12,12 @@ use std::{
     str::FromStr,
     sync::LazyLock,
 };
-use term_rustdoc::util::{xformat, CompactStringExt, XString};
+use term_rustdoc::{
+    tree::CrateDoc,
+    util::{xformat, CompactStringExt, XString},
+};
 
+mod fn_item_decl;
 mod generate_doc_json;
 mod parse;
 mod syntect_set;
@@ -22,6 +26,13 @@ static INTEGRATION: LazyLock<JsonDoc> = LazyLock::new(|| {
     tracing_subscriber::fmt::init();
     get_integration_json_doc().expect("failed to get the json doc of tests/integration crate")
 });
+
+fn doc() -> CrateDoc {
+    thread_local! {
+        static DOC: CrateDoc = CrateDoc::new(INTEGRATION.doc.clone());
+    }
+    DOC.with(|d| d.clone())
+}
 
 pub struct PatternId {
     // path: Regex,

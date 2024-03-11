@@ -1,13 +1,10 @@
-use crate::{shot, snap, INTEGRATION};
+use crate::{doc, shot, snap};
 use similar_asserts::assert_eq;
-use term_rustdoc::tree::{CrateDoc, Show, TreeLines};
+use term_rustdoc::tree::{Show, TreeLines};
 
 #[test]
 fn parse_module() {
-    let doc = &INTEGRATION.doc;
-    let (treelines, empty) = TreeLines::new_with(CrateDoc::new(doc.clone()), |doc| {
-        doc.dmodule_show_prettier()
-    });
+    let (treelines, empty) = TreeLines::new_with(doc(), |doc| doc.dmodule_show_prettier());
     let doc = treelines.doc();
     let dmod = doc.dmodule();
     snap!("DModule", dmod);

@@ -260,10 +260,8 @@ fn item_name(item: &Item) -> Option<XString> {
             let implementor = item
                 .blanket_impl
                 .as_ref()
-                .and_then(long)
-                .or_else(|| long(&item.for_))
-                .unwrap_or_default();
-            if let Some(trait_) = item.trait_.as_ref().and_then(long_path) {
+                .map_or_else(|| long(&item.for_), long);
+            if let Some(trait_) = item.trait_.as_ref().map(long_path) {
                 Some(xformat!("{implementor}: {trait_}"))
             } else {
                 Some(xformat!("{implementor}"))

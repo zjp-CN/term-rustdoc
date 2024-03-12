@@ -54,7 +54,7 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
                     mutable,
                     type_,
                 } => {
-                    let mut ty = short(type_).unwrap_or_default();
+                    let mut ty = short(type_);
                     if ty == "Self" {
                         ty.clear();
                         ty.push_str("self");
@@ -70,16 +70,14 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
                 _ => (),
             }
         }
-        let ty = short(ty).unwrap_or_default();
+        let ty = short(ty);
         f(&f!("{name}: {ty}"))
     });
     write!(buf, "{args}").unwrap();
     buf.push(')');
     if let Some(ty) = &f.output {
         buf.push_str(" -> ");
-        if let Some(output) = short(ty) {
-            buf.push_str(&output);
-        }
+        buf.push_str(&short(ty));
     }
 }
 

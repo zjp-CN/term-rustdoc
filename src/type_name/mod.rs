@@ -9,10 +9,10 @@ use std::fmt::Write;
 mod short_or_long;
 pub use short_or_long::{long_path, short_path};
 
-trait TypeName: Copy + FnOnce(&Type) -> Option<XString> {}
-impl<F> TypeName for F where F: Copy + FnOnce(&Type) -> Option<XString> {}
-trait ResolvePath: Copy + FnOnce(&Path) -> Option<XString> {}
-impl<F> ResolvePath for F where F: Copy + FnOnce(&Path) -> Option<XString> {}
+trait TypeName: Copy + FnOnce(&Type) -> XString {}
+impl<F> TypeName for F where F: Copy + FnOnce(&Type) -> XString {}
+trait ResolvePath: Copy + FnOnce(&Path) -> XString {}
+impl<F> ResolvePath for F where F: Copy + FnOnce(&Path) -> XString {}
 
 trait FindName {
     fn type_name() -> impl TypeName;
@@ -47,29 +47,29 @@ impl FindName for Long {
 const COMMA: XString = XString::new_inline(", ");
 const PLUS: XString = XString::new_inline(" + ");
 
-fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
+fn typename<Kind: FindName>(ty: &Type) -> XString {
     let resolve_path = Kind::resolve_path();
     match ty {
         Type::ResolvedPath(p) => resolve_path(p),
-        Type::Generic(t) | Type::Primitive(t) => Some(t.as_str().into()),
+        Type::Generic(t) | Type::Primitive(t) => t.as_str().into(),
         Type::BorrowedRef {
             lifetime,
             mutable,
             type_,
         } => borrow_ref::<Kind>(type_, lifetime, mutable),
         Type::Tuple(v) => {
-            let iter = v.iter().map(|ty| typename::<Kind>(ty).unwrap_or_default());
+            let iter = v.iter().map(|ty| typename::<Kind>(ty));
             let ty = XString::from_iter(intersperse(iter, COMMA));
-            Some(xformat!("({ty})"))
+            xformat!("({ty})")
         }
         Type::Slice(ty) => typename::<Kind>(ty),
         Type::Array { type_, len } => {
-            let ty = typename::<Kind>(type_)?;
-            Some(xformat!("[{ty}; {len}]"))
+            let ty = typename::<Kind>(type_);
+            xformat!("[{ty}; {len}]")
         }
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
-        Type::Infer => Some(XString::new_inline("_")),
-        _ => None,
+        Type::Infer => XString::new_inline("_"),
+        _ => XString::new_inline(""),
         // Type::FunctionPointer(_) => todo!(),
         // Type::ImplTrait(_) => todo!(),
         // Type::RawPointer { mutable, type_ } => todo!(),
@@ -82,11 +82,7 @@ fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
     }
 }
 
-fn borrow_ref<Kind: FindName>(
-    type_: &Type,
-    lifetime: &Option<String>,
-    mutable: &bool,
-) -> Option<XString> {
+fn borrow_ref<Kind: FindName>(type_: &Type, lifetime: &Option<String>, mutable: &bool) -> XString {
     let mut buf = match (lifetime, mutable) {
         (None, false) => xformat!("&"),
         (None, true) => xformat!("&mut "),
@@ -94,27 +90,27 @@ fn borrow_ref<Kind: FindName>(
         (Some(life), true) => xformat!("&{life} mut "),
     };
     if let Type::DynTrait(d) = type_ {
-        let (ty, add) = parenthesized_type::<Kind>(d)?;
+        let (ty, add) = parenthesized_type::<Kind>(d);
         if add {
             write!(buf, "({ty})").unwrap();
         } else {
             buf.push_str(&ty);
         }
     } else {
-        buf.push_str(&typename::<Kind>(type_)?);
+        buf.push_str(&typename::<Kind>(type_));
     }
-    Some(buf)
+    buf
 }
 
-pub fn long(ty: &Type) -> Option<XString> {
+pub fn long(ty: &Type) -> XString {
     typename::<Long>(ty)
 }
 
-pub fn short(ty: &Type) -> Option<XString> {
+pub fn short(ty: &Type) -> XString {
     typename::<Short>(ty)
 }
 
-fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option<XString> {
+fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> XString {
     let resolve_path = Kind::resolve_path();
     let iter = traits.iter().map(
         |PolyTrait {
@@ -124,15 +120,15 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option
             let iter = generic_params.iter().map(generic_param_def::<Kind>);
             let hrtb = XString::from_iter(intersperse(iter, COMMA));
             let sep = if generic_params.is_empty() { "" } else { " " };
-            let ty = resolve_path(trait_).unwrap_or_default();
+            let ty = resolve_path(trait_);
             xformat!("{hrtb}{sep}{ty}")
         },
     );
     let path = intersperse(iter, PLUS).collect::<XString>();
-    Some(lifetime.as_deref().map_or_else(
+    lifetime.as_deref().map_or_else(
         || xformat!("dyn {path}"),
         |life| xformat!("dyn {life} + {path}"),
-    ))
+    )
 }
 
 /// Ref: <https://doc.rust-lang.org/reference/types.html#parenthesized-types>
@@ -140,8 +136,9 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option
 /// dyn multi-Traits behind a reference or raw pointer type needs `()` disambiguation.
 ///
 /// bool means whether the XString should be added `()`.
-fn parenthesized_type<Kind: FindName>(d: &DynTrait) -> Option<(XString, bool)> {
-    dyn_trait::<Kind>(d).map(|s| (s, d.traits.len() + d.lifetime.is_some() as usize > 1))
+fn parenthesized_type<Kind: FindName>(d: &DynTrait) -> (XString, bool) {
+    let s = dyn_trait::<Kind>(d);
+    (s, d.traits.len() + d.lifetime.is_some() as usize > 1)
 }
 
 fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericParamDef) -> XString {
@@ -163,7 +160,7 @@ fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericPar
                     generic_params,
                     modifier,
                 } => {
-                    let path = resolve_path(trait_).unwrap_or_default();
+                    let path = resolve_path(trait_);
                     let args = XString::from_iter(intersperse(
                         generic_params.iter().map(generic_param_def::<Kind>),
                         PLUS,
@@ -181,13 +178,13 @@ fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericPar
                 XString::from_iter(intersperse(iter, PLUS)),
                 default
                     .as_ref()
-                    .map(|ty| xformat!(" = {}", type_name(ty).unwrap_or_default()))
+                    .map(|ty| xformat!(" = {}", type_name(ty)))
                     .unwrap_or_default()
             )
         }
         GenericParamDefKind::Const { type_, default } => xformat!(
             "{name}: {}{}",
-            type_name(type_).unwrap_or_default(),
+            type_name(type_),
             default
                 .as_deref()
                 .map(|s| xformat!(" = {s}"))
@@ -196,12 +193,12 @@ fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericPar
     }
 }
 
-fn generic_arg_name<Kind: FindName>(arg: &GenericArg) -> Option<XString> {
+fn generic_arg_name<Kind: FindName>(arg: &GenericArg) -> XString {
     let type_name = Kind::type_name();
     match arg {
-        GenericArg::Lifetime(life) => Some(life.as_str().into()),
+        GenericArg::Lifetime(life) => life.as_str().into(),
         GenericArg::Type(ty) => type_name(ty),
-        GenericArg::Const(_) => None,
-        GenericArg::Infer => Some(XString::new_inline("_")),
+        GenericArg::Const(_) => todo!(),
+        GenericArg::Infer => XString::new_inline("_"),
     }
 }

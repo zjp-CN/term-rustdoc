@@ -1,4 +1,4 @@
-use super::{generic_arg_name, long, short, COMMA};
+use super::{generic_arg_name, long, short, Long, Short, COMMA};
 use crate::util::{xformat, XString};
 use itertools::intersperse;
 use rustdoc_types::{GenericArgs, Path};
@@ -13,7 +13,7 @@ pub fn long_path(p: &Path) -> Option<XString> {
             } else {
                 let arg: XString = intersperse(
                     args.iter()
-                        .map(|a| generic_arg_name(a, long).unwrap_or_default()),
+                        .map(|a| generic_arg_name::<Long>(a).unwrap_or_default()),
                     COMMA,
                 )
                 .collect();
@@ -47,7 +47,7 @@ pub fn short_path(p: &Path) -> Option<XString> {
             } else {
                 let arg: XString = intersperse(
                     args.iter()
-                        .map(|a| generic_arg_name(a, short).unwrap_or_default()),
+                        .map(|a| generic_arg_name::<Short>(a).unwrap_or_default()),
                     COMMA,
                 )
                 .collect();

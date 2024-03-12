@@ -8,19 +8,46 @@ use rustdoc_types::{
 mod short_or_long;
 pub use short_or_long::{long_path, short_path};
 
-pub trait TypeName: Copy + Fn(&Type) -> Option<XString> {}
+trait TypeName: Copy + Fn(&Type) -> Option<XString> {}
 impl<F> TypeName for F where F: Copy + Fn(&Type) -> Option<XString> {}
-pub trait ResolvePath: Copy + Fn(&Path) -> Option<XString> {}
+trait ResolvePath: Copy + Fn(&Path) -> Option<XString> {}
 impl<F> ResolvePath for F where F: Copy + Fn(&Path) -> Option<XString> {}
+
+trait FindName {
+    fn type_name() -> impl TypeName;
+    fn resolve_path() -> impl ResolvePath;
+    fn type_and_path() -> (impl TypeName, impl ResolvePath) {
+        (Self::type_name(), Self::resolve_path())
+    }
+}
+
+struct Short;
+
+impl FindName for Short {
+    fn type_name() -> impl TypeName {
+        short
+    }
+    fn resolve_path() -> impl ResolvePath {
+        short_path
+    }
+}
+
+struct Long;
+
+impl FindName for Long {
+    fn type_name() -> impl TypeName {
+        long
+    }
+    fn resolve_path() -> impl ResolvePath {
+        long_path
+    }
+}
 
 const COMMA: XString = XString::new_inline(", ");
 const PLUS: XString = XString::new_inline(" + ");
 
-fn typename(
-    ty: &Type,
-    resolve_path: impl ResolvePath,
-    type_name: impl TypeName,
-) -> Option<XString> {
+fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
+    let resolve_path = Kind::resolve_path();
     match ty {
         Type::ResolvedPath(p) => resolve_path(p),
         Type::Generic(t) => Some(t.as_str().into()),
@@ -28,13 +55,13 @@ fn typename(
             lifetime,
             mutable,
             type_,
-        } => typename(type_, resolve_path, type_name).map(|ty| match (lifetime, mutable) {
+        } => typename::<Kind>(type_).map(|ty| match (lifetime, mutable) {
             (None, false) => xformat!("&{ty}"),
             (None, true) => xformat!("&mut {ty}"),
             (Some(life), false) => xformat!("&'{life} {ty}"),
             (Some(life), true) => xformat!("&'{life} mut {ty}"),
         }),
-        Type::DynTrait(poly) => dyn_trait(poly, resolve_path, type_name),
+        Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
         _ => None,
         // Type::Primitive(_) => todo!(),
         // Type::FunctionPointer(_) => todo!(),
@@ -54,27 +81,22 @@ fn typename(
 }
 
 pub fn long(ty: &Type) -> Option<XString> {
-    typename(ty, long_path, long)
+    typename::<Long>(ty)
 }
 
 pub fn short(ty: &Type) -> Option<XString> {
-    typename(ty, short_path, short)
+    typename::<Short>(ty)
 }
 
-fn dyn_trait(
-    DynTrait { traits, lifetime }: &DynTrait,
-    resolve_path: impl ResolvePath,
-    type_name: impl TypeName,
-) -> Option<XString> {
+fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option<XString> {
     dbg!(traits);
+    let resolve_path = Kind::resolve_path();
     let iter = traits.iter().map(
         |PolyTrait {
              trait_,
              generic_params,
          }| {
-            let iter = generic_params
-                .iter()
-                .map(|a| generic_param_def(a, resolve_path, type_name));
+            let iter = generic_params.iter().map(generic_param_def::<Kind>);
             let hrtb = XString::from_iter(intersperse(iter, COMMA));
             let ty = resolve_path(trait_).unwrap_or_default();
             xformat!("{hrtb} {ty}")
@@ -87,11 +109,8 @@ fn dyn_trait(
     ))
 }
 
-fn generic_param_def(
-    GenericParamDef { name, kind }: &GenericParamDef,
-    resolve_path: impl ResolvePath,
-    type_name: impl TypeName,
-) -> XString {
+fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericParamDef) -> XString {
+    let (type_name, resolve_path) = Kind::type_and_path();
     match kind {
         GenericParamDefKind::Lifetime { outlives } => {
             let outlives = outlives.iter().map(XString::from);
@@ -111,9 +130,7 @@ fn generic_param_def(
                 } => {
                     let path = resolve_path(trait_).unwrap_or_default();
                     let args = XString::from_iter(intersperse(
-                        generic_params
-                            .iter()
-                            .map(|a| generic_param_def(a, resolve_path, type_name)),
+                        generic_params.iter().map(generic_param_def::<Kind>),
                         PLUS,
                     ));
                     match modifier {
@@ -144,7 +161,8 @@ fn generic_param_def(
     }
 }
 
-fn generic_arg_name(arg: &GenericArg, type_name: impl TypeName) -> Option<XString> {
+fn generic_arg_name<Kind: FindName>(arg: &GenericArg) -> Option<XString> {
+    let type_name = Kind::type_name();
     match arg {
         GenericArg::Lifetime(life) => Some(life.as_str().into()),
         GenericArg::Type(ty) => type_name(ty),

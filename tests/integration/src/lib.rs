@@ -73,6 +73,7 @@ pub fn func_primitive(s: &str) -> usize {
 pub fn func_tuple_array_slice<'a, 'b>(
     a: &'a [u8],
     b: &'b mut [u8; 8],
+    _: &'b mut (dyn 'a + ATrait),
 ) -> (&'a [u8], &'b mut [u8; 8]) {
     (a, b)
 }

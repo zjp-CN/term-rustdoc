@@ -90,8 +90,8 @@ fn borrow_ref<Kind: FindName>(
     let mut buf = match (lifetime, mutable) {
         (None, false) => xformat!("&"),
         (None, true) => xformat!("&mut "),
-        (Some(life), false) => xformat!("&'{life} "),
-        (Some(life), true) => xformat!("&'{life} mut "),
+        (Some(life), false) => xformat!("&{life} "),
+        (Some(life), true) => xformat!("&{life} mut "),
     };
     if let Type::DynTrait(d) = type_ {
         let (ty, add) = parenthesized_type::<Kind>(d)?;
@@ -131,7 +131,7 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option
     let path = intersperse(iter, PLUS).collect::<XString>();
     Some(lifetime.as_deref().map_or_else(
         || xformat!("dyn {path}"),
-        |life| xformat!("dyn '{life} + {path}"),
+        |life| xformat!("dyn {life} + {path}"),
     ))
 }
 

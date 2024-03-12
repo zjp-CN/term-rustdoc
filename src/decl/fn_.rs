@@ -62,8 +62,8 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
                     return match (lifetime, mutable) {
                         (None, false) => f(&f!("&{ty}")),
                         (None, true) => f(&f!("&mut {ty}")),
-                        (Some(life), false) => f(&f!("&'{life} {ty}")),
-                        (Some(life), true) => f(&f!("&'{life} mut {ty}")),
+                        (Some(life), false) => f(&f!("&{life} {ty}")),
+                        (Some(life), true) => f(&f!("&{life} mut {ty}")),
                     };
                 }
                 Type::Generic(s) if s == "Self" => return f(&"self"),

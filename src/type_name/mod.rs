@@ -1,13 +1,13 @@
 use crate::util::{xformat, XString};
 use itertools::intersperse;
-use rustdoc_types::{
-    DynTrait, GenericArg, GenericBound, GenericParamDef, GenericParamDefKind, Path, PolyTrait,
-    TraitBoundModifier, Type,
-};
+use rustdoc_types::{DynTrait, Path, PolyTrait, Type};
 use std::fmt::Write;
 
 mod short_or_long;
 pub use short_or_long::{long_path, short_path};
+
+mod generic;
+pub use generic::generics;
 
 trait TypeName: Copy + FnOnce(&Type) -> XString {}
 impl<F> TypeName for F where F: Copy + FnOnce(&Type) -> XString {}
@@ -17,9 +17,9 @@ impl<F> ResolvePath for F where F: Copy + FnOnce(&Path) -> XString {}
 trait FindName {
     fn type_name() -> impl TypeName;
     fn resolve_path() -> impl ResolvePath;
-    fn type_and_path() -> (impl TypeName, impl ResolvePath) {
-        (Self::type_name(), Self::resolve_path())
-    }
+    // fn type_and_path() -> (impl TypeName, impl ResolvePath) {
+    //     (Self::type_name(), Self::resolve_path())
+    // }
 }
 
 struct Short;
@@ -46,6 +46,9 @@ impl FindName for Long {
 
 const COMMA: XString = XString::new_inline(", ");
 const PLUS: XString = XString::new_inline(" + ");
+const INFER: XString = XString::new_inline("_");
+const EMPTY: XString = XString::new_inline("");
+const COLON: XString = XString::new_inline(": ");
 
 fn typename<Kind: FindName>(ty: &Type) -> XString {
     let resolve_path = Kind::resolve_path();
@@ -68,8 +71,8 @@ fn typename<Kind: FindName>(ty: &Type) -> XString {
             xformat!("[{ty}; {len}]")
         }
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
-        Type::Infer => XString::new_inline("_"),
-        _ => XString::new_inline(""),
+        Type::Infer => INFER,
+        _ => EMPTY,
         // Type::FunctionPointer(_) => todo!(),
         // Type::ImplTrait(_) => todo!(),
         // Type::RawPointer { mutable, type_ } => todo!(),
@@ -117,9 +120,8 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> XStrin
              trait_,
              generic_params,
          }| {
-            let iter = generic_params.iter().map(generic_param_def::<Kind>);
-            let hrtb = XString::from_iter(intersperse(iter, COMMA));
-            let sep = if generic_params.is_empty() { "" } else { " " };
+            let [sep, hrtb] = generic::generic_param_def_for_slice::<Kind>(generic_params);
+            let sep = if sep.is_empty() { "" } else { " " };
             let ty = resolve_path(trait_);
             xformat!("{hrtb}{sep}{ty}")
         },
@@ -139,66 +141,4 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> XStrin
 fn parenthesized_type<Kind: FindName>(d: &DynTrait) -> (XString, bool) {
     let s = dyn_trait::<Kind>(d);
     (s, d.traits.len() + d.lifetime.is_some() as usize > 1)
-}
-
-fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericParamDef) -> XString {
-    let (type_name, resolve_path) = Kind::type_and_path();
-    match kind {
-        GenericParamDefKind::Lifetime { outlives } => {
-            let outlives = outlives.iter().map(XString::from);
-            xformat!(
-                "{name}: {}",
-                XString::from_iter(intersperse(outlives, PLUS))
-            )
-        }
-        GenericParamDefKind::Type {
-            bounds, default, ..
-        } => {
-            let iter = bounds.iter().map(|b| match b {
-                GenericBound::TraitBound {
-                    trait_,
-                    generic_params,
-                    modifier,
-                } => {
-                    let path = resolve_path(trait_);
-                    let args = XString::from_iter(intersperse(
-                        generic_params.iter().map(generic_param_def::<Kind>),
-                        PLUS,
-                    ));
-                    match modifier {
-                        TraitBoundModifier::None => xformat!("{path}<{args}>"),
-                        TraitBoundModifier::Maybe => xformat!("?{path}<{args}>"),
-                        TraitBoundModifier::MaybeConst => xformat!("~const {path}<{args}>"),
-                    }
-                }
-                GenericBound::Outlives(life) => XString::from(life.as_str()),
-            });
-            xformat!(
-                "{name}: {}{}",
-                XString::from_iter(intersperse(iter, PLUS)),
-                default
-                    .as_ref()
-                    .map(|ty| xformat!(" = {}", type_name(ty)))
-                    .unwrap_or_default()
-            )
-        }
-        GenericParamDefKind::Const { type_, default } => xformat!(
-            "{name}: {}{}",
-            type_name(type_),
-            default
-                .as_deref()
-                .map(|s| xformat!(" = {s}"))
-                .unwrap_or_default()
-        ),
-    }
-}
-
-fn generic_arg_name<Kind: FindName>(arg: &GenericArg) -> XString {
-    let type_name = Kind::type_name();
-    match arg {
-        GenericArg::Lifetime(life) => life.as_str().into(),
-        GenericArg::Type(ty) => type_name(ty),
-        GenericArg::Const(_) => todo!(),
-        GenericArg::Infer => XString::new_inline("_"),
-    }
 }

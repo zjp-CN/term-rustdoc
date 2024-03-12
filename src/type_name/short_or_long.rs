@@ -1,4 +1,4 @@
-use super::{generic_arg_name, long, short, Long, Short, COMMA};
+use super::{generic::generic_arg_name, long, short, Long, Short, COMMA};
 use crate::util::{xformat, XString};
 use itertools::intersperse;
 use rustdoc_types::{GenericArgs, Path};

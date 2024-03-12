@@ -1,3 +1,4 @@
+use crate::type_name::generics;
 use crate::{tree::IDMap, type_name::short};
 use itertools::Itertools;
 use rustdoc_types::{Abi, FnDecl, Function, Header, ItemEnum, Type, Visibility};
@@ -13,7 +14,7 @@ fn vis(v: &Visibility, buf: &mut String) {
     };
 }
 
-fn header(h: &Header, buf: &mut String) {
+fn fn_header(h: &Header, buf: &mut String) {
     let Header {
         const_,
         unsafe_,
@@ -43,7 +44,7 @@ fn header(h: &Header, buf: &mut String) {
     };
 }
 
-fn fndecl(f: &FnDecl, buf: &mut String) {
+fn fn_decl(f: &FnDecl, buf: &mut String) {
     buf.push('(');
     let iter = f.inputs.iter().enumerate();
     let args = iter.format_with(", ", |(idx, (name, ty)), f| {
@@ -81,12 +82,28 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
     }
 }
 
-fn parse_fn(v: &Visibility, fname: &str, fn_item: &Function) -> String {
+fn parse_fn(
+    v: &Visibility,
+    fname: &str,
+    Function {
+        decl,
+        generics: g,
+        header,
+        ..
+    }: &Function,
+) -> String {
     let mut buf = String::with_capacity(128);
     vis(v, &mut buf);
     buf.push_str(fname);
-    header(&fn_item.header, &mut buf);
-    fndecl(&fn_item.decl, &mut buf);
+    let (def, where_) = generics(g);
+    if !def.is_empty() {
+        write!(buf, "<{def}>").unwrap();
+    }
+    fn_header(header, &mut buf);
+    fn_decl(decl, &mut buf);
+    if !where_.is_empty() {
+        write!(buf, " where {where_}").unwrap();
+    }
     buf
 }
 

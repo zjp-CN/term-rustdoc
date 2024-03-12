@@ -77,6 +77,19 @@ pub fn func_tuple_array_slice<'a, 'b>(
 ) -> (&'a [u8], &'b mut [u8; 8]) {
     (a, b)
 }
+pub fn func_with_const<T: Copy, const N: usize>(t: T) -> [T; N] {
+    [t; N]
+}
+pub fn func_lifetime_bounds<'a, 'b: 'a>()
+where
+    'a: 'b,
+{
+}
+pub fn func_trait_bounds<T: Copy>()
+where
+    T: Clone,
+{
+}
 
 pub const ACONSTANT: u8 = 123;
 pub const ASTATIC: u8 = 123;

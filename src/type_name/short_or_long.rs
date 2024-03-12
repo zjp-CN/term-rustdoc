@@ -11,14 +11,18 @@ pub fn long_path(p: &Path) -> Option<XString> {
             if args.is_empty() {
                 Some(name.into())
             } else {
-                let arg: XString =
-                    intersperse(args.iter().filter_map(|a| generic_arg_name(a, long)), COMMA)
-                        .collect();
+                let arg: XString = intersperse(
+                    args.iter()
+                        .map(|a| generic_arg_name(a, long).unwrap_or_default()),
+                    COMMA,
+                )
+                .collect();
                 Some(xformat!("{name}<{arg}>"))
             }
         }
         Some(GenericArgs::Parenthesized { inputs, output }) => {
-            let args: XString = intersperse(inputs.iter().filter_map(long), COMMA).collect();
+            let args: XString =
+                intersperse(inputs.iter().map(|a| long(a).unwrap_or_default()), COMMA).collect();
             let ret = output
                 .as_ref()
                 .and_then(|t| Some(xformat!(" -> {}", long(t)?)))
@@ -42,7 +46,8 @@ pub fn short_path(p: &Path) -> Option<XString> {
                 Some(name.into())
             } else {
                 let arg: XString = intersperse(
-                    args.iter().filter_map(|a| generic_arg_name(a, short)),
+                    args.iter()
+                        .map(|a| generic_arg_name(a, short).unwrap_or_default()),
                     COMMA,
                 )
                 .collect();
@@ -50,7 +55,8 @@ pub fn short_path(p: &Path) -> Option<XString> {
             }
         }
         Some(GenericArgs::Parenthesized { inputs, output }) => {
-            let args: XString = intersperse(inputs.iter().filter_map(short), COMMA).collect();
+            let args: XString =
+                intersperse(inputs.iter().map(|a| short(a).unwrap_or_default()), COMMA).collect();
             let ret = output
                 .as_ref()
                 .and_then(|t| Some(xformat!(" -> {}", short(t)?)))

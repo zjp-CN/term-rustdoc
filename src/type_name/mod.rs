@@ -57,14 +57,21 @@ fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
             mutable,
             type_,
         } => borrow_ref::<Kind>(type_, lifetime, mutable),
+        Type::Tuple(v) => {
+            let iter = v.iter().map(|ty| typename::<Kind>(ty).unwrap_or_default());
+            let ty = XString::from_iter(intersperse(iter, COMMA));
+            Some(xformat!("({ty})"))
+        }
+        Type::Slice(ty) => typename::<Kind>(ty),
+        Type::Array { type_, len } => {
+            let ty = typename::<Kind>(type_)?;
+            Some(xformat!("[{ty}; {len}]"))
+        }
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
+        Type::Infer => Some(XString::new_inline("_")),
         _ => None,
         // Type::FunctionPointer(_) => todo!(),
-        // Type::Tuple(_) => todo!(),
-        // Type::Slice(_) => todo!(),
-        // Type::Array { type_, len } => todo!(),
         // Type::ImplTrait(_) => todo!(),
-        // Type::Infer => todo!(),
         // Type::RawPointer { mutable, type_ } => todo!(),
         // Type::QualifiedPath {
         //     name,

@@ -70,6 +70,12 @@ pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>) {}
 pub fn func_primitive(s: &str) -> usize {
     s.len()
 }
+pub fn func_tuple_array_slice<'a, 'b>(
+    a: &'a [u8],
+    b: &'b mut [u8; 8],
+) -> (&'a [u8], &'b mut [u8; 8]) {
+    (a, b)
+}
 
 pub const ACONSTANT: u8 = 123;
 pub const ASTATIC: u8 = 123;

@@ -33,6 +33,7 @@ fn fn_items() {
     [
         "pub func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait",
         "pub func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)",
+        "pub func_primitive(s: &str) -> usize",
         "pub func_with_1arg(_: FieldsNamedStruct)",
         "pub func_with_1arg_and_ret(f: FieldsNamedStruct) -> AUnitEnum",
         "pub func_with_no_args()",

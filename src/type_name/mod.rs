@@ -51,7 +51,7 @@ fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
     let resolve_path = Kind::resolve_path();
     match ty {
         Type::ResolvedPath(p) => resolve_path(p),
-        Type::Generic(t) => Some(t.as_str().into()),
+        Type::Generic(t) | Type::Primitive(t) => Some(t.as_str().into()),
         Type::BorrowedRef {
             lifetime,
             mutable,
@@ -59,7 +59,6 @@ fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
         } => borrow_ref::<Kind>(type_, lifetime, mutable),
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
         _ => None,
-        // Type::Primitive(_) => todo!(),
         // Type::FunctionPointer(_) => todo!(),
         // Type::Tuple(_) => todo!(),
         // Type::Slice(_) => todo!(),

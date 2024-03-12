@@ -67,6 +67,9 @@ pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait {
     d
 }
 pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>) {}
+pub fn func_primitive(s: &str) -> usize {
+    s.len()
+}
 
 pub const ACONSTANT: u8 = 123;
 pub const ASTATIC: u8 = 123;

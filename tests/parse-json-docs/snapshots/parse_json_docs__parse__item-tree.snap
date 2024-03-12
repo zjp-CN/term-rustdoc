@@ -4,6 +4,8 @@ expression: dmod.item_tree(&doc)
 ---
 integration
 ├── [Fn] func_dyn_trait
+├── [Fn] func_dyn_trait2
+├── [Fn] func_primitive
 ├── [Fn] func_with_1arg
 ├── [Fn] func_with_1arg_and_ret
 ├── [Fn] func_with_no_args

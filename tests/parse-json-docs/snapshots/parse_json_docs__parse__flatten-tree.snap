@@ -21,6 +21,16 @@ expression: treelines.all_lines()
     TreeLine {
         tag: Function,
         level: 2,
+        name.text: "func_dyn_trait2",
+    },
+    TreeLine {
+        tag: Function,
+        level: 2,
+        name.text: "func_primitive",
+    },
+    TreeLine {
+        tag: Function,
+        level: 2,
         name.text: "func_with_1arg",
     },
     TreeLine {

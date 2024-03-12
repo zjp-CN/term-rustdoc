@@ -24,6 +24,7 @@ mod syntect_set;
 
 static INTEGRATION: LazyLock<JsonDoc> = LazyLock::new(|| {
     tracing_subscriber::fmt::init();
+    println!("start!");
     get_integration_json_doc().expect("failed to get the json doc of tests/integration crate")
 });
 
@@ -148,6 +149,8 @@ fn basic_info() -> Result<()> {
         "integration::FieldsNamedStruct                     [Struct]",
         "integration::a_decl_macro                          [Macro]",
         "integration::func_dyn_trait                        [Function]",
+        "integration::func_dyn_trait2                       [Function]",
+        "integration::func_primitive                        [Function]",
         "integration::func_with_1arg                        [Function]",
         "integration::func_with_1arg_and_ret                [Function]",
         "integration::func_with_no_args                     [Function]",
@@ -162,13 +165,13 @@ fn basic_info() -> Result<()> {
     "###);
 
     // item counts
-    shot!(doc.paths.len(), @"2007");
-    shot!(js.local_path().count(), @"18");
-    shot!(doc.index.len(), @"161");
-    shot!(js.local_index().count(), @"72");
+    shot!(doc.paths.len(), @"2009");
+    shot!(js.local_path().count(), @"20");
+    shot!(doc.index.len(), @"163");
+    shot!(js.local_index().count(), @"74");
 
     // data sizes
-    shot!(ByteSize(json.len() as _), @"371.3 KB");
+    shot!(ByteSize(json.len() as _), @"372.9 KB");
 
     Ok(())
 }
@@ -207,7 +210,7 @@ fn compression() -> Result<()> {
         "[raw json text => xz] {}",
         reduced_size(json_size, compress(json.as_bytes())?)
     );
-    shot!(json_compression, @"[raw json text => xz] 371.3 KB => 44.5 KB (-88%)");
+    shot!(json_compression, @"[raw json text => xz] 372.9 KB => 44.7 KB (-88%)");
 
     let [bin_size, xz_size] = compress_bin(doc)?;
     let bin_compression = format!(
@@ -219,9 +222,9 @@ fn compression() -> Result<()> {
         reduced_size(json_size, xz_size)
     );
     shot!(bin_compression, @r###"
-    [raw json text => bb] 371.3 KB => 179.3 KB (-52%)
-    [binary bytes  => xz] 179.3 KB => 42.5 KB (-76%)
-    [raw json text => xz] 371.3 KB => 42.5 KB (-89%) 
+    [raw json text => bb] 372.9 KB => 179.7 KB (-52%)
+    [binary bytes  => xz] 179.7 KB => 42.5 KB (-76%)
+    [raw json text => xz] 372.9 KB => 42.5 KB (-89%) 
     "###);
 
     Ok(())

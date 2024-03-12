@@ -54,7 +54,11 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
                     mutable,
                     type_,
                 } => {
-                    let ty = short(type_).unwrap_or_default();
+                    let mut ty = short(type_).unwrap_or_default();
+                    if ty == "Self" {
+                        ty.clear();
+                        ty.push_str("self");
+                    }
                     return match (lifetime, mutable) {
                         (None, false) => f(&f!("&{ty}")),
                         (None, true) => f(&f!("&mut {ty}")),

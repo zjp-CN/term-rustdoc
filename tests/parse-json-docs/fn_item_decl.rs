@@ -39,3 +39,39 @@ fn fn_items() {
     ]
     "###);
 }
+
+#[test]
+fn methods() {
+    let map = &doc();
+    let dmod = map.dmodule();
+    let mut fns_str = Vec::new();
+    for struct_ in &dmod.structs {
+        for inh in &*struct_.impls.merged_inherent.functions {
+            fns_str.push(fn_item(&inh.id, map));
+        }
+    }
+    for enum_ in &dmod.enums {
+        for inh in &*enum_.impls.merged_inherent.functions {
+            fns_str.push(fn_item(&inh.id, map));
+        }
+    }
+    for union_ in &dmod.unions {
+        for inh in &*union_.impls.merged_inherent.functions {
+            fns_str.push(fn_item(&inh.id, map));
+        }
+    }
+    for trait_ in &dmod.traits {
+        for fn_ in &*trait_.functions {
+            fns_str.push(fn_item(&fn_.id, map));
+        }
+    }
+    snap!(fns_str, @r###"
+    [
+        "pub by_rc(self: Rc<Self>)",
+        "pub by_ref(&self)",
+        "pub by_ref_mut(&mut self)",
+        "pub consume(self)",
+        "pub new() -> Self",
+    ]
+    "###);
+}

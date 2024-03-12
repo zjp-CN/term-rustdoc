@@ -8,10 +8,10 @@ use rustdoc_types::{
 mod short_or_long;
 pub use short_or_long::{long_path, short_path};
 
-trait TypeName: Copy + Fn(&Type) -> Option<XString> {}
-impl<F> TypeName for F where F: Copy + Fn(&Type) -> Option<XString> {}
-trait ResolvePath: Copy + Fn(&Path) -> Option<XString> {}
-impl<F> ResolvePath for F where F: Copy + Fn(&Path) -> Option<XString> {}
+trait TypeName: Copy + FnOnce(&Type) -> Option<XString> {}
+impl<F> TypeName for F where F: Copy + FnOnce(&Type) -> Option<XString> {}
+trait ResolvePath: Copy + FnOnce(&Path) -> Option<XString> {}
+impl<F> ResolvePath for F where F: Copy + FnOnce(&Path) -> Option<XString> {}
 
 trait FindName {
     fn type_name() -> impl TypeName;

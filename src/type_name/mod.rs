@@ -4,6 +4,7 @@ use rustdoc_types::{
     DynTrait, GenericArg, GenericBound, GenericParamDef, GenericParamDefKind, Path, PolyTrait,
     TraitBoundModifier, Type,
 };
+use std::fmt::Write;
 
 mod short_or_long;
 pub use short_or_long::{long_path, short_path};
@@ -55,12 +56,7 @@ fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
             lifetime,
             mutable,
             type_,
-        } => typename::<Kind>(type_).map(|ty| match (lifetime, mutable) {
-            (None, false) => xformat!("&{ty}"),
-            (None, true) => xformat!("&mut {ty}"),
-            (Some(life), false) => xformat!("&'{life} {ty}"),
-            (Some(life), true) => xformat!("&'{life} mut {ty}"),
-        }),
+        } => borrow_ref::<Kind>(type_, lifetime, mutable),
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
         _ => None,
         // Type::Primitive(_) => todo!(),
@@ -80,6 +76,30 @@ fn typename<Kind: FindName>(ty: &Type) -> Option<XString> {
     }
 }
 
+fn borrow_ref<Kind: FindName>(
+    type_: &Type,
+    lifetime: &Option<String>,
+    mutable: &bool,
+) -> Option<XString> {
+    let mut buf = match (lifetime, mutable) {
+        (None, false) => xformat!("&"),
+        (None, true) => xformat!("&mut "),
+        (Some(life), false) => xformat!("&'{life} "),
+        (Some(life), true) => xformat!("&'{life} mut "),
+    };
+    if let Type::DynTrait(d) = type_ {
+        let (ty, add) = parenthesized_type::<Kind>(d)?;
+        if add {
+            write!(buf, "({ty})").unwrap();
+        } else {
+            buf.push_str(&ty);
+        }
+    } else {
+        buf.push_str(&typename::<Kind>(type_)?);
+    }
+    Some(buf)
+}
+
 pub fn long(ty: &Type) -> Option<XString> {
     typename::<Long>(ty)
 }
@@ -89,7 +109,6 @@ pub fn short(ty: &Type) -> Option<XString> {
 }
 
 fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option<XString> {
-    dbg!(traits);
     let resolve_path = Kind::resolve_path();
     let iter = traits.iter().map(
         |PolyTrait {
@@ -98,8 +117,9 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option
          }| {
             let iter = generic_params.iter().map(generic_param_def::<Kind>);
             let hrtb = XString::from_iter(intersperse(iter, COMMA));
+            let sep = if generic_params.is_empty() { "" } else { " " };
             let ty = resolve_path(trait_).unwrap_or_default();
-            xformat!("{hrtb} {ty}")
+            xformat!("{hrtb}{sep}{ty}")
         },
     );
     let path = intersperse(iter, PLUS).collect::<XString>();
@@ -107,6 +127,15 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> Option
         || xformat!("dyn {path}"),
         |life| xformat!("dyn '{life} + {path}"),
     ))
+}
+
+/// Ref: <https://doc.rust-lang.org/reference/types.html#parenthesized-types>
+///
+/// dyn multi-Traits behind a reference or raw pointer type needs `()` disambiguation.
+///
+/// bool means whether the XString should be added `()`.
+fn parenthesized_type<Kind: FindName>(d: &DynTrait) -> Option<(XString, bool)> {
+    dyn_trait::<Kind>(d).map(|s| (s, d.traits.len() + d.lifetime.is_some() as usize > 1))
 }
 
 fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericParamDef) -> XString {

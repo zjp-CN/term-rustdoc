@@ -26,7 +26,7 @@ fn parse_module() {
     ItemCount {
         modules: 1,
         structs: 2,
-        functions: 3,
+        functions: 4,
         traits: 1,
         constants: 2,
         macros_decl: 1,
@@ -37,7 +37,7 @@ fn parse_module() {
         modules: 2,
         structs: 2,
         enums: 1,
-        functions: 3,
+        functions: 4,
         traits: 1,
         constants: 2,
         macros_decl: 1,

@@ -63,6 +63,9 @@ pub fn func_with_1arg(_: FieldsNamedStruct) {}
 pub fn func_with_1arg_and_ret(f: FieldsNamedStruct) -> submod1::AUnitEnum {
     f.private
 }
+pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait {
+    d
+}
 
 pub const ACONSTANT: u8 = 123;
 pub const ASTATIC: u8 = 123;

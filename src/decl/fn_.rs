@@ -1,4 +1,4 @@
-use crate::{tree::IDMap, type_name::short_type_name as type_name};
+use crate::{tree::IDMap, type_name::short};
 use itertools::Itertools;
 use rustdoc_types::{Abi, FnDecl, Function, Header, ItemEnum, Type, Visibility};
 use std::fmt::Write;
@@ -54,7 +54,7 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
                     mutable,
                     type_,
                 } => {
-                    let ty = type_name(type_).unwrap_or_default();
+                    let ty = short(type_).unwrap_or_default();
                     return match (lifetime, mutable) {
                         (None, false) => f(&f!("&{ty}")),
                         (None, true) => f(&f!("&mut {ty}")),
@@ -66,14 +66,14 @@ fn fndecl(f: &FnDecl, buf: &mut String) {
                 _ => (),
             }
         }
-        let ty = type_name(ty).unwrap_or_default();
+        let ty = short(ty).unwrap_or_default();
         f(&f!("{name}: {ty}"))
     });
     write!(buf, "{args}").unwrap();
     buf.push(')');
     if let Some(ty) = &f.output {
         buf.push_str(" -> ");
-        if let Some(output) = type_name(ty) {
+        if let Some(output) = short(ty) {
             buf.push_str(&output);
         }
     }

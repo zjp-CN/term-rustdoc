@@ -4,6 +4,7 @@ expression: display
 ---
 integration
 ├── Functions
+│   ├── [Fn] func_dyn_trait
 │   ├── [Fn] func_with_1arg
 │   ├── [Fn] func_with_1arg_and_ret
 │   └── [Fn] func_with_no_args

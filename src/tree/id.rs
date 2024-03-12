@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use super::{DModule, DocTree, Show};
-use crate::type_name::{resolved_path_name, type_name};
+use crate::type_name::{long, long_path};
 use crate::util::{xformat, CompactStringExt, XString};
 use rustdoc_types::{Crate, Id, Item, ItemEnum, ItemKind, ItemSummary};
 use std::{borrow::Borrow, cell::RefCell, collections::HashMap};
@@ -260,10 +260,10 @@ fn item_name(item: &Item) -> Option<XString> {
             let implementor = item
                 .blanket_impl
                 .as_ref()
-                .and_then(type_name)
-                .or_else(|| type_name(&item.for_))
+                .and_then(long)
+                .or_else(|| long(&item.for_))
                 .unwrap_or_default();
-            if let Some(trait_) = item.trait_.as_ref().and_then(resolved_path_name) {
+            if let Some(trait_) = item.trait_.as_ref().and_then(long_path) {
                 Some(xformat!("{implementor}: {trait_}"))
             } else {
                 Some(xformat!("{implementor}"))

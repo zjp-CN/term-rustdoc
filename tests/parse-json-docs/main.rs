@@ -147,6 +147,7 @@ fn basic_info() -> Result<()> {
         "integration::AUnitStruct                           [Struct]",
         "integration::FieldsNamedStruct                     [Struct]",
         "integration::a_decl_macro                          [Macro]",
+        "integration::func_dyn_trait                        [Function]",
         "integration::func_with_1arg                        [Function]",
         "integration::func_with_1arg_and_ret                [Function]",
         "integration::func_with_no_args                     [Function]",
@@ -161,13 +162,13 @@ fn basic_info() -> Result<()> {
     "###);
 
     // item counts
-    shot!(doc.paths.len(), @"2006");
-    shot!(js.local_path().count(), @"17");
-    shot!(doc.index.len(), @"160");
-    shot!(js.local_index().count(), @"71");
+    shot!(doc.paths.len(), @"2007");
+    shot!(js.local_path().count(), @"18");
+    shot!(doc.index.len(), @"161");
+    shot!(js.local_index().count(), @"72");
 
     // data sizes
-    shot!(ByteSize(json.len() as _), @"370.1 KB");
+    shot!(ByteSize(json.len() as _), @"371.3 KB");
 
     Ok(())
 }
@@ -206,7 +207,7 @@ fn compression() -> Result<()> {
         "[raw json text => xz] {}",
         reduced_size(json_size, compress(json.as_bytes())?)
     );
-    shot!(json_compression, @"[raw json text => xz] 370.1 KB => 44.5 KB (-88%)");
+    shot!(json_compression, @"[raw json text => xz] 371.3 KB => 44.5 KB (-88%)");
 
     let [bin_size, xz_size] = compress_bin(doc)?;
     let bin_compression = format!(
@@ -218,9 +219,9 @@ fn compression() -> Result<()> {
         reduced_size(json_size, xz_size)
     );
     shot!(bin_compression, @r###"
-    [raw json text => bb] 370.1 KB => 179.1 KB (-52%)
-    [binary bytes  => xz] 179.1 KB => 42.5 KB (-76%)
-    [raw json text => xz] 370.1 KB => 42.5 KB (-89%) 
+    [raw json text => bb] 371.3 KB => 179.3 KB (-52%)
+    [binary bytes  => xz] 179.3 KB => 42.5 KB (-76%)
+    [raw json text => xz] 371.3 KB => 42.5 KB (-89%) 
     "###);
 
     Ok(())

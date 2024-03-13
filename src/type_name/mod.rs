@@ -9,6 +9,9 @@ pub use short_or_long::{long_path, short_path};
 mod generic;
 pub use generic::generics;
 
+mod funcion;
+pub use funcion::{fn_decl, fn_header};
+
 trait TypeName: Copy + FnOnce(&Type) -> XString {}
 impl<F> TypeName for F where F: Copy + FnOnce(&Type) -> XString {}
 trait ResolvePath: Copy + FnOnce(&Path) -> XString {}
@@ -47,7 +50,6 @@ impl FindName for Long {
 const COMMA: XString = XString::new_inline(", ");
 const PLUS: XString = XString::new_inline(" + ");
 const INFER: XString = XString::new_inline("_");
-const EMPTY: XString = XString::new_inline("");
 const COLON: &str = ": ";
 
 fn typename<Kind: FindName>(ty: &Type) -> XString {
@@ -60,28 +62,34 @@ fn typename<Kind: FindName>(ty: &Type) -> XString {
             mutable,
             type_,
         } => borrow_ref::<Kind>(type_, lifetime, mutable),
+        Type::RawPointer { mutable, type_ } => xformat!(
+            "*{} {}",
+            if *mutable { "mut" } else { "const" },
+            typename::<Kind>(type_)
+        ),
+        Type::QualifiedPath {
+            name,
+            args,
+            self_type,
+            trait_,
+        } => todo!(),
+        Type::Slice(ty) => typename::<Kind>(ty),
+        Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
+        Type::ImplTrait(b) => xformat!(
+            "impl {}",
+            generic::generic_bound_for_slice::<Kind>(b).unwrap_or_default()
+        ),
         Type::Tuple(v) => {
             let iter = v.iter().map(|ty| typename::<Kind>(ty));
             let ty = XString::from_iter(intersperse(iter, COMMA));
             xformat!("({ty})")
         }
-        Type::Slice(ty) => typename::<Kind>(ty),
         Type::Array { type_, len } => {
             let ty = typename::<Kind>(type_);
             xformat!("[{ty}; {len}]")
         }
-        Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
+        Type::FunctionPointer(f) => funcion::fn_pointer(f),
         Type::Infer => INFER,
-        _ => EMPTY,
-        // Type::FunctionPointer(_) => todo!(),
-        // Type::ImplTrait(_) => todo!(),
-        // Type::RawPointer { mutable, type_ } => todo!(),
-        // Type::QualifiedPath {
-        //     name,
-        //     args,
-        //     self_type,
-        //     trait_,
-        // } => todo!(),
     }
 }
 

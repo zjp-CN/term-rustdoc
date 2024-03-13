@@ -60,7 +60,7 @@ fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericPar
     }
 }
 
-fn generic_bound_for_slice<Kind: FindName>(b: &[GenericBound]) -> Option<XString> {
+pub fn generic_bound_for_slice<Kind: FindName>(b: &[GenericBound]) -> Option<XString> {
     if b.is_empty() {
         return None;
     }

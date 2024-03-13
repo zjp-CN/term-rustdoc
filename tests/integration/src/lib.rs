@@ -90,6 +90,11 @@ where
     T: Clone,
 {
 }
+pub fn func_fn_pointer_impl_trait(
+    f: fn(*mut u8) -> *const u8,
+) -> impl Copy + Fn(*mut u8) -> *const u8 {
+    f
+}
 
 pub const ACONSTANT: u8 = 123;
 pub const ASTATIC: u8 = 123;

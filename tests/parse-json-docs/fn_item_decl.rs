@@ -13,6 +13,7 @@ fn fn_items() {
     [
         "pub func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait",
         "pub func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)",
+        "pub func_fn_pointer_impl_trait(f: fn(_: *mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
         "pub func_lifetime_bounds<'a, 'b: 'a>() where 'a: 'b",
         "pub func_primitive(s: &str) -> usize",
         "pub func_trait_bounds<T>() where T: Clone + Copy",

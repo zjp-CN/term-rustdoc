@@ -11,17 +11,17 @@ fn fn_items() {
     }
     snap!(fns_str, @r###"
     [
-        "pub func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait",
-        "pub func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)",
-        "pub func_fn_pointer_impl_trait(f: fn(_: *mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
-        "pub func_lifetime_bounds<'a, 'b: 'a>() where 'a: 'b",
-        "pub func_primitive(s: &str) -> usize",
-        "pub func_trait_bounds<T>() where T: Clone + Copy",
-        "pub func_tuple_array_slice<'a, 'b>(a: &'a u8, b: &'b mut [u8; 8], _: &'b mut (dyn 'a + ATrait)) -> (&'a u8, &'b mut [u8; 8])",
-        "pub func_with_1arg(_: FieldsNamedStruct)",
-        "pub func_with_1arg_and_ret(f: FieldsNamedStruct) -> AUnitEnum",
-        "pub func_with_const<T: Copy, const N: usize>(t: T) -> [T; N]",
-        "pub func_with_no_args()",
+        "pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait",
+        "pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)",
+        "pub fn func_fn_pointer_impl_trait(f: fn(_: *mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
+        "pub fn func_lifetime_bounds<'a, 'b: 'a>() where 'a: 'b",
+        "pub fn func_primitive(s: &str) -> usize",
+        "pub fn func_trait_bounds<T>() where T: Clone + Copy",
+        "pub fn func_tuple_array_slice<'a, 'b>(a: &'a u8, b: &'b mut [u8; 8], _: &'b mut (dyn 'a + ATrait)) -> (&'a u8, &'b mut [u8; 8])",
+        "pub fn func_with_1arg(_: FieldsNamedStruct)",
+        "pub fn func_with_1arg_and_ret(f: FieldsNamedStruct) -> AUnitEnum",
+        "pub fn func_with_const<T: Copy, const N: usize>(t: T) -> [T; N]",
+        "pub fn func_with_no_args()",
     ]
     "###);
 }
@@ -53,11 +53,11 @@ fn methods() {
     }
     snap!(fns_str, @r###"
     [
-        "pub by_rc(self: Rc<Self>)",
-        "pub by_ref(&self)",
-        "pub by_ref_mut(&mut self)",
-        "pub consume(self)",
-        "pub new() -> Self",
+        "pub fn by_rc(self: Rc<Self>)",
+        "pub fn by_ref(&self)",
+        "pub fn by_ref_mut(&mut self)",
+        "pub fn consume(self)",
+        "pub fn new() -> Self",
     ]
     "###);
 }

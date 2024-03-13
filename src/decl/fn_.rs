@@ -27,7 +27,7 @@ fn parse_fn(
     let mut buf = String::with_capacity(128);
     vis(v, &mut buf);
     fn_header(header, &mut buf);
-    // buf.push_str("fn ");
+    buf.push_str("fn ");
     buf.push_str(fname);
     let (def, where_) = generics(g);
     if let Some(def) = &def {

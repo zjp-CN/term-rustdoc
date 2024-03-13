@@ -48,7 +48,7 @@ const COMMA: XString = XString::new_inline(", ");
 const PLUS: XString = XString::new_inline(" + ");
 const INFER: XString = XString::new_inline("_");
 const EMPTY: XString = XString::new_inline("");
-const COLON: XString = XString::new_inline(": ");
+const COLON: &str = ": ";
 
 fn typename<Kind: FindName>(ty: &Type) -> XString {
     let resolve_path = Kind::resolve_path();
@@ -120,8 +120,12 @@ fn dyn_trait<Kind: FindName>(DynTrait { traits, lifetime }: &DynTrait) -> XStrin
              trait_,
              generic_params,
          }| {
-            let [sep, hrtb] = generic::generic_param_def_for_slice::<Kind>(generic_params);
-            let sep = if sep.is_empty() { "" } else { " " };
+            let hrtb = generic::generic_param_def_for_slice::<Kind>(generic_params);
+            let [sep, hrtb] = if let Some(b) = &hrtb {
+                [" ", b]
+            } else {
+                [""; 2]
+            };
             let ty = resolve_path(trait_);
             xformat!("{hrtb}{sep}{ty}")
         },

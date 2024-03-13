@@ -1,4 +1,4 @@
-use super::{short, typename, FindName, Short, COLON, COMMA, EMPTY, INFER, PLUS};
+use super::{short, typename, FindName, Short, COLON, COMMA, INFER, PLUS};
 use crate::util::{xformat, XString};
 use itertools::intersperse;
 use rustdoc_types::{
@@ -8,17 +8,14 @@ use rustdoc_types::{
 
 pub fn generic_param_def_for_slice<Kind: FindName>(
     generic_params: &[GenericParamDef],
-) -> [XString; 2] {
+) -> Option<XString> {
     if generic_params.is_empty() {
-        return [EMPTY; 2];
+        return None;
     }
-    [
-        COLON,
-        XString::from_iter(intersperse(
-            generic_params.iter().map(generic_param_def::<Kind>),
-            COMMA,
-        )),
-    ]
+    Some(XString::from_iter(intersperse(
+        generic_params.iter().map(generic_param_def::<Kind>),
+        COMMA,
+    )))
 }
 
 fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericParamDef) -> XString {
@@ -38,7 +35,12 @@ fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericPar
         GenericParamDefKind::Type {
             bounds, default, ..
         } => {
-            let [sep, bound] = generic_bound_for_slice::<Kind>(bounds);
+            let bound = generic_bound_for_slice::<Kind>(bounds);
+            let [sep, bound] = if let Some(b) = &bound {
+                [COLON, b]
+            } else {
+                [""; 2]
+            };
             xformat!(
                 "{name}{sep}{bound}{}",
                 default
@@ -58,14 +60,15 @@ fn generic_param_def<Kind: FindName>(GenericParamDef { name, kind }: &GenericPar
     }
 }
 
-fn generic_bound_for_slice<Kind: FindName>(b: &[GenericBound]) -> [XString; 2] {
+fn generic_bound_for_slice<Kind: FindName>(b: &[GenericBound]) -> Option<XString> {
     if b.is_empty() {
-        return [EMPTY; 2];
+        return None;
     }
-    [
-        COLON,
-        XString::from_iter(intersperse(b.iter().map(generic_bound::<Kind>), PLUS)),
-    ]
+
+    Some(XString::from_iter(intersperse(
+        b.iter().map(generic_bound::<Kind>),
+        PLUS,
+    )))
 }
 
 fn generic_bound<Kind: FindName>(b: &GenericBound) -> XString {
@@ -76,18 +79,18 @@ fn generic_bound<Kind: FindName>(b: &GenericBound) -> XString {
             modifier,
         } => {
             let path = (Kind::resolve_path())(trait_);
-            let [sep, args] = generic_param_def_for_slice::<Kind>(generic_params);
-            if sep.is_empty() {
-                match modifier {
-                    TraitBoundModifier::None => xformat!("{path}"),
-                    TraitBoundModifier::Maybe => xformat!("?{path}"),
-                    TraitBoundModifier::MaybeConst => xformat!("~const {path}"),
-                }
-            } else {
+            let args = generic_param_def_for_slice::<Kind>(generic_params);
+            if let Some(args) = args {
                 match modifier {
                     TraitBoundModifier::None => xformat!("{path}<{args}>"),
                     TraitBoundModifier::Maybe => xformat!("?{path}<{args}>"),
                     TraitBoundModifier::MaybeConst => xformat!("~const {path}<{args}>"),
+                }
+            } else {
+                match modifier {
+                    TraitBoundModifier::None => xformat!("{path}"),
+                    TraitBoundModifier::Maybe => xformat!("?{path}"),
+                    TraitBoundModifier::MaybeConst => xformat!("~const {path}"),
                 }
             }
         }
@@ -127,7 +130,7 @@ pub fn generics(
         params,
         where_predicates,
     }: &Generics,
-) -> (XString, XString) {
+) -> (Option<XString>, Option<XString>) {
     fn where_(w: &WherePredicate) -> XString {
         match w {
             WherePredicate::BoundPredicate {
@@ -136,13 +139,27 @@ pub fn generics(
                 generic_params,
             } => {
                 let ty = short(type_);
-                let [sep_b, bound] = generic_bound_for_slice::<Short>(bounds);
-                let [sep_p, param] = generic_param_def_for_slice::<Short>(generic_params);
-                let sep = if sep_p.is_empty() { "" } else { " " };
-                xformat!("{param}{sep}{ty}{sep_b}{bound}")
+                let generic_bound = generic_bound_for_slice::<Short>(bounds);
+                let [sep_b, bound] = if let Some(b) = &generic_bound {
+                    [COLON, b]
+                } else {
+                    [""; 2]
+                };
+                let hrtb = generic_param_def_for_slice::<Short>(generic_params);
+                let [sep, hrtb] = if let Some(param) = &hrtb {
+                    [" ", param]
+                } else {
+                    [""; 2]
+                };
+                xformat!("{hrtb}{sep}{ty}{sep_b}{bound}")
             }
             WherePredicate::RegionPredicate { lifetime, bounds } => {
-                let [sep, bound] = generic_bound_for_slice::<Short>(bounds);
+                let generic_bound = generic_bound_for_slice::<Short>(bounds);
+                let [sep, bound] = if let Some(b) = &generic_bound {
+                    [COLON, b.as_str()]
+                } else {
+                    ["", ""]
+                };
                 xformat!("{lifetime}{sep}{bound}")
             }
             WherePredicate::EqPredicate { lhs, rhs } => {
@@ -154,15 +171,15 @@ pub fn generics(
             }
         }
     }
-    fn where_for_slice(w: &[WherePredicate]) -> XString {
+    fn where_for_slice(w: &[WherePredicate]) -> Option<XString> {
         if w.is_empty() {
-            return EMPTY;
+            return None;
         }
-        XString::from_iter(intersperse(w.iter().map(where_), COMMA))
+        Some(XString::from_iter(intersperse(w.iter().map(where_), COMMA)))
     }
 
     (
-        generic_param_def_for_slice::<Short>(params)[1].clone(),
+        generic_param_def_for_slice::<Short>(params),
         where_for_slice(where_predicates),
     )
 }

@@ -96,12 +96,12 @@ fn parse_fn(
     vis(v, &mut buf);
     buf.push_str(fname);
     let (def, where_) = generics(g);
-    if !def.is_empty() {
+    if let Some(def) = &def {
         write!(buf, "<{def}>").unwrap();
     }
     fn_header(header, &mut buf);
     fn_decl(decl, &mut buf);
-    if !where_.is_empty() {
+    if let Some(where_) = &where_ {
         write!(buf, " where {where_}").unwrap();
     }
     buf

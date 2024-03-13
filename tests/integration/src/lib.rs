@@ -95,11 +95,23 @@ pub fn func_fn_pointer_impl_trait(
 ) -> impl Copy + Fn(*mut u8) -> *const u8 {
     f
 }
-pub fn func_qualified_path<I: Iterator>(mut iter: I) -> Option<I::Item>
+pub fn func_qualified_path<'a, I: Iterator>(mut iter: I) -> Option<I::Item>
 where
-    I::Item: std::fmt::Debug + Iterator<Item = ()>,
+    I::Item: 'a + std::fmt::Debug + Iterator<Item = ()> + ATraitWithGAT<Assoc<'a> = ()>,
 {
     iter.next()
+}
+pub fn func_hrtb<T: ATraitWithGAT>()
+where
+    for<'a> <T as ATraitWithGAT>::Assoc<'a>: Copy,
+{
+}
+
+pub trait ATraitWithGAT {
+    type Assoc<'a>
+    where
+        Self: 'a;
+    fn return_assoc(&self) -> Self::Assoc<'_>;
 }
 
 pub const ACONSTANT: u8 = 123;

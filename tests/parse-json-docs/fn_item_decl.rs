@@ -14,9 +14,10 @@ fn fn_items() {
         "pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait",
         "pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)",
         "pub fn func_fn_pointer_impl_trait(f: fn(_: *mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
+        "pub fn func_hrtb<T: ATraitWithGAT>() where for<'a> <T as ATraitWithGAT>::Assoc<'a>: Copy",
         "pub fn func_lifetime_bounds<'a, 'b: 'a>() where 'a: 'b",
         "pub fn func_primitive(s: &str) -> usize",
-        "pub fn func_qualified_path<I: Iterator>(iter: I) -> Option<I::Item> where I::Item: Debug + Iterator<Item = ()>",
+        "pub fn func_qualified_path<'a, I: Iterator>(iter: I) -> Option<I::Item> where I::Item: 'a + Debug + Iterator<Item = ()> + ATraitWithGAT<Assoc<'a> = ()>",
         "pub fn func_trait_bounds<T>() where T: Clone + Copy",
         "pub fn func_tuple_array_slice<'a, 'b>(a: &'a u8, b: &'b mut [u8; 8], _: &'b mut (dyn 'a + ATrait)) -> (&'a u8, &'b mut [u8; 8])",
         "pub fn func_with_1arg(_: FieldsNamedStruct)",
@@ -59,6 +60,7 @@ fn methods() {
         "pub fn by_ref_mut(&mut self)",
         "pub fn consume(self)",
         "pub fn new() -> Self",
+        "fn return_assoc(&self) -> Self::Assoc<'_>",
     ]
     "###);
 }

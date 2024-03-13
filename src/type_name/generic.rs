@@ -156,12 +156,11 @@ pub fn generics(
                     [""; 2]
                 };
                 let hrtb = generic_param_def_for_slice::<Short>(generic_params);
-                let [sep, hrtb] = if let Some(param) = &hrtb {
-                    [" ", param]
+                if let Some(hrtb) = &hrtb {
+                    xformat!("for<{hrtb}> {ty}{sep_b}{bound}")
                 } else {
-                    [""; 2]
-                };
-                xformat!("{hrtb}{sep}{ty}{sep_b}{bound}")
+                    xformat!("{ty}{sep_b}{bound}")
+                }
             }
             WherePredicate::RegionPredicate { lifetime, bounds } => {
                 let generic_bound = generic_bound_for_slice::<Short>(bounds);
@@ -201,7 +200,7 @@ fn term(rhs: &Term) -> XString {
 pub fn generic_args<Kind: FindName>(g: &GenericArgs) -> Option<XString> {
     match g {
         GenericArgs::AngleBracketed { args, bindings } => {
-            dbg!(g);
+            // FIXME: the logics here is unclear; need more usecases.
             let binding = type_binding_for_slice::<Kind>(bindings);
             let arg = generic_arg_name_for_slice::<Kind>(args);
             Some(match (&arg, &binding) {

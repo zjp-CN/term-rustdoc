@@ -16,6 +16,7 @@ fn fn_items() {
         "pub fn func_fn_pointer_impl_trait(f: fn(_: *mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
         "pub fn func_lifetime_bounds<'a, 'b: 'a>() where 'a: 'b",
         "pub fn func_primitive(s: &str) -> usize",
+        "pub fn func_qualified_path<I: Iterator>(iter: I) -> Option<I::Item> where I::Item: Debug + Iterator<Item = ()>",
         "pub fn func_trait_bounds<T>() where T: Clone + Copy",
         "pub fn func_tuple_array_slice<'a, 'b>(a: &'a u8, b: &'b mut [u8; 8], _: &'b mut (dyn 'a + ATrait)) -> (&'a u8, &'b mut [u8; 8])",
         "pub fn func_with_1arg(_: FieldsNamedStruct)",

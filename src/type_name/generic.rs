@@ -2,8 +2,8 @@ use super::{short, typename, FindName, Short, COLON, COMMA, INFER, PLUS};
 use crate::util::{xformat, XString};
 use itertools::intersperse;
 use rustdoc_types::{
-    Constant, GenericArg, GenericBound, GenericParamDef, GenericParamDefKind, Generics, Term,
-    TraitBoundModifier, WherePredicate,
+    Constant, GenericArg, GenericArgs, GenericBound, GenericParamDef, GenericParamDefKind,
+    Generics, Term, TraitBoundModifier, TypeBinding, TypeBindingKind, WherePredicate,
 };
 
 pub fn generic_param_def_for_slice<Kind: FindName>(
@@ -108,6 +108,16 @@ pub fn generic_arg_name<Kind: FindName>(arg: &GenericArg) -> XString {
     }
 }
 
+fn generic_arg_name_for_slice<Kind: FindName>(a: &[GenericArg]) -> Option<XString> {
+    if a.is_empty() {
+        return None;
+    }
+    Some(XString::from_iter(intersperse(
+        a.iter().map(generic_arg_name::<Kind>),
+        COMMA,
+    )))
+}
+
 fn constant<Kind: FindName>(
     Constant {
         type_, expr, value, ..
@@ -164,10 +174,7 @@ pub fn generics(
             }
             WherePredicate::EqPredicate { lhs, rhs } => {
                 let ty = short(lhs);
-                match rhs {
-                    Term::Type(t) => xformat!("{ty} = {}", short(t)),
-                    Term::Constant(c) => constant::<Short>(c),
-                }
+                xformat!("{ty} = {}", term(rhs))
             }
         }
     }
@@ -182,4 +189,66 @@ pub fn generics(
         generic_param_def_for_slice::<Short>(params),
         where_for_slice(where_predicates),
     )
+}
+
+fn term(rhs: &Term) -> XString {
+    match rhs {
+        Term::Type(t) => short(t),
+        Term::Constant(c) => constant::<Short>(c),
+    }
+}
+
+pub fn generic_args<Kind: FindName>(g: &GenericArgs) -> Option<XString> {
+    match g {
+        GenericArgs::AngleBracketed { args, bindings } => {
+            dbg!(g);
+            let binding = type_binding_for_slice::<Kind>(bindings);
+            let arg = generic_arg_name_for_slice::<Kind>(args);
+            Some(match (&arg, &binding) {
+                (None, None) => return None,
+                (Some(arg), None) => xformat!("<{arg}>"),
+                (None, Some(binding)) => xformat!("<{binding}>"),
+                (Some(arg), Some(binding)) => xformat!("<{arg}: {binding}>"),
+            })
+        }
+        GenericArgs::Parenthesized { inputs, output } => {
+            let type_name = Kind::type_name();
+            #[allow(clippy::redundant_closure)]
+            let args: XString = intersperse(inputs.iter().map(|x| type_name(x)), COMMA).collect();
+            let ret = output
+                .as_ref()
+                .map(|t| xformat!(" -> {}", type_name(t)))
+                .unwrap_or_default();
+            Some(xformat!("({args}){ret}"))
+        }
+    }
+}
+
+fn type_binding<Kind: FindName>(
+    TypeBinding {
+        name,
+        args,
+        binding,
+    }: &TypeBinding,
+) -> XString {
+    let arg = generic_args::<Kind>(args);
+    let arg = arg.as_deref().unwrap_or("");
+    match binding {
+        TypeBindingKind::Equality(t) => xformat!("{name}{arg} = {}", term(t)),
+        TypeBindingKind::Constraint(b) => {
+            let bound = generic_bound_for_slice::<Kind>(b);
+            let bound = bound.as_deref().unwrap_or("");
+            xformat!("{name}{arg}: {bound}")
+        }
+    }
+}
+
+fn type_binding_for_slice<Kind: FindName>(b: &[TypeBinding]) -> Option<XString> {
+    if b.is_empty() {
+        return None;
+    }
+    Some(XString::from_iter(intersperse(
+        b.iter().map(type_binding::<Kind>),
+        COMMA,
+    )))
 }

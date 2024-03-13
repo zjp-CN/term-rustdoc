@@ -95,6 +95,12 @@ pub fn func_fn_pointer_impl_trait(
 ) -> impl Copy + Fn(*mut u8) -> *const u8 {
     f
 }
+pub fn func_qualified_path<I: Iterator>(mut iter: I) -> Option<I::Item>
+where
+    I::Item: std::fmt::Debug + Iterator<Item = ()>,
+{
+    iter.next()
+}
 
 pub const ACONSTANT: u8 = 123;
 pub const ASTATIC: u8 = 123;

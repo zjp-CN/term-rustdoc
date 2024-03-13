@@ -72,7 +72,20 @@ fn typename<Kind: FindName>(ty: &Type) -> XString {
             args,
             self_type,
             trait_,
-        } => todo!(),
+        } => {
+            let self_ = typename::<Kind>(self_type);
+            if let Some(trait_) = trait_.as_ref().map(resolve_path).filter(|s| !s.is_empty()) {
+                if let Some(args) = generic::generic_args::<Kind>(args) {
+                    xformat!("<{self_} as {trait_}>::{name}{args}")
+                } else {
+                    xformat!("<{self_} as {trait_}>::{name}")
+                }
+            } else if let Some(args) = generic::generic_args::<Kind>(args) {
+                xformat!("{self_}::{name}{args}")
+            } else {
+                xformat!("{self_}::{name}")
+            }
+        }
         Type::Slice(ty) => typename::<Kind>(ty),
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
         Type::ImplTrait(b) => xformat!(

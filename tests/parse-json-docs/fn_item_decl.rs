@@ -1,4 +1,4 @@
-use crate::{doc, snap};
+use crate::{doc, shot, snap};
 use term_rustdoc::{
     decl::item_str,
     tree::{DModule, IDMap},
@@ -74,13 +74,16 @@ fn structs() {
     let dmod = map.dmodule();
     let mut structs_str = Vec::new();
     recursive_struct_str(dmod, &mut structs_str, map);
-    snap!(structs_str, @r###"
-    [
-        "pub struct AUnitStruct;",
-        "pub struct FieldsNamedStruct {[Id(\"0:18:1800\"), Id(\"0:19:1801\"), Id(\"0:20:1802\")]/* private fields */}",
-        "pub struct AUnitStruct;",
-        "pub struct AUnitStruct;",
-    ]
+    shot!(DisplaySlice(&structs_str), @r###"
+    pub struct AUnitStruct;
+    pub struct FieldsNamedStruct {
+        field1: AUnitStruct,
+        field2: AStructAlias,
+        field3: Vec<FieldsNamedStruct>,
+        /* private fields */
+    }
+    pub struct AUnitStruct;
+    pub struct AUnitStruct;
     "###);
 }
 
@@ -90,5 +93,16 @@ fn recursive_struct_str(dmod: &DModule, structs_str: &mut Vec<String>, map: &IDM
     }
     for m in &dmod.modules {
         recursive_struct_str(m, structs_str, map);
+    }
+}
+
+struct DisplaySlice<'s, T>(&'s [T]);
+
+impl<'s, T: std::fmt::Display> std::fmt::Display for DisplaySlice<'s, T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for ele in self.0 {
+            _ = writeln!(f, "{ele}");
+        }
+        Ok(())
     }
 }

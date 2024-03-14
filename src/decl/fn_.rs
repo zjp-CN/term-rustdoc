@@ -1,10 +1,13 @@
 use super::Format;
-use crate::type_name::{fn_decl, fn_header, generics};
+use crate::{
+    tree::IDMap,
+    type_name::{fn_decl, fn_header, generics},
+};
 use rustdoc_types::{Function, Visibility};
 use std::fmt::Write;
 
 impl Format for Function {
-    fn parse(&self, v: &Visibility, fname: &str) -> String {
+    fn parse(&self, v: &Visibility, fname: &str, _: &IDMap) -> String {
         let Function {
             decl,
             generics: g,

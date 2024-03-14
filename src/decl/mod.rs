@@ -22,7 +22,7 @@ fn buf(v: &Visibility) -> String {
 
 /// Format Item as String.
 trait Format {
-    fn parse(&self, v: &Visibility, fname: &str) -> String;
+    fn parse(&self, v: &Visibility, fname: &str, map: &IDMap) -> String;
 }
 
 /// Format an Item.
@@ -38,8 +38,8 @@ pub fn item_str(id: &str, map: &IDMap) -> String {
                 .as_ref()
                 .map(|id| item_str(&id.0, map))
                 .unwrap_or_default(),
-            ItemEnum::Function(f) => f.parse(vis, fname),
-            ItemEnum::Struct(s) => s.parse(vis, fname),
+            ItemEnum::Function(f) => f.parse(vis, fname, map),
+            ItemEnum::Struct(s) => s.parse(vis, fname, map),
             _ => String::new(),
         };
     }

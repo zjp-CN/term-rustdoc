@@ -13,7 +13,7 @@ fn fn_items() {
     [
         "pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait",
         "pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)",
-        "pub fn func_fn_pointer_impl_trait(f: fn(_: *mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
+        "pub fn func_fn_pointer_impl_trait(f: fn(*mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8",
         "pub fn func_hrtb<T: ATraitWithGAT>() where for<'a> <T as ATraitWithGAT>::Assoc<'a>: Copy",
         "pub fn func_lifetime_bounds<'a, 'b: 'a>() where 'a: 'b",
         "pub fn func_primitive(s: &str) -> usize",

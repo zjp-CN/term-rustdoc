@@ -88,6 +88,21 @@ pub fn fn_pointer(
         buf.push(' ');
     }
     buf.push_str("fn");
-    fn_decl(decl, &mut buf);
+    fn_decl_for_fn_pointer(decl, &mut buf);
     buf
+}
+
+fn fn_decl_for_fn_pointer(f: &FnDecl, mut buf: impl Write) {
+    _ = buf.write_char('(');
+    let iter = f.inputs.iter().map(|input| &input.1);
+    let args = iter.format_with(", ", |ty, f| {
+        let ty = short(ty);
+        f(&f!("{ty}"))
+    });
+    write!(buf, "{args}").unwrap();
+    _ = buf.write_char(')');
+    if let Some(ty) = &f.output {
+        _ = buf.write_str(" -> ");
+        _ = buf.write_str(&short(ty));
+    }
 }

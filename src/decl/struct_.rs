@@ -18,7 +18,7 @@ impl Parse for Struct {
             kind, generics: g, ..
         } = self;
 
-        let mut buf = Self::buf(v);
+        let mut buf = super::buf(v);
         _ = write!(&mut buf, "struct {fname}");
         let (def, where_) = generics(g);
         let b = &mut buf;

@@ -1,8 +1,5 @@
 use super::Parse;
-use crate::{
-    tree::IDMap,
-    type_name::{fn_decl, fn_header, generics},
-};
+use crate::type_name::{fn_decl, fn_header, generics};
 use rustdoc_types::{Function, ItemEnum, Visibility};
 use std::fmt::Write;
 
@@ -15,7 +12,7 @@ impl Parse for Function {
             ..
         } = self;
 
-        let mut buf = Self::buf(v);
+        let mut buf = super::buf(v);
         fn_header(header, &mut buf);
         buf.push_str("fn ");
         buf.push_str(fname);
@@ -36,14 +33,4 @@ impl Parse for Function {
             None
         }
     }
-}
-
-pub fn fn_item(id: &str, map: &IDMap) -> String {
-    if let Some(item) = map.get_item(id) {
-        if let ItemEnum::Function(f) = &item.inner {
-            let fname = item.name.as_deref().unwrap_or("");
-            return f.parse(&item.visibility, fname);
-        }
-    }
-    String::new()
 }

@@ -153,7 +153,7 @@ pub fn generics(
                 let [sep_b, bound] = if let Some(b) = &generic_bound {
                     [COLON, b]
                 } else {
-                    [""; 2]
+                    [COLON, ""]
                 };
                 let hrtb = generic_param_def_for_slice::<Short>(generic_params);
                 if let Some(hrtb) = &hrtb {

@@ -91,7 +91,7 @@ fn structs() {
         /* private fields */
     )
     where
-        [T; N], T: Copy + 'a;
+        [T; N]: , T: Copy + 'a;
     pub struct TupleWithBound()
     where
         u8: Copy;
@@ -99,7 +99,7 @@ fn structs() {
     pub struct UnitGeneric<const N: bool>;
     pub struct UnitGenericWithBound<const N: usize>
     where
-        [(); N];
+        [(); N]: ;
     pub struct UnitWithBound
     where
         u8: Copy;

@@ -1,9 +1,9 @@
-use super::Parse;
+use super::Format;
 use crate::type_name::{fn_decl, fn_header, generics};
 use rustdoc_types::{Function, ItemEnum, Visibility};
 use std::fmt::Write;
 
-impl Parse for Function {
+impl Format for Function {
     fn parse(&self, v: &Visibility, fname: &str) -> String {
         let Function {
             decl,

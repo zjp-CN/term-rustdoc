@@ -20,8 +20,8 @@ fn buf(v: &Visibility) -> String {
     buf
 }
 
-/// Parse Item as String.
-pub trait Parse {
+/// Format Item as String.
+pub trait Format {
     fn parse(&self, v: &Visibility, fname: &str) -> String;
     /// Get the item from `ItemEnum`.
     fn item(item: &ItemEnum) -> Option<&Self>;
@@ -41,7 +41,7 @@ pub trait Parse {
 ///
 /// If the id refers to non-item, the return string is empty.
 ///
-/// The difference between this and [`Parse::item_str`] is how to accept the id.
+/// The difference between this and [`Format::item_str`] is how to accept the id.
 ///
 /// This function accepts any Item id, but that method only accepts the implementor id.
 ///

@@ -1,4 +1,4 @@
-use super::Parse;
+use super::Format;
 use crate::type_name::generics;
 use rustdoc_types::{ItemEnum, Struct, StructKind, Visibility};
 use std::fmt::Write;
@@ -12,7 +12,7 @@ fn private(b: bool) -> &'static str {
     }
 }
 
-impl Parse for Struct {
+impl Format for Struct {
     fn parse(&self, v: &Visibility, fname: &str) -> String {
         let Struct {
             kind, generics: g, ..

@@ -78,6 +78,31 @@ fn structs() {
         field3: Vec<FieldsNamedStruct>,
         /* private fields */
     }
+    pub struct Tuple(
+        FieldsNamedStruct,
+        /* private fields */
+    )
+    pub struct TupleGeneric<'a, T: 'a, const N: usize>(
+        &'a T,
+        [T; N],
+    );
+    pub struct TupleGenericWithBound<'a, T, const N: usize>(
+        &'a T,
+        /* private fields */
+    )
+    where
+        [T; N], T: Copy + 'a;
+    pub struct TupleWithBound()
+    where
+        u8: Copy;
+    pub struct Unit;
+    pub struct UnitGeneric<const N: bool>;
+    pub struct UnitGenericWithBound<const N: usize>
+    where
+        [(); N];
+    pub struct UnitWithBound
+    where
+        u8: Copy;
     pub struct AUnitStruct;
     pub struct AUnitStruct;
     "###);

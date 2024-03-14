@@ -6,8 +6,8 @@ use crate::{
 use rustdoc_types::{Id, ItemEnum, Struct, StructKind, Visibility};
 use std::fmt::Write;
 
+const PRIVATE: &str = "/* private fields */";
 fn private(b: bool) -> &'static str {
-    const PRIVATE: &str = "/* private fields */";
     if b {
         PRIVATE
     } else {
@@ -27,14 +27,29 @@ impl Format for Struct {
         let b = &mut buf;
         match (kind, &def, &where_) {
             (StructKind::Unit, None, None) => b.push(';'),
-            (StructKind::Unit, None, Some(w)) => _ = write!(b, "where {w};"),
+            (StructKind::Unit, None, Some(w)) => _ = write!(b, "\nwhere\n    {w};"),
             (StructKind::Unit, Some(d), None) => _ = write!(b, "<{d}>;"), // very unlikely
-            (StructKind::Unit, Some(d), Some(w)) => _ = write!(b, "<{d}> where {w};"),
-            // TODO: need IDMap to know Path
-            (StructKind::Tuple(t), None, None) => _ = write!(b, "({t:?})"),
-            (StructKind::Tuple(t), None, Some(w)) => _ = write!(b, "({t:?}) where {w};"),
-            (StructKind::Tuple(t), Some(d), None) => _ = write!(b, "<{d}>({t:?});"),
-            (StructKind::Tuple(t), Some(d), Some(w)) => _ = write!(b, "<{d}>({t:?}) where {w};"),
+            (StructKind::Unit, Some(d), Some(w)) => _ = write!(b, "<{d}>\nwhere\n    {w};"),
+            (StructKind::Tuple(t), None, None) => {
+                b.push('(');
+                push_tuple_fields(t, map, b);
+                b.push(')');
+            }
+            (StructKind::Tuple(t), None, Some(w)) => {
+                b.push('(');
+                push_tuple_fields(t, map, b);
+                _ = write!(b, ")\nwhere\n    {w};");
+            }
+            (StructKind::Tuple(t), Some(d), None) => {
+                _ = write!(b, "<{d}>(");
+                push_tuple_fields(t, map, b);
+                b.push_str(");");
+            }
+            (StructKind::Tuple(t), Some(d), Some(w)) => {
+                _ = write!(b, "<{d}>(");
+                push_tuple_fields(t, map, b);
+                _ = write!(b, ")\nwhere\n    {w};");
+            }
             (
                 StructKind::Plain {
                     fields,
@@ -51,7 +66,7 @@ impl Format for Struct {
                 None,
                 Some(w),
             ) => {
-                _ = writeln!(b, " where {w}");
+                _ = writeln!(b, "\nwhere\n    {w}");
                 write_body(b, fields, map, *fields_stripped);
             }
             (
@@ -73,7 +88,7 @@ impl Format for Struct {
                 Some(d),
                 Some(w),
             ) => {
-                _ = writeln!(b, "<{d}>\nwhere {w}");
+                _ = writeln!(b, "<{d}>\nwhere\n    {w}");
                 write_body(b, fields, map, *fields_stripped);
             }
         }
@@ -96,18 +111,43 @@ fn write_body(b: &mut String, fields: &[Id], map: &IDMap, fields_stripped: bool)
     b.push('}');
 }
 
-fn field(id: &str, map: &IDMap, buf: &mut String) {
-    if let Some(fi) = map.get_item(id) {
-        if let Some(name) = fi.name.as_deref() {
-            if let ItemEnum::StructField(ty) = &fi.inner {
-                _ = writeln!(buf, "    {name}: {},", short(ty));
+fn push_fields(ids: &[Id], map: &IDMap, buf: &mut String) {
+    fn field(id: &str, map: &IDMap, buf: &mut String) {
+        if let Some(fi) = map.get_item(id) {
+            if let Some(name) = fi.name.as_deref() {
+                if let ItemEnum::StructField(ty) = &fi.inner {
+                    _ = writeln!(buf, "    {name}: {},", short(ty));
+                }
             }
         }
     }
-}
 
-fn push_fields(ids: &[Id], map: &IDMap, buf: &mut String) {
     for id in ids.iter().map(|id| &*id.0) {
         field(id, map, buf);
+    }
+}
+
+fn push_tuple_fields(ids: &[Option<Id>], map: &IDMap, buf: &mut String) {
+    fn field(id: &str, map: &IDMap, buf: &mut String) {
+        if let Some(fi) = map.get_item(id) {
+            if let ItemEnum::StructField(ty) = &fi.inner {
+                _ = write!(buf, "\n    {},", short(ty));
+            }
+        }
+    }
+
+    let mut contains_private = false;
+    for id in ids {
+        match id {
+            Some(id) => field(&id.0, map, buf),
+            None => contains_private = true,
+        }
+    }
+    if contains_private {
+        buf.push_str("\n    ");
+        buf.push_str(PRIVATE);
+    }
+    if !ids.is_empty() {
+        buf.push('\n');
     }
 }

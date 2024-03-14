@@ -121,3 +121,24 @@ pub const ASTATIC: u8 = 123;
 macro_rules! a_decl_macro {
     () => {};
 }
+
+pub mod structs {
+    pub struct Unit;
+    pub struct UnitWithBound
+    where
+        u8: Copy;
+    pub struct UnitGeneric<const N: bool>;
+    pub struct UnitGenericWithBound<const N: usize>
+    where
+        [(); N]:;
+
+    pub struct Tuple((), crate::PrivateUnitStruct, pub crate::FieldsNamedStruct);
+    pub struct TupleWithBound()
+    where
+        u8: Copy;
+    pub struct TupleGeneric<'a, T: 'a, const N: usize>(pub &'a T, pub [T; N]);
+    pub struct TupleGenericWithBound<'a, T: 'a, const N: usize>(pub &'a T, [T; N])
+    where
+        [T; N]:,
+        T: Copy;
+}

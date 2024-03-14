@@ -1,6 +1,6 @@
 use super::Format;
 use crate::type_name::generics;
-use rustdoc_types::{ItemEnum, Struct, StructKind, Visibility};
+use rustdoc_types::{Struct, StructKind, Visibility};
 use std::fmt::Write;
 
 fn private(b: bool) -> &'static str {
@@ -72,13 +72,5 @@ impl Format for Struct {
             }
         }
         buf
-    }
-
-    fn item(item: &ItemEnum) -> Option<&Self> {
-        if let ItemEnum::Struct(s) = item {
-            Some(s)
-        } else {
-            None
-        }
     }
 }

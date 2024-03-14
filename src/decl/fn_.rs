@@ -1,6 +1,6 @@
 use super::Format;
 use crate::type_name::{fn_decl, fn_header, generics};
-use rustdoc_types::{Function, ItemEnum, Visibility};
+use rustdoc_types::{Function, Visibility};
 use std::fmt::Write;
 
 impl Format for Function {
@@ -25,12 +25,5 @@ impl Format for Function {
             write!(buf, " where {where_}").unwrap();
         }
         buf
-    }
-    fn item(item: &ItemEnum) -> Option<&Self> {
-        if let ItemEnum::Function(f) = item {
-            Some(f)
-        } else {
-            None
-        }
     }
 }

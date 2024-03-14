@@ -10,7 +10,7 @@ mod generic;
 pub use generic::generics;
 
 mod funcion;
-pub use funcion::{fn_decl, fn_header};
+pub(crate) use funcion::{fn_decl, fn_header};
 
 trait TypeName: Copy + FnOnce(&Type) -> XString {}
 impl<F> TypeName for F where F: Copy + FnOnce(&Type) -> XString {}
@@ -126,10 +126,12 @@ fn borrow_ref<Kind: FindName>(type_: &Type, lifetime: &Option<String>, mutable: 
     buf
 }
 
+/// Format a [`rustdoc_types::Type`] with long Path inside.
 pub fn long(ty: &Type) -> XString {
     typename::<Long>(ty)
 }
 
+/// Format a [`rustdoc_types::Type`] with short Path inside.
 pub fn short(ty: &Type) -> XString {
     typename::<Short>(ty)
 }

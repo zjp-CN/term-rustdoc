@@ -2,6 +2,9 @@ use super::{generic::generic_args, Long, Short};
 use crate::util::{xformat, XString};
 use rustdoc_types::Path;
 
+/// Show full names in path.
+///
+/// Not guaranteed to always be an absolute path for any Path.
 pub fn long_path(p: &Path) -> XString {
     let name = p.name.as_str();
     p.args

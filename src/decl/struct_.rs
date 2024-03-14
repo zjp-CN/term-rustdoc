@@ -27,9 +27,9 @@ impl Format for Struct {
         let b = &mut buf;
         match (kind, &def, &where_) {
             (StructKind::Unit, None, None) => b.push(';'),
-            (StructKind::Unit, None, Some(w)) => _ = write!(b, "\nwhere\n    {w};"),
+            (StructKind::Unit, None, Some(w)) => _ = write!(b, "\nwhere\n{w};"),
             (StructKind::Unit, Some(d), None) => _ = write!(b, "<{d}>;"), // very unlikely
-            (StructKind::Unit, Some(d), Some(w)) => _ = write!(b, "<{d}>\nwhere\n    {w};"),
+            (StructKind::Unit, Some(d), Some(w)) => _ = write!(b, "<{d}>\nwhere\n{w};"),
             (StructKind::Tuple(t), None, None) => {
                 b.push('(');
                 push_tuple_fields(t, map, b);
@@ -38,7 +38,7 @@ impl Format for Struct {
             (StructKind::Tuple(t), None, Some(w)) => {
                 b.push('(');
                 push_tuple_fields(t, map, b);
-                _ = write!(b, ")\nwhere\n    {w};");
+                _ = write!(b, ")\nwhere\n{w};");
             }
             (StructKind::Tuple(t), Some(d), None) => {
                 _ = write!(b, "<{d}>(");
@@ -48,7 +48,7 @@ impl Format for Struct {
             (StructKind::Tuple(t), Some(d), Some(w)) => {
                 _ = write!(b, "<{d}>(");
                 push_tuple_fields(t, map, b);
-                _ = write!(b, ")\nwhere\n    {w};");
+                _ = write!(b, ")\nwhere\n{w};");
             }
             (
                 StructKind::Plain {
@@ -66,7 +66,7 @@ impl Format for Struct {
                 None,
                 Some(w),
             ) => {
-                _ = writeln!(b, "\nwhere\n    {w}");
+                _ = writeln!(b, "\nwhere\n{w}");
                 write_body(b, fields, map, *fields_stripped);
             }
             (
@@ -88,7 +88,7 @@ impl Format for Struct {
                 Some(d),
                 Some(w),
             ) => {
-                _ = writeln!(b, "<{d}>\nwhere\n    {w}");
+                _ = writeln!(b, "<{d}>\nwhere\n{w}");
                 write_body(b, fields, map, *fields_stripped);
             }
         }

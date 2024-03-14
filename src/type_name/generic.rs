@@ -181,7 +181,10 @@ pub fn generics(
         if w.is_empty() {
             return None;
         }
-        Some(XString::from_iter(intersperse(w.iter().map(where_), COMMA)))
+        Some(XString::from_iter(intersperse(
+            w.iter().map(|w| xformat!("    {}", where_(w))),
+            XString::new_inline(",\n"),
+        )))
     }
 
     (

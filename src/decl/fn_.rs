@@ -25,7 +25,7 @@ impl Format for Function {
         }
         fn_decl(decl, &mut buf);
         if let Some(where_) = &where_ {
-            write!(buf, " where {where_}").unwrap();
+            write!(buf, "\nwhere\n{where_}").unwrap();
         }
         buf
     }

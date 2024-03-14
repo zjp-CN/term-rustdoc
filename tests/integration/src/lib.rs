@@ -1,3 +1,4 @@
+#![feature(c_variadic)]
 /// Documentation for struct AUnitStruct.
 pub struct AUnitStruct;
 
@@ -106,6 +107,10 @@ where
     for<'a> <T as ATraitWithGAT>::Assoc<'a>: Copy,
 {
 }
+/// # Safety
+pub unsafe extern "C" fn variadic(_: *const (), _name: ...) {}
+/// # Safety
+pub unsafe extern "C" fn variadic_multiline(_: *const (), _: *mut (), _name: ...) {}
 
 pub trait ATraitWithGAT {
     type Assoc<'a>

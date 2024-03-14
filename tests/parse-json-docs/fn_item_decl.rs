@@ -29,11 +29,21 @@ fn fn_items() {
     pub fn func_trait_bounds<T>()
     where
         T: Clone + Copy
-    pub fn func_tuple_array_slice<'a, 'b>(a: &'a u8, b: &'b mut [u8; 8], _: &'b mut (dyn 'a + ATrait)) -> (&'a u8, &'b mut [u8; 8])
+    pub fn func_tuple_array_slice<'a, 'b>(
+        a: &'a u8,
+        b: &'b mut [u8; 8],
+        _: &'b mut (dyn 'a + ATrait)
+    ) -> (&'a u8, &'b mut [u8; 8])
     pub fn func_with_1arg(_: FieldsNamedStruct)
     pub fn func_with_1arg_and_ret(f: FieldsNamedStruct) -> AUnitEnum
     pub fn func_with_const<T: Copy, const N: usize>(t: T) -> [T; N]
     pub fn func_with_no_args()
+    pub unsafe extern "C" fn variadic(_: *const (), _: ...)
+    pub unsafe extern "C" fn variadic_multiline(
+        _: *const (),
+        _: *mut (),
+        _: ...
+    )
     "###);
 }
 

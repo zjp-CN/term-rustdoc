@@ -36,10 +36,24 @@ pub fn fn_header(h: &Header, mut buf: impl Write) {
     };
 }
 
-pub fn fn_decl(f: &FnDecl, mut buf: impl Write) {
+pub fn fn_decl(
+    FnDecl {
+        inputs,
+        output,
+        c_variadic,
+    }: &FnDecl,
+    mut buf: impl Write,
+) {
     _ = buf.write_char('(');
-    let iter = f.inputs.iter().enumerate();
-    let args = iter.format_with(", ", |(idx, (name, ty)), f| {
+    let multiline = (inputs.len() + *c_variadic as usize) > 2;
+    if multiline {
+        _ = buf.write_char('\n');
+    }
+    let ident = if multiline { "    " } else { "" };
+    let sep = if multiline { ",\n" } else { ", " };
+    let dot = (*c_variadic).then(|| (String::from("_"), Type::Primitive(String::from("..."))));
+    let iter = inputs.iter().chain(dot.as_ref()).enumerate();
+    let args = iter.format_with(sep, |(idx, (name, ty)), f| {
         if idx == 0 && name == "self" {
             match ty {
                 Type::BorrowedRef {
@@ -53,22 +67,25 @@ pub fn fn_decl(f: &FnDecl, mut buf: impl Write) {
                         _ = ty.write_str("self");
                     }
                     return match (lifetime, mutable) {
-                        (None, false) => f(&f!("&{ty}")),
-                        (None, true) => f(&f!("&mut {ty}")),
-                        (Some(life), false) => f(&f!("&{life} {ty}")),
-                        (Some(life), true) => f(&f!("&{life} mut {ty}")),
+                        (None, false) => f(&f!("{ident}&{ty}")),
+                        (None, true) => f(&f!("{ident}&mut {ty}")),
+                        (Some(life), false) => f(&f!("{ident}&{life} {ty}")),
+                        (Some(life), true) => f(&f!("{ident}&{life} mut {ty}")),
                     };
                 }
-                Type::Generic(s) if s == "Self" => return f(&"self"),
+                Type::Generic(s) if s == "Self" => return f(&f!("{ident}self")),
                 _ => (),
             }
         }
         let ty = short(ty);
-        f(&f!("{name}: {ty}"))
+        f(&f!("{ident}{name}: {ty}"))
     });
     write!(buf, "{args}").unwrap();
+    if multiline {
+        _ = buf.write_char('\n');
+    }
     _ = buf.write_char(')');
-    if let Some(ty) = &f.output {
+    if let Some(ty) = output {
         _ = buf.write_str(" -> ");
         _ = buf.write_str(&short(ty));
     }

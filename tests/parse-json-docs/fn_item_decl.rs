@@ -1,5 +1,8 @@
 use crate::{doc, snap};
-use term_rustdoc::decl::fn_item;
+use term_rustdoc::{
+    decl::{fn_item, item_str},
+    tree::{DModule, IDMap},
+};
 
 #[test]
 fn fn_items() {
@@ -63,4 +66,29 @@ fn methods() {
         "fn return_assoc(&self) -> Self::Assoc<'_>",
     ]
     "###);
+}
+
+#[test]
+fn structs() {
+    let map = &doc();
+    let dmod = map.dmodule();
+    let mut structs_str = Vec::new();
+    recursive_struct_str(dmod, &mut structs_str, map);
+    snap!(structs_str, @r###"
+    [
+        "pub struct AUnitStruct;",
+        "pub struct FieldsNamedStruct {[Id(\"0:18:1800\"), Id(\"0:19:1801\"), Id(\"0:20:1802\")]/* private fields */}",
+        "pub struct AUnitStruct;",
+        "pub struct AUnitStruct;",
+    ]
+    "###);
+}
+
+fn recursive_struct_str(dmod: &DModule, structs_str: &mut Vec<String>, map: &IDMap) {
+    for struct_ in &dmod.structs {
+        structs_str.push(item_str(&struct_.id, map));
+    }
+    for m in &dmod.modules {
+        recursive_struct_str(m, structs_str, map);
+    }
 }

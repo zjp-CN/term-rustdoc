@@ -15,8 +15,7 @@ impl Parse for Function {
             ..
         } = self;
 
-        let mut buf = String::with_capacity(128);
-        super::vis(v, &mut buf);
+        let mut buf = Self::buf(v);
         fn_header(header, &mut buf);
         buf.push_str("fn ");
         buf.push_str(fname);
@@ -29,6 +28,13 @@ impl Parse for Function {
             write!(buf, " where {where_}").unwrap();
         }
         buf
+    }
+    fn item(item: &ItemEnum) -> Option<&Self> {
+        if let ItemEnum::Function(f) = item {
+            Some(f)
+        } else {
+            None
+        }
     }
 }
 

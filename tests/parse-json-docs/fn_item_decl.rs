@@ -121,8 +121,9 @@ fn structs() {
         f2: [T; N],
     }
     pub struct Tuple(
+        _,
+        _,
         FieldsNamedStruct,
-        /* private fields */
     )
     pub struct TupleGeneric<'a, T: 'a, const N: usize>(
         &'a T,
@@ -130,7 +131,7 @@ fn structs() {
     );
     pub struct TupleGenericWithBound<'a, T, const N: usize>(
         &'a T,
-        /* private fields */
+        _,
     )
     where
         [T; N]: ,

@@ -143,16 +143,11 @@ fn push_tuple_fields(ids: &[Option<Id>], map: &IDMap, buf: &mut String) {
         }
     }
 
-    let mut contains_private = false;
     for id in ids {
         match id {
             Some(id) => field(&id.0, map, buf),
-            None => contains_private = true,
+            None => _ = write!(buf, "\n    _,"),
         }
-    }
-    if contains_private {
-        buf.push_str("\n    ");
-        buf.push_str(PRIVATE);
     }
     if !ids.is_empty() {
         buf.push('\n');

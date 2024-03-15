@@ -1,4 +1,4 @@
-use super::{fallback::StyledLine, parse::Blocks, render::write_lines, ScrollHeading};
+use super::{fallback::StyledLine, render::write_lines, ScrollHeading};
 use crate::ui::{scrollable::markdown::parse::parse_doc, Scroll};
 use ratatui::prelude::{Buffer, Constraint, Layout, Rect};
 
@@ -18,12 +18,12 @@ impl MarkdownAndHeading {
             md = "too narrow to show anything";
         }
         let [md_area, head_area] = split_area(area);
-        let (lines, blocks, headings) = parse_doc(md, md_area.width as f64);
+        let (lines, _, headings) = parse_doc(md, md_area.width as f64);
         let mut heading = ScrollHeading::default();
         heading.update_headings(headings);
         heading.area = head_area;
         MarkdownAndHeading {
-            md: MarkdownArea::new(md_area, lines, blocks),
+            md: MarkdownArea::new(md_area, lines),
             heading,
         }
     }
@@ -73,18 +73,16 @@ fn split_area(area: Rect) -> [Rect; 2] {
 
 pub struct MarkdownArea {
     inner: Scroll<MarkdownInner>,
-    #[allow(dead_code)]
-    blocks: Blocks,
 }
 
 impl MarkdownArea {
-    fn new(area: Rect, lines: Vec<StyledLine>, blocks: Blocks) -> Self {
-        let md = Scroll::<MarkdownInner> {
+    fn new(area: Rect, lines: Vec<StyledLine>) -> Self {
+        let inner = Scroll::<MarkdownInner> {
             area,
             lines: MarkdownInner { lines },
             ..Default::default()
         };
-        MarkdownArea { inner: md, blocks }
+        MarkdownArea { inner }
     }
 
     fn render(&self, buf: &mut Buffer) {

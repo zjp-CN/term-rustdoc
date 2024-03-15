@@ -120,11 +120,16 @@ fn structs() {
         f1: &'a T,
         f2: [T; N],
     }
+    pub struct NamedGenericWithBoundAllPrivate<'a, T, const N: usize>
+    where
+        T: Copy
+    { /* private fields */ }
     pub struct Tuple(
         _,
         _,
         FieldsNamedStruct,
-    )
+    );
+    pub struct TupleAllPrivate(_, _, _);
     pub struct TupleGeneric<'a, T: 'a, const N: usize>(
         &'a T,
         [T; N],

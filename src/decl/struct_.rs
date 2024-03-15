@@ -3,6 +3,7 @@ use crate::{
     tree::IDMap,
     type_name::{generics, short},
 };
+use itertools::{intersperse, repeat_n};
 use rustdoc_types::{Id, ItemEnum, Struct, StructKind, Visibility};
 use std::fmt::Write;
 
@@ -33,7 +34,7 @@ impl Format for Struct {
                 },
                 None,
                 None,
-            ) => write_body(b, fields, map, *fields_stripped),
+            ) => write_body(b, fields, map, *fields_stripped, " "),
             (
                 StructKind::Plain {
                     fields,
@@ -43,7 +44,7 @@ impl Format for Struct {
                 None,
             ) => {
                 _ = write!(b, "<{d}>");
-                write_body(b, fields, map, *fields_stripped);
+                write_body(b, fields, map, *fields_stripped, " ");
             }
             (
                 StructKind::Plain {
@@ -54,12 +55,12 @@ impl Format for Struct {
                 Some(w),
             ) => {
                 _ = write!(b, "<{d}>\nwhere\n{w}");
-                write_body(b, fields, map, *fields_stripped);
+                write_body(b, fields, map, *fields_stripped, "\n");
             }
             (StructKind::Tuple(t), None, None) => {
                 b.push('(');
                 push_tuple_fields(t, map, b);
-                b.push(')');
+                b.push_str(");");
             }
             (StructKind::Tuple(t), Some(d), None) => {
                 _ = write!(b, "<{d}>(");
@@ -83,7 +84,7 @@ impl Format for Struct {
                 Some(w),
             ) => {
                 _ = write!(b, "\nwhere\n{w}");
-                write_body(b, fields, map, *fields_stripped);
+                write_body(b, fields, map, *fields_stripped, "\n");
             }
             (StructKind::Tuple(t), None, Some(w)) => {
                 b.push('(');
@@ -98,10 +99,10 @@ impl Format for Struct {
     }
 }
 
-fn write_body(b: &mut String, fields: &[Id], map: &IDMap, fields_stripped: bool) {
+fn write_body(b: &mut String, fields: &[Id], map: &IDMap, fields_stripped: bool, p: &str) {
     if fields.is_empty() {
         if fields_stripped {
-            _ = write!(b, " {{ {PRIVATE} }}");
+            _ = write!(b, "{p}{{ {PRIVATE} }}");
         } else {
             b.push_str(" {}");
         }
@@ -143,13 +144,20 @@ fn push_tuple_fields(ids: &[Option<Id>], map: &IDMap, buf: &mut String) {
         }
     }
 
+    if ids.iter().all(|id| id.is_none()) {
+        // Since no public fields, we don't need newline for each field.
+        // If ids is empty, early return from the function.
+        for s in intersperse(repeat_n("_", ids.len()), ", ") {
+            buf.push_str(s);
+        }
+        return;
+    }
+
     for id in ids {
         match id {
             Some(id) => field(&id.0, map, buf),
             None => _ = write!(buf, "\n    _,"),
         }
     }
-    if !ids.is_empty() {
-        buf.push('\n');
-    }
+    buf.push('\n');
 }

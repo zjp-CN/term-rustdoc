@@ -138,6 +138,7 @@ pub mod structs {
         [(); N]:;
 
     pub struct Tuple((), crate::PrivateUnitStruct, pub crate::FieldsNamedStruct);
+    pub struct TupleAllPrivate((), (), ());
     pub struct TupleWithBound()
     where
         u8: Copy;
@@ -181,6 +182,13 @@ pub mod structs {
     }
 
     pub struct NamedGenericAllPrivate<'a, T, const N: usize> {
+        f1: &'a [T; N],
+    }
+
+    pub struct NamedGenericWithBoundAllPrivate<'a, T, const N: usize>
+    where
+        T: Copy,
+    {
         f1: &'a [T; N],
     }
 }

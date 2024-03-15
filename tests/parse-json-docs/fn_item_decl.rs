@@ -90,11 +90,35 @@ fn structs() {
     recursive_struct_str(dmod, &mut structs_str, map);
     shot!(DisplaySlice(&structs_str), @r###"
     pub struct AUnitStruct;
-    pub struct FieldsNamedStruct {
+    pub struct FieldsNamedStruct
+    {
         field1: AUnitStruct,
         field2: AStructAlias,
         field3: Vec<FieldsNamedStruct>,
         /* private fields */
+    }
+    pub struct Named
+    {
+        fut: Pin<Box<dyn Future<Output = Result<(), Box<dyn Error>>>>>,
+        /* private fields */
+    }
+    pub struct NamedAllPrivateFields { /* private fields */ }
+    pub struct NamedAllPublicFields
+    {
+        fut: Pin<Box<dyn Future<Output = Result<(), Box<dyn Error>>>>>,
+    }
+    pub struct NamedGeneric<'a, T, const N: usize>
+    {
+        f1: &'a T,
+        f2: [T; N],
+    }
+    pub struct NamedGenericAllPrivate<'a, T, const N: usize> { /* private fields */ }
+    pub struct NamedGenericWithBound<'a, T = (), const N: usize = 1>
+    where
+        T: Copy
+    {
+        f1: &'a T,
+        f2: [T; N],
     }
     pub struct Tuple(
         FieldsNamedStruct,

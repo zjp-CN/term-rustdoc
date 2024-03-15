@@ -146,4 +146,41 @@ pub mod structs {
     where
         [T; N]:,
         T: Copy;
+
+    #[allow(clippy::type_complexity)]
+    pub struct NamedAllPrivateFields {
+        fut: (),
+    }
+
+    #[allow(clippy::type_complexity)]
+    pub struct NamedAllPublicFields {
+        pub fut: std::pin::Pin<
+            Box<dyn std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>>,
+        >,
+    }
+
+    #[allow(clippy::type_complexity)]
+    pub struct Named {
+        pub fut: std::pin::Pin<
+            Box<dyn std::future::Future<Output = Result<(), Box<dyn std::error::Error>>>>,
+        >,
+        private: u8,
+    }
+
+    pub struct NamedGeneric<'a, T, const N: usize> {
+        pub f1: &'a T,
+        pub f2: [T; N],
+    }
+
+    pub struct NamedGenericWithBound<'a, T = (), const N: usize = 1>
+    where
+        T: Copy,
+    {
+        pub f1: &'a [T],
+        pub f2: [T; N],
+    }
+
+    pub struct NamedGenericAllPrivate<'a, T, const N: usize> {
+        f1: &'a [T; N],
+    }
 }

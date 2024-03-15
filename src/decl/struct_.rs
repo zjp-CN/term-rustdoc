@@ -66,7 +66,7 @@ impl Format for Struct {
                 None,
                 Some(w),
             ) => {
-                _ = writeln!(b, "\nwhere\n{w}");
+                _ = write!(b, "\nwhere\n{w}");
                 write_body(b, fields, map, *fields_stripped);
             }
             (
@@ -77,7 +77,7 @@ impl Format for Struct {
                 Some(d),
                 None,
             ) => {
-                _ = writeln!(b, "<{d}>");
+                _ = write!(b, "<{d}>");
                 write_body(b, fields, map, *fields_stripped);
             }
             (
@@ -88,7 +88,7 @@ impl Format for Struct {
                 Some(d),
                 Some(w),
             ) => {
-                _ = writeln!(b, "<{d}>\nwhere\n{w}");
+                _ = write!(b, "<{d}>\nwhere\n{w}");
                 write_body(b, fields, map, *fields_stripped);
             }
         }
@@ -97,17 +97,22 @@ impl Format for Struct {
 }
 
 fn write_body(b: &mut String, fields: &[Id], map: &IDMap, fields_stripped: bool) {
-    b.push_str(" {\n");
+    if fields.is_empty() {
+        if fields_stripped {
+            _ = write!(b, " {{ {PRIVATE} }}");
+        } else {
+            b.push_str(" {}");
+        }
+        return;
+    }
+    b.push('\n');
+    b.push('{');
     push_fields(fields, map, b);
-    let has_public_fields = !fields.is_empty();
-    let pr = private(fields_stripped);
-    if has_public_fields {
-        b.push_str("    ");
+    if fields_stripped {
+        b.push_str("\n    ");
     }
-    b.push_str(pr);
-    if has_public_fields {
-        b.push('\n');
-    }
+    b.push_str(private(fields_stripped));
+    b.push('\n');
     b.push('}');
 }
 
@@ -116,7 +121,7 @@ fn push_fields(ids: &[Id], map: &IDMap, buf: &mut String) {
         if let Some(fi) = map.get_item(id) {
             if let Some(name) = fi.name.as_deref() {
                 if let ItemEnum::StructField(ty) = &fi.inner {
-                    _ = writeln!(buf, "    {name}: {},", short(ty));
+                    _ = write!(buf, "\n    {name}: {},", short(ty));
                 }
             }
         }

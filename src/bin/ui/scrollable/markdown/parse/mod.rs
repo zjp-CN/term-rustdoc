@@ -69,6 +69,13 @@ pub fn parse_doc(doc: &str, width: f64) -> (Vec<StyledLine>, Blocks, Headings) {
     (lines, blocks, headings)
 }
 
+/// Convert Rust code block (usually like item definitions) into rendering lines.
+pub fn rust_code(code: &str, width: f64) -> Vec<StyledLine> {
+    let mut blocks = Blocks::new();
+    blocks.push(code_block::rust(code));
+    blocks.write_styled_lines(width)
+}
+
 pub fn md(doc: &str) -> Vec<StyledLine> {
     let mut lines = Vec::with_capacity(128);
     SYNTHEME.with(|(ps, ts)| {

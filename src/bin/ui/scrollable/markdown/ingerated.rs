@@ -71,6 +71,7 @@ fn split_area(area: Rect) -> [Rect; 2] {
     [md, head]
 }
 
+#[derive(Default)]
 pub struct MarkdownArea {
     inner: Scroll<MarkdownInner>,
 }
@@ -87,6 +88,23 @@ impl MarkdownArea {
 
     fn render(&self, buf: &mut Buffer) {
         write_lines(&self.inner.lines, self.inner.start, self.inner.area, buf);
+    }
+
+    pub fn rust_code(code: &str, width: u16) -> Self {
+        let lines = super::parse::rust_code(code, width as f64);
+        let inner = Scroll::<MarkdownInner> {
+            lines: MarkdownInner { lines },
+            ..Default::default()
+        };
+        MarkdownArea { inner }
+    }
+
+    pub fn scroll_text(&mut self) -> &mut Scroll<MarkdownInner> {
+        &mut self.inner
+    }
+
+    pub fn scroll_text_ref(&self) -> &Scroll<MarkdownInner> {
+        &self.inner
     }
 }
 

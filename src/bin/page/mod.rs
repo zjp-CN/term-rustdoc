@@ -140,7 +140,7 @@ impl Outline {
 
 #[derive(Default, Debug)]
 struct Content {
-    decl: Option<decl::Declaration>,
+    decl: decl::Declaration,
     display: ScrollText,
     border: Surround,
 }

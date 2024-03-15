@@ -140,6 +140,7 @@ impl StyledLines {
                     self.blocks = blocks;
                     Some(headings)
                 } else {
+                    warn!("no wrapping for markdown content");
                     self.lines = parse::md(doc);
                     Some(Headings::default())
                 };
@@ -174,7 +175,7 @@ impl ScrollText {
     // wrapping in case of syntect.
     fn wrapping_width(&self) -> Option<f64> {
         // we use this method to aviod duplicating a width field in StyledLines.
-        (!self.lines.syntect && self.max_width > 1).then_some(self.max_width as f64)
+        (!self.lines.syntect && self.area.width > 1).then_some(self.area.width as f64)
     }
 
     pub fn update_doc(&mut self, id: &str) -> Option<Headings> {

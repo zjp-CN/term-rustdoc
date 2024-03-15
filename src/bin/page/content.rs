@@ -35,12 +35,16 @@ impl ContentInner {
         }
     }
 
-    pub fn update_area(&mut self, id: &str, outer: Rect) {
+    pub fn update_decl(&mut self, id: &str, outer: Rect) {
         if let Some(map) = self.md.doc_ref() {
             // exclude border width
             let width = outer.width.saturating_sub(4);
             self.decl.update_decl(id, map, width);
         }
+        self.update_area(outer);
+    }
+
+    pub fn update_area(&mut self, outer: Rect) {
         let md = self.decl.update_area(outer);
         self.md.area = md;
         self.md.start = 0;
@@ -64,7 +68,7 @@ impl ContentInner {
     }
 
     pub fn update_doc(&mut self, id: &str, outer: Rect) -> Option<Headings> {
-        self.update_area(id, outer);
+        self.update_decl(id, outer);
         self.md.update_doc(id)
     }
 
@@ -111,8 +115,9 @@ impl Declaration {
             return outer;
         }
         let height = total_len + 1;
-        let [decl, md] =
-            Layout::vertical([Constraint::Length(height), Constraint::Min(0)]).areas(outer);
+        let [decl, md] = Layout::vertical([Constraint::Length(height), Constraint::Min(0)])
+            .spacing(1)
+            .areas(outer);
         if let Some(inner) = self.border.update_area(decl) {
             scroll_text.area = inner;
             // scroll_text.max_width = decl.width;

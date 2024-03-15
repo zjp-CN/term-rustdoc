@@ -40,7 +40,7 @@ impl Page {
     pub(super) fn update_area_inner(&mut self, full: Rect) {
         // layout
         self.area = full;
-        let layout = self.layout().split(full);
+        let [a_outline, a_content, a_navi] = self.layout().areas(full);
 
         // outline
         let outline_border = Block::new()
@@ -52,12 +52,12 @@ impl Page {
             } else {
                 outline_border
             },
-            layout[0],
+            a_outline,
         );
         self.outline.update_area(outline_border);
 
         // content
-        let border = Surround::new(Block::new(), layout[1]);
+        let border = Surround::new(Block::new(), a_content);
         let id = self
             .outline
             .inner
@@ -67,14 +67,12 @@ impl Page {
         self.content.update_area(border, id);
 
         // navi
-        if let Some(&navi_outer_area) = layout.get(2) {
-            self.navi.update_area(Surround::new(
-                Block::new()
-                    .borders(Borders::LEFT)
-                    .border_type(BorderType::Thick),
-                navi_outer_area,
-            ));
-        }
+        self.navi.update_area(Surround::new(
+            Block::new()
+                .borders(Borders::LEFT)
+                .border_type(BorderType::Thick),
+            a_navi,
+        ));
 
         // auto update content when screen size changes
         self.update_content();

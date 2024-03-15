@@ -45,7 +45,7 @@ impl Page {
             navi: Default::default(),
         };
         page.update_area_inner(area);
-        info!("Page ready");
+        info!(?area, "Page ready");
         Ok(page)
     }
 
@@ -146,7 +146,9 @@ impl Content {
         self.border = border;
         let outer = self.border.inner();
         if let Some(id) = id {
-            self.inner.update_area(id, outer);
+            self.inner.update_decl(id, outer);
+        } else {
+            self.inner.update_area(outer);
         }
     }
 

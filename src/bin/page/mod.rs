@@ -13,7 +13,7 @@ use crate::{
 use ratatui::prelude::{Buffer, Rect, Widget};
 use term_rustdoc::tree::{CrateDoc, ID};
 
-mod decl;
+mod content;
 mod layout;
 mod navi;
 mod outline;
@@ -140,7 +140,7 @@ impl Outline {
 
 #[derive(Default, Debug)]
 struct Content {
-    decl: decl::Declaration,
+    decl: content::Declaration,
     display: ScrollText,
     border: Surround,
 }

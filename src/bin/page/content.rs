@@ -1,5 +1,14 @@
-use crate::ui::scrollable::{Headings, MarkdownArea, ScrollText};
-use ratatui::prelude::*;
+use crate::{
+    color::DECLARATION_BORDER,
+    ui::{
+        scrollable::{Headings, MarkdownArea, ScrollText},
+        Surround,
+    },
+};
+use ratatui::{
+    prelude::*,
+    widgets::{Block, BorderType, Borders},
+};
 use term_rustdoc::{
     decl::item_str,
     tree::{CrateDoc, IDMap},
@@ -28,7 +37,9 @@ impl ContentInner {
 
     pub fn update_area(&mut self, id: &str, outer: Rect) {
         if let Some(map) = self.md.doc_ref() {
-            self.decl.update(id, map);
+            // exclude border width
+            let width = outer.width.saturating_sub(4);
+            self.decl.update_decl(id, map, width);
         }
         let md = self.decl.update_area(outer);
         self.md.area = md;
@@ -37,8 +48,11 @@ impl ContentInner {
     }
 
     pub fn render(&self, buf: &mut Buffer) {
+        if !self.decl.display.scroll_text_ref().is_empty() {
+            self.decl.border.render(buf);
+            self.decl.display.render(buf);
+        }
         self.md.render(buf);
-        self.decl.display.render(buf);
     }
 
     pub fn content(&mut self) -> &mut ScrollText {
@@ -59,26 +73,50 @@ impl ContentInner {
     }
 }
 
-#[derive(Default)]
 struct Declaration {
     display: MarkdownArea,
+    border: Surround,
+}
+
+impl Default for Declaration {
+    fn default() -> Self {
+        Declaration {
+            display: MarkdownArea::default(),
+            border: Surround::new(
+                Block::new()
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::QuadrantOutside)
+                    .border_style(DECLARATION_BORDER),
+                Rect::default(),
+            ),
+        }
+    }
 }
 
 impl Declaration {
-    fn update(&mut self, id: &str, map: &IDMap) {
+    fn update_decl(&mut self, id: &str, map: &IDMap, width: u16) {
         let code = item_str(id, map);
-        info!(code);
-        self.display.rust_code(&code);
+        if code.is_empty() {
+            self.display.scroll_text().lines = Default::default();
+        } else {
+            self.display.rust_code(&code, width);
+        }
     }
 
     /// Reserve space for item and returns the rest area for showing markdown content.
     fn update_area(&mut self, outer: Rect) -> Rect {
         let scroll_text = self.display.scroll_text();
-        let height = scroll_text.total_len() as u16 + 1;
+        let total_len = scroll_text.total_len() as u16;
+        if total_len == 0 {
+            return outer;
+        }
+        let height = total_len + 1;
         let [decl, md] =
             Layout::vertical([Constraint::Length(height), Constraint::Min(0)]).areas(outer);
-        scroll_text.area = decl;
-        // scroll_text.max_width = decl.width;
+        if let Some(inner) = self.border.update_area(decl) {
+            scroll_text.area = inner;
+            // scroll_text.max_width = decl.width;
+        }
         md
     }
 }

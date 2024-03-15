@@ -52,3 +52,4 @@ pub const HEAD: Style = Style {
 };
 pub const SET: Style = Style::new().bg(Color::Rgb(20, 19, 18)); // #141312
 pub const NEW: Style = Style::new();
+pub const DECLARATION_BORDER: Style = Style::new().fg(Color::Gray);

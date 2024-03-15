@@ -71,6 +71,13 @@ pub fn parse_doc(doc: &str, width: f64) -> (Vec<StyledLine>, Blocks, Headings) {
 
 /// Convert Rust code block (usually like item definitions) into rendering lines.
 pub fn rust_code(code: &str, width: f64) -> Vec<StyledLine> {
+    // NOTE: here are some potential separate improvements
+    // * reduce the indirect Blocks: we don't have links or normal text to render
+    // * don't highlight via syntect: define general formating mechanism, then we
+    // can use it to highlight/wrapping/analyze. (not deep think about this)
+    //   * vis - qualifier - name - generics def - where bound - arguments
+    //   * vis - qualifier - name - generics def - where bound - inner items
+    //   * vis - qualifier - name - type - value
     let mut blocks = Blocks::new();
     blocks.push(code_block::rust(code));
     blocks.write_styled_lines(width)

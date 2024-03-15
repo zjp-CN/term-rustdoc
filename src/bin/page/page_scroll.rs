@@ -18,7 +18,7 @@ impl Page {
     }
 
     pub(super) fn content(&mut self) -> &mut ScrollText {
-        &mut self.content.display
+        self.content.inner.content()
     }
 
     pub fn scrolldown(&mut self, offset: ScrollOffset) {
@@ -103,15 +103,15 @@ impl Page {
     /// update content's StyledLines and Headings aftet setting the cursor
     pub fn update_content(&mut self) {
         if let Some(id) = self.outline.display().get_id() {
-            if let Some(headings) = self.content.display.update_doc(id) {
+            if let Some(headings) = self.content.update_doc(id) {
                 // Only reset start after the update.
                 // TODO: would it be better to remember the
                 // view position if doc is able to be cached?
-                self.content.display.start = 0;
+                // self.content.update_content(id);
                 self.navi.heading().update_headings(headings);
             }
         } else {
-            self.content.display.lines.reset_doc();
+            self.content.inner.reset_doc();
             self.navi.heading().lines = Default::default();
         }
         self.update_navi();
@@ -119,7 +119,7 @@ impl Page {
 
     fn update_navi(&mut self) {
         // update navi only when in Module tree
-        if let Some(doc) = self.content.display.doc_ref() {
+        if let Some(doc) = self.content.inner.md_ref().doc_ref() {
             if self.outline.is_module_tree() {
                 let id = self.outline.display().get_id();
                 if let Some(id) = self.navi.set_item_inner(id, doc) {
@@ -140,7 +140,8 @@ impl Page {
         if let Some(heading) = self.navi.heading().get_line_on_screen(y) {
             // set the upper bound: usually no need to use this, but who knows if y points
             // to a line out of the doc range.
-            let limit = self.content.display.total_len().saturating_sub(MARGIN);
+            let total_len = self.content.inner.md_ref().total_len();
+            let limit = total_len.saturating_sub(MARGIN);
             self.content().start = heading.jump_row_start().saturating_sub(MARGIN).min(limit);
             return true;
         }

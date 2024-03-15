@@ -17,7 +17,7 @@ mod ingerated;
 
 pub use self::{
     fallback::ScrollText,
-    heading::ScrollHeading,
+    heading::{Headings, ScrollHeading},
     ingerated::{MarkdownAndHeading, MarkdownArea, ScrollMarkdown},
     wrapped::StyledText,
 };

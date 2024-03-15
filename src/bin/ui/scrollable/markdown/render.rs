@@ -3,7 +3,7 @@ use crate::ui::scrollable::generics::render_line;
 use ratatui::prelude::{Buffer, Rect};
 
 impl ScrollText {
-    pub fn render(&mut self, buf: &mut Buffer) {
+    pub fn render(&self, buf: &mut Buffer) {
         write_lines(&self.lines, self.start, self.area, buf);
     }
 }

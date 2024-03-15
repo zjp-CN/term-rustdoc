@@ -57,10 +57,14 @@ impl Page {
         self.outline.update_area(outline_border);
 
         // content
-        self.content.border = Surround::new(Block::new(), layout[1]);
-        let content_area = self.content.border.inner();
-        self.content.display.area = content_area;
-        self.content.display.max_width = content_area.width;
+        let border = Surround::new(Block::new(), layout[1]);
+        let id = self
+            .outline
+            .inner
+            .display()
+            .get_line_of_current_cursor()
+            .and_then(|t| t.id.as_deref());
+        self.content.update_area(border, id);
 
         // navi
         if let Some(&navi_outer_area) = layout.get(2) {

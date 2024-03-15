@@ -4,10 +4,7 @@ use self::{
 };
 use crate::{
     database::PkgKey,
-    ui::{
-        scrollable::{ScrollText, ScrollTreeLines},
-        Surround,
-    },
+    ui::{scrollable::ScrollTreeLines, Surround},
     Result,
 };
 use ratatui::prelude::{Buffer, Rect, Widget};
@@ -38,7 +35,7 @@ impl Page {
         let mut page = Page {
             outline: Outline::new(&doc),
             content: Content {
-                display: ScrollText::new_text(doc.clone())?,
+                inner: content::ContentInner::new(&doc),
                 ..Default::default()
             },
             // page scrolling like HOME/END will check the current Panel
@@ -83,8 +80,8 @@ impl Widget for &mut Page {
         self.update_area(area);
         self.outline.render(buf);
         self.content.border.render(buf);
-        self.content.display.render(buf);
-        self.navi.render(buf, &self.content.display);
+        self.content.inner.render(buf);
+        self.navi.render(buf, self.content.inner.md_ref());
         debug!("Page rendered");
     }
 }
@@ -140,7 +137,20 @@ impl Outline {
 
 #[derive(Default, Debug)]
 struct Content {
-    decl: content::Declaration,
-    display: ScrollText,
+    inner: content::ContentInner,
     border: Surround,
+}
+
+impl Content {
+    fn update_area(&mut self, border: Surround, id: Option<&str>) {
+        self.border = border;
+        let outer = self.border.inner();
+        if let Some(id) = id {
+            self.inner.update_area(id, outer);
+        }
+    }
+
+    fn update_doc(&mut self, id: &str) -> Option<crate::ui::scrollable::Headings> {
+        self.inner.update_doc(id, self.border.inner())
+    }
 }

@@ -1,10 +1,10 @@
 cargo-features = ["codegen-backend"]
 [package]
 name = "term-rustdoc"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 autobins = false
-exclude = ["**/snapshots/", "tests/", "outline-design.txt"]
+exclude = ["**/snapshots/", "tests/", "outline-design.txt", "cliff.toml", "CHANGELOG.md", ".github"]
 repository = "https://github.com/zjp-CN/term-rustdoc"
 description = "A TUI for Rust docs."
 license = "MIT"

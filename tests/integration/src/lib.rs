@@ -1,4 +1,4 @@
-#![feature(c_variadic)]
+#![cfg_attr(nightly, feature(c_variadic))]
 /// Documentation for struct AUnitStruct.
 pub struct AUnitStruct;
 
@@ -108,8 +108,10 @@ where
 {
 }
 /// # Safety
+#[cfg(nightly)]
 pub unsafe extern "C" fn variadic(_: *const (), _name: ...) {}
 /// # Safety
+#[cfg(nightly)]
 pub unsafe extern "C" fn variadic_multiline(_: *const (), _: *mut (), _name: ...) {}
 
 pub trait ATraitWithGAT {

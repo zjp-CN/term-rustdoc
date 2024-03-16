@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.0] - 2024-03-16
 
 ### 🚀 Features
 
@@ -23,6 +23,9 @@ All notable changes to this project will be documented in this file.
 - Jkl keystroke alias
 - Display fields_tree for NaviAction::StructInner
 - Display fields_tree for NaviAction::StructInner on Union
+- Add DataItemKind::Module to jump into a module on NaviAction
+- Struct item string
+- Display item Declaration on content panel
 
 ### 🐛 Bug Fixes
 
@@ -37,6 +40,16 @@ All notable changes to this project will be documented in this file.
 - Pin the width of navi
 - NaviOutline and cursor behavior
 - Reset cursor position when init setu
+- Parenthesized_type for borrow_ref on DynTrait
+- Method self receiver on borrow_ref
+- Lifetime contains the tick, so don't need to format it
+- Add fn keyword back in fn_item
+- Hrtb in wher bound
+- Don't need argument names for fn_pointer
+- Use IDMap to dive into fields
+- Keep colon in where bound
+- Carefully handle format for named structs
+- None field in a tuple struct is a placeholder, thus not hide them
 
 ### 🚜 Refactor
 
@@ -44,15 +57,25 @@ All notable changes to this project will be documented in this file.
 - Rm CrateDoc from NaviOutline; add Scroll area for it
 - Outline with OutlineInner
 - Mv DataItemKind to lib; search after the kind is known
+- Use RPITIT trick to reduce parameter passing
+- Type_name returns XString without Option any more
+- Generic_*_for_slice returns Option<XString> if empty
+- Parse trait in decl
 
 ### 📚 Documentation
 
 - Add github release badget
 - Update Help for outline
+- Immature module inner action
+- Typename; don't expose fn_header fn_decl as public items
+- Item_str; make Parse public
+- Enhancement note for rust_code
 
 ### 🧪 Testing
 
 - Update snapshots
+- Update snapshots
+- Apply DisplaySlice instead of Debug for slice
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -79,6 +102,34 @@ All notable changes to this project will be documented in this file.
 - Help md padding
 - Display fields_tree without node tag
 - Names_node @iter case & doc; expand/fold only for Module tree
+- Add Changelog
+- Mv type_name to own module
+- Cranelift backend for dev profile
+- Support BorrowedRef on type_name
+- Support Self receiver in methods
+- Short_type_name for fn_item
+- Mv fn_item to own module
+- Handle DynTrait in type_name; split type_name into long and short
+- Don't filter out None from type_name in resolve_path
+- TypeName & ResolvedPath use FnOnce + Copy bound
+- Primitive for type_name
+- Add Primitive for type_name; update tests
+- Add array slice tuple for type_name
+- Add generics i.e (generics_def, where_bounds) on fn_item
+- Fill in RawPointer FunctionPointer ImplTrait branch in typename
+- Fill in QualifiedPath in typename
+- Rename Parse trait to Format
+- Rm item and item_str from Format
+- Use IDMap to look into field type; add tests for structs
+- Newline and ident for where bound
+- Multiline args in fn items
+- Put most likely cases first in struct formating
+- Rm Blocks field from MarkdownArea
+- Rename page::decl to page::content
+- Add border for Declaration
+- Update_area even if no valid id; add spacing for decl and md
+- Private fields display in structs
+- Prepare for release
 
 ## [0.1.1] - 2024-03-02
 

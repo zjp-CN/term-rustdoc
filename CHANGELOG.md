@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] - 2024-03-16
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- Windows-archive with .tar.gz instead of default zip
+
+## [v0.2.0] - 2024-03-16
 
 ### 🚀 Features
 
@@ -50,6 +56,7 @@ All notable changes to this project will be documented in this file.
 - Keep colon in where bound
 - Carefully handle format for named structs
 - None field in a tuple struct is a placeholder, thus not hide them
+- Cfg nighyly for integration test for cargo-dist to work on stable
 
 ### 🚜 Refactor
 
@@ -130,8 +137,9 @@ All notable changes to this project will be documented in this file.
 - Update_area even if no valid id; add spacing for decl and md
 - Private fields display in structs
 - Prepare for release
+- Mv codegen-backend feature from cargo.toml to local config.toml
 
-## [0.1.1] - 2024-03-02
+## [v0.1.1] - 2024-03-02
 
 ### 🚀 Features
 
@@ -145,7 +153,7 @@ All notable changes to this project will be documented in this file.
 
 - Add license and version badgets
 
-## [0.1.0] - 2024-03-02
+## [v0.1.0] - 2024-03-02
 
 ### 🚀 Features
 

@@ -3,6 +3,8 @@ use itertools::intersperse;
 use rustdoc_types::{DynTrait, Path, PolyTrait, Type};
 use std::fmt::Write;
 
+pub mod style;
+
 mod short_or_long;
 pub use short_or_long::{long_path, short_path};
 

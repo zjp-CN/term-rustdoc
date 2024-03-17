@@ -37,104 +37,115 @@ pub enum Tag {
     UnusualAbi(XString),
 }
 
-pub enum Symbol {
-    Syntax(Syntax),
-    Punctuation(Punctuation),
-}
+// macro MWE for interspersing fieldless variants with field-carrying ones:
+// https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=33ef54aa78ae2ac682c911440f8d576a
 
 /// Implement to_str and str_len methods and basic Derive macros for a fieldless enum.
 macro_rules! to_str {
     (
-        $(#[$m:meta])*
-        $vis:vis enum $ename:ident { $(
-            $(#[$fm:meta])*
-            $variant:ident = $s:literal,
-        )+ }
+        $(#[$em:meta])*
+        $vis:vis enum $e:ident { $($t:tt)+ }
     ) => {
-        $(#[$m])* #[derive(Clone, Copy, Debug)]
-        $vis enum $ename { $(
-            $(#[$fm])* $variant,
-        )+ }
-        impl $ename {
-            pub const fn to_str(self) -> &'static str {
-                match self {
-                    $($ename::$variant => $s ,)+
-                }
+        to_str!(@impl [def {$(#[$em])*} {$vis} $e {}] [to_str {}] [str_len {}] : $($t)+);
+    };
+    // expand token trees
+    (@impl
+     [def {$(#[$em:meta])*} {$vis:vis} $e:ident $({ $($vars:tt)* })*]
+     [to_str  { $($b1:tt)* }]
+     [str_len { $($b2:tt)* }] :
+    ) => {
+        #[derive(Clone, Copy, Debug)] $(#[$em])* $vis enum $e {
+            $( $($vars)* )*
+        }
+        impl $e {
+            pub fn to_str(self) -> &'static str {
+                match self { $($b1)* }
             }
-            pub const fn str_len(self) -> usize {
-                match self {
-                    $($ename::$variant => $s.len() ,)+
-                }
+            pub fn str_len(self) -> usize {
+                match self { $($b2)* }
             }
         }
     };
-    // It's tricky to intersperse fieldless variants with field-carrying ones,
-    // thus use `@` to separate them.
-    (
-        $(#[$m:meta])*
-        $vis:vis enum $ename:ident { $(
-            $(#[$fm:meta])*
-            $variant:ident = $s:literal,
-        )* @ $(
-            $(#[$vm:meta])*
-            $var:ident($inner:ident),
-        )* }
+    (@impl
+     [def {$(#[$em:meta])*} {$vis:vis} $e:ident { $($vars:tt)* }]
+     [to_str  { $($b1:tt)* }]
+     [str_len { $($b2:tt)* }] :
+     $(#[$vm:meta])* $var:ident = $s:literal ,
     ) => {
-        $(#[$m])* #[derive(Clone, Copy, Debug)]
-        $vis enum $ename { $(
-            $(#[$fm])* $variant,
-        )* $(
-            $(#[$vm])* $var($inner),
-        )*}
-        impl $ename {
-            pub const fn to_str(self) -> &'static str {
-                match self {
-                    $($ename::$variant => $s ,)*
-                    $($ename::$var(val) => val.to_str() ,)*
-                }
-            }
-            pub const fn str_len(self) -> usize {
-                match self {
-                    $($ename::$variant => $s.len() ,)*
-                    $($ename::$var(val) => val.str_len() ,)*
-                }
-            }
-        }
+        to_str!(@impl
+            [def {$(#[$em])*} {$vis} $e { $($vars)* $(#[$vm])* $var , } ]
+            [to_str  { $($b1)* $e::$var => $s,       } ]
+            [str_len { $($b2)* $e::$var => $s.len(), } ] :
+        );
+    };
+    (@impl
+     [def {$(#[$em:meta])*} {$vis:vis} $e:ident { $($vars:tt)* }]
+     [to_str  { $($b1:tt)* }]
+     [str_len { $($b2:tt)* }] :
+     $(#[$vm:meta])* $var:ident = $s:literal , $($t:tt)+
+    ) => {
+        to_str!(@impl
+            [def {$(#[$em])*} {$vis} $e { $($vars)* $(#[$vm])* $var , } ]
+            [to_str  { $($b1)* $e::$var => $s,       } ]
+            [str_len { $($b2)* $e::$var => $s.len(), } ] :
+            $($t)+
+        );
+    };
+    (@impl
+     [def {$(#[$em:meta])*} {$vis:vis} $e:ident { $($vars:tt)* }]
+     [to_str  { $($b1:tt)* }]
+     [str_len { $($b2:tt)* }] :
+     $(#[$vm:meta])* $var:ident($inner:ident) ,
+    ) => {
+        to_str!(@impl
+            [def {$(#[$em])*} {$vis} $e { $($vars)* $(#[$vm])* $var($inner) , } ]
+            [to_str  { $($b1)* $e::$var(val) => val.to_str(), } ]
+            [str_len { $($b2)* $e::$var(val) => val.str_len(),} ] :
+        );
+    };
+    (@impl
+     [def {$(#[$em:meta])*} {$vis:vis} $e:ident { $($vars:tt)* }]
+     [to_str  { $($b1:tt)* }]
+     [str_len { $($b2:tt)* }] :
+     $(#[$vm:meta])* $var:ident($inner:ident) , $($t:tt)+
+    ) => {
+        to_str!(@impl
+            [def {$(#[$em])*} {$vis} $e { $($vars)* $(#[$vm])* $var($inner) , } ]
+            [to_str  { $($b1)* $e::$var(val) => val.to_str(), } ]
+            [str_len { $($b2)* $e::$var(val) => val.str_len(),} ] :
+            $($t)+
+        );
     };
 }
+
+to_str!(
+    pub enum Symbol {
+        Syntax(Syntax),
+        Punctuation(Punctuation),
+    }
+);
 
 to_str!(
     /// Symbol as syntax component.
     ///
     /// NOTE: some syntax has already included whitespaces, because this saves pushing them.
     pub enum Syntax {
-        /// `&`
         Reference = "&",
-        /// `&mut`
         ReferenceMut = "&mut",
-        /// `mut`: lifetime may lie between `&` and `mut`
+        /// lifetime may lie between `&` and `mut`
         Mut = "mut",
-        /// `Self`
         Self_ = "Self",
-        /// `dyn `
+        Where = "where ",
         Dyn = "dyn ",
-        /// `::`
         PathSep = "::",
-        /// ` as `
         As = " as ",
-        /// `*const `
         RawPointer = "*const ",
-        /// `*mut `
         RawPointerMut = "*mut ",
-        /// `_`
         Infer = "_",
-        /// `impl `
         Impl = "impl ",
-        /// `for`
         For = "for",
-        /// `?` (mainly ?Sized)
+        /// mainly for `?Sized`
         Maybe = "?",
-        /// `~const `
         MaybeConst = "~const",
     }
 );
@@ -150,9 +161,9 @@ to_str!(
         Comma = ", ",
         /// `: `
         Colon = ": ",
-        /// ` = `
+        /// <code> = </code>
         Equal = " = ",
-        /// ` + `
+        /// <code> + </code>
         Plus = " + ",
         Tick = "'",
         AngleBracketStart = "<",
@@ -168,7 +179,7 @@ to_str!(
 
 to_str!(
     /// Components in declaration. A type doesn't need this, but type declaration need this.
-    pub enum Decl { @
+    pub enum Decl {
         Vis(Vis),
         Function(Function),
         Struct(Struct),
@@ -192,9 +203,8 @@ to_str!(
         Const = "const ",
         Async = "async ",
         Unsafe = "unsafe ",
-        Fn = "fn ",
-        @
         Abi(Abi),
+        Fn = "fn ",
     }
 );
 

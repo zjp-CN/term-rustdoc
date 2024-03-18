@@ -1,7 +1,10 @@
 #![allow(unused)]
 mod path;
 
-use crate::{tree::ID, util::XString};
+use crate::{
+    tree::{IDMap, ID},
+    util::XString,
+};
 
 trait Format {
     fn format(&self, buf: &mut StyledType);
@@ -29,7 +32,85 @@ impl StyledType {
         }
         buf
     }
+
+    fn write_punctuation(&mut self, punc: Punctuation) {
+        self.write(Tag::Symbol(Symbol::Punctuation(punc)));
+    }
+
+    fn write_syntax(&mut self, syntax: Syntax) {
+        self.write(Tag::Symbol(Symbol::Syntax(syntax)));
+    }
+
+    fn write_vis(&mut self, vis: Vis) {
+        self.write(Tag::Decl(Decl::Vis(vis)));
+    }
+
+    fn write_vis_scope(&mut self, id: ID, map: &IDMap) {
+        self.write(Tag::Decl(Decl::Vis(Vis::PubScope)));
+        self.write_in_parentheses(|s| {
+            let name = map.path(&id);
+            s.write(Tag::PubScope(id));
+            s.write(Tag::Name(name))
+        });
+    }
+
+    /// Write `start_tag` `x` `end_tag` where x is written from the callback.
+    /// (start_tag, end_tag) can be `()` `[]` `{}` `<>` [`Span`] etc.
+    fn write_enclosing_tag(
+        &mut self,
+        start_tag: Tag,
+        end_tag: Tag,
+        f: impl FnOnce(&mut StyledType),
+    ) {
+        self.write(start_tag);
+        f(self);
+        self.write(end_tag);
+    }
+
+    fn write_decl(&mut self, decl: Decl) {
+        self.write(Tag::Decl(decl));
+    }
 }
+
+macro_rules! impl_write_tag {
+    (@Punctuation $($fname:ident $s:literal: $start:ident, $end:ident),+ $(,)?) => {
+        /// Write stuff in enclosing [`Punctuation`]s.
+        impl StyledType { $(
+            #[doc = concat!("Write `", $s, "` where x is written from the callback.")]
+            pub fn $fname(&mut self, f: impl FnOnce(&mut StyledType)) {
+                let start = Tag::Symbol(Symbol::Punctuation(Punctuation::$start));
+                let end = Tag::Symbol(Symbol::Punctuation(Punctuation::$end));
+                self.write_enclosing_tag(start, end, f);
+            }
+        )+ }
+    };
+    (@span $($fname:ident $s:literal $span:ident),+ $(,)?) => {
+        /// Write stuff in enclosing [`Span`]s.
+        impl StyledType { $(
+            #[doc = concat!("Write `", $s, "` as [`Span::", stringify!($span),
+              "`] between [`Tag::Start`] and [`Tag::End`] with the callback.")]
+            pub fn $fname(&mut self, f: impl FnOnce(&mut StyledType)) {
+                let start = Tag::Start(Span::$span);
+                let end = Tag::End(Span::$span);
+                self.write_enclosing_tag(start, end, f);
+            }
+        )+ }
+    };
+}
+
+impl_write_tag!(@Punctuation
+    write_in_brace "{x}": BraceStart, BraceEnd ,
+    write_in_parentheses "(x)": ParenthesisStart, ParenthesisEnd ,
+    write_in_angle_bracket "<x>": AngleBracketStart, AngleBracketEnd ,
+    write_in_squre_bracket "[x]": SquareBracketStart, SquareBracketEnd ,
+);
+
+impl_write_tag!(@span
+    write_span_type_name "..." TypeName ,
+    write_span_where_bound "where ..." WhereBound ,
+    write_span_generics_def "< ... >" GenericsDef ,
+    write_span_function_name "fn ..." FunctionName ,
+);
 
 /// Rendering tag which represents color, style and metadata that are used to jump.
 #[derive(Clone, Debug)]
@@ -52,6 +133,8 @@ pub enum Tag {
     /// `extern "other_abi" ` is composed of [`Abi::Other`], [`Punctuation::Quote`],
     /// [`Tag::UnusualAbi`], [`Punctuation::Quote`] and [`Punctuation::WhiteSpace`].
     UnusualAbi(XString),
+    Start(Span),
+    End(Span),
 }
 
 impl Tag {
@@ -63,6 +146,7 @@ impl Tag {
             Tag::Decl(s) => buf.push_str(s.to_str()),
             Tag::PubScope(_) => (),
             Tag::UnusualAbi(s) => buf.push_str(s),
+            Tag::Start(_) | Tag::End(_) => (),
         }
     }
     pub fn str_len(&self) -> usize {
@@ -75,6 +159,7 @@ impl Tag {
             // `pub(scope)`: scope use name len rather than id len, but we should count `pub()` here
             Tag::PubScope(_) => 0,
             Tag::UnusualAbi(s) => s.len(),
+            Tag::Start(_) | Tag::End(_) => 0,
         }
     }
 }
@@ -270,5 +355,27 @@ to_str!(
 to_str!(
     pub enum Struct {
         Struct = "struct ",
+    }
+);
+
+to_str!(
+    /// Used to recognize the enclosing span for a component that needs styles.
+    /// We want generics definitions, where bounds, names for structs/enums/fns,
+    /// types for fields/enums/fn arguments etc to be colored.
+    ///
+    /// E.g. `Start(Function) - Path(ID) - Name(string) - End(Function)`
+    ///
+    /// All variants are zero str_len, and won't display anything.
+    /// In conjuction with [`Tag::Start`] and [`Tag::End`].
+    pub enum Span {
+        TypeName = "",
+        GenericsDef = "",
+        WhereBound = "",
+        FunctionName = "",
+        FunctionArg = "",
+        StructName = "",
+        Field = "",
+        EnumName = "",
+        Variant = "",
     }
 );

@@ -32,6 +32,10 @@ impl StyledType {
         buf
     }
 
+    fn write_name(&mut self, name: &str) {
+        self.write(Tag::Name(name.into()));
+    }
+
     fn write_id_name(&mut self, id: impl IdToID, name: &str) {
         self.write(Tag::Path(id.to_ID()));
         self.write(Tag::Name(name.into()));
@@ -297,6 +301,8 @@ to_str!(
         /// <code> + </code>
         Plus = " + ",
         Apostrophe = "'",
+        /// `; `
+        SimiColon = "; ",
         AngleBracketStart = "<",
         AngleBracketEnd = ">",
         SquareBracketStart = "[",

@@ -1,14 +1,13 @@
 #![allow(unused)]
 mod path;
+mod type_;
 
 use crate::{
-    tree::{IDMap, ID},
+    tree::{IDMap, IdToID, ID},
     util::XString,
 };
 
-trait Format {
-    fn format(&self, buf: &mut StyledType);
-}
+use self::path::{FindName, Format};
 
 pub struct StyledType {
     inner: Vec<Tag>,
@@ -19,8 +18,8 @@ impl StyledType {
         self.inner.push(tag);
     }
 
-    fn write_format(&mut self, fmt: impl Format) {
-        fmt.format(self);
+    fn write_format<Kind: FindName>(&mut self, fmt: impl Format) {
+        fmt.format::<Kind>(self);
     }
 
     #[allow(clippy::inherent_to_string)]
@@ -31,6 +30,11 @@ impl StyledType {
             tag.write_to_string(&mut buf)
         }
         buf
+    }
+
+    fn write_id_name(&mut self, id: impl IdToID, name: &str) {
+        self.write(Tag::Path(id.to_ID()));
+        self.write(Tag::Name(name.into()));
     }
 
     fn write_punctuation(&mut self, punc: Punctuation) {
@@ -106,6 +110,7 @@ impl_write_tag!(@Punctuation
 );
 
 impl_write_tag!(@span
+    write_span_path_name "path_without_generics" PathName ,
     write_span_type_name "..." TypeName ,
     write_span_where_bound "where ..." WhereBound ,
     write_span_generics_def "< ... >" GenericsDef ,
@@ -368,6 +373,7 @@ to_str!(
     /// All variants are zero str_len, and won't display anything.
     /// In conjuction with [`Tag::Start`] and [`Tag::End`].
     pub enum Span {
+        PathName = "",
         TypeName = "",
         GenericsDef = "",
         WhereBound = "",

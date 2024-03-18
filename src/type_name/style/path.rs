@@ -1,8 +1,96 @@
-use super::Format;
-use rustdoc_types::Path;
+use super::StyledType;
+use rustdoc_types::{Path, Type};
 
-impl Format for Path {
-    fn format(&self, buf: &mut super::StyledType) {
-        todo!()
+pub trait TypeName: Copy + FnOnce(&Type, &mut StyledType) {}
+impl<F> TypeName for F where F: Copy + FnOnce(&Type, &mut StyledType) {}
+pub trait ResolvePath: Copy + FnOnce(&Path, &mut StyledType) {}
+impl<F> ResolvePath for F where F: Copy + FnOnce(&Path, &mut StyledType) {}
+
+pub trait FindName {
+    fn type_name() -> impl TypeName;
+    fn resolve_path() -> impl ResolvePath;
+    // fn type_and_path() -> (impl TypeName, impl ResolvePath) {
+    //     (Self::type_name(), Self::resolve_path())
+    // }
+}
+
+pub struct Short;
+
+impl FindName for Short {
+    fn type_name() -> impl TypeName {
+        short
+    }
+    fn resolve_path() -> impl ResolvePath {
+        short_path
     }
 }
+
+pub struct Long;
+
+impl FindName for Long {
+    fn type_name() -> impl TypeName {
+        long
+    }
+    fn resolve_path() -> impl ResolvePath {
+        long_path
+    }
+}
+
+pub fn short(ty: &Type, buf: &mut StyledType) {
+    <Type as Format>::format::<Short>(ty, buf);
+}
+
+pub fn long(ty: &Type, buf: &mut StyledType) {
+    <Type as Format>::format::<Long>(ty, buf);
+}
+
+/// Show full names in path.
+///
+/// Not guaranteed to always be an absolute path for any Path.
+pub fn long_path(p: &Path, buf: &mut StyledType) {
+    let Path { name, id, args } = p;
+    buf.write_span_path_name(|s| s.write_id_name(id, name));
+    // TODO: generic args
+    // let name = p.name.as_str();
+    // p.args
+    //     .as_deref()
+    //     .and_then(generic_args::<Long>)
+    //     .map_or_else(|| name.into(), |arg| xformat!("{name}{arg}"))
+}
+
+/// Only show the last name in path.
+pub fn short_path(p: &Path, buf: &mut StyledType) {
+    fn short_name(name: &str) -> &str {
+        &name[name.rfind(':').map_or(0, |x| x + 1)..]
+    }
+    let Path { name, id, args } = p;
+    let name = short_name(name);
+    buf.write_span_path_name(|s| s.write_id_name(id, name));
+    // TODO: generic args
+    // let name = short_name(&p.name);
+    // p.args
+    //     .as_deref()
+    //     .and_then(generic_args::<Short>)
+    //     .map_or_else(|| name.into(), |arg| xformat!("{name}{arg}"))
+}
+
+pub trait Format {
+    fn format<T: FindName>(&self, buf: &mut StyledType);
+}
+
+impl Format for Path {
+    fn format<Kind: FindName>(&self, buf: &mut StyledType) {
+        (Kind::resolve_path())(self, buf);
+    }
+}
+
+// Turn Format into trait object.
+// trait FormatObj<K: FindName> {
+//     fn format_styled(&self, buf: &mut StyledType);
+// }
+// impl<T: Format, K: FindName> FormatObj<K> for T {
+//     fn format_styled(&self, buf: &mut StyledType) {
+//         self.format::<K>(buf);
+//     }
+// }
+// fn check<K: FindName>(_: &dyn FormatObj<K>) {}

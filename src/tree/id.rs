@@ -57,6 +57,16 @@ impl IdToID for &str {
     }
 }
 
+impl<T: IdToID> IdToID for &T {
+    fn to_ID(&self) -> ID {
+        T::to_ID(self)
+    }
+
+    fn into_ID(self) -> ID {
+        T::to_ID(self)
+    }
+}
+
 pub trait SliceToIds {
     fn to_ids(&self) -> IDs;
 }

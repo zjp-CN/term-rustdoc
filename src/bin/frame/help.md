@@ -62,6 +62,7 @@ KeyMap:
 
 * `Space`: compile doc with selected features.
 * `Tab`: switch between Features and Version panel.
+* `Esc`: close Selection popup, and return to Registry
 
 ### Features
 
@@ -77,10 +78,9 @@ There are four signs:
 *  : selected and passed, but implies the feature has already been enabled by 
       other features, thus you don't need to enable it.
 
-KeyMap:
+Extra KeyMaps:
 
 * `Enter`: toggle a feature. (same as double left click)
-* `Tab`: switch to Version Selection panel.
 
 > **NOTE: there is no way to cancel once doc compilation starts.**
 

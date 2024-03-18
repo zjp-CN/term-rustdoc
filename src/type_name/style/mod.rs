@@ -14,8 +14,8 @@ pub struct StyledType {
 }
 
 impl StyledType {
-    fn write(&mut self, tag: Tag) {
-        self.inner.push(tag);
+    fn write<T: Into<Tag>>(&mut self, tag: T) {
+        self.inner.push(tag.into());
     }
 
     fn write_format<Kind: FindName>(&mut self, fmt: impl Format) {
@@ -41,18 +41,6 @@ impl StyledType {
         self.write(Tag::Name(name.into()));
     }
 
-    fn write_punctuation(&mut self, punc: Punctuation) {
-        self.write(Tag::Symbol(Symbol::Punctuation(punc)));
-    }
-
-    fn write_syntax(&mut self, syntax: Syntax) {
-        self.write(Tag::Symbol(Symbol::Syntax(syntax)));
-    }
-
-    fn write_vis(&mut self, vis: Vis) {
-        self.write(Tag::Decl(Decl::Vis(vis)));
-    }
-
     fn write_vis_scope(&mut self, id: ID, map: &IDMap) {
         self.write(Tag::Decl(Decl::Vis(Vis::PubScope)));
         self.write_in_parentheses(|s| {
@@ -73,10 +61,6 @@ impl StyledType {
         self.write(start_tag);
         f(self);
         self.write(end_tag);
-    }
-
-    fn write_decl(&mut self, decl: Decl) {
-        self.write(Tag::Decl(decl));
     }
 }
 
@@ -178,11 +162,14 @@ impl Tag {
 
 /// Implement to_str and str_len methods and basic Derive macros for a fieldless enum.
 macro_rules! to_str {
-    (
+    ($({$val:ident $from:expr})?
         $(#[$em:meta])*
         $vis:vis enum $e:ident { $($t:tt)+ }
     ) => {
         to_str!(@impl [def {$(#[$em])* $vis} $e {}] [to_str {}] [str_len {}] : $($t)+);
+        $(impl From<$e> for Tag {
+            fn from($val: $e) -> Tag { $from }
+        })?
     };
     // expand token trees
     (@impl
@@ -253,14 +240,14 @@ macro_rules! to_str {
     };
 }
 
-to_str!(
+to_str!({val Tag::Symbol(val)}
     pub enum Symbol {
         Syntax(Syntax),
         Punctuation(Punctuation),
     }
 );
 
-to_str!(
+to_str!({val Tag::Symbol(Symbol::Syntax(val))}
     /// Symbol as syntax component.
     ///
     /// NOTE: some syntax has already included whitespaces, because this saves pushing them.
@@ -285,7 +272,7 @@ to_str!(
     }
 );
 
-to_str!(
+to_str!({val Tag::Symbol(Symbol::Punctuation(val))}
     /// Punctuation symbol.
     ///
     /// NOTE: some Punctuations have included whitespaces for convenience.
@@ -315,7 +302,7 @@ to_str!(
     }
 );
 
-to_str!(
+to_str!({val Tag::Decl(val)}
     /// Components in declaration. A type doesn't need this, but type declaration need this.
     pub enum Decl {
         Vis(Vis),
@@ -324,7 +311,7 @@ to_str!(
     }
 );
 
-to_str!(
+to_str!({val Tag::Decl(Decl::Vis(val))}
     pub enum Vis {
         Pub = "pub ",
         /// placeholder: not showing anything
@@ -335,7 +322,7 @@ to_str!(
     }
 );
 
-to_str!(
+to_str!({val Tag::Decl(Decl::Function(val))}
     /// FunctionQualifiers order: const? async? unsafe? (extern Abi?)? fn
     pub enum Function {
         Const = "const ",
@@ -346,7 +333,7 @@ to_str!(
     }
 );
 
-to_str!(
+to_str!({val Tag::Decl(Decl::Function(Function::Abi(val)))}
     pub enum Abi {
         /// `extern "Rust"` is valid though, but for simplicity, no need to show it.
         Rust = "",
@@ -363,7 +350,7 @@ to_str!(
     }
 );
 
-to_str!(
+to_str!({val Tag::Decl(Decl::Struct(val))}
     pub enum Struct {
         Struct = "struct ",
     }

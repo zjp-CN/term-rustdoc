@@ -88,7 +88,7 @@ fn typename<Kind: FindName>(ty: &Type) -> XString {
                 xformat!("{self_}::{name}")
             }
         }
-        Type::Slice(ty) => typename::<Kind>(ty),
+        Type::Slice(ty) => xformat!("[{}]", typename::<Kind>(ty)),
         Type::DynTrait(poly) => dyn_trait::<Kind>(poly),
         Type::ImplTrait(b) => xformat!(
             "impl {}",

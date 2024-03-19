@@ -50,12 +50,9 @@ pub fn long(ty: &Type, buf: &mut StyledType) {
 pub fn long_path(p: &Path, buf: &mut StyledType) {
     let Path { name, id, args } = p;
     buf.write_span_path_name(|s| s.write_id_name(id, name));
-    // TODO: generic args
-    // let name = p.name.as_str();
-    // p.args
-    //     .as_deref()
-    //     .and_then(generic_args::<Long>)
-    //     .map_or_else(|| name.into(), |arg| xformat!("{name}{arg}"))
+    if let Some(generic_args) = args.as_deref() {
+        generic_args.format::<Long>(buf);
+    }
 }
 
 /// Only show the last name in path.
@@ -66,16 +63,13 @@ pub fn short_path(p: &Path, buf: &mut StyledType) {
     let Path { name, id, args } = p;
     let name = short_name(name);
     buf.write_span_path_name(|s| s.write_id_name(id, name));
-    // TODO: generic args
-    // let name = short_name(&p.name);
-    // p.args
-    //     .as_deref()
-    //     .and_then(generic_args::<Short>)
-    //     .map_or_else(|| name.into(), |arg| xformat!("{name}{arg}"))
+    if let Some(generic_args) = args.as_deref() {
+        generic_args.format::<Short>(buf);
+    }
 }
 
 pub trait Format {
-    fn format<T: FindName>(&self, buf: &mut StyledType);
+    fn format<Kind: FindName>(&self, buf: &mut StyledType);
 }
 
 impl Format for Path {

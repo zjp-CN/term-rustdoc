@@ -1,6 +1,8 @@
 #![allow(unused)]
+mod generics;
 mod path;
 mod type_;
+mod utils;
 
 use crate::{
     tree::{IDMap, IdToID, ID},
@@ -18,9 +20,9 @@ impl StyledType {
         self.inner.push(tag.into());
     }
 
-    fn write_format<Kind: FindName>(&mut self, fmt: impl Format) {
-        fmt.format::<Kind>(self);
-    }
+    // fn write_format<Kind: FindName>(&mut self, fmt: &impl Format) {
+    //     fmt.format::<Kind>(self);
+    // }
 
     #[allow(clippy::inherent_to_string)]
     fn to_string(&self) -> String {
@@ -128,6 +130,12 @@ pub enum Tag {
     UnusualAbi(XString),
     Start(Span),
     End(Span),
+}
+
+impl From<&str> for Tag {
+    fn from(val: &str) -> Self {
+        Tag::Name(val.into())
+    }
 }
 
 impl Tag {
@@ -256,6 +264,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
         ReferenceMut = "&mut",
         /// lifetime may lie between `&` and `mut`
         Mut = "mut",
+        ReturnArrow = " -> ",
         Self_ = "Self",
         Where = "where ",
         Dyn = "dyn ",
@@ -266,6 +275,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
         Infer = "_",
         Impl = "impl ",
         For = "for",
+        Const = "const ",
         /// mainly for `?Sized`
         Maybe = "?",
         MaybeConst = "~const",

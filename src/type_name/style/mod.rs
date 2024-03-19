@@ -261,7 +261,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
     /// NOTE: some syntax has already included whitespaces, because this saves pushing them.
     pub enum Syntax {
         Reference = "&",
-        ReferenceMut = "&mut",
+        ReferenceMut = "&mut ",
         /// lifetime may lie between `&` and `mut`
         Mut = "mut",
         ReturnArrow = " -> ",

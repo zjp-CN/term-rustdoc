@@ -42,14 +42,14 @@ impl Format for Type {
                     lifetime,
                     mutable,
                     type_,
-                } => todo!(),
-                // <Type as Trait>::Name-Args
+                } => borrow_ref::<Kind>(lifetime.as_deref(), *mutable, type_, buf),
                 Type::QualifiedPath {
                     name,
                     args,
                     self_type,
                     trait_,
                 } => {
+                    // <Type as Trait>::Name-Args
                     if let Some(trait_path) = trait_ {
                         buf.write_in_angle_bracket(|buf| {
                             self_type.format::<Kind>(buf);
@@ -105,4 +105,45 @@ impl Format for [PolyTrait] {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         buf.write_slice(self, PolyTrait::format::<Kind>, write_plus);
     }
+}
+
+fn borrow_ref<Kind: FindName>(
+    lifetime: Option<&str>,
+    mutable: bool,
+    ty: &Type,
+    buf: &mut StyledType,
+) {
+    match (mutable, lifetime) {
+        (false, None) => buf.write(Syntax::Reference), // &Type
+        (true, None) => buf.write(Syntax::ReferenceMut), // &mut Type
+        (false, Some(s)) => {
+            // &'lifetime Type
+            buf.write(Syntax::Reference);
+            buf.write(s);
+            buf.write(Punctuation::WhiteSpace);
+        }
+        (true, Some(s)) => {
+            // &'lifetime mut Type
+            buf.write(Syntax::Reference);
+            buf.write(s);
+            buf.write(Syntax::Mut);
+            buf.write(Punctuation::WhiteSpace);
+        }
+    }
+
+    match ty {
+        Type::DynTrait(d) if parenthesized_type(d) => {
+            buf.write_in_parentheses(|buf| d.format::<Kind>(buf))
+        }
+        _ => ty.format::<Kind>(buf),
+    }
+}
+
+/// Ref: <https://doc.rust-lang.org/reference/types.html#parenthesized-types>
+///
+/// dyn multi-Traits behind a reference or raw pointer type needs `()` disambiguation.
+///
+/// bool means whether the type should be added `()`.
+fn parenthesized_type(d: &DynTrait) -> bool {
+    d.traits.len() + d.lifetime.is_some() as usize > 1
 }

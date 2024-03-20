@@ -1,9 +1,11 @@
+mod function;
+
 use super::{
     path::{FindName, Format, Short},
-    Punctuation, StyledType, Vis,
+    StyledType, Vis,
 };
 use crate::tree::IDMap;
-use rustdoc_types::{Function, Generics, ItemEnum, Visibility};
+use rustdoc_types::{ItemEnum, Visibility};
 
 pub fn item_styled(id: &str, map: &IDMap) -> StyledType {
     if let Some(item) = map.get_item(id) {
@@ -51,33 +53,5 @@ trait Declaration {
     fn format<K: FindName>(&self, map: VisNameMap, buf: &mut StyledType);
     fn format_as_short(&self, map: VisNameMap, buf: &mut StyledType) {
         <Self as Declaration>::format::<Short>(self, map, buf);
-    }
-}
-
-impl Declaration for Function {
-    fn format<K: FindName>(&self, map: VisNameMap, buf: &mut StyledType) {
-        map.vis.format::<K>(buf);
-        let Function {
-            decl,
-            generics,
-            header,
-            has_body,
-        } = self;
-        header.format::<K>(buf);
-        buf.write(super::Function::Fn);
-        buf.write(map.name);
-        let Generics {
-            params,
-            where_predicates,
-        } = generics;
-        if !params.is_empty() {
-            params.format::<K>(buf);
-        }
-        decl.format::<K>(buf);
-        where_predicates.format::<K>(buf);
-        if !*has_body {
-            // if a function has no body, it's likely an associated function in trait definition
-            buf.write(Punctuation::SemiColon);
-        }
     }
 }

@@ -52,41 +52,6 @@ impl Format for FnPointerDecl<'_> {
     }
 }
 
-impl Format for FnDecl {
-    fn format<Kind: FindName>(&self, buf: &mut StyledType) {
-        let FnDecl {
-            inputs,
-            output,
-            c_variadic,
-        } = self;
-        // Multiline for args if the count is more than 2.
-        let multiline = inputs.len() > 2;
-        buf.write_in_parentheses(|buf| {
-            buf.write_slice(
-                inputs,
-                |arg, buf| {
-                    if multiline {
-                        buf.write(Punctuation::NewLine);
-                        buf.write(Punctuation::Indent);
-                    }
-                    arg.format::<Kind>(buf);
-                },
-                write_comma,
-            );
-            if *c_variadic {
-                buf.write(Syntax::Variadic);
-            }
-            if multiline {
-                buf.write(Punctuation::NewLine);
-            }
-        });
-        if let Some(ty) = output {
-            buf.write(Syntax::ReturnArrow);
-            ty.format::<Kind>(buf);
-        }
-    }
-}
-
 impl Format for (String, Type) {
     /// Named function inputs for fn items.
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {

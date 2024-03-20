@@ -1,4 +1,4 @@
-use super::{path::*, utils::write_comma, Punctuation, StyledType, Syntax, Tag};
+use super::{generics::hrtb, path::*, utils::write_comma, Punctuation, StyledType, Syntax, Tag};
 use rustdoc_types::{Abi, FnDecl, FunctionPointer, Header, Type};
 
 impl Format for FunctionPointer {
@@ -8,12 +8,10 @@ impl Format for FunctionPointer {
             generic_params, // HRTB
             header,
         } = self;
+        hrtb::<Kind>(generic_params, buf);
         header.format::<Kind>(buf);
+        buf.write(super::Function::FnPointer);
         FnPointerDecl(decl).format::<Kind>(buf);
-        if !generic_params.is_empty() {
-            buf.write(Syntax::For);
-            generic_params.format::<Kind>(buf);
-        }
     }
 }
 

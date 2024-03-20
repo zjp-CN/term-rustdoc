@@ -315,7 +315,7 @@ to_str!({val Tag::Symbol(Symbol::Punctuation(val))}
         Plus = " + ",
         Apostrophe = "'",
         /// `; `
-        SimiColon = "; ",
+        SemiColon = "; ",
         AngleBracketStart = "<",
         AngleBracketEnd = ">",
         SquareBracketStart = "[",

@@ -1,7 +1,7 @@
 use super::{path::*, utils::*, Punctuation, StyledType, Syntax, Tag};
 use rustdoc_types::{
     Constant, GenericArg, GenericArgs, GenericBound, GenericParamDef, GenericParamDefKind, Term,
-    TraitBoundModifier, TypeBinding, TypeBindingKind,
+    TraitBoundModifier, TypeBinding, TypeBindingKind, WherePredicate,
 };
 
 /// Outlives are a vec of String, so to meet the bound on [`write_bounds`] fn,
@@ -84,10 +84,7 @@ impl Format for GenericBound {
                 generic_params, // HRTB: for<...>
                 modifier,       // none, ?Trait, ~const Trait
             } => {
-                if !generic_params.is_empty() {
-                    buf.write(Syntax::For);
-                    <[GenericParamDef]>::format::<Kind>(generic_params, buf);
-                }
+                hrtb::<Kind>(generic_params, buf);
                 modifier.format::<Kind>(buf);
                 trait_.format::<Kind>(buf);
             }
@@ -217,5 +214,57 @@ impl Format for Term {
             Term::Type(ty) => ty.format::<Kind>(buf),
             Term::Constant(c) => c.format::<Kind>(buf),
         }
+    }
+}
+
+pub fn hrtb<Kind: FindName>(def: &[GenericParamDef], buf: &mut StyledType) {
+    if !def.is_empty() {
+        buf.write(Syntax::For);
+        def.format::<Kind>(buf);
+        buf.write(Punctuation::WhiteSpace);
+    }
+}
+
+impl Format for WherePredicate {
+    fn format<Kind: FindName>(&self, buf: &mut StyledType) {
+        match self {
+            WherePredicate::BoundPredicate {
+                type_,
+                bounds,
+                generic_params, // HRTB
+            } => {
+                hrtb::<Kind>(generic_params, buf);
+                type_.format::<Kind>(buf);
+                // colon is necessary here because empty bound like `[T; N]:` is allowed.
+                buf.write(Punctuation::Colon);
+                bounds.format::<Kind>(buf);
+            }
+            WherePredicate::RegionPredicate { lifetime, bounds } => {
+                buf.write(lifetime);
+                buf.write(Punctuation::Colon);
+                bounds.format::<Kind>(buf);
+            }
+            WherePredicate::EqPredicate { lhs, rhs } => {
+                lhs.format::<Kind>(buf);
+                buf.write(Punctuation::Equal);
+                rhs.format::<Kind>(buf);
+            }
+        }
+    }
+}
+
+impl Format for [WherePredicate] {
+    /// `where ...`
+    fn format<Kind: FindName>(&self, buf: &mut StyledType) {
+        buf.write(Syntax::Where);
+        buf.write_slice(
+            self,
+            |t, buf| {
+                buf.write(Punctuation::NewLine);
+                buf.write(Punctuation::Indent);
+                t.format::<Kind>(buf);
+            },
+            write_comma,
+        );
     }
 }

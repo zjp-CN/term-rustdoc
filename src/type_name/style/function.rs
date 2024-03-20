@@ -17,6 +17,8 @@ impl Format for FunctionPointer {
 
 /// Fn pointer contains a default `_` as argument name, but no need to show it.
 /// Rust also allows named arguments in fn pointer, so if the name is not `_`, it's shown.
+/// Besides, the arguments in a fnpointer are in one line, or rather the whole fnpointer is one-line,
+/// whereas lines for arguments in a function item depend.
 struct FnPointerDecl<'d>(&'d FnDecl);
 
 impl Format for FnPointerDecl<'_> {
@@ -57,10 +59,25 @@ impl Format for FnDecl {
             output,
             c_variadic,
         } = self;
+        // Multiline for args if the count is more than 2.
+        let multiline = inputs.len() > 2;
         buf.write_in_parentheses(|buf| {
-            buf.write_slice(inputs, Format::format::<Kind>, write_comma);
+            buf.write_slice(
+                inputs,
+                |arg, buf| {
+                    if multiline {
+                        buf.write(Punctuation::NewLine);
+                        buf.write(Punctuation::Indent);
+                    }
+                    arg.format::<Kind>(buf);
+                },
+                write_comma,
+            );
             if *c_variadic {
                 buf.write(Syntax::Variadic);
+            }
+            if multiline {
+                buf.write(Punctuation::NewLine);
             }
         });
         if let Some(ty) = output {

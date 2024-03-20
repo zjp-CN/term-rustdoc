@@ -1,4 +1,4 @@
-use super::{path::*, utils::*, Punctuation, StyledType, Syntax};
+use super::{generics::hrtb, path::*, utils::*, Punctuation, StyledType, Syntax};
 use rustdoc_types::{DynTrait, PolyTrait, Type};
 
 impl Format for Type {
@@ -15,14 +15,14 @@ impl Format for Type {
                     // TODO: when external crates for std is ready, we should
                     // add an extra tag for Primitive types. But for now, we
                     // use the plain name.
-                    buf.write_name(p);
+                    buf.write(p);
                 }
                 Type::FunctionPointer(f) => f.format::<Kind>(buf),
                 Type::Tuple(types) => buf.write_in_parentheses(|buf| types.format::<Kind>(buf)),
                 Type::Slice(ty) => buf.write_in_squre_bracket(|b| ty.format::<Kind>(b)),
                 Type::Array { type_, len } => buf.write_in_squre_bracket(|buf| {
                     type_.format::<Kind>(buf);
-                    buf.write(Punctuation::SimiColon);
+                    buf.write(Punctuation::SemiColon);
                     buf.write(len);
                 }),
                 Type::ImplTrait(bounds) => {
@@ -92,11 +92,7 @@ impl Format for PolyTrait {
             trait_,
             generic_params, // HRTB
         } = self;
-        if !generic_params.is_empty() {
-            buf.write(Syntax::For);
-            generic_params.format::<Kind>(buf);
-            buf.write(Punctuation::WhiteSpace);
-        }
+        hrtb::<Kind>(generic_params, buf);
         trait_.format::<Kind>(buf);
     }
 }

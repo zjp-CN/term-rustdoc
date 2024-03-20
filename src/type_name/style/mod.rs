@@ -5,37 +5,48 @@ mod type_;
 mod utils;
 
 use crate::{
-    tree::{IDMap, IdToID, ID},
+    tree::{IdToID, ID},
     util::XString,
 };
+use std::fmt;
 
+pub use decl::item_styled;
 // use self::path::{FindName, Format};
 
+#[derive(Default, Clone, Debug)]
 pub struct StyledType {
     inner: Vec<Tag>,
 }
 
+impl fmt::Display for StyledType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for tag in &self.inner {
+            _ = tag.fmt(f);
+        }
+        Ok(())
+    }
+}
+
 impl StyledType {
+    pub fn with_capacity(cap: usize) -> Self {
+        StyledType {
+            inner: Vec::with_capacity(cap),
+        }
+    }
+
     fn write<T: Into<Tag>>(&mut self, tag: T) {
         self.inner.push(tag.into());
     }
 
-    // fn write_format<Kind: FindName>(&mut self, fmt: &impl Format) {
-    //     fmt.format::<Kind>(self);
-    // }
-
-    #[allow(clippy::inherent_to_string)]
-    fn to_string(&self) -> String {
-        let cap = self.inner.iter().map(Tag::str_len).sum::<usize>();
-        let mut buf = String::with_capacity(cap);
-        for tag in &self.inner {
-            tag.write_to_string(&mut buf)
-        }
-        buf
+    pub fn str_len(&self) -> usize {
+        self.inner.iter().map(Tag::str_len).sum()
     }
 
-    fn write_name(&mut self, name: &str) {
-        self.write(Tag::Name(name.into()));
+    pub fn to_non_wrapped_string(&self) -> String {
+        use fmt::Write;
+        let mut buf = String::with_capacity(self.str_len());
+        _ = write!(buf, "{self}");
+        buf
     }
 
     fn write_id_name(&mut self, id: impl IdToID, name: &str) {
@@ -138,18 +149,22 @@ impl From<&str> for Tag {
     }
 }
 
-impl Tag {
-    pub fn write_to_string(&self, buf: &mut String) {
+impl fmt::Display for Tag {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Tag::Path(_) => (),
-            Tag::Name(s) => buf.push_str(s),
-            Tag::Symbol(s) => buf.push_str(s.to_str()),
-            Tag::Decl(s) => buf.push_str(s.to_str()),
+            Tag::Name(s) => _ = f.write_str(s),
+            Tag::Symbol(s) => _ = f.write_str(s.to_str()),
+            Tag::Decl(s) => _ = f.write_str(s.to_str()),
             Tag::PubScope(_) => (),
-            Tag::UnusualAbi(s) => buf.push_str(s),
+            Tag::UnusualAbi(s) => _ = f.write_str(s),
             Tag::Start(_) | Tag::End(_) => (),
         }
+        Ok(())
     }
+}
+
+impl Tag {
     pub fn str_len(&self) -> usize {
         match self {
             // a path uses name len instead of id len

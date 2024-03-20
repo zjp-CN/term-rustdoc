@@ -64,7 +64,7 @@ impl Declaration for Function {
             has_body,
         } = self;
         header.format::<K>(buf);
-        buf.write(Punctuation::WhiteSpace);
+        buf.write(super::Function::Fn);
         buf.write(map.name);
         let Generics {
             params,

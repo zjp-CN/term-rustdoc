@@ -294,6 +294,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
         /// mainly for `?Sized`
         Maybe = "?",
         MaybeConst = "~const",
+        FnPointer = "fn",
         Variadic = ", ...",
     }
 );
@@ -357,7 +358,6 @@ to_str!({val Tag::Decl(Decl::Function(val))}
         Unsafe = "unsafe ",
         Abi(Abi),
         Fn = "fn ",
-        FnPointer = "fn",
     }
 );
 

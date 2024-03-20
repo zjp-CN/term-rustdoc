@@ -10,6 +10,7 @@ impl Format for FunctionPointer {
         } = self;
         hrtb::<Kind>(generic_params, buf);
         header.format::<Kind>(buf);
+        buf.write(Syntax::FnPointer);
         FnPointerDecl(decl).format::<Kind>(buf);
     }
 }
@@ -98,7 +99,6 @@ impl Format for Header {
             buf.write(Function::Unsafe);
         }
         abi.format::<Kind>(buf);
-        buf.write(super::Function::FnPointer);
     }
 }
 

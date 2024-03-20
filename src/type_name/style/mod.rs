@@ -1,3 +1,4 @@
+mod decl;
 mod function;
 mod generics;
 mod path;
@@ -54,12 +55,11 @@ impl StyledType {
         self.write(Tag::Name(name.into()));
     }
 
-    fn write_vis_scope(&mut self, id: ID, map: &IDMap) {
+    fn write_vis_scope(&mut self, id: impl IdToID, path: &str) {
         self.write(Tag::Decl(Decl::Vis(Vis::PubScope)));
         self.write_in_parentheses(|s| {
-            let name = map.path(&id);
-            s.write(Tag::PubScope(id));
-            s.write(Tag::Name(name))
+            s.write(Tag::PubScope(id.to_ID()));
+            s.write(Tag::Name(path.into()));
         });
     }
 
@@ -305,6 +305,7 @@ to_str!({val Tag::Symbol(Symbol::Punctuation(val))}
     pub enum Punctuation {
         WhiteSpace = " ",
         NewLine = "\n",
+        Indent = "    ",
         /// `, `
         Comma = ", ",
         /// `: `
@@ -356,6 +357,7 @@ to_str!({val Tag::Decl(Decl::Function(val))}
         Unsafe = "unsafe ",
         Abi(Abi),
         Fn = "fn ",
+        FnPointer = "fn",
     }
 );
 

@@ -254,8 +254,12 @@ impl Format for WherePredicate {
 }
 
 impl Format for [WherePredicate] {
-    /// `where ...`
+    /// Emit `\nwhere\n...` if not empty; do nothing if empty.
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
+        if self.is_empty() {
+            return;
+        }
+        buf.write(Punctuation::NewLine);
         buf.write(Syntax::Where);
         buf.write_slice(
             self,

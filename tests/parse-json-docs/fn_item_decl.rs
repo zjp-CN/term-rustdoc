@@ -50,7 +50,7 @@ fn fn_items() {
     "###);
 
     shot!(DisplaySlice(&styled_fn), @r###"
-    pub fn func_dyn_trait(d: &(ATrait + Send + Sync)) -> &dyn ATrait
+    pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait
     pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)
     pub fn func_fn_pointer_impl_trait(f: fn(*mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8
     pub fn func_hrtb<T: ATraitWithGAT>()
@@ -69,7 +69,7 @@ fn fn_items() {
     pub fn func_tuple_array_slice<'a, 'b>(
         a: &'a [u8], 
         b: &'b mut [u8; 8], 
-        _: &'b mut ('a + ATrait)
+        _: &'b mut (dyn 'a + ATrait)
     ) -> (&'a [u8], &'b mut [u8; 8])
     pub fn func_with_1arg(_: FieldsNamedStruct)
     pub fn func_with_1arg_and_ret(f: FieldsNamedStruct) -> AUnitEnum

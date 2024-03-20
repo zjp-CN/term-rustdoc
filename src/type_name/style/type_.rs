@@ -132,9 +132,10 @@ fn borrow_ref<Kind: FindName>(
     }
 
     match ty {
-        Type::DynTrait(d) if parenthesized_type(d) => {
-            buf.write_in_parentheses(|buf| d.format::<Kind>(buf))
-        }
+        Type::DynTrait(d) if parenthesized_type(d) => buf.write_in_parentheses(|buf| {
+            buf.write(Syntax::Dyn);
+            d.format::<Kind>(buf);
+        }),
         _ => ty.format::<Kind>(buf),
     }
 }

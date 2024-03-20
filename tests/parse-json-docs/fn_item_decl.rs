@@ -60,9 +60,9 @@ fn fn_items() {
     where 
         'a: 'b
     pub fn func_primitive(s: &str) -> usize
-    pub fn func_qualified_path<'a, I: Iterator>(iter: I) -> Option<<I as >::Item>
+    pub fn func_qualified_path<'a, I: Iterator>(iter: I) -> Option<I::Item>
     where 
-        <I as >::Item: 'a + Debug + Iterator<Item = ()> + ATraitWithGAT<Assoc<'a> = ()>
+        I::Item: 'a + Debug + Iterator<Item = ()> + ATraitWithGAT<Assoc<'a> = ()>
     pub fn func_trait_bounds<T>()
     where 
         T: Clone + Copy

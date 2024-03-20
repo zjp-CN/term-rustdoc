@@ -50,7 +50,10 @@ impl Format for Type {
                     trait_,
                 } => {
                     // <Type as Trait>::Name-Args
-                    if let Some(trait_path) = trait_ {
+                    // If the trait path is empty (but can still carry an ID), the QualifiedPath
+                    // is shown without the trait. If we were to use the name, `<Type as >::Name`
+                    // will be shown; if we were to use the ID, &IDMap should be addded in format.
+                    if let Some(trait_path) = trait_.as_ref().filter(|s| !s.name.is_empty()) {
                         buf.write_in_angle_bracket(|buf| {
                             self_type.format::<Kind>(buf);
                             buf.write(Syntax::As);

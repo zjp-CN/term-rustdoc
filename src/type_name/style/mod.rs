@@ -1,4 +1,4 @@
-#![allow(unused)]
+mod function;
 mod generics;
 mod path;
 mod type_;
@@ -9,7 +9,7 @@ use crate::{
     util::XString,
 };
 
-use self::path::{FindName, Format};
+// use self::path::{FindName, Format};
 
 pub struct StyledType {
     inner: Vec<Tag>,
@@ -279,6 +279,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
         /// mainly for `?Sized`
         Maybe = "?",
         MaybeConst = "~const",
+        Variadic = ", ...",
     }
 );
 

@@ -1,4 +1,4 @@
-use super::{path::Format, Punctuation, StyledType, Tag};
+use super::{Punctuation, StyledType, Tag};
 use itertools::intersperse;
 
 pub fn write_colon(buf: &mut StyledType) {
@@ -13,7 +13,7 @@ pub fn write_comma(buf: &mut StyledType) {
     buf.write(Punctuation::Comma);
 }
 
-pub fn write_nothing(_: &mut StyledType) {}
+// pub fn write_nothing(_: &mut StyledType) {}
 
 impl StyledType {
     /// Write a colon and bounds concatenated by `+`.
@@ -35,7 +35,7 @@ impl StyledType {
     /// Sometimes slice length check is still done before calling this method,
     /// say a slice of generic parameter bound needs an extra starting colon
     /// if it's non-empty, but does not if empty.
-    pub(super) fn write_slice<T: Format>(
+    pub(super) fn write_slice<T>(
         &mut self,
         slice: &[T],
         repeat: impl Fn(&T, &mut Self),

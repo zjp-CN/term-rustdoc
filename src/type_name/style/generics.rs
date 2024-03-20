@@ -1,5 +1,4 @@
 use super::{path::*, utils::*, Punctuation, StyledType, Syntax, Tag};
-use itertools::intersperse;
 use rustdoc_types::{
     Constant, GenericArg, GenericArgs, GenericBound, GenericParamDef, GenericParamDefKind, Term,
     TraitBoundModifier, TypeBinding, TypeBindingKind,

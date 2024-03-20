@@ -17,7 +17,7 @@ impl Format for Type {
                     // use the plain name.
                     buf.write_name(p);
                 }
-                Type::FunctionPointer(_) => todo!(),
+                Type::FunctionPointer(f) => f.format::<Kind>(buf),
                 Type::Tuple(types) => buf.write_in_parentheses(|buf| types.format::<Kind>(buf)),
                 Type::Slice(ty) => buf.write_in_squre_bracket(|b| ty.format::<Kind>(b)),
                 Type::Array { type_, len } => buf.write_in_squre_bracket(|buf| {

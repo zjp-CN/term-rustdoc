@@ -1,13 +1,13 @@
 use super::StyledType;
-use rustdoc_types::{Path, Type};
+use rustdoc_types::Path;
 
-pub trait TypeName: Copy + FnOnce(&Type, &mut StyledType) {}
-impl<F> TypeName for F where F: Copy + FnOnce(&Type, &mut StyledType) {}
+// pub trait TypeName: Copy + FnOnce(&Type, &mut StyledType) {}
+// impl<F> TypeName for F where F: Copy + FnOnce(&Type, &mut StyledType) {}
 pub trait ResolvePath: Copy + FnOnce(&Path, &mut StyledType) {}
 impl<F> ResolvePath for F where F: Copy + FnOnce(&Path, &mut StyledType) {}
 
 pub trait FindName {
-    fn type_name() -> impl TypeName;
+    // fn type_name() -> impl TypeName;
     fn resolve_path() -> impl ResolvePath;
     // fn type_and_path() -> (impl TypeName, impl ResolvePath) {
     //     (Self::type_name(), Self::resolve_path())
@@ -17,9 +17,9 @@ pub trait FindName {
 pub struct Short;
 
 impl FindName for Short {
-    fn type_name() -> impl TypeName {
-        short
-    }
+    // fn type_name() -> impl TypeName {
+    //     short
+    // }
     fn resolve_path() -> impl ResolvePath {
         short_path
     }
@@ -28,21 +28,21 @@ impl FindName for Short {
 pub struct Long;
 
 impl FindName for Long {
-    fn type_name() -> impl TypeName {
-        long
-    }
+    // fn type_name() -> impl TypeName {
+    //     long
+    // }
     fn resolve_path() -> impl ResolvePath {
         long_path
     }
 }
 
-pub fn short(ty: &Type, buf: &mut StyledType) {
-    <Type as Format>::format::<Short>(ty, buf);
-}
-
-pub fn long(ty: &Type, buf: &mut StyledType) {
-    <Type as Format>::format::<Long>(ty, buf);
-}
+// pub fn short(ty: &Type, buf: &mut StyledType) {
+//     <Type as Format>::format::<Short>(ty, buf);
+// }
+//
+// pub fn long(ty: &Type, buf: &mut StyledType) {
+//     <Type as Format>::format::<Long>(ty, buf);
+// }
 
 /// Show full names in path.
 ///

@@ -295,7 +295,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
         Maybe = "?",
         MaybeConst = "~const",
         FnPointer = "fn",
-        Variadic = ", ...",
+        Variadic = "...",
     }
 );
 

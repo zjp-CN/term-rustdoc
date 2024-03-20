@@ -76,7 +76,11 @@ fn fn_items() {
     pub fn func_with_const<T: Copy, const N: usize>(t: T) -> [T; N]
     pub fn func_with_no_args()
     pub unsafe extern "C" fn variadic(_: *const (), ...)
-    pub unsafe extern "C" fn variadic_multiline(_: *const (), _: *mut (), ...)
+    pub unsafe extern "C" fn variadic_multiline(
+        _: *const (), 
+        _: *mut (), 
+        ...
+    )
     "###);
 }
 

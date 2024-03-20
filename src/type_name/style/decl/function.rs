@@ -42,7 +42,7 @@ impl Format for FnDecl {
             c_variadic,
         } = self;
         // Multiline for args if the count is more than 2.
-        let multiline = inputs.len() > 2;
+        let multiline = (inputs.len() + *c_variadic as usize) > 2;
         buf.write_in_parentheses(|buf| {
             buf.write_slice(
                 inputs,
@@ -56,6 +56,11 @@ impl Format for FnDecl {
                 write_comma,
             );
             if *c_variadic {
+                write_comma(buf);
+                if multiline {
+                    buf.write(Punctuation::NewLine);
+                    buf.write(Punctuation::Indent);
+                }
                 buf.write(Syntax::Variadic);
             }
             if multiline {

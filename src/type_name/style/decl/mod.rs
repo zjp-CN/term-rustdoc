@@ -13,6 +13,7 @@ pub fn item_styled(id: &str, map: &IDMap) -> StyledType {
         let vis_name_map = VisNameMap {
             name: item.name.as_deref().unwrap_or(""),
             vis: &item.visibility,
+            id,
             map,
         };
         let mut buf = StyledType::with_capacity(48);
@@ -46,6 +47,7 @@ impl Format for Visibility {
 
 struct VisNameMap<'a> {
     vis: &'a Visibility,
+    id: &'a str,
     name: &'a str,
     map: &'a IDMap,
 }

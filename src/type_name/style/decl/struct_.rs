@@ -20,10 +20,10 @@ impl Declaration for Struct {
                 },
             ..
         } = self;
-        let VisNameMap { vis, name, map } = map;
+        let VisNameMap { vis, id, name, map } = map;
         vis.format::<K>(buf);
         buf.write(Decl::Struct);
-        buf.write(name);
+        buf.write_id_name(id, name);
         params.format::<K>(buf);
         match kind {
             StructKind::Unit => {

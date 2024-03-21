@@ -51,8 +51,10 @@ impl StyledType {
     }
 
     fn write_id_name(&mut self, id: impl IdToID, name: &str) {
-        self.write(Tag::Path(id.to_ID()));
-        self.write(Tag::Name(name.into()));
+        self.write_span_path_name(|buf| {
+            buf.write(Tag::Path(id.to_ID()));
+            buf.write(Tag::Name(name.into()));
+        });
     }
 
     fn write_vis_scope(&mut self, id: impl IdToID, path: &str) {

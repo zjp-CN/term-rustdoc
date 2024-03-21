@@ -49,7 +49,7 @@ pub fn long(ty: &Type) -> String {
 pub fn long_path(p: &Path) -> String {
     let mut buf = StyledType::with_capacity(16);
     let Path { name, id, args } = p;
-    buf.write_span_path_name(|s| s.write_id_name(id, name));
+    buf.write_id_name(id, name);
     if let Some(generic_args) = args.as_deref() {
         generic_args.format::<Long>(&mut buf);
     }
@@ -61,7 +61,7 @@ pub fn long_path(p: &Path) -> String {
 /// Not guaranteed to always be an absolute path for any Path.
 pub fn __long_path__(p: &Path, buf: &mut StyledType) {
     let Path { name, id, args } = p;
-    buf.write_span_path_name(|s| s.write_id_name(id, name));
+    buf.write_id_name(id, name);
     if let Some(generic_args) = args.as_deref() {
         generic_args.format::<Long>(buf);
     }

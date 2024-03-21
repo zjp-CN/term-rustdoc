@@ -35,6 +35,10 @@ impl StyledType {
         }
     }
 
+    pub fn tags(&self) -> &[Tag] {
+        &self.inner
+    }
+
     fn write<T: Into<Tag>>(&mut self, tag: T) {
         self.inner.push(tag.into());
     }

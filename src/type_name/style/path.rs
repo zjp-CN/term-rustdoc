@@ -1,5 +1,5 @@
 use super::StyledType;
-use rustdoc_types::Path;
+use rustdoc_types::{Path, Type};
 
 // pub trait TypeName: Copy + FnOnce(&Type, &mut StyledType) {}
 // impl<F> TypeName for F where F: Copy + FnOnce(&Type, &mut StyledType) {}
@@ -21,7 +21,7 @@ impl FindName for Short {
     //     short
     // }
     fn resolve_path() -> impl ResolvePath {
-        short_path
+        __short_path__
     }
 }
 
@@ -32,22 +32,34 @@ impl FindName for Long {
     //     long
     // }
     fn resolve_path() -> impl ResolvePath {
-        long_path
+        __long_path__
     }
 }
 
 // pub fn short(ty: &Type, buf: &mut StyledType) {
 //     <Type as Format>::format::<Short>(ty, buf);
 // }
-//
-// pub fn long(ty: &Type, buf: &mut StyledType) {
-//     <Type as Format>::format::<Long>(ty, buf);
-// }
+
+pub fn long(ty: &Type) -> String {
+    let mut buf = StyledType::with_capacity(16);
+    <Type as Format>::format::<Long>(ty, &mut buf);
+    buf.to_non_wrapped_string()
+}
+
+pub fn long_path(p: &Path) -> String {
+    let mut buf = StyledType::with_capacity(16);
+    let Path { name, id, args } = p;
+    buf.write_span_path_name(|s| s.write_id_name(id, name));
+    if let Some(generic_args) = args.as_deref() {
+        generic_args.format::<Long>(&mut buf);
+    }
+    buf.to_non_wrapped_string()
+}
 
 /// Show full names in path.
 ///
 /// Not guaranteed to always be an absolute path for any Path.
-pub fn long_path(p: &Path, buf: &mut StyledType) {
+pub fn __long_path__(p: &Path, buf: &mut StyledType) {
     let Path { name, id, args } = p;
     buf.write_span_path_name(|s| s.write_id_name(id, name));
     if let Some(generic_args) = args.as_deref() {
@@ -56,7 +68,7 @@ pub fn long_path(p: &Path, buf: &mut StyledType) {
 }
 
 /// Only show the last name in path.
-pub fn short_path(p: &Path, buf: &mut StyledType) {
+pub fn __short_path__(p: &Path, buf: &mut StyledType) {
     fn short_name(name: &str) -> &str {
         &name[name.rfind(':').map_or(0, |x| x + 1)..]
     }

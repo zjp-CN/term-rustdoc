@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use super::{DModule, DocTree, Show};
-use crate::type_name::{long, long_path};
+use crate::type_name::style::{long, long_path};
 use crate::util::{xformat, CompactStringExt, XString};
 use rustdoc_types::{Crate, Id, Item, ItemEnum, ItemKind, ItemSummary};
 use std::{borrow::Borrow, cell::RefCell, collections::HashMap};

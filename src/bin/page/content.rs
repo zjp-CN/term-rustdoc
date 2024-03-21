@@ -10,8 +10,8 @@ use ratatui::{
     widgets::{Block, BorderType, Borders},
 };
 use term_rustdoc::{
-    decl::item_str,
     tree::{CrateDoc, IDMap},
+    type_name::style::item_styled,
 };
 
 #[derive(Default)]
@@ -99,7 +99,7 @@ impl Default for Declaration {
 
 impl Declaration {
     fn update_decl(&mut self, id: &str, map: &IDMap, width: u16) {
-        let code = item_str(id, map);
+        let code = item_styled(id, map).to_non_wrapped_string();
         if code.is_empty() {
             self.display.scroll_text().lines = Default::default();
         } else {

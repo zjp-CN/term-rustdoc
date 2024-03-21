@@ -12,7 +12,7 @@ use crate::{
 use std::fmt;
 
 pub use decl::item_styled;
-// use self::path::{FindName, Format};
+pub use path::{long, long_path};
 
 #[derive(Default, Clone, Debug)]
 pub struct StyledType {

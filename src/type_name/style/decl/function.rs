@@ -4,7 +4,7 @@ use crate::type_name::style::{
     utils::write_comma,
     Function as Func, Punctuation, StyledType, Syntax,
 };
-use rustdoc_types::{FnDecl, Function, Generics};
+use rustdoc_types::{FnDecl, Function, Generics, Type};
 
 impl Declaration for Function {
     fn format<K: FindName>(&self, map: VisNameMap, buf: &mut StyledType) {
@@ -51,7 +51,7 @@ impl Format for FnDecl {
                         buf.write(Punctuation::NewLine);
                         buf.write(Punctuation::Indent);
                     }
-                    arg.format::<Kind>(buf);
+                    fn_argument::<Kind>(arg, buf);
                 },
                 write_comma,
             );
@@ -71,5 +71,54 @@ impl Format for FnDecl {
             buf.write(Syntax::ReturnArrow);
             ty.format::<Kind>(buf);
         }
+    }
+}
+
+// Special check for self receiver:
+// self and Self are strict keywords, meaning they are only allowed to be used
+// as receiver the first arguement in methods, so they will never be seen in incorrect context.
+// We could check the receiver case in arg slice, but to keep things simple,
+// only check self/Self in functions for all arguements.
+fn fn_argument<Kind: FindName>(arg @ (name, ty): &(String, Type), buf: &mut StyledType) {
+    if name == "self" {
+        match ty {
+            Type::BorrowedRef {
+                lifetime,
+                mutable,
+                type_,
+            } if matches!(&**type_, Type::Generic(s) if s == "Self") => {
+                match (lifetime, mutable) {
+                    (None, false) => {
+                        // &self
+                        buf.write(Syntax::Reference);
+                        buf.write(Syntax::self_);
+                    }
+                    (None, true) => {
+                        // &mut self
+                        buf.write(Syntax::ReferenceMut);
+                        buf.write(Syntax::self_);
+                    }
+                    (Some(life), false) => {
+                        // &'life self
+                        buf.write(Syntax::Reference);
+                        buf.write(life);
+                        buf.write(Punctuation::WhiteSpace);
+                        buf.write(Syntax::self_);
+                    }
+                    (Some(life), true) => {
+                        // &'life mut self
+                        buf.write(Syntax::Reference);
+                        buf.write(life);
+                        buf.write(Punctuation::WhiteSpace);
+                        buf.write(Syntax::Mut);
+                        buf.write(Syntax::self_);
+                    }
+                }
+            }
+            Type::Generic(s) if s == "Self" => buf.write(Syntax::self_), // self
+            _ => arg.format::<Kind>(buf), // self: Type (Box<Self>/Rc<Self>/Arc<Self>/...)
+        }
+    } else {
+        arg.format::<Kind>(buf)
     }
 }

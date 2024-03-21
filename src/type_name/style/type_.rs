@@ -127,7 +127,6 @@ fn borrow_ref<Kind: FindName>(
             buf.write(s);
             buf.write(Punctuation::WhiteSpace);
             buf.write(Syntax::Mut);
-            buf.write(Punctuation::WhiteSpace);
         }
     }
 

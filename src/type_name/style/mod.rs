@@ -274,12 +274,14 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
     /// Symbol as syntax component.
     ///
     /// NOTE: some syntax has already included whitespaces, because this saves pushing them.
+    #[allow(non_camel_case_types)]
     pub enum Syntax {
         Reference = "&",
         ReferenceMut = "&mut ",
         /// lifetime may lie between `&` and `mut`
-        Mut = "mut",
+        Mut = "mut ",
         ReturnArrow = " -> ",
+        self_ = "self",
         Self_ = "Self",
         Where = "where ",
         Dyn = "dyn ",

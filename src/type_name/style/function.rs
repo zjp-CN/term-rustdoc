@@ -54,6 +54,10 @@ impl Format for FnPointerDecl<'_> {
 
 impl Format for (String, Type) {
     /// Named function inputs for fn items.
+    ///
+    /// NOTE: usually some more checks should be performed before calling this:
+    /// * fn pointers don't need `_` name
+    /// * fn items don't need `self` name
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         let (name, ty) = self;
         buf.write(name);

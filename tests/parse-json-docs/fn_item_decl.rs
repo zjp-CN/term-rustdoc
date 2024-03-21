@@ -92,22 +92,22 @@ fn methods() {
     let mut fns_str = Vec::with_capacity(16);
     for struct_ in &dmod.structs {
         for inh in &*struct_.impls.merged_inherent.functions {
-            fns_str.push(item_str(&inh.id, map));
+            fns_str.push(item_styled(&inh.id, map));
         }
     }
     for enum_ in &dmod.enums {
         for inh in &*enum_.impls.merged_inherent.functions {
-            fns_str.push(item_str(&inh.id, map));
+            fns_str.push(item_styled(&inh.id, map));
         }
     }
     for union_ in &dmod.unions {
         for inh in &*union_.impls.merged_inherent.functions {
-            fns_str.push(item_str(&inh.id, map));
+            fns_str.push(item_styled(&inh.id, map));
         }
     }
     for trait_ in &dmod.traits {
         for fn_ in &*trait_.functions {
-            fns_str.push(item_str(&fn_.id, map));
+            fns_str.push(item_styled(&fn_.id, map));
         }
     }
     shot!(DisplaySlice(&fns_str), @r###"
@@ -116,7 +116,7 @@ fn methods() {
     pub fn by_ref_mut(&mut self)
     pub fn consume(self)
     pub fn new() -> Self
-    fn return_assoc(&self) -> Self::Assoc<'_>
+    fn return_assoc(&self) -> Self::Assoc<'_>; 
     "###);
 }
 

@@ -1,5 +1,5 @@
 mod function;
-mod structs;
+mod struct_;
 
 use super::{
     path::{FindName, Format, Short},

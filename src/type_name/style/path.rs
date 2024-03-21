@@ -70,6 +70,9 @@ pub fn short_path(p: &Path, buf: &mut StyledType) {
 
 pub trait Format {
     fn format<Kind: FindName>(&self, buf: &mut StyledType);
+    // fn format_as_short(&self, buf: &mut StyledType) {
+    //     self.format::<Short>(buf);
+    // }
 }
 
 impl Format for Path {

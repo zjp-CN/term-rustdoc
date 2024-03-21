@@ -46,10 +46,10 @@ impl Format for GenericParamDef {
                 if !bounds.is_empty() {
                     write_colon(buf);
                     buf.write_slice(bounds, GenericBound::format::<Kind>, write_plus);
-                    if let Some(ty) = default {
-                        buf.write(Punctuation::Equal);
-                        ty.format::<Kind>(buf);
-                    }
+                }
+                if let Some(ty) = default {
+                    buf.write(Punctuation::Equal);
+                    ty.format::<Kind>(buf);
                 }
             }
             GenericParamDefKind::Const { type_, default } => {
@@ -275,7 +275,7 @@ impl Format for [WherePredicate] {
                 buf.write(Punctuation::Indent);
                 t.format::<Kind>(buf);
             },
-            write_comma,
+            write_comma_without_whitespace,
         );
     }
 }

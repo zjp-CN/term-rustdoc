@@ -11,6 +11,12 @@ pub fn write_plus(buf: &mut StyledType) {
 
 pub fn write_comma(buf: &mut StyledType) {
     buf.write(Punctuation::Comma);
+    buf.write(Punctuation::WhiteSpace);
+}
+
+/// Comma separator in multiline doesn't need trailling whitespace.
+pub fn write_comma_without_whitespace(buf: &mut StyledType) {
+    buf.write(Punctuation::Comma);
 }
 
 // pub fn write_nothing(_: &mut StyledType) {}
@@ -37,11 +43,11 @@ impl StyledType {
     /// angle brackes if it's non-empty, but does not need them if empty.
     pub(super) fn write_slice<T>(
         &mut self,
-        slice: &[T],
-        repeat: impl Fn(&T, &mut Self),
+        slice: impl IntoIterator<Item = T>,
+        repeat: impl Fn(T, &mut Self),
         sep: impl Fn(&mut Self),
     ) {
-        let mut iter = slice.iter();
+        let mut iter = slice.into_iter();
         let Some(t) = iter.next() else {
             return;
         };

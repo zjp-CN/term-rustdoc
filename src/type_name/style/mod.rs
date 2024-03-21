@@ -283,7 +283,7 @@ to_str!({val Tag::Symbol(Symbol::Syntax(val))}
         ReturnArrow = " -> ",
         self_ = "self",
         Self_ = "Self",
-        Where = "where ",
+        Where = "where",
         Dyn = "dyn ",
         PathSep = "::",
         As = " as ",
@@ -309,8 +309,7 @@ to_str!({val Tag::Symbol(Symbol::Punctuation(val))}
         WhiteSpace = " ",
         NewLine = "\n",
         Indent = "    ",
-        /// `, `
-        Comma = ", ",
+        Comma = ",",
         /// `: `
         Colon = ": ",
         /// <code> = </code>
@@ -318,8 +317,7 @@ to_str!({val Tag::Symbol(Symbol::Punctuation(val))}
         /// <code> + </code>
         Plus = " + ",
         Apostrophe = "'",
-        /// `; `
-        SemiColon = "; ",
+        SemiColon = ";",
         AngleBracketStart = "<",
         AngleBracketEnd = ">",
         SquareBracketStart = "[",
@@ -337,7 +335,8 @@ to_str!({val Tag::Decl(val)}
     pub enum Decl {
         Vis(Vis),
         Function(Function),
-        Struct(Struct),
+        Struct = "struct ",
+        PrivateFields = "/* private fields */",
     }
 );
 
@@ -380,11 +379,11 @@ to_str!({val Tag::Decl(Decl::Function(Function::Abi(val)))}
     }
 );
 
-to_str!({val Tag::Decl(Decl::Struct(val))}
-    pub enum Struct {
-        Struct = "struct ",
-    }
-);
+// to_str!({val Tag::Decl(Decl::Struct(val))}
+//     pub enum Struct {
+//         Struct = "struct ",
+//     }
+// );
 
 to_str!(
     /// Used to recognize the enclosing span for a component that needs styles.

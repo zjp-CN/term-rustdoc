@@ -1,4 +1,5 @@
 mod function;
+mod structs;
 
 use super::{
     path::{FindName, Format, Short},
@@ -21,7 +22,7 @@ pub fn item_styled(id: &str, map: &IDMap) -> StyledType {
                 return id.map(|id| item_styled(&id.0, map)).unwrap_or_default();
             }
             ItemEnum::Function(f) => f.format_as_short(vis_name_map, &mut buf),
-            // ItemEnum::Struct(s) => s.parse(vis, fname, map),
+            ItemEnum::Struct(s) => s.format_as_short(vis_name_map, &mut buf),
             _ => return StyledType::default(),
         };
         return buf;

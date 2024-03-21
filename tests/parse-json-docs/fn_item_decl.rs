@@ -2,7 +2,7 @@ use crate::{doc, shot};
 use term_rustdoc::{
     decl::item_str,
     tree::{DModule, IDMap},
-    type_name::style::item_styled,
+    type_name::style::{item_styled, StyledType},
 };
 
 #[test]
@@ -54,17 +54,17 @@ fn fn_items() {
     pub fn func_dyn_trait2(_: Box<dyn ATrait + Send + Sync>)
     pub fn func_fn_pointer_impl_trait(f: fn(*mut u8) -> *const u8) -> impl Copy + Fn(*mut u8) -> *const u8
     pub fn func_hrtb<T: ATraitWithGAT>()
-    where 
+    where
         for<'a> <T as ATraitWithGAT>::Assoc<'a>: Copy
     pub fn func_lifetime_bounds<'a, 'b: 'a>()
-    where 
+    where
         'a: 'b
     pub fn func_primitive(s: &str) -> usize
     pub fn func_qualified_path<'a, I: Iterator>(iter: I) -> Option<I::Item>
-    where 
+    where
         I::Item: 'a + Debug + Iterator<Item = ()> + ATraitWithGAT<Assoc<'a> = ()>
     pub fn func_trait_bounds<T>()
-    where 
+    where
         T: Clone + Copy
     pub fn func_tuple_array_slice<'a, 'b>(
         a: &'a [u8], 
@@ -128,27 +128,23 @@ fn structs() {
     recursive_struct_str(dmod, &mut structs_str, map);
     shot!(DisplaySlice(&structs_str), @r###"
     pub struct AUnitStruct;
-    pub struct FieldsNamedStruct
-    {
+    pub struct FieldsNamedStruct {
         field1: AUnitStruct,
         field2: AStructAlias,
         field3: Vec<FieldsNamedStruct>,
         /* private fields */
     }
-    pub struct Named
-    {
+    pub struct Named {
         fut: Pin<Box<dyn Future<Output = Result<(), Box<dyn Error>>>>>,
         /* private fields */
     }
     pub struct NamedAllPrivateFields { /* private fields */ }
-    pub struct NamedAllPublicFields
-    {
-        fut: Pin<Box<dyn Future<Output = Result<(), Box<dyn Error>>>>>,
+    pub struct NamedAllPublicFields {
+        fut: Pin<Box<dyn Future<Output = Result<(), Box<dyn Error>>>>>
     }
-    pub struct NamedGeneric<'a, T, const N: usize>
-    {
+    pub struct NamedGeneric<'a, T, const N: usize> {
         f1: &'a T,
-        f2: [T; N],
+        f2: [T; N]
     }
     pub struct NamedGenericAllPrivate<'a, T, const N: usize> { /* private fields */ }
     pub struct NamedGenericWithBound<'a, T = (), const N: usize = 1>
@@ -156,7 +152,7 @@ fn structs() {
         T: Copy
     {
         f1: &'a [T],
-        f2: [T; N],
+        f2: [T; N]
     }
     pub struct NamedGenericWithBoundAllPrivate<'a, T, const N: usize>
     where
@@ -165,16 +161,16 @@ fn structs() {
     pub struct Tuple(
         _,
         _,
-        FieldsNamedStruct,
+        FieldsNamedStruct
     );
     pub struct TupleAllPrivate(_, _, _);
     pub struct TupleGeneric<'a, T: 'a, const N: usize>(
         &'a T,
-        [T; N],
+        [T; N]
     );
     pub struct TupleGenericWithBound<'a, T, const N: usize>(
         &'a T,
-        _,
+        _
     )
     where
         [T; N]: ,
@@ -195,9 +191,9 @@ fn structs() {
     "###);
 }
 
-fn recursive_struct_str(dmod: &DModule, structs_str: &mut Vec<String>, map: &IDMap) {
+fn recursive_struct_str(dmod: &DModule, structs_str: &mut Vec<StyledType>, map: &IDMap) {
     for struct_ in &dmod.structs {
-        structs_str.push(item_str(&struct_.id, map));
+        structs_str.push(item_styled(&struct_.id, map));
     }
     for m in &dmod.modules {
         recursive_struct_str(m, structs_str, map);

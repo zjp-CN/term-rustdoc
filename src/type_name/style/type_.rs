@@ -23,6 +23,7 @@ impl Format for Type {
                 Type::Array { type_, len } => buf.write_in_squre_bracket(|buf| {
                     type_.format::<Kind>(buf);
                     buf.write(Punctuation::SemiColon);
+                    buf.write(Punctuation::WhiteSpace);
                     buf.write(len);
                 }),
                 Type::ImplTrait(bounds) => {

@@ -69,11 +69,18 @@ impl Format for GenericParamDef {
 impl Format for [GenericParamDef] {
     /// Full parameter definition contains multiple parameter definitions,
     /// thus we put outer `<>` here, and `, ` separator.
+    /// Write nothing if the slice is empty.
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
-        buf.write_in_angle_bracket(|buf| {
-            buf.write_slice(self, GenericParamDef::format::<Kind>, write_comma);
-        });
+        if !self.is_empty() {
+            generic_param_def_inner::<Kind>(self, buf);
+        }
     }
+}
+
+fn generic_param_def_inner<Kind: FindName>(def: &[GenericParamDef], buf: &mut StyledType) {
+    buf.write_in_angle_bracket(|buf| {
+        buf.write_slice(def, GenericParamDef::format::<Kind>, write_comma);
+    });
 }
 
 impl Format for GenericBound {
@@ -220,7 +227,7 @@ impl Format for Term {
 pub fn hrtb<Kind: FindName>(def: &[GenericParamDef], buf: &mut StyledType) {
     if !def.is_empty() {
         buf.write(Syntax::For);
-        def.format::<Kind>(buf);
+        generic_param_def_inner::<Kind>(def, buf);
         buf.write(Punctuation::WhiteSpace);
     }
 }

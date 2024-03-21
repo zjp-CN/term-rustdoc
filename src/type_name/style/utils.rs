@@ -33,8 +33,8 @@ impl StyledType {
     /// Won't write anything if slice is empty.
     ///
     /// Sometimes slice length check is still done before calling this method,
-    /// say a slice of generic parameter bound needs an extra starting colon
-    /// if it's non-empty, but does not if empty.
+    /// say a slice of generic parameter bound needs an extra starting colon and
+    /// angle brackes if it's non-empty, but does not need them if empty.
     pub(super) fn write_slice<T>(
         &mut self,
         slice: &[T],

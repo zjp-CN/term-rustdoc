@@ -22,9 +22,7 @@ impl Declaration for Function {
             params,
             where_predicates,
         } = generics;
-        if !params.is_empty() {
-            params.format::<K>(buf);
-        }
+        params.format::<K>(buf);
         decl.format::<K>(buf);
         where_predicates.format::<K>(buf);
         if !*has_body {

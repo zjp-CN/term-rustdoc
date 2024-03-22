@@ -113,6 +113,7 @@ pub unsafe extern "C" fn variadic(_: *const (), _name: ...) {}
 /// # Safety
 #[cfg(nightly)]
 pub unsafe extern "C" fn variadic_multiline(_: *const (), _: *mut (), _name: ...) {}
+pub fn no_synthetic(_: impl Sized) {}
 
 pub trait ATraitWithGAT {
     type Assoc<'a>

@@ -71,13 +71,24 @@ impl Format for [GenericParamDef] {
     /// thus we put outer `<>` here, and `, ` separator.
     /// Write nothing if the slice is empty.
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
-        if !self.is_empty() {
+        if self.iter().any(|def| {
+            !matches!(
+                def.kind,
+                GenericParamDefKind::Type {
+                    synthetic: true,
+                    ..
+                }
+            )
+        }) {
             generic_param_def_inner::<Kind>(self, buf);
         }
     }
 }
 
-fn generic_param_def_inner<Kind: FindName>(def: &[GenericParamDef], buf: &mut StyledType) {
+fn generic_param_def_inner<'g, Kind: FindName>(
+    def: impl IntoIterator<Item = &'g GenericParamDef>,
+    buf: &mut StyledType,
+) {
     buf.write_in_angle_bracket(|buf| {
         buf.write_slice(def, GenericParamDef::format::<Kind>, write_comma);
     });

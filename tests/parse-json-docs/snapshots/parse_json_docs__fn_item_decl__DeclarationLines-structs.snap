@@ -11,25 +11,25 @@ expression: DisplaySlice(&lines)
     /* private fields */☺️ 
 }☺️ 
 
-pub struct ☺️ Named#0:112:1857#☺️  {☺️ 
-    fut: ☺️ Pin#2:42479:1855#☺️ <☺️ Box#5:294:1815#☺️ <dyn ☺️ Future#2:45136:150#☺️ <Output = ☺️ Result#2:42487:226#☺️ <(), ☺️ Box#5:294:1815#☺️ <dyn ☺️ Error#2:2837:138#☺️ >>>>>,☺️ 
+pub struct ☺️ Named#0:113:1859#☺️  {☺️ 
+    fut: ☺️ Pin#2:42479:1857#☺️ <☺️ Box#5:294:1815#☺️ <dyn ☺️ Future#2:45136:150#☺️ <Output = ☺️ Result#2:42487:226#☺️ <(), ☺️ Box#5:294:1815#☺️ <dyn ☺️ Error#2:2837:138#☺️ >>>>>,☺️ 
     /* private fields */☺️ 
 }☺️ 
 
-pub struct ☺️ NamedAllPrivateFields#0:108:1852#☺️  { /* private fields */ }☺️ 
+pub struct ☺️ NamedAllPrivateFields#0:109:1854#☺️  { /* private fields */ }☺️ 
 
-pub struct ☺️ NamedAllPublicFields#0:110:1854#☺️  {☺️ 
-    fut: ☺️ Pin#2:42479:1855#☺️ <☺️ Box#5:294:1815#☺️ <dyn ☺️ Future#2:45136:150#☺️ <Output = ☺️ Result#2:42487:226#☺️ <(), ☺️ Box#5:294:1815#☺️ <dyn ☺️ Error#2:2837:138#☺️ >>>>>☺️ 
+pub struct ☺️ NamedAllPublicFields#0:111:1856#☺️  {☺️ 
+    fut: ☺️ Pin#2:42479:1857#☺️ <☺️ Box#5:294:1815#☺️ <dyn ☺️ Future#2:45136:150#☺️ <Output = ☺️ Result#2:42487:226#☺️ <(), ☺️ Box#5:294:1815#☺️ <dyn ☺️ Error#2:2837:138#☺️ >>>>>☺️ 
 }☺️ 
 
-pub struct ☺️ NamedGeneric#0:115:1858#☺️ <'a, T, const N: usize> {☺️ 
+pub struct ☺️ NamedGeneric#0:116:1860#☺️ <'a, T, const N: usize> {☺️ 
     f1: &'a T,☺️ 
     f2: [T; N]☺️ 
 }☺️ 
 
-pub struct ☺️ NamedGenericAllPrivate#0:130:1862#☺️ <'a, T, const N: usize> { /* private fields */ }☺️ 
+pub struct ☺️ NamedGenericAllPrivate#0:131:1864#☺️ <'a, T, const N: usize> { /* private fields */ }☺️ 
 
-pub struct ☺️ NamedGenericWithBound#0:122:1861#☺️ <'a, T = (), const N: usize = 1>☺️ 
+pub struct ☺️ NamedGenericWithBound#0:123:1863#☺️ <'a, T = (), const N: usize = 1>☺️ 
 where☺️ 
     T: ☺️ Copy#2:2992:119#☺️ ☺️ 
 {☺️ 
@@ -37,25 +37,25 @@ expression: DisplaySlice(&lines)
     f2: [T; N]☺️ 
 }☺️ 
 
-pub struct ☺️ NamedGenericWithBoundAllPrivate#0:136:1863#☺️ <'a, T, const N: usize>☺️ 
+pub struct ☺️ NamedGenericWithBoundAllPrivate#0:137:1865#☺️ <'a, T, const N: usize>☺️ 
 where☺️ 
     T: ☺️ Copy#2:2992:119#☺️ ☺️ 
 { /* private fields */ }☺️ 
 
-pub struct ☺️ Tuple#0:79:1846#☺️ (☺️ 
+pub struct ☺️ Tuple#0:80:1848#☺️ (☺️ 
     _,☺️ 
     _,☺️ 
     ☺️ FieldsNamedStruct#0:17:1800#☺️ ☺️ 
 );☺️ 
 
-pub struct ☺️ TupleAllPrivate#0:84:1847#☺️ (_, _, _);☺️ 
+pub struct ☺️ TupleAllPrivate#0:85:1849#☺️ (_, _, _);☺️ 
 
-pub struct ☺️ TupleGeneric#0:91:1849#☺️ <'a, T: 'a, const N: usize>(☺️ 
+pub struct ☺️ TupleGeneric#0:92:1851#☺️ <'a, T: 'a, const N: usize>(☺️ 
     &'a T,☺️ 
     [T; N]☺️ 
 );☺️ 
 
-pub struct ☺️ TupleGenericWithBound#0:99:1850#☺️ <'a, T, const N: usize>(☺️ 
+pub struct ☺️ TupleGenericWithBound#0:100:1852#☺️ <'a, T, const N: usize>(☺️ 
     &'a T,☺️ 
     _☺️ 
 )☺️ 
@@ -63,19 +63,19 @@ expression: DisplaySlice(&lines)
     [T; N]: ,☺️ 
     T: ☺️ Copy#2:2992:119#☺️  + 'a;☺️ 
 
-pub struct ☺️ TupleWithBound#0:89:1848#☺️ ()☺️ 
+pub struct ☺️ TupleWithBound#0:90:1850#☺️ ()☺️ 
 where☺️ 
     u8: ☺️ Copy#2:2992:119#☺️ ;☺️ 
 
-pub struct ☺️ Unit#0:68:1842#☺️ ;☺️ 
+pub struct ☺️ Unit#0:69:1844#☺️ ;☺️ 
 
-pub struct ☺️ UnitGeneric#0:72:1844#☺️ <const N: bool>;☺️ 
+pub struct ☺️ UnitGeneric#0:73:1846#☺️ <const N: bool>;☺️ 
 
-pub struct ☺️ UnitGenericWithBound#0:75:1845#☺️ <const N: usize>☺️ 
+pub struct ☺️ UnitGenericWithBound#0:76:1847#☺️ <const N: usize>☺️ 
 where☺️ 
     [(); N]: ;☺️ 
 
-pub struct ☺️ UnitWithBound#0:70:1843#☺️ ☺️ 
+pub struct ☺️ UnitWithBound#0:71:1845#☺️ ☺️ 
 where☺️ 
     u8: ☺️ Copy#2:2992:119#☺️ ;☺️ 
 

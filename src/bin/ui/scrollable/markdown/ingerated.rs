@@ -89,19 +89,6 @@ impl MarkdownArea {
     pub fn render(&self, buf: &mut Buffer) {
         write_lines(&self.inner.lines, self.inner.start, self.inner.area, buf);
     }
-
-    pub fn rust_code(&mut self, code: &str, width: u16) {
-        let lines = super::parse::rust_code(code, width as f64);
-        self.inner.lines = MarkdownInner { lines };
-    }
-
-    pub fn scroll_text(&mut self) -> &mut Scroll<MarkdownInner> {
-        &mut self.inner
-    }
-
-    pub fn scroll_text_ref(&self) -> &Scroll<MarkdownInner> {
-        &self.inner
-    }
 }
 
 #[derive(Default)]

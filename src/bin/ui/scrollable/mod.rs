@@ -11,9 +11,7 @@ mod render;
 
 pub use self::generics::{render_line, LineState, Lines};
 pub use self::interaction::{ScrollOffset, Scrollable};
-pub use self::markdown::{
-    Headings, MarkdownAndHeading, MarkdownArea, ScrollHeading, ScrollMarkdown, ScrollText,
-};
+pub use self::markdown::{Headings, MarkdownAndHeading, ScrollHeading, ScrollMarkdown, ScrollText};
 
 /// Scrollable tree view but stored in lines.
 pub type ScrollTreeLines = Scroll<TreeLines>;

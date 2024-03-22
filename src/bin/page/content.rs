@@ -12,10 +12,7 @@ use ratatui::{
 };
 use term_rustdoc::{
     tree::{CrateDoc, IDMap},
-    type_name::{
-        render::{DeclarationLine, DeclarationLines},
-        style::item_styled,
-    },
+    type_name::{DeclarationLine, DeclarationLines},
 };
 
 #[derive(Default)]
@@ -145,7 +142,7 @@ impl LineState for DeclarationLine {
 
 impl Declaration {
     fn update_decl(&mut self, id: &str, map: &IDMap, width: u16) {
-        let lines = item_styled(id, map).to_declaration_lines();
+        let lines = DeclarationLines::new(id, map);
         if lines.is_empty() {
             self.display.scroll_text().lines = Default::default();
         } else {

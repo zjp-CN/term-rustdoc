@@ -1,6 +1,6 @@
 use super::style::{StyledType, Tag};
 use crate::{
-    tree::ID,
+    tree::{IDMap, ID},
     type_name::style::{Punctuation, Symbol},
     util::XString,
 };
@@ -28,8 +28,18 @@ impl std::ops::Deref for DeclarationLines {
     }
 }
 
+impl From<&StyledType> for DeclarationLines {
+    fn from(value: &StyledType) -> Self {
+        Self::new_(value)
+    }
+}
+
 impl DeclarationLines {
-    pub fn new(styled_type: &StyledType) -> Self {
+    pub fn new(id: &str, map: &IDMap) -> Self {
+        Self::new_(&StyledType::new(id, map))
+    }
+
+    fn new_(styled_type: &StyledType) -> Self {
         let tags = styled_type.tags();
         let mut lines = Vec::with_capacity(8);
         let mut line = Vec::with_capacity(8);

@@ -8,7 +8,7 @@ use super::{
 use crate::tree::IDMap;
 use rustdoc_types::{ItemEnum, Visibility};
 
-pub fn item_styled(id: &str, map: &IDMap) -> StyledType {
+fn item_styled(id: &str, map: &IDMap) -> StyledType {
     if let Some(item) = map.get_item(id) {
         let vis_name_map = VisNameMap {
             name: item.name.as_deref().unwrap_or(""),
@@ -29,6 +29,12 @@ pub fn item_styled(id: &str, map: &IDMap) -> StyledType {
         return buf;
     }
     StyledType::default()
+}
+
+impl StyledType {
+    pub fn new(id: &str, map: &IDMap) -> Self {
+        item_styled(id, map)
+    }
 }
 
 impl Format for Visibility {

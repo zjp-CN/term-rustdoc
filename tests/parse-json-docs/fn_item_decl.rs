@@ -1,10 +1,7 @@
 use crate::{doc, shot, snap};
 use term_rustdoc::{
     tree::{DModule, IDMap},
-    type_name::{
-        render::DeclarationLines,
-        style::{item_styled, StyledType},
-    },
+    type_name::{DeclarationLines, StyledType},
 };
 
 #[test]
@@ -13,7 +10,7 @@ fn fn_items() {
     let dmod = map.dmodule();
     let mut styled_fn = Vec::with_capacity(24);
     for fn_ in &dmod.functions {
-        styled_fn.push(item_styled(&fn_.id, map));
+        styled_fn.push(StyledType::new(&fn_.id, map));
     }
     shot!(DisplaySlice(&styled_fn), @r###"
     pub fn func_dyn_trait(d: &(dyn ATrait + Send + Sync)) -> &dyn ATrait
@@ -50,7 +47,7 @@ fn fn_items() {
     )
     "###);
 
-    let lines = Vec::from_iter(styled_fn.iter().map(DeclarationLines::new));
+    let lines = Vec::from_iter(styled_fn.iter().map(DeclarationLines::from));
     snap!("DeclarationLines-fn-items", DisplaySlice(&lines));
 }
 
@@ -62,22 +59,22 @@ fn methods() {
     let mut fns_str = Vec::with_capacity(16);
     for struct_ in &dmod.structs {
         for inh in &*struct_.impls.merged_inherent.functions {
-            fns_str.push(item_styled(&inh.id, map));
+            fns_str.push(StyledType::new(&inh.id, map));
         }
     }
     for enum_ in &dmod.enums {
         for inh in &*enum_.impls.merged_inherent.functions {
-            fns_str.push(item_styled(&inh.id, map));
+            fns_str.push(StyledType::new(&inh.id, map));
         }
     }
     for union_ in &dmod.unions {
         for inh in &*union_.impls.merged_inherent.functions {
-            fns_str.push(item_styled(&inh.id, map));
+            fns_str.push(StyledType::new(&inh.id, map));
         }
     }
     for trait_ in &dmod.traits {
         for fn_ in &*trait_.functions {
-            fns_str.push(item_styled(&fn_.id, map));
+            fns_str.push(StyledType::new(&fn_.id, map));
         }
     }
     shot!(DisplaySlice(&fns_str), @r###"
@@ -89,7 +86,7 @@ fn methods() {
     fn return_assoc(&self) -> Self::Assoc<'_>; 
     "###);
 
-    let lines = Vec::from_iter(fns_str.iter().map(DeclarationLines::new));
+    let lines = Vec::from_iter(fns_str.iter().map(DeclarationLines::from));
     snap!("DeclarationLines-methods", DisplaySlice(&lines));
 }
 
@@ -163,13 +160,13 @@ fn structs() {
     pub struct AUnitStruct;
     "###);
 
-    let lines = Vec::from_iter(structs_str.iter().map(DeclarationLines::new));
+    let lines = Vec::from_iter(structs_str.iter().map(DeclarationLines::from));
     snap!("DeclarationLines-structs", DisplaySlice(&lines));
 }
 
 fn recursive_struct_str(dmod: &DModule, structs_str: &mut Vec<StyledType>, map: &IDMap) {
     for struct_ in &dmod.structs {
-        structs_str.push(item_styled(&struct_.id, map));
+        structs_str.push(StyledType::new(&struct_.id, map));
     }
     for m in &dmod.modules {
         recursive_struct_str(m, structs_str, map);

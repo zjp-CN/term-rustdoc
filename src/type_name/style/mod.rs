@@ -1,3 +1,4 @@
+#![allow(unused)]
 mod decl;
 mod function;
 mod generics;
@@ -12,7 +13,6 @@ use crate::{
 };
 use std::fmt;
 
-pub use decl::item_styled;
 pub use path::{long, long_path};
 
 #[derive(Default, Clone, Debug)]
@@ -30,13 +30,13 @@ impl fmt::Display for StyledType {
 }
 
 impl StyledType {
-    pub fn with_capacity(cap: usize) -> Self {
+    fn with_capacity(cap: usize) -> Self {
         StyledType {
             inner: Vec::with_capacity(cap),
         }
     }
 
-    pub fn tags(&self) -> &[Tag] {
+    pub(crate) fn tags(&self) -> &[Tag] {
         &self.inner
     }
 
@@ -53,10 +53,6 @@ impl StyledType {
         let mut buf = String::with_capacity(self.str_len());
         _ = write!(buf, "{self}");
         buf
-    }
-
-    pub fn to_declaration_lines(&self) -> DeclarationLines {
-        DeclarationLines::new(self)
     }
 
     fn write_id_name(&mut self, id: impl IdToID, name: &str) {
@@ -93,7 +89,7 @@ macro_rules! impl_write_tag {
         /// Write stuff in enclosing [`Punctuation`]s.
         impl StyledType { $(
             #[doc = concat!("Write `", $s, "` where x is written from the callback.")]
-            pub fn $fname(&mut self, f: impl FnOnce(&mut StyledType)) {
+            fn $fname(&mut self, f: impl FnOnce(&mut StyledType)) {
                 let start = Tag::Symbol(Symbol::Punctuation(Punctuation::$start));
                 let end = Tag::Symbol(Symbol::Punctuation(Punctuation::$end));
                 self.write_enclosing_tag(start, end, f);
@@ -105,7 +101,7 @@ macro_rules! impl_write_tag {
         impl StyledType { $(
             #[doc = concat!("Write `", $s, "` as [`Span::", stringify!($span),
               "`] between [`Tag::Start`] and [`Tag::End`] with the callback.")]
-            pub fn $fname(&mut self, f: impl FnOnce(&mut StyledType)) {
+            fn $fname(&mut self, f: impl FnOnce(&mut StyledType)) {
                 let start = Tag::Start(Span::$span);
                 let end = Tag::End(Span::$span);
                 self.write_enclosing_tag(start, end, f);

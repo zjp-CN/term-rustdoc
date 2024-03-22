@@ -1,7 +1,10 @@
-use crate::{doc, shot};
+use crate::{doc, shot, snap};
 use term_rustdoc::{
     tree::{DModule, IDMap},
-    type_name::style::{item_styled, StyledType},
+    type_name::{
+        render::DeclarationLines,
+        style::{item_styled, StyledType},
+    },
 };
 
 #[test]
@@ -45,6 +48,9 @@ fn fn_items() {
         ...
     )
     "###);
+
+    let lines = Vec::from_iter(styled_fn.iter().map(DeclarationLines::new));
+    snap!("DeclarationLines-fn-items", DisplaySlice(&lines));
 }
 
 #[test]
@@ -81,6 +87,9 @@ fn methods() {
     pub fn new() -> Self
     fn return_assoc(&self) -> Self::Assoc<'_>; 
     "###);
+
+    let lines = Vec::from_iter(fns_str.iter().map(DeclarationLines::new));
+    snap!("DeclarationLines-methods", DisplaySlice(&lines));
 }
 
 #[test]
@@ -152,6 +161,9 @@ fn structs() {
     pub struct AUnitStruct;
     pub struct AUnitStruct;
     "###);
+
+    let lines = Vec::from_iter(structs_str.iter().map(DeclarationLines::new));
+    snap!("DeclarationLines-structs", DisplaySlice(&lines));
 }
 
 fn recursive_struct_str(dmod: &DModule, structs_str: &mut Vec<StyledType>, map: &IDMap) {
@@ -169,6 +181,15 @@ impl<'s, T: std::fmt::Display> std::fmt::Display for DisplaySlice<'s, T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for ele in self.0 {
             _ = writeln!(f, "{ele}");
+        }
+        Ok(())
+    }
+}
+
+impl<'s, T: std::fmt::Debug> std::fmt::Debug for DisplaySlice<'s, T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for ele in self.0 {
+            _ = writeln!(f, "{ele:?}");
         }
         Ok(())
     }

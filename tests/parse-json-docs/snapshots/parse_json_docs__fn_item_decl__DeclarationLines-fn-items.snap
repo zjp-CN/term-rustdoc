@@ -1,0 +1,49 @@
+---
+source: tests/parse-json-docs/fn_item_decl.rs
+expression: DisplaySlice(&lines)
+---
+pub fn func_dyn_trait(d: &(dyn ☺️ ATrait#0:5:1788#☺️  + ☺️ Send#2:32833:237#☺️  + ☺️ Sync#2:2997:246#☺️ )) -> &dyn ☺️ ATrait#0:5:1788#☺️ 
+
+pub fn func_dyn_trait2(_: ☺️ Box#5:294:1815#☺️ <dyn ☺️ ATrait#0:5:1788#☺️  + ☺️ Send#2:32833:237#☺️  + ☺️ Sync#2:2997:246#☺️ >)☺️ 
+
+pub fn func_fn_pointer_impl_trait(f: fn(*mut u8) -> *const u8) -> impl ☺️ Copy#2:2992:119#☺️  + ☺️ Fn#2:3237:141#☺️ (*mut u8) -> *const u8☺️ 
+
+pub fn func_hrtb<T: ☺️ ATraitWithGAT#0:60:1829#☺️ >()☺️ 
+where☺️ 
+    for<'a> <T as ☺️ ATraitWithGAT#0:60:1829#☺️ >::Assoc<'a>: ☺️ Copy#2:2992:119#☺️ 
+
+pub fn func_lifetime_bounds<'a, 'b: 'a>()☺️ 
+where☺️ 
+    'a: 'b☺️ 
+
+pub fn func_primitive(s: &str) -> usize☺️ 
+
+pub fn func_qualified_path<'a, I: ☺️ Iterator#2:8187:179#☺️ >(iter: I) -> ☺️ Option#2:42344:194#☺️ <I::Item>☺️ 
+where☺️ 
+    I::Item: 'a + ☺️ Debug#2:10131:121#☺️  + ☺️ Iterator#2:8187:179#☺️ <Item = ()> + ☺️ ATraitWithGAT#0:60:1829#☺️ <Assoc<'a> = ()>☺️ 
+
+pub fn func_trait_bounds<T>()☺️ 
+where☺️ 
+    T: ☺️ Clone#2:2487:114#☺️  + ☺️ Copy#2:2992:119#☺️ 
+
+pub fn func_tuple_array_slice<'a, 'b>(☺️ 
+    a: &'a [u8], ☺️ 
+    b: &'b mut [u8; 8], ☺️ 
+    _: &'b mut (dyn 'a + ☺️ ATrait#0:5:1788#☺️ )☺️ 
+) -> (&'a [u8], &'b mut [u8; 8])☺️ 
+
+pub fn func_with_1arg(_: ☺️ FieldsNamedStruct#0:17:1800#☺️ )☺️ 
+
+pub fn func_with_1arg_and_ret(f: ☺️ FieldsNamedStruct#0:17:1800#☺️ ) -> ☺️ AUnitEnum#0:142:1794#☺️ 
+
+pub fn func_with_const<T: ☺️ Copy#2:2992:119#☺️ , const N: usize>(t: T) -> [T; N]☺️ 
+
+pub fn func_with_no_args()☺️ 
+
+pub unsafe extern "C" fn variadic(_: *const (), ...)☺️ 
+
+pub unsafe extern "C" fn variadic_multiline(☺️ 
+    _: *const (), ☺️ 
+    _: *mut (), ☺️ 
+    ...☺️ 
+)☺️

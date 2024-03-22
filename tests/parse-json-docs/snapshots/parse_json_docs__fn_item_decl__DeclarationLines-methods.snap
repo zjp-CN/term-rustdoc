@@ -1,0 +1,15 @@
+---
+source: tests/parse-json-docs/fn_item_decl.rs
+expression: DisplaySlice(&lines)
+---
+pub fn by_rc(self: ☺️ Rc#5:4919:217#☺️ <Self>)☺️ 
+
+pub fn by_ref(&self)☺️ 
+
+pub fn by_ref_mut(&mut self)☺️ 
+
+pub fn consume(self)☺️ 
+
+pub fn new() -> Self☺️ 
+
+fn return_assoc(&self) -> Self::Assoc<'_>;☺️

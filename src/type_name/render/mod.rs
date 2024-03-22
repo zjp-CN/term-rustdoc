@@ -4,10 +4,7 @@ use crate::{
     type_name::style::{Punctuation, Symbol},
     util::XString,
 };
-use std::{
-    fmt::{self, Write},
-    mem,
-};
+use std::{fmt, mem};
 
 #[derive(Clone, Default)]
 pub struct DeclarationLines {
@@ -25,7 +22,7 @@ impl fmt::Debug for DeclarationLines {
 
 impl DeclarationLines {
     pub fn new(styled_type: &StyledType) -> Self {
-        let tags = dbg!(styled_type.tags());
+        let tags = styled_type.tags();
         let mut lines = Vec::with_capacity(8);
         let mut line = Vec::with_capacity(8);
         let mut iter = tags.iter();
@@ -100,11 +97,12 @@ pub struct TextTag {
 impl fmt::Debug for TextTag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let TextTag { text, id } = self;
-        _ = write!(f, "\"{text}");
         if let Some(id) = id {
-            _ = write!(f, " ({id})");
+            _ = write!(f, "{text}#{id}#☺️");
+        } else {
+            _ = write!(f, "{text}☺️");
         }
-        f.write_char('"')
+        Ok(())
     }
 }
 

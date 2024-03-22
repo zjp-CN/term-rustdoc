@@ -1,4 +1,4 @@
-use crate::{err, Result};
+use crate::Result;
 use ratatui::buffer::Cell;
 use ratatui::prelude::{Buffer, Rect};
 use std::fmt;
@@ -45,8 +45,6 @@ pub struct Scroll<Ls: Lines> {
     pub start: usize,
     /// The row position where cursor was last time
     pub cursor: Cursor<<Ls::Line as LineState>::State>,
-    /// The maximum width among all lines
-    pub max_width: u16,
     /// The widget area, usually not the full screen
     pub area: Rect,
 }
@@ -133,12 +131,11 @@ where
     <Ls::Line as LineState>::State: Default,
 {
     fn default() -> Self where {
-        let (lines, start, cursor, max_windth, area) = Default::default();
+        let (lines, start, cursor, area) = Default::default();
         Scroll {
             lines,
             start,
             cursor,
-            max_width: max_windth,
             area,
         }
     }
@@ -148,13 +145,14 @@ impl<Ls> Scroll<Ls>
 where
     Ls: Default + Lines<Line = TreeLine>,
 {
-    pub fn new_tree_lines(lines: Ls) -> Result<Self> {
-        let w = lines.iter().map(TreeLine::width).max();
-        let max_windth = w.ok_or_else(|| err!("The documentation is empty with no items."))?;
-
+    // TODO: rm me
+    pub fn new_tree_lines(lines: Ls, height: u16) -> Result<Self> {
         Ok(Self {
             lines,
-            max_width: max_windth,
+            area: Rect {
+                height, // for getting correct visible_lines and basic layout
+                ..Default::default()
+            },
             ..Default::default()
         })
     }
@@ -166,10 +164,6 @@ where
             .get(self.cursor.y as usize + self.start)
             .and_then(|l| l.id.as_deref())
     }
-
-    pub fn update_maxwidth(&mut self) {
-        self.max_width = self.lines.iter().map(TreeLine::width).max().unwrap();
-    }
 }
 
 impl<Ls: Lines> fmt::Debug for Scroll<Ls> {
@@ -178,7 +172,6 @@ impl<Ls: Lines> fmt::Debug for Scroll<Ls> {
         s.field("lines.len", &self.total_len())
             .field("start", &self.start)
             .field("cursor.y", &self.cursor.y)
-            .field("max_windth", &self.max_width)
             .field("area", &self.area);
         s.finish()
     }

@@ -125,7 +125,7 @@ impl VersionFeatures {
         }
         let [outer, pkg_toml] = ver_feat_toml::split_for_pkg_toml(outer);
         self.pkg_toml.update_area(pkg_toml);
-        let [ver, feat] = split_ver_feat(outer, self.versions.inner.max_width);
+        let [ver, feat] = split_ver_feat(outer, self.versions.inner.lines.max_width);
         self.features.update_area(feat);
         self.versions.update_area(ver);
     }
@@ -211,9 +211,11 @@ impl Versions {
         let border = Surround::new(Block::new().title("Version").borders(Borders::ALL), area);
         Self {
             inner: Scroll {
-                lines: VersionsInner { all: all_verions },
+                lines: VersionsInner {
+                    all: all_verions,
+                    max_width,
+                },
                 area: border.inner(),
-                max_width,
                 ..Default::default()
             },
             border,
@@ -260,6 +262,7 @@ impl Versions {
 struct VersionsInner {
     /// TODO: add cached status
     all: Vec<PkgInfo>,
+    max_width: u16,
 }
 
 impl std::ops::Deref for VersionsInner {

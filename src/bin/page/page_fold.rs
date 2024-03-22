@@ -47,7 +47,6 @@ impl Page {
     }
 
     fn update_after_folding_outline(&mut self) {
-        self.outline().update_maxwidth();
         self.update_area_inner(self.area);
 
         let outline = self.outline();

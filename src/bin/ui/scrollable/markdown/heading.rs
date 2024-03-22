@@ -8,7 +8,6 @@ use crate::{
 };
 use ratatui::prelude::Buffer;
 use term_rustdoc::{tree::Text, util::XString};
-use unicode_width::UnicodeWidthStr;
 
 pub type ScrollHeading = Scroll<Headings>;
 
@@ -77,15 +76,7 @@ impl Headings {
 
 impl ScrollHeading {
     pub fn update_headings(&mut self, headings: Headings) {
-        // NOTE: max_width is the real maximum width of all lines,
-        // and the display width can be smaller then max_width to truncate heading lines.
-        let max_width = headings
-            .iter()
-            .map(|h| h.as_str().width() as u16)
-            .max()
-            .unwrap_or(0);
         self.lines = headings;
-        self.max_width = max_width;
     }
 
     pub fn render(&self, buf: &mut Buffer, content_start: usize, content_end: usize) {

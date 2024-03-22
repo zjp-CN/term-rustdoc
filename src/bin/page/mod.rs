@@ -33,7 +33,7 @@ pub struct Page {
 impl Page {
     pub fn new(pkg_key: PkgKey, doc: CrateDoc, area: Rect) -> Result<Self> {
         let mut page = Page {
-            outline: Outline::new(&doc),
+            outline: Outline::new(&doc, area.height),
             content: Content {
                 inner: content::ContentInner::new(&doc),
                 ..Default::default()
@@ -93,9 +93,9 @@ struct Outline {
 }
 
 impl Outline {
-    fn new(doc: &CrateDoc) -> Self {
+    fn new(doc: &CrateDoc, height: u16) -> Self {
         Outline {
-            inner: outline::OutlineInner::new(doc),
+            inner: outline::OutlineInner::new(doc, height),
             ..Default::default()
         }
     }
@@ -132,6 +132,13 @@ impl Outline {
 
     fn is_module_tree(&self) -> bool {
         self.inner.is_module_tree()
+    }
+
+    fn max_width(&self) -> u16 {
+        self.display_ref()
+            .visible_lines()
+            .and_then(|lines| lines.iter().map(|l| l.width()).max())
+            .unwrap_or(0)
     }
 }
 

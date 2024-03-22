@@ -7,7 +7,7 @@ use ratatui::{
 
 impl Page {
     fn layout(&self) -> Layout {
-        let outline_width = self.outline.display_ref().max_width + 1;
+        let outline_width = self.outline.max_width() + 1;
         Layout::default()
             .direction(Direction::Horizontal)
             .constraints([

@@ -19,8 +19,8 @@ impl std::fmt::Debug for OutlineInner {
 }
 
 impl OutlineInner {
-    pub fn new(doc: &CrateDoc) -> Self {
-        let modules = match ScrollTreeLines::new_tree_lines(doc.clone().into()) {
+    pub fn new(doc: &CrateDoc, height: u16) -> Self {
+        let modules = match ScrollTreeLines::new_tree_lines(doc.clone().into(), height) {
             Ok(lines) => lines,
             Err(err) => {
                 error!("Failed to init module Outline:\n{err}");
@@ -135,7 +135,6 @@ impl Setu {
             error!("{path} generated unexpected empty TreeLines");
         }
         // self.update_area(modules.area);
-        self.display.update_maxwidth();
         self.display.start = 0;
         self.display.cursor.y = 0;
         Some(())

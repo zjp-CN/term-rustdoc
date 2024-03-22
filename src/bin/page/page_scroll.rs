@@ -4,7 +4,11 @@ use crate::ui::scrollable::{ScrollOffset, ScrollText, ScrollTreeLines};
 macro_rules! current {
     ($self:ident: $outline:block; $content:block $(;)?) => {
         match $self.current {
-            Some(Panel::Outline) => $outline,
+            Some(Panel::Outline) => {
+                let old_max_width = $self.outline.max_width();
+                $outline
+                $self.update_area_due_to_outline_max_width(old_max_width);
+            }
             Some(Panel::Content) => $content,
             _ => (),
         };
@@ -76,28 +80,44 @@ impl Page {
 /// to implement content cursor movement.
 impl Page {
     pub fn move_forward_cursor(&mut self) {
+        let old_max_width = self.outline.max_width();
         self.outline().move_forward_cursor();
         self.update_content();
+        self.update_area_due_to_outline_max_width(old_max_width);
     }
 
     pub fn move_backward_cursor(&mut self) {
+        let old_max_width = self.outline.max_width();
         self.outline().move_backward_cursor();
         self.update_content();
+        self.update_area_due_to_outline_max_width(old_max_width);
     }
 
     pub fn move_top_cursor(&mut self) {
+        let old_max_width = self.outline.max_width();
         self.outline().move_top_cursor();
         self.update_content();
+        self.update_area_due_to_outline_max_width(old_max_width);
     }
 
     pub fn move_bottom_cursor(&mut self) {
+        let old_max_width = self.outline.max_width();
         self.outline().move_bottom_cursor();
         self.update_content();
+        self.update_area_due_to_outline_max_width(old_max_width);
     }
 
     pub fn move_middle_cursor(&mut self) {
+        let old_max_width = self.outline.max_width();
         self.outline().move_middle_cursor();
         self.update_content();
+        self.update_area_due_to_outline_max_width(old_max_width);
+    }
+
+    fn update_area_due_to_outline_max_width(&mut self, old_max_width: u16) {
+        if self.outline.max_width() != old_max_width {
+            self.update_area_inner(self.area);
+        }
     }
 
     /// update content's StyledLines and Headings aftet setting the cursor

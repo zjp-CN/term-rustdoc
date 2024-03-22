@@ -20,6 +20,14 @@ impl fmt::Debug for DeclarationLines {
     }
 }
 
+impl std::ops::Deref for DeclarationLines {
+    type Target = [DeclarationLine];
+
+    fn deref(&self) -> &Self::Target {
+        &self.lines
+    }
+}
+
 impl DeclarationLines {
     pub fn new(styled_type: &StyledType) -> Self {
         let tags = styled_type.tags();
@@ -88,10 +96,18 @@ impl fmt::Debug for DeclarationLine {
     }
 }
 
+impl std::ops::Deref for DeclarationLine {
+    type Target = [TextTag];
+
+    fn deref(&self) -> &Self::Target {
+        &self.line
+    }
+}
+
 #[derive(Clone, Default)]
 pub struct TextTag {
-    text: XString,
-    id: Option<ID>,
+    pub text: XString,
+    pub id: Option<ID>,
 }
 
 impl fmt::Debug for TextTag {

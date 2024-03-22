@@ -53,3 +53,6 @@ pub const HEAD: Style = Style {
 pub const SET: Style = Style::new().bg(Color::Rgb(20, 19, 18)); // #141312
 pub const NEW: Style = Style::new();
 pub const DECLARATION_BORDER: Style = Style::new().fg(Color::Gray);
+pub const JUMP: Style = Style::new()
+    .fg(Color::from_u32(0x004083d6))
+    .add_modifier(Modifier::BOLD); // #4083d6

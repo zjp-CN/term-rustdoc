@@ -1,8 +1,9 @@
 use crate::{
-    color::DECLARATION_BORDER,
+    color::{DECLARATION_BORDER, JUMP, NEW},
     ui::{
-        scrollable::{Headings, MarkdownArea, ScrollText},
-        Surround,
+        render_line,
+        scrollable::{Headings, ScrollText},
+        LineState, Scroll, Surround,
     },
 };
 use ratatui::{
@@ -11,7 +12,10 @@ use ratatui::{
 };
 use term_rustdoc::{
     tree::{CrateDoc, IDMap},
-    type_name::style::item_styled,
+    type_name::{
+        render::{DeclarationLine, DeclarationLines},
+        style::item_styled,
+    },
 };
 
 #[derive(Default)]
@@ -78,14 +82,14 @@ impl ContentInner {
 }
 
 struct Declaration {
-    display: MarkdownArea,
+    display: DeclarationInner,
     border: Surround,
 }
 
 impl Default for Declaration {
     fn default() -> Self {
         Declaration {
-            display: MarkdownArea::default(),
+            display: Default::default(),
             border: Surround::new(
                 Block::new()
                     .borders(Borders::ALL)
@@ -97,13 +101,56 @@ impl Default for Declaration {
     }
 }
 
+#[derive(Default)]
+struct DeclarationInner {
+    inner: Scroll<DeclarationLines>,
+}
+
+impl DeclarationInner {
+    fn scroll_text(&mut self) -> &mut Scroll<DeclarationLines> {
+        &mut self.inner
+    }
+
+    fn scroll_text_ref(&self) -> &Scroll<DeclarationLines> {
+        &self.inner
+    }
+
+    fn render(&self, buf: &mut Buffer) {
+        let Rect {
+            x, mut y, width, ..
+        } = self.inner.area;
+        let width = width as usize;
+        for line in self.inner.all_lines() {
+            let line = line
+                .iter()
+                .map(|tt| (tt.text.as_str(), if tt.id.is_some() { JUMP } else { NEW }));
+            render_line(line, buf, x, y, width);
+            y += 1;
+        }
+    }
+
+    fn update_decl(&mut self, lines: DeclarationLines) {
+        self.inner.lines = lines;
+    }
+}
+
+/// No need to query state for previous line.
+impl LineState for DeclarationLine {
+    type State = ();
+    fn state(&self) -> Self::State {}
+    fn is_identical(&self, _: &Self::State) -> bool {
+        false
+    }
+}
+
 impl Declaration {
     fn update_decl(&mut self, id: &str, map: &IDMap, width: u16) {
-        let code = item_styled(id, map).to_non_wrapped_string();
-        if code.is_empty() {
+        let lines = item_styled(id, map).to_declaration_lines();
+        if lines.is_empty() {
             self.display.scroll_text().lines = Default::default();
         } else {
-            self.display.rust_code(&code, width);
+            self.display.update_decl(lines);
+            // self.display.rust_code(&code, width);
         }
     }
 
@@ -114,7 +161,7 @@ impl Declaration {
         if total_len == 0 {
             return outer;
         }
-        let height = total_len + 1;
+        let height = total_len + 2;
         let [decl, md] = Layout::vertical([Constraint::Length(height), Constraint::Min(0)])
             .spacing(1)
             .areas(outer);

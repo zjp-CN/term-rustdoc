@@ -5,6 +5,7 @@ mod path;
 mod type_;
 mod utils;
 
+use super::render::DeclarationLines;
 use crate::{
     tree::{IdToID, ID},
     util::XString,
@@ -52,6 +53,10 @@ impl StyledType {
         let mut buf = String::with_capacity(self.str_len());
         _ = write!(buf, "{self}");
         buf
+    }
+
+    pub fn to_declaration_lines(&self) -> DeclarationLines {
+        DeclarationLines::new(self)
     }
 
     fn write_id_name(&mut self, id: impl IdToID, name: &str) {

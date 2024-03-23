@@ -33,6 +33,9 @@ impl super::Page {
             self.update_content();
             set!(outline)
         } else if self.content.border.area().contains(position) {
+            if let Some(id) = self.content.jumpable_id(x, y) {
+                self.jump_to_id(&id);
+            }
             set!(content)
         } else if self.navi.contains(position) {
             if self.heading_jump(y) {

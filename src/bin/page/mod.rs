@@ -162,4 +162,8 @@ impl Content {
     fn update_doc(&mut self, id: &str) -> Option<crate::ui::scrollable::Headings> {
         self.inner.update_doc(id, self.border.inner())
     }
+
+    fn jumpable_id(&self, x: u16, y: u16) -> Option<ID> {
+        self.inner.jumpable_id(x, y)
+    }
 }

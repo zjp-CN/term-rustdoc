@@ -261,6 +261,27 @@ impl IDMap {
             id.into()
         }
     }
+
+    /// Since there will be reexported item id, we have to check the real defining id.
+    pub fn is_same_id(&self, src: &str, target: &str) -> bool {
+        if src == target {
+            info!("found exactly same id {src}");
+            return true;
+        }
+        self.get_item(src)
+            .map(|item| match &item.inner {
+                // FIXME: check id for primitive types
+                ItemEnum::Import(x) => {
+                    let res = x.id.as_ref().map(|id| id.0 == target).unwrap_or(false);
+                    if res {
+                        info!(src, target, "found same id through reexport item");
+                    }
+                    res
+                }
+                _ => false,
+            })
+            .unwrap_or(false)
+    }
 }
 
 /// Deduce the name from its item type.

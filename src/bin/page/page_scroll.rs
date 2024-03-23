@@ -172,4 +172,36 @@ impl Page {
         self.content().lines.toggle_sytect();
         self.update_content();
     }
+
+    pub fn jump_to_id(&mut self, id: &str) {
+        let outline = self.outline.display_ref();
+        let map = outline.lines.doc_ref();
+        if let Some(current) = outline.get_line_of_current_cursor() {
+            if let Some(current_id) = &current.id {
+                if map.is_same_id(current_id, id) {
+                    info!(?current_id, ?id, path = %map.path(id), "no need to jump to");
+                    return;
+                }
+            }
+        }
+        let iter = &mut outline.lines.iter();
+        if let Some(pos) = iter.position(|l| {
+            l.id.as_deref()
+                // .map(|src| src == id)
+                .map(|src| map.is_same_id(src, id))
+                .unwrap_or(false)
+        }) {
+            let start = pos.saturating_sub(6);
+            let y = (pos - start) as u16;
+            self.outline().start = start;
+            self.outline().set_cursor(y);
+            self.update_content();
+            info!(
+                "succeed to jump to {:?}",
+                self.outline().lines.doc_ref().path(id)
+            );
+        } else {
+            error!(?id, path = %map.path(id), "unable to jump to");
+        }
+    }
 }

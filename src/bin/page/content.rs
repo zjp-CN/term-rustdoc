@@ -10,10 +10,12 @@ use ratatui::{
     prelude::*,
     widgets::{Block, BorderType, Borders},
 };
+use std::ops::Range;
 use term_rustdoc::{
-    tree::{CrateDoc, IDMap},
+    tree::{CrateDoc, IDMap, ID},
     type_name::{DeclarationLine, DeclarationLines},
 };
+use unicode_width::UnicodeWidthStr;
 
 #[derive(Default)]
 pub(super) struct ContentInner {
@@ -76,6 +78,10 @@ impl ContentInner {
     pub fn reset_doc(&mut self) {
         self.md.lines.reset_doc();
     }
+
+    pub fn jumpable_id(&self, x: u16, y: u16) -> Option<ID> {
+        self.decl.display.jumpable_id(x, y)
+    }
 }
 
 struct Declaration {
@@ -101,6 +107,14 @@ impl Default for Declaration {
 #[derive(Default)]
 struct DeclarationInner {
     inner: Scroll<DeclarationLines>,
+    jumpable_ids: Vec<JumpableId>,
+}
+
+#[derive(Debug)]
+struct JumpableId {
+    y: u16,
+    x: Range<u16>,
+    id: ID,
 }
 
 impl DeclarationInner {
@@ -127,7 +141,37 @@ impl DeclarationInner {
     }
 
     fn update_decl(&mut self, lines: DeclarationLines) {
+        // self.jumpable_ids = lines.it;
+        let mut jumpable_ids = Vec::new();
+        let mut col = 0;
+        for (y, line) in lines.iter().enumerate() {
+            for tt in &**line {
+                let width = tt.text.width();
+                if let Some(id) = &tt.id {
+                    let end = col + width;
+                    jumpable_ids.push(JumpableId {
+                        y: y as u16,
+                        x: col as u16..end as u16,
+                        id: id.clone(),
+                    });
+                }
+                col += width;
+            }
+            col = 0;
+        }
+        info!(?jumpable_ids);
+        self.jumpable_ids = jumpable_ids;
         self.inner.lines = lines;
+    }
+
+    fn jumpable_id(&self, x: u16, y: u16) -> Option<ID> {
+        let area = self.inner.area;
+        let x = x.checked_sub(area.x)?;
+        let y = y.checked_sub(area.y)?;
+        info!(y, x);
+        self.jumpable_ids
+            .iter()
+            .find_map(|jump| (jump.y == y && jump.x.contains(&x)).then(|| jump.id.clone()))
     }
 }
 
@@ -145,6 +189,7 @@ impl Declaration {
         let lines = DeclarationLines::new(id, map);
         if lines.is_empty() {
             self.display.scroll_text().lines = Default::default();
+            self.display.jumpable_ids = Vec::new();
         } else {
             self.display.update_decl(lines);
             // self.display.rust_code(&code, width);

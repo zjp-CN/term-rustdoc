@@ -37,7 +37,7 @@ impl Count {
             unloaded,
             in_progress,
         } = self;
-        let mut text = XString::new_inline(" ");
+        let mut text = XString::const_new(" ");
         if loaded != 0 {
             write!(&mut text, "Loaded: {loaded} / ").unwrap();
         }

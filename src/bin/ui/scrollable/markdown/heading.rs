@@ -85,7 +85,7 @@ impl ScrollHeading {
             return;
         }
         let (x, mut y, width) = (self.area.x, self.area.y, width as usize);
-        let mut gap_str = XString::new_inline("");
+        let mut gap_str = XString::const_new("");
         let lines = &self.lines.lines;
         for (idx, line) in lines.iter().enumerate() {
             let text = &line.as_str();

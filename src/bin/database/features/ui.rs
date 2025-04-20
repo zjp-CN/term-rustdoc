@@ -331,7 +331,7 @@ impl FeaturesUI {
         if current_line && lines.get(cursor as usize).is_some() {
             let current = y + cursor;
             for offset in 0..area.width {
-                buf.get_mut(x + offset, current).bg = BG_CURSOR_LINE;
+                buf[(x + offset, current)].bg = BG_CURSOR_LINE;
             }
         }
         for feat in lines {

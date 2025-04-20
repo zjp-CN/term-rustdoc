@@ -69,7 +69,7 @@ impl PkgKey {
     }
 }
 
-impl redb::RedbValue for PkgKey {
+impl redb::Value for PkgKey {
     type SelfType<'a> = PkgKey;
 
     type AsBytes<'a> = Vec<u8>;
@@ -98,7 +98,7 @@ impl redb::RedbValue for PkgKey {
     }
 }
 
-impl redb::RedbKey for PkgKey {
+impl redb::Key for PkgKey {
     fn compare(data1: &[u8], data2: &[u8]) -> std::cmp::Ordering {
         data1.cmp(data2)
     }

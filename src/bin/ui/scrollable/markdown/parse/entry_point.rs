@@ -60,7 +60,7 @@ pub fn parse(doc: &str) -> Blocks {
                 blocks.push(code_block::md_table(&doc[range.clone()]));
                 let _ = ele!(iter, Table, range); // consume the whole table
             }
-            Event::Start(Tag::BlockQuote) => {
+            Event::Start(Tag::BlockQuote(_)) => {
                 if let Some((Event::Start(Tag::Paragraph), range)) = iter.next() {
                     let mut block = Block::default();
                     let para = ele!(iter, Paragraph, range);

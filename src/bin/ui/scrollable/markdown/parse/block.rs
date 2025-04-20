@@ -167,14 +167,14 @@ impl Block {
 
     pub fn push_link(&mut self, idx: usize) {
         // if the same idx exists, no need to store again
-        if !self.links.iter().any(|l| *l == idx) {
+        if !self.links.contains(&idx) {
             self.links.push(idx);
         }
     }
 
     pub fn push_footnote(&mut self, key: XString) {
         // if the same key exists, no need to store again
-        if !self.footnotes.iter().any(|f| *f == key) {
+        if !self.footnotes.contains(&key) {
             self.footnotes.push(key);
         }
     }

@@ -83,7 +83,7 @@ impl PkgToml {
         render_line(Some((&*self.toml, PKG_TOML)), buf, x, y, width as usize);
 
         if self.toml_width > width {
-            let cell = buf.get_mut(width.saturating_sub(1) + x, y);
+            let cell = &mut buf[(width.saturating_sub(1) + x, y)];
             cell.bg = BG_CURSOR;
             cell.fg = Color::White;
         }

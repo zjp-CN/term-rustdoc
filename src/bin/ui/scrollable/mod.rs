@@ -112,7 +112,7 @@ impl<Ls: Lines> Scroll<Ls> {
             let area = self.area;
             let y = self.cursor.y + area.y;
             for x in area.x..(area.x + area.width) {
-                f(buf.get_mut(x, y));
+                f(&mut buf[(x, y)]);
             }
         }
     }

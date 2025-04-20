@@ -157,7 +157,7 @@ fn item_prefix(level: &mut u8, kind: Option<&mut u64>) -> [Word; 2] {
     [
         Word {
             word: {
-                let mut ident = XString::new_inline("");
+                let mut ident = XString::const_new("");
                 (0..*level).for_each(|_| ident.push_str("  "));
                 ident
             },

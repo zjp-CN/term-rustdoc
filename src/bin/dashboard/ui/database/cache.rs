@@ -57,7 +57,7 @@ impl Cache {
     fn empty_state() -> Cache {
         Cache {
             inner: CacheInner::BeingCached(PkgKey::empty_state(), SystemTime::now()),
-            features: XString::new_inline(""),
+            features: XString::const_new(""),
             ver: Version::new(0, 0, 0),
         }
     }

@@ -140,8 +140,8 @@ fn write_to_db<K, V>(
     value: &V::SelfType<'_>,
 ) -> Result<()>
 where
-    K: 'static + redb::RedbKey,
-    V: 'static + redb::RedbValue,
+    K: 'static + redb::Key,
+    V: 'static + redb::Value,
 {
     let table = redb::TableDefinition::<K, V>::new(name);
     let write_txn = db.begin_write()?;
@@ -155,10 +155,9 @@ where
 
 fn read_from_doc_db<K, V>(db: &redb::Database, name: &str, key: &K) -> Result<V>
 where
-    K: 'static + for<'a> redb::RedbKey<SelfType<'a> = K> + std::fmt::Debug,
-    V: 'static + for<'a> redb::RedbValue<SelfType<'a> = V>,
+    K: 'static + for<'a> redb::Key<SelfType<'a> = K> + std::fmt::Debug,
+    V: 'static + for<'a> redb::Value<SelfType<'a> = V>,
 {
-    use redb::ReadableTable;
     let table = redb::TableDefinition::<K, V>::new(name);
     let read_txn = db.begin_read()?;
     let value = read_txn
@@ -169,7 +168,7 @@ where
     Ok(value)
 }
 
-impl redb::RedbValue for CachedDocInfo {
+impl redb::Value for CachedDocInfo {
     type SelfType<'a> = CachedDocInfo;
 
     type AsBytes<'a> = Vec<u8>;

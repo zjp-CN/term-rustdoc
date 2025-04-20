@@ -26,12 +26,13 @@ impl Tui {
 
     pub fn draw(&mut self, widgets: &mut Frame) -> Result<()> {
         self.terminal
-            .draw(|frame| frame.render_widget(widgets, frame.size()))?;
+            .draw(|frame| frame.render_widget(widgets, frame.area()))?;
         Ok(())
     }
 
     pub fn size(&self) -> Result<Rect> {
-        Ok(self.terminal.size()?)
+        let size = self.terminal.size()?;
+        Ok(Rect::new(0, 0, size.width, size.height))
     }
 }
 

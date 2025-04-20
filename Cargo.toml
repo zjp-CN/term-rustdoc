@@ -13,48 +13,47 @@ name = "term-rustdoc"
 path = "src/bin/main.rs"
 
 [dependencies]
-rustdoc-types = "0.40"
+rustdoc-types = "0.41"
 rustdoc-json = "0.9"
-public-api = "0.47"
-redb = "1.5"
+redb = "2.4"
 
 serde = { version = "1", features = ["derive", "rc"] }
 serde_json = "1"
 
 xz2 = "0.1"
-bytesize = "1"
+bytesize = "2"
 
-termtree = "0.4"
-compact_str = { version = "0.7", features = ["serde"] }
+termtree = "0.5"
+compact_str = { version = "0.9", features = ["serde"] }
 bincode = { version = "2.0.0-rc.3", features = ["serde"] }
 
 color-eyre = "0.6"
-rustc-hash = "1"
+rustc-hash = "2"
 regex = "1"
 
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-constcat = "0.5"
+constcat = "0.6"
 
-ratatui = "0.26.0"
-crossterm = "0.27"
+ratatui = "0.29.0"
+crossterm = "0.29"
 textwrap = "0.16"
 syntect = "5.1"
-pulldown-cmark = "0.10"
-unicode-width = "0.1"
-itertools = "0.12"
+pulldown-cmark = "0.13"
+unicode-width = "0.2"
+itertools = "0.14"
 smallvec = "1.13"
 icu_segmenter = "1"
 
 home = "0.5"
-dirs = "5"
+dirs = "6"
 walkdir = "2"
 semver = "1"
 nucleo-matcher = "0.3"
 rayon = "1"
 tempfile = "3"
-cargo_toml = { version = "0.19", features = ["features"] }
+cargo_toml = { version = "0.22", features = ["features"] }
 self_cell = "1"
 
 [dev-dependencies]

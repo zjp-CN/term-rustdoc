@@ -247,7 +247,7 @@ impl Versions {
         if self.inner.get_line_of_current_cursor().is_some() {
             let current = self.inner.area.y + self.inner.cursor.y;
             for w in 0..self.inner.area.width {
-                let cell = buf.get_mut(x + w, current);
+                let cell = &mut buf[(x + w, current)];
                 if current_line {
                     cell.bg = BG_CURSOR_LINE;
                 }

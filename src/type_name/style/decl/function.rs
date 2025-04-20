@@ -4,13 +4,13 @@ use crate::type_name::style::{
     utils::write_comma,
     Function as Func, Punctuation, StyledType, Syntax,
 };
-use rustdoc_types::{FnDecl, Function, Generics, Type};
+use rustdoc_types::{Function, FunctionSignature, Generics, Type};
 
 impl Declaration for Function {
     fn format<K: FindName>(&self, map: VisNameMap, buf: &mut StyledType) {
         map.vis.format::<K>(buf);
         let Function {
-            decl,
+            sig,
             generics,
             header,
             has_body,
@@ -23,7 +23,7 @@ impl Declaration for Function {
             where_predicates,
         } = generics;
         params.format::<K>(buf);
-        decl.format::<K>(buf);
+        sig.format::<K>(buf);
         where_predicates.format::<K>(buf);
         if !*has_body {
             // if a function has no body, it's likely an associated function in trait definition
@@ -32,15 +32,15 @@ impl Declaration for Function {
     }
 }
 
-impl Format for FnDecl {
+impl Format for FunctionSignature {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
-        let FnDecl {
+        let FunctionSignature {
             inputs,
             output,
-            c_variadic,
+            is_c_variadic,
         } = self;
         // Multiline for args if the count is more than 2.
-        let multiline = (inputs.len() + *c_variadic as usize) > 2;
+        let multiline = (inputs.len() + *is_c_variadic as usize) > 2;
         buf.write_in_parentheses(|buf| {
             buf.write_slice(
                 inputs,
@@ -53,7 +53,7 @@ impl Format for FnDecl {
                 },
                 write_comma,
             );
-            if *c_variadic {
+            if *is_c_variadic {
                 write_comma(buf);
                 if multiline {
                     buf.write(Punctuation::NewLine);
@@ -82,10 +82,10 @@ fn fn_argument<Kind: FindName>(arg @ (name, ty): &(String, Type), buf: &mut Styl
         match ty {
             Type::BorrowedRef {
                 lifetime,
-                mutable,
+                is_mutable,
                 type_,
             } if matches!(&**type_, Type::Generic(s) if s == "Self") => {
-                match (lifetime, mutable) {
+                match (lifetime, is_mutable) {
                     (None, false) => {
                         // &self
                         buf.write(Syntax::Reference);

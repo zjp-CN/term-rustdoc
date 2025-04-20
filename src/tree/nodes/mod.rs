@@ -126,7 +126,7 @@ impl DModule {
             Enum(item) => self.enums.push(DEnum::new(id, item, map)),
             Trait(item) => self.traits.push(DTrait::new(id, item, map)),
             Function(_) => self.functions.push(DFunction::new(id)),
-            Constant(_) => self.constants.push(DConstant::new(id)),
+            Constant { .. } => self.constants.push(DConstant::new(id)),
             Static(_) => self.statics.push(DStatic::new(id)),
             TypeAlias(_) => self.type_alias.push(DTypeAlias::new(id)),
             Macro(_) => self.macros_decl.push(DMacroDecl::new(id)),
@@ -135,7 +135,7 @@ impl DModule {
                 MacroKind::Attr => self.macros_attr.push(DMacroAttr::new(id)),
                 MacroKind::Derive => self.macros_derv.push(DMacroDerv::new(id)),
             },
-            Import(import) => imports::parse_import(id, import, map, self, ancestor),
+            Use(import) => imports::parse_import(id, import, map, self, ancestor),
             // Primitive(_) => todo!(),
             _ => (),
         }

@@ -1,20 +1,6 @@
-// Example: for `pub use crate::AUnitStruct`
-//
-// Item {
-//   id: Id("0:12-0:3:1774"), crate_id: 0, name: None,
-//   span: Some(Span {..}),
-//   visibility: Public, docs: None, links: {}, attrs: [], deprecation: None,
-//   inner: Import(Import {
-//      source: "crate::AUnitStruct",
-//      name: "AUnitStruct",
-//      id: Some(Id("0:3:1774")),
-//      glob: false
-//   })
-// }
-
 use super::*;
 use crate::tree::ID;
-use rustdoc_types::{Import, ItemEnum, ItemKind};
+use rustdoc_types::{ItemEnum, ItemKind, Use};
 
 /// Add the item of `pub use source {as name}` to DModule.
 ///
@@ -24,7 +10,7 @@ use rustdoc_types::{Import, ItemEnum, ItemKind};
 /// can be any other item which should be merged into one of DModule's fields.
 pub(super) fn parse_import(
     id: ID,
-    import: &Import,
+    import: &Use,
     map: &IDMap,
     dmod: &mut DModule,
     kin: &mut Vec<ID>,
@@ -65,7 +51,7 @@ pub(super) fn parse_import(
             ItemEnum::Trait(item) => dmod.traits.push(DTrait::new(id, item, map)),
             ItemEnum::Function(_) => dmod.functions.push(DFunction::new(id)),
             ItemEnum::TypeAlias(_) => dmod.type_alias.push(DTypeAlias::new(id)),
-            ItemEnum::Constant(_) => dmod.constants.push(DConstant::new(id)),
+            ItemEnum::Constant { .. } => dmod.constants.push(DConstant::new(id)),
             ItemEnum::Static(_) => dmod.statics.push(DStatic::new(id)),
             ItemEnum::Macro(_) => dmod.macros_decl.push(DMacroDecl::new(id)),
             ItemEnum::ProcMacro(proc) => match proc.kind {

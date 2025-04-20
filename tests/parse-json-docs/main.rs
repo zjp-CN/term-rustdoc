@@ -2,14 +2,14 @@ use bytesize::ByteSize;
 use color_eyre::eyre::Result;
 use insta::{assert_debug_snapshot as snap, assert_snapshot as shot};
 use rustc_hash::FxHashMap;
-use rustdoc_types::{Crate, Id, Item, ItemSummary};
+use rustdoc_types::{Crate, Id, Item, ItemKind, ItemSummary};
 use std::{
     io::{Read, Write},
     path::PathBuf,
     sync::LazyLock,
 };
 use term_rustdoc::{
-    tree::CrateDoc,
+    tree::{CrateDoc, Tag},
     util::{CompactStringExt, XString},
 };
 
@@ -90,21 +90,47 @@ fn basic_info() -> Result<()> {
     paths.sort_unstable();
 
     // local items
-    snap!(paths, @r###"
+    snap!(paths, @r#"
     [
         "integration                                        [Module]",
         "integration::ACONSTANT                             [Constant]",
         "integration::ASTATIC                               [Constant]",
         "integration::ATrait                                [Trait]",
+        "integration::ATraitWithGAT                         [Trait]",
         "integration::AUnitStruct                           [Struct]",
         "integration::FieldsNamedStruct                     [Struct]",
         "integration::a_decl_macro                          [Macro]",
         "integration::func_dyn_trait                        [Function]",
         "integration::func_dyn_trait2                       [Function]",
+        "integration::func_fn_pointer_impl_trait            [Function]",
+        "integration::func_hrtb                             [Function]",
+        "integration::func_lifetime_bounds                  [Function]",
         "integration::func_primitive                        [Function]",
+        "integration::func_qualified_path                   [Function]",
+        "integration::func_trait_bounds                     [Function]",
+        "integration::func_tuple_array_slice                [Function]",
         "integration::func_with_1arg                        [Function]",
         "integration::func_with_1arg_and_ret                [Function]",
+        "integration::func_with_const                       [Function]",
         "integration::func_with_no_args                     [Function]",
+        "integration::no_synthetic                          [Function]",
+        "integration::structs                               [Module]",
+        "integration::structs::Named                        [Struct]",
+        "integration::structs::NamedAllPrivateFields        [Struct]",
+        "integration::structs::NamedAllPublicFields         [Struct]",
+        "integration::structs::NamedGeneric                 [Struct]",
+        "integration::structs::NamedGenericAllPrivate       [Struct]",
+        "integration::structs::NamedGenericWithBound        [Struct]",
+        "integration::structs::NamedGenericWithBoundAllPrivate [Struct]",
+        "integration::structs::Tuple                        [Struct]",
+        "integration::structs::TupleAllPrivate              [Struct]",
+        "integration::structs::TupleGeneric                 [Struct]",
+        "integration::structs::TupleGenericWithBound        [Struct]",
+        "integration::structs::TupleWithBound               [Struct]",
+        "integration::structs::Unit                         [Struct]",
+        "integration::structs::UnitGeneric                  [Struct]",
+        "integration::structs::UnitGenericWithBound         [Struct]",
+        "integration::structs::UnitWithBound                [Struct]",
         "integration::submod1                               [Module]",
         "integration::submod1::AUnitEnum                    [Enum]",
         "integration::submod1::AUnitEnum::A                 [Variant]",
@@ -112,17 +138,19 @@ fn basic_info() -> Result<()> {
         "integration::submod1::AUnitEnum::C                 [Variant]",
         "integration::submod1::submod2                      [Module]",
         "integration::submod1::submod2::ATraitNeverImplementedForTypes [Trait]",
+        "integration::variadic                              [Function]",
+        "integration::variadic_multiline                    [Function]",
     ]
-    "###);
+    "#);
 
     // item counts
-    shot!(doc.paths.len(), @"2009");
-    shot!(js.local_path().count(), @"20");
-    shot!(doc.index.len(), @"163");
-    shot!(js.local_index().count(), @"74");
+    shot!(doc.paths.len(), @"2362");
+    shot!(js.local_path().count(), @"48");
+    shot!(doc.index.len(), @"334");
+    shot!(js.local_index().count(), @"325");
 
     // data sizes
-    shot!(ByteSize(json.len() as _), @"372.9 KB");
+    shot!(ByteSize(json.len() as _), @"463.3 KB");
 
     Ok(())
 }
@@ -161,7 +189,7 @@ fn compression() -> Result<()> {
         "[raw json text => xz] {}",
         reduced_size(json_size, compress(json.as_bytes())?)
     );
-    shot!(json_compression, @"[raw json text => xz] 372.9 KB => 44.7 KB (-88%)");
+    shot!(json_compression, @"[raw json text => xz] 463.3 KB => 34.3 KB (-93%)");
 
     let [bin_size, xz_size] = compress_bin(doc)?;
     let bin_compression = format!(
@@ -172,11 +200,11 @@ fn compression() -> Result<()> {
         reduced_size(bin_size, xz_size),
         reduced_size(json_size, xz_size)
     );
-    shot!(bin_compression, @r###"
-    [raw json text => bb] 372.9 KB => 179.7 KB (-52%)
-    [binary bytes  => xz] 179.7 KB => 42.5 KB (-76%)
-    [raw json text => xz] 372.9 KB => 42.5 KB (-89%)
-    "###);
+    shot!(bin_compression, @r"
+    [raw json text => bb] 463.3 KB => 120.9 KB (-74%)
+    [binary bytes  => xz] 120.9 KB => 31.1 KB (-74%)
+    [raw json text => xz] 463.3 KB => 31.1 KB (-93%)
+    ");
 
     Ok(())
 }
@@ -197,13 +225,68 @@ fn stats() {
     dbg!(&crates);
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct DebugItem {
+    path: String,
+    tag: Tag,
+    id: u32,
+}
+
+impl DebugItem {
+    fn new(id: u32, item: &ItemSummary) -> DebugItem {
+        use ItemKind::*;
+        let tag = match item.kind {
+            Module => Tag::Module,
+            ExternCrate => Tag::Unknown,
+            Use => Tag::Unknown,
+            Struct => Tag::Struct,
+            StructField => Tag::Field,
+            Union => Tag::Union,
+            Enum => Tag::Enum,
+            Variant => Tag::Variant,
+            Function => Tag::Function,
+            TypeAlias => Tag::TypeAlias,
+            Constant => Tag::Constant,
+            Trait => Tag::Trait,
+            TraitAlias => Tag::Unknown,
+            Impl => Tag::Implementations,
+            Static => Tag::Static,
+            ExternType => Tag::Unknown,
+            Macro => Tag::MacroDecl,
+            ProcAttribute => Tag::MacroAttr,
+            ProcDerive => Tag::MacroDerv,
+            AssocConst => Tag::AssocConst,
+            AssocType => Tag::AssocType,
+            Primitive => Tag::Unknown,
+            Keyword => Tag::Unknown,
+        };
+        DebugItem {
+            tag,
+            path: item.path.join("::"),
+            id,
+        }
+    }
+
+    #[allow(clippy::inherent_to_string)]
+    fn to_string(&self) -> String {
+        let Self { tag, path, id, .. } = self;
+        format!("({id:03}) {path:<60} [{tag:?}]")
+    }
+}
+
 #[test]
 fn parse_extract_local() {
     let js = &*INTEGRATION;
     let mut local_items = js
-        .local_index()
-        .map(|(Id(id), item)| (*id, item))
+        .local_path()
+        .map(|(Id(id), item)| DebugItem::new(*id, item))
         .collect::<Vec<_>>();
-    local_items.sort_unstable_by_key(|a| a.0);
-    snap!("local_items", local_items);
+    local_items.sort_unstable();
+    snap!(
+        "local_items",
+        local_items
+            .iter()
+            .map(|item| item.to_string())
+            .collect::<Vec<_>>()
+    );
 }

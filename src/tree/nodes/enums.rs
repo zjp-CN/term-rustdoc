@@ -1,28 +1,28 @@
 use crate::tree::{
     impls::show::{show_ids, DocTree, Show},
-    DImpl, IDMap, IDs, SliceToIds, ID,
+    DImpl, IDMap, IDs,
 };
-use rustdoc_types::Enum;
+use rustdoc_types::{Enum, Id};
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct DEnum {
-    pub id: ID,
+    pub id: Id,
     pub variants: IDs,
     // variants_stripped: bool, -> Does this really make sense?
     pub impls: DImpl,
 }
 impl DEnum {
-    pub fn new(id: ID, item: &Enum, map: &IDMap) -> Self {
+    pub fn new(id: Id, item: &Enum, map: &IDMap) -> Self {
         DEnum {
             id,
-            variants: item.variants.to_ids(),
+            variants: item.variants.clone().into_boxed_slice(),
             impls: DImpl::new(&item.impls, map),
         }
     }
 
     /// External items need external crates compiled to know details,
     /// and the ID here is for PathMap, not IndexMap.
-    pub fn new_external(id: ID) -> Self {
+    pub fn new_external(id: Id) -> Self {
         let (variants, impls) = Default::default();
         DEnum {
             id,
@@ -32,7 +32,7 @@ impl DEnum {
     }
 
     pub fn variants_tree(&self, map: &IDMap) -> DocTree {
-        let mut root = node!(Enum: map, &self.id);
+        let mut root = node!(Enum: map, self.id);
         names_node!(@iter self map root
             variants Variant
         );
@@ -53,6 +53,6 @@ impl Show for DEnum {
             self map NoVariants,
             Variants variants Variant
         );
-        node!(Enum: map, &self.id).with_leaves([variants, self.impls.show_prettier(map)])
+        node!(Enum: map, self.id).with_leaves([variants, self.impls.show_prettier(map)])
     }
 }

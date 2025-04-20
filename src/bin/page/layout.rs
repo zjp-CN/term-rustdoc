@@ -63,7 +63,7 @@ impl Page {
             .inner
             .display()
             .get_line_of_current_cursor()
-            .and_then(|t| t.id.as_deref());
+            .and_then(|t| t.id);
         self.content.update_area(border, id);
 
         // navi

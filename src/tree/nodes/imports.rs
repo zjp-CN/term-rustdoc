@@ -1,20 +1,5 @@
-// Example: for `pub use crate::AUnitStruct`
-//
-// Item {
-//   id: Id("0:12-0:3:1774"), crate_id: 0, name: None,
-//   span: Some(Span {..}),
-//   visibility: Public, docs: None, links: {}, attrs: [], deprecation: None,
-//   inner: Import(Import {
-//      source: "crate::AUnitStruct",
-//      name: "AUnitStruct",
-//      id: Some(Id("0:3:1774")),
-//      glob: false
-//   })
-// }
-
 use super::*;
-use crate::tree::ID;
-use rustdoc_types::{Import, ItemEnum, ItemKind};
+use rustdoc_types::{ItemEnum, ItemKind, Use};
 
 /// Add the item of `pub use source {as name}` to DModule.
 ///
@@ -23,15 +8,15 @@ use rustdoc_types::{Import, ItemEnum, ItemKind};
 /// pub-use item shouldn't be a real tree node because the source
 /// can be any other item which should be merged into one of DModule's fields.
 pub(super) fn parse_import(
-    id: ID,
-    import: &Import,
+    id: Id,
+    import: &Use,
     map: &IDMap,
     dmod: &mut DModule,
-    kin: &mut Vec<ID>,
+    kin: &mut Vec<Id>,
 ) {
-    let Some(import_id) = &import.id else { return };
+    let Some(import_id) = import.id else { return };
     // Import's id can be empty when the source is Primitive.
-    if let Some(source) = map.indexmap().get(import_id) {
+    if let Some(source) = map.indexmap().get(&import_id) {
         match &source.inner {
             ItemEnum::Module(item) => {
                 // check id for ItemSummary/path existence:
@@ -65,7 +50,7 @@ pub(super) fn parse_import(
             ItemEnum::Trait(item) => dmod.traits.push(DTrait::new(id, item, map)),
             ItemEnum::Function(_) => dmod.functions.push(DFunction::new(id)),
             ItemEnum::TypeAlias(_) => dmod.type_alias.push(DTypeAlias::new(id)),
-            ItemEnum::Constant(_) => dmod.constants.push(DConstant::new(id)),
+            ItemEnum::Constant { .. } => dmod.constants.push(DConstant::new(id)),
             ItemEnum::Static(_) => dmod.statics.push(DStatic::new(id)),
             ItemEnum::Macro(_) => dmod.macros_decl.push(DMacroDecl::new(id)),
             ItemEnum::ProcMacro(proc) => match proc.kind {
@@ -75,8 +60,8 @@ pub(super) fn parse_import(
             },
             _ => (),
         }
-    } else if let Some(extern_item) = map.pathmap().get(import_id) {
-        let id = import_id.to_ID();
+    } else if let Some(extern_item) = map.pathmap().get(&import_id) {
+        let id = import_id;
         // TODO: external items are in path map, which means no further information
         // except full path and item kind will be known.
         // To get details of an external item, we need to compile the external crate,

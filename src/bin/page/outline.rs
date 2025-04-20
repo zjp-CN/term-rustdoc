@@ -1,7 +1,8 @@
 use super::navi::NaviAction;
 use crate::ui::scrollable::ScrollTreeLines;
 use ratatui::prelude::{Buffer, Rect};
-use term_rustdoc::tree::{CrateDoc, TreeLines, ID};
+use rustdoc_types::Id;
+use term_rustdoc::tree::{CrateDoc, TreeLines};
 
 #[derive(Default)]
 pub struct OutlineInner {
@@ -66,7 +67,7 @@ impl OutlineInner {
 
 /// Action from Navi
 impl OutlineInner {
-    pub fn set_setu_id(&mut self, id: ID) {
+    pub fn set_setu_id(&mut self, id: Id) {
         self.setu.outer_item = id;
     }
 
@@ -87,7 +88,7 @@ impl OutlineInner {
     }
 
     pub fn reset_to_module_tree(&mut self) {
-        self.setu.outer_item = ID::default();
+        self.setu.outer_item = Id(0);
         // we don't have to overwrite the real lines because we only check by id
         // self.setu.display = Default::default();
         self.back_to_home();
@@ -104,10 +105,18 @@ pub enum OutlineKind {
 /// Stands for struct/enum/trait/union.
 ///
 /// This also supports focus on a module, but not very much designed.
-#[derive(Default)]
 pub struct Setu {
-    outer_item: ID,
+    outer_item: Id,
     display: ScrollTreeLines,
+}
+
+impl Default for Setu {
+    fn default() -> Self {
+        Setu {
+            outer_item: Id(0),
+            display: Default::default(),
+        }
+    }
 }
 
 impl Setu {

@@ -7,7 +7,8 @@ use ratatui::{
     prelude::{Buffer, Rect},
     widgets::{Block, BorderType, Borders},
 };
-use term_rustdoc::tree::{DataItemKind as Kind, IDMap, ID};
+use rustdoc_types::Id;
+use term_rustdoc::tree::{DataItemKind as Kind, IDMap};
 
 struct NaviOutlineInner {
     /// Selected item that has inner data of a kind like fields/variants/impls.
@@ -59,7 +60,7 @@ impl Default for NaviOutline {
 }
 
 struct Selected {
-    id: ID,
+    id: Id,
     kind: Kind,
 }
 
@@ -141,11 +142,11 @@ pub fn width() -> u16 {
 }
 
 impl NaviOutline {
-    pub fn set_item_inner(&mut self, id: Option<&str>, map: &IDMap) -> Option<ID> {
+    pub fn set_item_inner(&mut self, id: Option<Id>, map: &IDMap) -> Option<Id> {
         let id = id?;
         let selected = Selected {
-            kind: Kind::new(id, map)?,
-            id: id.into(),
+            kind: Kind::new(&id, map)?,
+            id,
         };
 
         // self.display.start = 0;
@@ -153,7 +154,7 @@ impl NaviOutline {
 
         let inner = &mut self.display.lines;
         inner.lines = lines(selected.kind);
-        let ret = Some(selected.id.clone());
+        let ret = Some(selected.id);
         inner.selected = Some(selected);
         ret
     }

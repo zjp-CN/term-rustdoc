@@ -1,7 +1,7 @@
 use super::TreeLines;
-use crate::tree::{DModule, DocTree, IDMap, ID};
+use crate::tree::{DModule, DocTree, IDMap};
 use rustc_hash::FxHashSet as HashSet;
-use rustdoc_types::ItemEnum;
+use rustdoc_types::{Id, ItemEnum};
 
 /// how to fold the text tree
 #[derive(Default, PartialEq, Eq)]
@@ -32,7 +32,7 @@ enum Kind {
 pub struct Fold {
     kind: Kind,
     /// module IDs that should be expanded
-    expand: HashSet<ID>,
+    expand: HashSet<Id>,
 }
 
 // ─➤  ─⮞ ─▶ ▶
@@ -58,8 +58,8 @@ impl TreeLines {
     }
 
     pub(super) fn _expand_all(&mut self) {
-        fn traversal_id(m: &DModule, mods: &mut HashSet<ID>) {
-            mods.insert(m.id.clone());
+        fn traversal_id(m: &DModule, mods: &mut HashSet<Id>) {
+            mods.insert(m.id);
             for submod in &m.modules {
                 traversal_id(submod, mods);
             }
@@ -72,13 +72,13 @@ impl TreeLines {
     pub fn expand_zero_level(&mut self) {
         self.fold.kind = Kind::ExpandZero;
         self.fold.expand.clear();
-        self.fold.expand.insert(self.dmodule().id.clone());
+        self.fold.expand.insert(self.dmodule().id);
         self.update_cached_lines(|dmod, map, _| {
             let mut root = dmod.item_tree_only_in_one_specified_mod(map);
             root.extend(
                 dmod.modules
                     .iter()
-                    .map(|m| node!(ModuleFolded: map, Module, &m.id)),
+                    .map(|m| node!(ModuleFolded: map, Module, m.id)),
             );
             root
         });
@@ -87,19 +87,19 @@ impl TreeLines {
     pub fn expand_to_first_level_modules(&mut self) {
         self.fold.kind = Kind::ExpandToFirstLevelModules;
         let dmod = &self.dmodule().modules;
-        self.fold.expand = dmod.iter().map(|m| m.id.clone()).collect();
+        self.fold.expand = dmod.iter().map(|m| m.id).collect();
         self.update_cached_lines(|dmod, map, mods| {
             let mut root = dmod.item_tree_only_in_one_specified_mod(map);
             for m in &dmod.modules {
                 let tree = if mods.contains(&m.id) {
                     let mut tree = m.item_tree_only_in_one_specified_mod(map);
                     for submod in &m.modules {
-                        let leaf = node!(ModuleFolded: map, Module, &submod.id);
+                        let leaf = node!(ModuleFolded: map, Module, submod.id);
                         tree.push(leaf);
                     }
                     tree
                 } else {
-                    node!(ModuleFolded: map, Module, &m.id)
+                    node!(ModuleFolded: map, Module, m.id)
                 };
                 root.push(tree);
             }
@@ -112,7 +112,7 @@ impl TreeLines {
     /// Expand a folded module or fold an expanded one.
     ///
     /// This pushs a module ID to a without setting any fold kind.
-    pub fn expand_toggle(&mut self, id: ID) {
+    pub fn expand_toggle(&mut self, id: Id) {
         fn modules_traversal(
             dmod: &DModule,
             map: &IDMap,
@@ -121,7 +121,7 @@ impl TreeLines {
         ) {
             for m in &dmod.modules {
                 if should_stop(m) {
-                    let node = node!(ModuleFolded: map, Module, &m.id);
+                    let node = node!(ModuleFolded: map, Module, m.id);
                     parent.push(node);
                 } else {
                     let mut node = m.item_tree_only_in_one_specified_mod(map);
@@ -160,7 +160,7 @@ impl TreeLines {
 }
 
 impl TreeLines {
-    pub fn expand_current_module_only(&mut self, id: ID) {
+    pub fn expand_current_module_only(&mut self, id: Id) {
         self.fold.kind = Kind::CurrentModule;
         if !self.check_id(&id) {
             return;
@@ -184,21 +184,21 @@ impl TreeLines {
                     node.extend(
                         m.modules
                             .iter()
-                            .map(|m| node!(@name ModuleFolded: map, &m.id)),
+                            .map(|m| node!(@name ModuleFolded: map, m.id)),
                     );
                     parent.push(node);
                     // NOTE: Stop traverlling down inside but still travel in other modules.
                     // This is because it's not helpful to only show/know target modules.
                 } else {
                     // use short name for non-target modules
-                    let mut node = node!(@name ModuleFolded: map, &m.id);
+                    let mut node = node!(@name ModuleFolded: map, m.id);
                     modules_traversal(m, map, &mut node, should_stop);
                     parent.push(node);
                 };
             }
         }
         self.update_cached_lines(|dmod, map, mods| {
-            let mut root = node!(Module: map, &dmod.id);
+            let mut root = node!(Module: map, dmod.id);
             if mods.contains(&dmod.id) {
                 // item tree already contains the root module, thus only mv the leaves
                 let iter = dmod.item_tree_only_in_one_specified_mod(map).tree.leaves;
@@ -212,16 +212,16 @@ impl TreeLines {
 
 impl TreeLines {
     /// check if the id is a module (or reexported as module)
-    fn check_id(&self, id: &ID) -> bool {
+    fn check_id(&self, id: &Id) -> bool {
         if !self.dmodule().modules.iter().any(|_m| {
             // only Module or reexported item as Module can be in list
             self.idmap()
                 .get_item(id)
                 .map(|item| match &item.inner {
                     ItemEnum::Module(_) => true,
-                    ItemEnum::Import(reepxort) => {
+                    ItemEnum::Use(reepxort) => {
                         if let Some(id) = &reepxort.id {
-                            if let Some(item) = self.idmap().get_item(&id.0) {
+                            if let Some(item) = self.idmap().get_item(id) {
                                 return matches!(item.inner, ItemEnum::Module(_));
                             }
                         }
@@ -232,8 +232,8 @@ impl TreeLines {
                 .unwrap_or(false)
         }) {
             error!(
-                "ID({id}) is not a non-module item `{}` {:?}",
-                self.idmap().name(&id),
+                "{id:?} is not a non-module item `{}` {:?}",
+                self.idmap().name(id),
                 self.idmap().get_item(id)
             );
             return false;
@@ -241,7 +241,7 @@ impl TreeLines {
         true
     }
 
-    fn update_cached_lines(&mut self, f: impl FnOnce(&DModule, &IDMap, &HashSet<ID>) -> DocTree) {
+    fn update_cached_lines(&mut self, f: impl FnOnce(&DModule, &IDMap, &HashSet<Id>) -> DocTree) {
         let map = self.idmap();
         let dmod = &self.dmodule();
         let mods = &self.fold.expand;

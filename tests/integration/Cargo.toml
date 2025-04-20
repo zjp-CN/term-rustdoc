@@ -7,3 +7,4 @@ edition = "2021"
 
 [lints.rust]
 dead_code = "allow"
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(nightly)'] }

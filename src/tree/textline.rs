@@ -4,6 +4,7 @@ use crate::{
     util::XString,
 };
 use ratatui::style::{Color, Style};
+use rustdoc_types::Id;
 use std::{
     fmt::{self, Write},
     rc::Rc,
@@ -18,7 +19,7 @@ mod fold;
 pub struct TextTag {
     pub text: XString,
     pub tag: Tag,
-    pub id: Option<XString>,
+    pub id: Option<Id>,
 }
 
 /// Show text only, which is used as a plain text Tree display.
@@ -55,7 +56,7 @@ pub struct TreeLine {
     /// Identation level with range of 0..=u8::MAX
     pub level: u8,
     /// Node/Item id from Crate
-    pub id: Option<XString>,
+    pub id: Option<Id>,
     pub name: Text,
 }
 

@@ -1,7 +1,7 @@
 use super::{path::*, utils::*, Punctuation, StyledType, Syntax, Tag};
 use rustdoc_types::{
-    Constant, GenericArg, GenericArgs, GenericBound, GenericParamDef, GenericParamDefKind, Term,
-    TraitBoundModifier, TypeBinding, TypeBindingKind, WherePredicate,
+    AssocItemConstraint, AssocItemConstraintKind, Constant, GenericArg, GenericArgs, GenericBound,
+    GenericParamDef, GenericParamDefKind, Term, TraitBoundModifier, WherePredicate,
 };
 
 /// Outlives are a vec of String, so to meet the bound on [`write_bounds`] fn,
@@ -35,11 +35,11 @@ impl Format for GenericParamDef {
             GenericParamDefKind::Type {
                 bounds,
                 default,
-                synthetic,
+                is_synthetic,
             } => {
                 // Don't write `impl TraitBound` in generic definition,
                 // otherwise we'll see something like `pub fn f<impl Trait: Trait>(_: impl Trait)`
-                if *synthetic {
+                if *is_synthetic {
                     return;
                 }
                 buf.write(name);
@@ -75,7 +75,7 @@ impl Format for [GenericParamDef] {
             !matches!(
                 def.kind,
                 GenericParamDefKind::Type {
-                    synthetic: true,
+                    is_synthetic: true,
                     ..
                 }
             )
@@ -107,6 +107,8 @@ impl Format for GenericBound {
                 trait_.format::<Kind>(buf);
             }
             GenericBound::Outlives(s) => buf.write(s),
+            // FIXME: implement this
+            GenericBound::Use(v) => todo!(),
         };
     }
 }
@@ -132,16 +134,18 @@ impl Format for GenericArgs {
     /// `<...>` or `(...) -> ...`
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         match self {
-            GenericArgs::AngleBracketed { args, bindings } => {
+            GenericArgs::AngleBracketed { args, constraints } => {
                 // <'a, 32, B: Copy, C = u32>
-                match (args.is_empty(), bindings.is_empty()) {
+                match (args.is_empty(), constraints.is_empty()) {
                     (true, true) => (),
                     (false, true) => buf.write_in_angle_bracket(|buf| args.format::<Kind>(buf)),
-                    (true, false) => buf.write_in_angle_bracket(|buf| bindings.format::<Kind>(buf)),
+                    (true, false) => {
+                        buf.write_in_angle_bracket(|buf| constraints.format::<Kind>(buf))
+                    }
                     (false, false) => buf.write_in_angle_bracket(|buf| {
                         args.format::<Kind>(buf);
                         write_comma(buf);
-                        bindings.format::<Kind>(buf);
+                        constraints.format::<Kind>(buf);
                     }),
                 }
             }
@@ -153,6 +157,8 @@ impl Format for GenericArgs {
                     ty.format::<Kind>(buf);
                 }
             }
+            // FIXME: implement T::method(..)
+            GenericArgs::ReturnTypeNotation => todo!(),
         }
     }
 }
@@ -178,22 +184,19 @@ impl Format for [GenericArg] {
 impl Format for Constant {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         // TODO: need examples
-        let Constant {
-            type_, expr, value, ..
-        } = self;
+        let Constant { expr, value, .. } = self;
         buf.write(expr);
         buf.write(Punctuation::Colon);
-        type_.format::<Kind>(buf);
         if let Some(s) = value {
             buf.write(s);
         }
     }
 }
 
-impl Format for TypeBinding {
+impl Format for AssocItemConstraint {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         // e.g. C = i32
-        let TypeBinding {
+        let AssocItemConstraint {
             name,
             args,
             binding,
@@ -204,21 +207,21 @@ impl Format for TypeBinding {
     }
 }
 
-impl Format for [TypeBinding] {
+impl Format for [AssocItemConstraint] {
     /// NOTE: no AngleBracketes surrounded
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
-        buf.write_slice(self, TypeBinding::format::<Kind>, write_comma);
+        buf.write_slice(self, AssocItemConstraint::format::<Kind>, write_comma);
     }
 }
 
-impl Format for TypeBindingKind {
+impl Format for AssocItemConstraintKind {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         match self {
-            TypeBindingKind::Equality(term) => {
+            AssocItemConstraintKind::Equality(term) => {
                 buf.write(Punctuation::Equal);
                 term.format::<Kind>(buf);
             }
-            TypeBindingKind::Constraint(bounds) => {
+            AssocItemConstraintKind::Constraint(bounds) => {
                 buf.write(Punctuation::Colon);
                 bounds.format::<Kind>(buf);
             }
@@ -257,10 +260,10 @@ impl Format for WherePredicate {
                 buf.write(Punctuation::Colon);
                 bounds.format::<Kind>(buf);
             }
-            WherePredicate::RegionPredicate { lifetime, bounds } => {
+            WherePredicate::LifetimePredicate { lifetime, outlives } => {
                 buf.write(lifetime);
                 buf.write(Punctuation::Colon);
-                bounds.format::<Kind>(buf);
+                // FIXME: write outlives
             }
             WherePredicate::EqPredicate { lhs, rhs } => {
                 lhs.format::<Kind>(buf);

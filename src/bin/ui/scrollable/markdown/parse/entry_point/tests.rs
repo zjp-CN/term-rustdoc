@@ -1,5 +1,5 @@
 use super::{markdown_iter, parse};
-use insta::{assert_debug_snapshot as snap, assert_display_snapshot as shot};
+use insta::{assert_debug_snapshot as snap, assert_snapshot as shot};
 
 #[test]
 fn parse_markdown() {

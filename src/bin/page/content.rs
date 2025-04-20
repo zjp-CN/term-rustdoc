@@ -10,9 +10,10 @@ use ratatui::{
     prelude::*,
     widgets::{Block, BorderType, Borders},
 };
+use rustdoc_types::Id;
 use std::ops::Range;
 use term_rustdoc::{
-    tree::{CrateDoc, IDMap, ID},
+    tree::{CrateDoc, IDMap},
     type_name::{DeclarationLine, DeclarationLines},
 };
 use unicode_width::UnicodeWidthStr;
@@ -38,7 +39,7 @@ impl ContentInner {
         }
     }
 
-    pub fn update_decl(&mut self, id: &str, outer: Rect) {
+    pub fn update_decl(&mut self, id: &Id, outer: Rect) {
         if let Some(map) = self.md.doc_ref() {
             // exclude border width
             let width = outer.width.saturating_sub(4);
@@ -70,7 +71,7 @@ impl ContentInner {
         &self.md
     }
 
-    pub fn update_doc(&mut self, id: &str, outer: Rect) -> Option<Headings> {
+    pub fn update_doc(&mut self, id: &Id, outer: Rect) -> Option<Headings> {
         self.update_decl(id, outer);
         self.md.update_doc(id)
     }
@@ -79,7 +80,7 @@ impl ContentInner {
         self.md.lines.reset_doc();
     }
 
-    pub fn jumpable_id(&self, x: u16, y: u16) -> Option<ID> {
+    pub fn jumpable_id(&self, x: u16, y: u16) -> Option<Id> {
         self.decl.display.jumpable_id(x, y)
     }
 }
@@ -114,7 +115,7 @@ struct DeclarationInner {
 struct JumpableId {
     y: u16,
     x: Range<u16>,
-    id: ID,
+    id: Id,
 }
 
 impl DeclarationInner {
@@ -147,12 +148,12 @@ impl DeclarationInner {
         for (y, line) in lines.iter().enumerate() {
             for tt in &**line {
                 let width = tt.text.width();
-                if let Some(id) = &tt.id {
+                if let Some(id) = tt.id {
                     let end = col + width;
                     jumpable_ids.push(JumpableId {
                         y: y as u16,
                         x: col as u16..end as u16,
-                        id: id.clone(),
+                        id,
                     });
                 }
                 col += width;
@@ -164,14 +165,14 @@ impl DeclarationInner {
         self.inner.lines = lines;
     }
 
-    fn jumpable_id(&self, x: u16, y: u16) -> Option<ID> {
+    fn jumpable_id(&self, x: u16, y: u16) -> Option<Id> {
         let area = self.inner.area;
         let x = x.checked_sub(area.x)?;
         let y = y.checked_sub(area.y)?;
         info!(y, x);
         self.jumpable_ids
             .iter()
-            .find_map(|jump| (jump.y == y && jump.x.contains(&x)).then(|| jump.id.clone()))
+            .find_map(|jump| (jump.y == y && jump.x.contains(&x)).then_some(jump.id))
     }
 }
 
@@ -185,7 +186,7 @@ impl LineState for DeclarationLine {
 }
 
 impl Declaration {
-    fn update_decl(&mut self, id: &str, map: &IDMap, width: u16) {
+    fn update_decl(&mut self, id: &Id, map: &IDMap, width: u16) {
         let lines = DeclarationLines::new(id, map);
         if lines.is_empty() {
             self.display.scroll_text().lines = Default::default();

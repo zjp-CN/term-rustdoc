@@ -1,17 +1,17 @@
 use super::{generics::hrtb, path::*, utils::write_comma, Punctuation, StyledType, Syntax, Tag};
-use rustdoc_types::{Abi, FnDecl, FunctionPointer, Header, Type};
+use rustdoc_types::{Abi, FunctionHeader, FunctionPointer, FunctionSignature, Type};
 
 impl Format for FunctionPointer {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         let FunctionPointer {
-            decl,
+            sig,
             generic_params, // HRTB
             header,
         } = self;
         hrtb::<Kind>(generic_params, buf);
         header.format::<Kind>(buf);
         buf.write(Syntax::FnPointer);
-        FnPointerDecl(decl).format::<Kind>(buf);
+        FnPointerDecl(sig).format::<Kind>(buf);
     }
 }
 
@@ -19,14 +19,14 @@ impl Format for FunctionPointer {
 /// Rust also allows named arguments in fn pointer, so if the name is not `_`, it's shown.
 /// Besides, the arguments in a fnpointer are in one line, or rather the whole fnpointer is one-line,
 /// whereas lines for arguments in a function item depend.
-struct FnPointerDecl<'d>(&'d FnDecl);
+struct FnPointerDecl<'d>(&'d FunctionSignature);
 
 impl Format for FnPointerDecl<'_> {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
-        let FnDecl {
+        let FunctionSignature {
             inputs,
             output,
-            c_variadic,
+            is_c_variadic,
         } = self.0;
         buf.write_in_parentheses(|buf| {
             buf.write_slice(
@@ -41,7 +41,7 @@ impl Format for FnPointerDecl<'_> {
                 },
                 write_comma,
             );
-            if *c_variadic {
+            if *is_c_variadic {
                 buf.write(Syntax::Variadic);
             }
         });
@@ -66,22 +66,22 @@ impl Format for (String, Type) {
     }
 }
 
-impl Format for Header {
+impl Format for FunctionHeader {
     fn format<Kind: FindName>(&self, buf: &mut StyledType) {
         use super::Function;
-        let Header {
-            const_,
-            unsafe_,
-            async_,
+        let FunctionHeader {
+            is_const,
+            is_unsafe,
+            is_async,
             abi,
         } = self;
-        if *const_ {
+        if *is_const {
             buf.write(Function::Const);
         }
-        if *async_ {
+        if *is_async {
             buf.write(Function::Const);
         }
-        if *unsafe_ {
+        if *is_unsafe {
             buf.write(Function::Unsafe);
         }
         abi.format::<Kind>(buf);

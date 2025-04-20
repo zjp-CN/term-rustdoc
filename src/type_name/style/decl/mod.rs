@@ -6,21 +6,21 @@ use super::{
     StyledType, Vis,
 };
 use crate::tree::IDMap;
-use rustdoc_types::{ItemEnum, Visibility};
+use rustdoc_types::{Id, ItemEnum, Visibility};
 
-fn item_styled(id: &str, map: &IDMap) -> StyledType {
+fn item_styled(id: &Id, map: &IDMap) -> StyledType {
     if let Some(item) = map.get_item(id) {
         let vis_name_map = VisNameMap {
             name: item.name.as_deref().unwrap_or(""),
             vis: &item.visibility,
-            id,
+            id: *id,
             map,
         };
         let mut buf = StyledType::with_capacity(48);
         match &item.inner {
-            ItemEnum::Import(reexport) => {
+            ItemEnum::Use(reexport) => {
                 let id = reexport.id.as_ref();
-                return id.map(|id| item_styled(&id.0, map)).unwrap_or_default();
+                return id.map(|id| item_styled(id, map)).unwrap_or_default();
             }
             ItemEnum::Function(f) => f.format_as_short(vis_name_map, &mut buf),
             ItemEnum::Struct(s) => s.format_as_short(vis_name_map, &mut buf),
@@ -32,7 +32,7 @@ fn item_styled(id: &str, map: &IDMap) -> StyledType {
 }
 
 impl StyledType {
-    pub fn new(id: &str, map: &IDMap) -> Self {
+    pub fn new(id: &Id, map: &IDMap) -> Self {
         item_styled(id, map)
     }
 }
@@ -44,7 +44,7 @@ impl Format for Visibility {
             Visibility::Default => Vis::Default,
             Visibility::Crate => Vis::PubCrate,
             Visibility::Restricted { parent, path } => {
-                buf.write_vis_scope(parent, path);
+                buf.write_vis_scope(*parent, path);
                 return;
             }
         });
@@ -53,7 +53,7 @@ impl Format for Visibility {
 
 struct VisNameMap<'a> {
     vis: &'a Visibility,
-    id: &'a str,
+    id: Id,
     name: &'a str,
     map: &'a IDMap,
 }

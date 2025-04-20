@@ -1,7 +1,8 @@
 use crate::{
-    tree::{IDMap, IdAsStr, Tag, TextTag, ID},
-    util::XString,
+    tree::{IDMap, Tag, TextTag},
+    util::{xformat, XString},
 };
+use rustdoc_types::Id;
 use std::fmt;
 use termtree::Tree;
 
@@ -56,7 +57,7 @@ impl std::iter::Extend<DocTree> for DocTree {
 }
 
 impl DocTree {
-    pub fn new(text: XString, tag: Tag, id: Option<XString>) -> Self {
+    pub fn new(text: XString, tag: Tag, id: Option<Id>) -> Self {
         Self {
             tree: Tree::new(TextTag { text, tag, id }).with_glyphs(tag.glyph()),
         }
@@ -90,27 +91,38 @@ impl Show for str {
     }
 }
 
+impl Show for Id {
+    fn show(&self) -> DocTree {
+        DocTree::new(xformat!("{self:?}"), Tag::Unknown, Some(*self))
+    }
+
+    /// Just as `<str as Show>::show` does.
+    fn show_prettier(&self, _: &IDMap) -> DocTree {
+        self.show()
+    }
+}
+
 /// @name is for short name; no @ is for name with absolute path
 macro_rules! node {
     // map.path(&self.id, ItemKind::Struct)
     ($tag:ident : $map:ident, $id:expr) => {
-        $crate::tree::DocTree::new($map.path($id), $crate::tree::Tag::$tag, Some($id.into()))
+        $crate::tree::DocTree::new($map.path(&$id), $crate::tree::Tag::$tag, Some($id))
     };
     ($tag:ident : $map:ident, $kind:ident, $id:expr) => {
-        $crate::tree::DocTree::new($map.path($id), $crate::tree::Tag::$tag, Some($id.into()))
+        $crate::tree::DocTree::new($map.path(&$id), $crate::tree::Tag::$tag, Some($id))
     };
     (@name $tag:ident : $map:ident, $id:expr) => {
-        $crate::tree::DocTree::new($map.name($id), $crate::tree::Tag::$tag, Some($id.into()))
+        $crate::tree::DocTree::new($map.name(&$id), $crate::tree::Tag::$tag, Some($id))
     };
 }
 
-pub fn show_names<'id, S: 'id + ?Sized + IdAsStr>(
-    ids: impl 'id + IntoIterator<Item = &'id S>,
+pub fn show_names<'id>(
+    ids: impl 'id + IntoIterator<Item = &'id Id>,
     tag: Tag,
     map: &'id IDMap,
 ) -> impl 'id + Iterator<Item = DocTree> {
     ids.into_iter()
-        .map(move |id| DocTree::new(map.name(id), tag, Some(id.id_str().into())))
+        .map(move |id| DocTree::new(map.name(id), tag, Some(*id)))
 }
 
 /// ### Usage 1
@@ -185,6 +197,6 @@ macro_rules! names_node {
 //         .map(move |id| Tree::new(map.path(id, &kind)).with_glyphs(glyph))
 // }
 
-pub fn show_ids(ids: &[ID]) -> impl '_ + Iterator<Item = DocTree> {
-    ids.iter().map(|id| id.as_str().show())
+pub fn show_ids(ids: &[Id]) -> impl '_ + Iterator<Item = DocTree> {
+    ids.iter().map(|id| id.show())
 }

@@ -235,7 +235,7 @@ fn get_pkg_name(name_ver: &str) -> Option<(XString, XString, Version)> {
 pub fn lastest_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgInfo> {
     let mut pkgs: Vec<_> = all_pkgs_in_latest_registry(registry_src)
         .into_iter()
-        .group_by(|pkg| pkg.name.clone())
+        .chunk_by(|pkg| pkg.name.clone())
         .into_iter()
         .map(|(_, pkg)| {
             pkg.into_iter()
@@ -250,7 +250,7 @@ pub fn lastest_pkgs_in_latest_registry(registry_src: &Path) -> Vec<PkgInfo> {
 fn all_versions_to_latest_version(all: &[PkgInfo]) -> Vec<PkgInfo> {
     let mut pkgs: Vec<_> = all
         .iter()
-        .group_by(|pkg| pkg.name.clone())
+        .chunk_by(|pkg| pkg.name.clone())
         .into_iter()
         .map(|(_, pkg)| {
             pkg.into_iter()

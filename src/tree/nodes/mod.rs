@@ -103,7 +103,7 @@ impl DModule {
     }
 
     fn new_inner(id: Id, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<Id>) -> Self {
-        ancestor.push(id.clone());
+        ancestor.push(id);
         debug!(
             "Module Paths = {:?}",
             ancestor.iter().map(|id| map.path(id)).collect::<Vec<_>>()

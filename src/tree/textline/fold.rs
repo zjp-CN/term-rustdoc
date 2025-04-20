@@ -59,7 +59,7 @@ impl TreeLines {
 
     pub(super) fn _expand_all(&mut self) {
         fn traversal_id(m: &DModule, mods: &mut HashSet<Id>) {
-            mods.insert(m.id.clone());
+            mods.insert(m.id);
             for submod in &m.modules {
                 traversal_id(submod, mods);
             }
@@ -72,7 +72,7 @@ impl TreeLines {
     pub fn expand_zero_level(&mut self) {
         self.fold.kind = Kind::ExpandZero;
         self.fold.expand.clear();
-        self.fold.expand.insert(self.dmodule().id.clone());
+        self.fold.expand.insert(self.dmodule().id);
         self.update_cached_lines(|dmod, map, _| {
             let mut root = dmod.item_tree_only_in_one_specified_mod(map);
             root.extend(
@@ -87,7 +87,7 @@ impl TreeLines {
     pub fn expand_to_first_level_modules(&mut self) {
         self.fold.kind = Kind::ExpandToFirstLevelModules;
         let dmod = &self.dmodule().modules;
-        self.fold.expand = dmod.iter().map(|m| m.id.clone()).collect();
+        self.fold.expand = dmod.iter().map(|m| m.id).collect();
         self.update_cached_lines(|dmod, map, mods| {
             let mut root = dmod.item_tree_only_in_one_specified_mod(map);
             for m in &dmod.modules {
@@ -233,7 +233,7 @@ impl TreeLines {
         }) {
             error!(
                 "{id:?} is not a non-module item `{}` {:?}",
-                self.idmap().name(&id),
+                self.idmap().name(id),
                 self.idmap().get_item(id)
             );
             return false;

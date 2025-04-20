@@ -14,7 +14,7 @@ impl Page {
         if !self.outline.is_module_tree() {
             return;
         }
-        if let Some(id) = self.outline().get_id().map(Into::into) {
+        if let Some(id) = self.outline().get_id() {
             self.outline().lines.expand_current_module_only(id);
             self.update_after_folding_outline();
         }
@@ -40,7 +40,7 @@ impl Page {
         if !self.outline.is_module_tree() {
             return;
         }
-        if let Some(id) = self.outline().get_id().map(Into::into) {
+        if let Some(id) = self.outline().get_id() {
             self.outline().lines.expand_toggle(id);
             self.update_after_folding_outline();
         }

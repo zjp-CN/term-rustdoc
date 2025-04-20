@@ -86,6 +86,7 @@ where
     'a: 'b,
 {
 }
+#[allow(clippy::multiple_bound_locations)]
 pub fn func_trait_bounds<T: Copy>()
 where
     T: Clone,

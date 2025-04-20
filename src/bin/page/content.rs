@@ -148,12 +148,12 @@ impl DeclarationInner {
         for (y, line) in lines.iter().enumerate() {
             for tt in &**line {
                 let width = tt.text.width();
-                if let Some(id) = &tt.id {
+                if let Some(id) = tt.id {
                     let end = col + width;
                     jumpable_ids.push(JumpableId {
                         y: y as u16,
                         x: col as u16..end as u16,
-                        id: id.clone(),
+                        id,
                     });
                 }
                 col += width;
@@ -172,7 +172,7 @@ impl DeclarationInner {
         info!(y, x);
         self.jumpable_ids
             .iter()
-            .find_map(|jump| (jump.y == y && jump.x.contains(&x)).then(|| jump.id.clone()))
+            .find_map(|jump| (jump.y == y && jump.x.contains(&x)).then_some(jump.id))
     }
 }
 

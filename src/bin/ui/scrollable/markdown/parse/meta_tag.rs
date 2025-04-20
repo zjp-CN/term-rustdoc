@@ -2,6 +2,7 @@ use rustdoc_types::Id;
 use term_rustdoc::util::XString;
 
 /// Extra meaning not so relevant to style in current word.
+#[allow(dead_code)]
 #[derive(Default, Clone, Debug)]
 pub enum MetaTag {
     #[default]

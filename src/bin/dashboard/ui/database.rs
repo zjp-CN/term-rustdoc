@@ -188,7 +188,7 @@ impl DataBaseUI {
         if current && text.get_line_of_current_cursor().is_some() {
             let row = text.area.y + text.cursor.y;
             for col in x..text.area.width + x {
-                buf.get_mut(col, row).set_bg(BG_CURSOR_LINE);
+                buf[(col, row)].set_bg(BG_CURSOR_LINE);
             }
         }
 

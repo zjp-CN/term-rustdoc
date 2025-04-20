@@ -36,8 +36,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 constcat = "0.6"
 
-ratatui = "0.26.0"
-crossterm = "0.27"
+ratatui = "0.29.0"
+crossterm = "0.29"
 textwrap = "0.16"
 syntect = "5.1"
 pulldown-cmark = "0.13"

@@ -261,9 +261,9 @@ dependencies = [
 
 [[package]]
 name = "constcat"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4938185353434999ef52c81753c8cca8955ed38042fc29913db3751916f3b7ab"
+checksum = "5ffb5df6dd5dadb422897e8132f415d7a054e3cd757e5070b663f75bea1840fb"
 
 [[package]]
 name = "core_maths"
@@ -625,6 +625,15 @@ name = "itertools"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
 ]
@@ -1412,7 +1421,7 @@ dependencies = [
  "home",
  "icu_segmenter",
  "insta",
- "itertools 0.12.1",
+ "itertools 0.14.0",
  "nucleo-matcher",
  "pulldown-cmark",
  "ratatui",
@@ -1434,7 +1443,7 @@ dependencies = [
  "textwrap",
  "tracing",
  "tracing-subscriber",
- "unicode-width 0.1.14",
+ "unicode-width 0.2.0",
  "walkdir",
  "xz2",
 ]

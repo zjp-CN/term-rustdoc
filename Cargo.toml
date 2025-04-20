@@ -34,15 +34,15 @@ regex = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-constcat = "0.5"
+constcat = "0.6"
 
 ratatui = "0.26.0"
 crossterm = "0.27"
 textwrap = "0.16"
 syntect = "5.1"
 pulldown-cmark = "0.10"
-unicode-width = "0.1"
-itertools = "0.12"
+unicode-width = "0.2"
+itertools = "0.14"
 smallvec = "1.13"
 icu_segmenter = "1"
 

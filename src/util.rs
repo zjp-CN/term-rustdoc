@@ -11,3 +11,8 @@ pub type Hasher = BuildHasherDefault<rustc_hash::FxHasher>;
 pub fn hashmap<K, V>(cap: usize) -> HashMap<K, V> {
     HashMap::with_capacity_and_hasher(cap, BuildHasherDefault::default())
 }
+
+/// Join a vec of string by `::`.
+pub fn join_path(path: &[String]) -> XString {
+    path.iter().map(|path| path.as_str()).join_compact("::")
+}

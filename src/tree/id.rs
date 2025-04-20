@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use super::{DModule, DocTree, Show};
 use crate::type_name::style::{long, long_path};
-use crate::util::{xformat, CompactStringExt, XString};
+use crate::util::{join_path, xformat, XString};
 use rustdoc_types::{Crate, Id, Item, ItemEnum, ItemKind, ItemSummary, Target};
 use std::{borrow::Borrow, collections::HashMap};
 
@@ -231,21 +231,21 @@ impl IDMap {
                     item.kind
                 );
             }
-            item.path.join_compact("::")
+            join_path(&item.path.clone())
         })
     }
 
     /// Returns the full path if it exists, or name if it exists or id if neither exists.
     pub fn path(&self, id: &Id) -> XString {
         self.get_path(id)
-            .map(|item| item.path.join_compact("::"))
+            .map(|item| join_path(&item.path.clone()))
             .unwrap_or_else(|| self.name(id))
     }
 
     /// Like `path`, but returns the choice for name/id fallback an Err variant.
     pub fn path_or_name(&self, id: &Id) -> Result<XString, XString> {
         self.get_path(id)
-            .map(|item| item.path.join_compact("::"))
+            .map(|item| join_path(&item.path))
             .ok_or_else(|| self.name(id))
     }
 }

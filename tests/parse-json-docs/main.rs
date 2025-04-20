@@ -10,7 +10,7 @@ use std::{
 };
 use term_rustdoc::{
     tree::{CrateDoc, Tag},
-    util::{CompactStringExt, XString},
+    util::{join_path, XString},
 };
 
 mod fn_item_decl;
@@ -37,7 +37,7 @@ struct JsonDoc {
 }
 impl JsonDoc {
     fn get_path_xstring(&self, id: &Id) -> Option<XString> {
-        self.doc.paths.get(id).map(|p| p.path.join_compact("::"))
+        self.doc.paths.get(id).map(|p| join_path(&p.path))
     }
     /// local crate id is always 0
     fn local_index(&self) -> impl Iterator<Item = (&Id, &Item)> {

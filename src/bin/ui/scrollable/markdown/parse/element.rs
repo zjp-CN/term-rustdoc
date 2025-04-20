@@ -132,7 +132,7 @@ where
             tag: tag.clone(),
             trailling_whitespace: false,
         };
-        block.push_a_word(alink(XString::new_inline("[")));
+        block.push_a_word(alink(XString::const_new("[")));
         while let Some((event, range)) = iter.next() {
             match event {
                 Event::Text(words) => {
@@ -169,10 +169,10 @@ where
                 _ => (),
             }
         }
-        block.push_a_word(alink(XString::new_inline("]")));
-        block.push_a_word(alink(XString::new_inline("[")));
+        block.push_a_word(alink(XString::const_new("]")));
+        block.push_a_word(alink(XString::const_new("[")));
         block.push_a_word(alink(idx.to_compact_string()));
-        block.push_a_word(alink(XString::new_inline("]")));
+        block.push_a_word(alink(XString::const_new("]")));
     }
 
     /// Images are like links, e.g. `![ref]` are valid syntax, or `![styled text](...)`.

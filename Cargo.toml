@@ -24,7 +24,7 @@ xz2 = "0.1"
 bytesize = "2"
 
 termtree = "0.5"
-compact_str = { version = "0.7", features = ["serde"] }
+compact_str = { version = "0.9", features = ["serde"] }
 bincode = { version = "2.0.0-rc.3", features = ["serde"] }
 
 color-eyre = "0.6"

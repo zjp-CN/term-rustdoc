@@ -47,13 +47,13 @@ smallvec = "1.13"
 icu_segmenter = "1"
 
 home = "0.5"
-dirs = "5"
+dirs = "6"
 walkdir = "2"
 semver = "1"
 nucleo-matcher = "0.3"
 rayon = "1"
 tempfile = "3"
-cargo_toml = { version = "0.19", features = ["features"] }
+cargo_toml = { version = "0.22", features = ["features"] }
 self_cell = "1"
 
 [dev-dependencies]

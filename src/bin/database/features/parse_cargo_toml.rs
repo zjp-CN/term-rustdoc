@@ -1,6 +1,9 @@
 use crate::Result;
-use std::{collections::BTreeMap, path::Path};
-use term_rustdoc::util::{HashMap, Hasher, XString};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::Path,
+};
+use term_rustdoc::util::XString;
 
 type ControlledFeatures = BTreeMap<XString, FeatureControlledByUsers>;
 
@@ -187,8 +190,8 @@ impl FeatureControlledByUsers {
     }
 }
 
-type Resolver<'a> = cargo_toml::features::Resolver<'a, Hasher>;
-type CargoFeatures<'a> = cargo_toml::features::Features<'a, 'a, Hasher>;
+type Resolver<'a> = cargo_toml::features::Resolver<'a>;
+type CargoFeatures<'a> = cargo_toml::features::Features<'a, 'a>;
 
 // The lifetime of dependent Features comes from a borrow from Manifest.
 // I don't want to clone data in Features by defining trivial owned structs,

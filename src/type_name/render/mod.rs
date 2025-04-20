@@ -1,6 +1,8 @@
+use rustdoc_types::Id;
+
 use super::style::{StyledType, Tag};
 use crate::{
-    tree::{IDMap, ID},
+    tree::IDMap,
     type_name::style::{Punctuation, Symbol},
     util::XString,
 };
@@ -35,7 +37,7 @@ impl From<&StyledType> for DeclarationLines {
 }
 
 impl DeclarationLines {
-    pub fn new(id: &str, map: &IDMap) -> Self {
+    pub fn new(id: &Id, map: &IDMap) -> Self {
         Self::new_(&StyledType::new(id, map))
     }
 
@@ -51,7 +53,7 @@ impl DeclarationLines {
                 Tag::Decl(s) => text_tag.text.push_str(s.to_str()),
                 Tag::Path(id) | Tag::PubScope(id) => {
                     line.push(text_tag.take());
-                    text_tag.id = Some(id.clone());
+                    text_tag.id = Some(*id);
                     let next = iter.next();
                     if let Some(Tag::Name(name)) = next {
                         text_tag.text = name.clone();
@@ -117,14 +119,14 @@ impl std::ops::Deref for DeclarationLine {
 #[derive(Clone, Default)]
 pub struct TextTag {
     pub text: XString,
-    pub id: Option<ID>,
+    pub id: Option<Id>,
 }
 
 impl fmt::Debug for TextTag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let TextTag { text, id } = self;
         if let Some(id) = id {
-            _ = write!(f, "{text}#{id}#☺️");
+            _ = write!(f, "{text}#{id:?}#☺️");
         } else {
             _ = write!(f, "{text}☺️");
         }

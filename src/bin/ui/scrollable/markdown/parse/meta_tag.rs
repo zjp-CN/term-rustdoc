@@ -1,4 +1,5 @@
-use term_rustdoc::{tree::ID, util::XString};
+use rustdoc_types::Id;
+use term_rustdoc::util::XString;
 
 /// Extra meaning not so relevant to style in current word.
 #[derive(Default, Clone, Debug)]
@@ -35,7 +36,7 @@ pub enum MetaTag {
 #[allow(dead_code)]
 pub enum LinkTag {
     /// local crate item can be referred by item ID
-    LocalItemLink(ID),
+    LocalItemLink(Id),
     /// points to a external crate item path (may be supported once multi-crate docs are ready)
     ExternalItemLink(usize),
     /// Reference link

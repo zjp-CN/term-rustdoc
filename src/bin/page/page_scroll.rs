@@ -1,3 +1,5 @@
+use rustdoc_types::Id;
+
 use super::{Page, Panel};
 use crate::ui::scrollable::{ScrollOffset, ScrollText, ScrollTreeLines};
 
@@ -123,7 +125,7 @@ impl Page {
     /// update content's StyledLines and Headings aftet setting the cursor
     pub fn update_content(&mut self) {
         if let Some(id) = self.outline.display().get_id() {
-            if let Some(headings) = self.content.update_doc(id) {
+            if let Some(headings) = self.content.update_doc(&id) {
                 // Only reset start after the update.
                 // TODO: would it be better to remember the
                 // view position if doc is able to be cached?
@@ -173,7 +175,7 @@ impl Page {
         self.update_content();
     }
 
-    pub fn jump_to_id(&mut self, id: &str) {
+    pub fn jump_to_id(&mut self, id: &Id) {
         let outline = self.outline.display_ref();
         let map = outline.lines.doc_ref();
         if let Some(current) = outline.get_line_of_current_cursor() {
@@ -185,12 +187,9 @@ impl Page {
             }
         }
         let iter = &mut outline.lines.iter();
-        if let Some(pos) = iter.position(|l| {
-            l.id.as_deref()
-                // .map(|src| src == id)
-                .map(|src| map.is_same_id(src, id))
-                .unwrap_or(false)
-        }) {
+        if let Some(pos) =
+            iter.position(|l| l.id.map(|src| map.is_same_id(&src, id)).unwrap_or(false))
+        {
             let start = pos.saturating_sub(6);
             let y = (pos - start) as u16;
             self.outline().start = start;

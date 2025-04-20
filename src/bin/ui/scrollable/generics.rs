@@ -1,4 +1,5 @@
 use ratatui::{buffer::Buffer, style::Style};
+use rustdoc_types::Id;
 use std::ops::Deref;
 use term_rustdoc::{tree::TreeLine, util::XString};
 use unicode_width::UnicodeWidthStr;
@@ -18,10 +19,10 @@ pub trait LineState {
 }
 
 impl LineState for TreeLine {
-    type State = Option<XString>;
+    type State = Option<Id>;
 
     fn state(&self) -> Self::State {
-        self.id.clone()
+        self.id
     }
 
     fn is_identical(&self, state: &Self::State) -> bool {

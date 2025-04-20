@@ -19,10 +19,7 @@ mod item_inner;
 pub use item_inner::DataItemKind;
 
 use super::IDMap;
-use crate::tree::{
-    impls::show::{DocTree, Show},
-    IdToID, ID,
-};
+use crate::tree::impls::show::{DocTree, Show};
 use rustdoc_types::{Id, Item, ItemEnum, MacroKind, Module};
 use serde::{Deserialize, Serialize};
 use std::ops::Not;
@@ -31,9 +28,9 @@ use std::ops::Not;
 /// All the items only carry ids without actual data.
 // NOTE: small improvement by turning all the types of fields
 // from Vec to Arr after instantiation.
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct DModule {
-    pub id: ID,
+    pub id: Id,
     // If true, this module is not part of the public API,
     // but it contains items that are re-exported as public API.
     // is_stripped: bool,
@@ -52,6 +49,31 @@ pub struct DModule {
     pub macros_derv: Vec<DMacroDerv>,
 }
 
+impl Default for DModule {
+    fn default() -> Self {
+        let id = Id(0);
+        let (modules, structs, unions, enums, traits, functions, constants, statics, type_alias) =
+            Default::default();
+        let (macros_decl, macros_func, macros_attr, macros_derv) = Default::default();
+        DModule {
+            id,
+            modules,
+            structs,
+            unions,
+            enums,
+            traits,
+            functions,
+            constants,
+            statics,
+            type_alias,
+            macros_decl,
+            macros_func,
+            macros_attr,
+            macros_derv,
+        }
+    }
+}
+
 impl DModule {
     pub fn new(map: &IDMap) -> Self {
         // root module/crate name
@@ -65,7 +87,7 @@ impl DModule {
                         ..
                     }) = &item.inner
                     {
-                        return Some((id.to_ID(), items.as_slice()));
+                        return Some((*id, items.as_slice()));
                     }
                 }
                 None
@@ -80,7 +102,7 @@ impl DModule {
         dmod
     }
 
-    fn new_inner(id: ID, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<ID>) -> Self {
+    fn new_inner(id: Id, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<Id>) -> Self {
         ancestor.push(id.clone());
         debug!(
             "Module Paths = {:?}",
@@ -96,14 +118,14 @@ impl DModule {
 
     /// External items need external crates compiled to know details,
     /// and the ID here is for PathMap, not IndexMap.
-    fn new_external(id: ID) -> Self {
+    fn new_external(id: Id) -> Self {
         DModule {
             id,
             ..Default::default()
         }
     }
 
-    fn extract_items(&mut self, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<ID>) {
+    fn extract_items(&mut self, inner_items: &[Id], map: &IDMap, ancestor: &mut Vec<Id>) {
         for item_id in inner_items {
             match map.indexmap().get(item_id) {
                 Some(item) => self.append(item, map, ancestor),
@@ -112,9 +134,9 @@ impl DModule {
         }
     }
 
-    fn append(&mut self, item: &Item, map: &IDMap, ancestor: &mut Vec<ID>) {
+    fn append(&mut self, item: &Item, map: &IDMap, ancestor: &mut Vec<Id>) {
         use ItemEnum::*;
-        let id = item.id.to_ID();
+        let id = item.id;
         match &item.inner {
             Module(item) => {
                 let mut kin = ancestor.clone();
@@ -147,7 +169,7 @@ macro_rules! impl_show {
 /// To a recursive tree displayed with ids as nodes.
 impl Show for DModule {
     fn show(&self) -> DocTree {
-        format!("[mod] {}", self.id).show().with_leaves(
+        format!("[mod] {:?}", self.id).show().with_leaves(
             std::iter::empty()
             $(
                 .chain( impl_show!(@show $field $node $fty self map) )
@@ -157,7 +179,7 @@ impl Show for DModule {
     }
 
     fn show_prettier(&self, map: &IDMap) -> DocTree {
-        node!(Module: map, &self.id).with_leaves(
+        node!(Module: map, self.id).with_leaves(
             std::iter::empty()
             $(
                 .chain( impl_show!(@pretty $field $node self map) )
@@ -170,11 +192,11 @@ impl Show for DModule {
 impl DModule {
     /// The main tree view as public items in module tree.
     pub fn item_tree(&self, map: &IDMap) -> DocTree {
-        node!(Module: map, &self.id).with_leaves(
+        node!(Module: map, self.id).with_leaves(
             std::iter::empty()
             $(
                 .chain(self.$field.iter().map(|item| {
-                    node!(@name $tag : map, &item.id)
+                    node!(@name $tag : map, item.id)
                 }))
             )+
             .chain(self.modules.iter().map(|m| m.item_tree(map)))
@@ -190,11 +212,11 @@ impl DModule {
 
     /// NOTE: this method doesn't include nested modules; only returns one-level items with mod root.
     pub fn item_tree_only_in_one_specified_mod(&self, map: &IDMap) -> DocTree {
-        node!(Module: map, &self.id).with_leaves(
+        node!(Module: map, self.id).with_leaves(
             std::iter::empty()
             $(
                 .chain(self.$field.iter().map(|item| {
-                    node!(@name $tag : map, &item.id)
+                    node!(@name $tag : map, item.id)
                 }))
             )+
         )
@@ -231,13 +253,13 @@ impl_show! {
 /// generate id wrapper types for simple items
 macro_rules! gen_simple_items {
     ($( $name:ident => $tag:ident => $kind:ident , )+ ) => {$(
-        #[derive(Debug, Serialize, Deserialize)] pub struct $name { pub id: ID, }
-        impl $name { pub fn new(id: ID) -> Self { Self { id } } }
+        #[derive(Debug, Serialize, Deserialize)] pub struct $name { pub id: Id, }
+        impl $name { pub fn new(id: Id) -> Self { Self { id } } }
         impl Show for $name {
             fn show(&self) -> DocTree { self.id.show() }
             fn show_prettier(&self, map: &IDMap) -> DocTree {
                 // node!($show, map.path(&self.id, ItemKind::$kind))
-                node!(@name $tag: map, &self.id)
+                node!(@name $tag: map, self.id)
             }
         }
     )+};

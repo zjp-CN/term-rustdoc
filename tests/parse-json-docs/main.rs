@@ -1,7 +1,7 @@
-#![feature(lazy_cell)]
+#![allow(unused)]
 use bytesize::ByteSize;
 use color_eyre::eyre::{eyre, Result};
-use insta::{assert_debug_snapshot as snap, assert_display_snapshot as shot};
+use insta::{assert_debug_snapshot as snap, assert_snapshot as shot};
 use regex::Regex;
 use rustc_hash::FxHashMap;
 use rustdoc_types::{Crate, Id, Item, ItemKind, ItemSummary};
@@ -62,32 +62,32 @@ impl JsonDoc {
     fn get_item_summary(&self, id: &Id) -> Option<&ItemSummary> {
         self.doc.paths.get(id)
     }
-    /// An `[IMPL:]CRATE_ID:ITEM_ID[:NAME_ID][-EXTRA]` Id may represent multiple items:
-    /// * `CRATE_ID:ITEM_ID[:NAME_ID]`
-    /// * `[-EXTRA]`
-    /// * `CRATE_ID:ITEM_ID[:NAME_ID]` + `[-EXTRA]`
-    fn get_item(&self, idx: &IndexId) -> Vec<(Id, &[String], ItemKind)> {
-        use std::fmt::Write;
-        let mut paths = Vec::with_capacity(3);
-        let mut id = Id(format!("{}:{}", idx.crate_id, idx.item_id));
-        if let Some(item) = self.get_item_summary(&id) {
-            paths.push((id.clone(), &*item.path, item.kind.clone()))
-        }
-        if let Some(name_id) = idx.name_id {
-            write!(id.0, ":{name_id}").unwrap();
-            if let Some(item) = self.get_item_summary(&id) {
-                paths.push((id.clone(), &*item.path, item.kind.clone()))
-            }
-        }
-        if let Some(extra) = idx.extra.as_ref() {
-            id.0.clear();
-            write!(id.0, "{extra}").unwrap();
-            if let Some(item) = self.get_item_summary(&id) {
-                paths.push((id, &*item.path, item.kind.clone()))
-            }
-        }
-        paths
-    }
+    /// /// An `[IMPL:]CRATE_ID:ITEM_ID[:NAME_ID][-EXTRA]` Id may represent multiple items:
+    /// /// * `CRATE_ID:ITEM_ID[:NAME_ID]`
+    /// /// * `[-EXTRA]`
+    /// /// * `CRATE_ID:ITEM_ID[:NAME_ID]` + `[-EXTRA]`
+    /// fn get_item(&self, idx: &IndexId) -> Vec<(Id, &[String], ItemKind)> {
+    ///     use std::fmt::Write;
+    ///     let mut paths = Vec::with_capacity(3);
+    ///     let mut id = Id(format!("{}:{}", idx.crate_id, idx.item_id));
+    ///     if let Some(item) = self.get_item_summary(&id) {
+    ///         paths.push((id.clone(), &*item.path, item.kind.clone()))
+    ///     }
+    ///     if let Some(name_id) = idx.name_id {
+    ///         write!(id, ":{name_id}").unwrap();
+    ///         if let Some(item) = self.get_item_summary(&id) {
+    ///             paths.push((id.clone(), &*item.path, item.kind.clone()))
+    ///         }
+    ///     }
+    ///     if let Some(extra) = idx.extra.as_ref() {
+    ///         id.0.clear();
+    ///         write!(id, "{extra}").unwrap();
+    ///         if let Some(item) = self.get_item_summary(&id) {
+    ///             paths.push((id, &*item.path, item.kind.clone()))
+    ///         }
+    ///     }
+    ///     paths
+    /// }
     /// local crate id is always 0
     fn local_index(&self) -> impl Iterator<Item = (&Id, &Item)> {
         self.doc.index.iter().filter(|(_, item)| item.crate_id == 0)
@@ -224,7 +224,7 @@ fn compression() -> Result<()> {
     shot!(bin_compression, @r###"
     [raw json text => bb] 372.9 KB => 179.7 KB (-52%)
     [binary bytes  => xz] 179.7 KB => 42.5 KB (-76%)
-    [raw json text => xz] 372.9 KB => 42.5 KB (-89%) 
+    [raw json text => xz] 372.9 KB => 42.5 KB (-89%)
     "###);
 
     Ok(())
@@ -424,7 +424,7 @@ fn parse_extract_local() {
                 .map(|s| xformat!(": ({s})"))
                 .unwrap_or_default();
             (
-                &*id.0,
+                id.0,
                 js.get_item(&id.0.parse::<IndexId>().unwrap())
                     .into_iter()
                     .map(|item| {

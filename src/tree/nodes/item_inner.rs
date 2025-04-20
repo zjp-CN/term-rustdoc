@@ -1,6 +1,6 @@
 use super::{DEnum, DModule, DStruct, DTrait, DUnion};
 use crate::tree::{DocTree, IDMap, Show};
-use rustdoc_types::ItemEnum;
+use rustdoc_types::{Id, ItemEnum};
 
 /// Data-carrying items that provide extra tree layer on fields/variants/impls.
 #[derive(Debug, Clone, Copy)]
@@ -13,7 +13,7 @@ pub enum DataItemKind {
 }
 
 impl DataItemKind {
-    pub fn new(id: &str, map: &IDMap) -> Option<DataItemKind> {
+    pub fn new(id: &Id, map: &IDMap) -> Option<DataItemKind> {
         map.get_item(id).and_then(|item| {
             Some(match &item.inner {
                 ItemEnum::Module(_) => DataItemKind::Module,
@@ -21,8 +21,8 @@ impl DataItemKind {
                 ItemEnum::Enum(_) => DataItemKind::Enum,
                 ItemEnum::Trait(_) => DataItemKind::Trait,
                 ItemEnum::Union(_) => DataItemKind::Union,
-                ItemEnum::Import(reexport) => {
-                    let id = reexport.id.as_ref().map(|id| &*id.0)?;
+                ItemEnum::Use(reexport) => {
+                    let id = &reexport.id?;
                     DataItemKind::new(id, map)?
                 }
                 _ => return None,
@@ -43,11 +43,11 @@ macro_rules! search {
     ($fname:ident $field:ident $typ:ident) => {
         fn $fname<T>(
             &self,
-            id: &str,
+            id: &Id,
             f: impl Copy + Fn(&$typ) -> T,
         ) -> Option<T> {
             for item in &self.$field {
-                if item.id.as_str() == id {
+                if item.id == *id {
                     return Some(f(item));
                 }
             }
@@ -69,8 +69,8 @@ search! {}
 
 // Search after the kind is known to improve efficiency.
 impl DModule {
-    fn search_for_module<T>(&self, id: &str, f: impl Copy + Fn(&DModule) -> T) -> Option<T> {
-        if self.id.as_str() == id {
+    fn search_for_module<T>(&self, id: &Id, f: impl Copy + Fn(&DModule) -> T) -> Option<T> {
+        if self.id == *id {
             return Some(f(self));
         }
         for m in &self.modules {
@@ -82,7 +82,7 @@ impl DModule {
         None
     }
 
-    pub fn item_inner_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+    pub fn item_inner_tree(&self, id: &Id, map: &IDMap) -> Option<DocTree> {
         let kind = DataItemKind::new(id, map)?;
         match kind {
             DataItemKind::Struct => self.search_for_struct(id, |x| x.show_prettier(map)),
@@ -93,7 +93,7 @@ impl DModule {
         }
     }
 
-    pub fn impl_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+    pub fn impl_tree(&self, id: &Id, map: &IDMap) -> Option<DocTree> {
         let kind = DataItemKind::new(id, map)?;
         match kind {
             DataItemKind::Struct => self.search_for_struct(id, |x| x.impls.show_prettier(map)),
@@ -104,15 +104,15 @@ impl DModule {
         }
     }
 
-    pub fn implementor_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+    pub fn implementor_tree(&self, id: &Id, map: &IDMap) -> Option<DocTree> {
         self.search_for_trait(id, |x| x.implementors(map))
     }
 
-    pub fn associated_item_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+    pub fn associated_item_tree(&self, id: &Id, map: &IDMap) -> Option<DocTree> {
         self.search_for_trait(id, |x| x.associated_items(map))
     }
 
-    pub fn field_tree(&self, id: &str, map: &IDMap) -> Option<DocTree> {
+    pub fn field_tree(&self, id: &Id, map: &IDMap) -> Option<DocTree> {
         let kind = DataItemKind::new(id, map)?;
         match kind {
             DataItemKind::Struct => self.search_for_struct(id, |x| x.fields_tree(map)),

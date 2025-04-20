@@ -8,7 +8,8 @@ use crate::{
     Result,
 };
 use ratatui::prelude::{Buffer, Rect, Widget};
-use term_rustdoc::tree::{CrateDoc, ID};
+use rustdoc_types::Id;
+use term_rustdoc::tree::CrateDoc;
 
 mod content;
 mod layout;
@@ -126,7 +127,7 @@ impl Outline {
         self.border = border;
     }
 
-    fn set_setu_id(&mut self, id: ID) {
+    fn set_setu_id(&mut self, id: Id) {
         self.inner.set_setu_id(id);
     }
 
@@ -149,21 +150,21 @@ struct Content {
 }
 
 impl Content {
-    fn update_area(&mut self, border: Surround, id: Option<&str>) {
+    fn update_area(&mut self, border: Surround, id: Option<Id>) {
         self.border = border;
         let outer = self.border.inner();
         if let Some(id) = id {
-            self.inner.update_decl(id, outer);
+            self.inner.update_decl(&id, outer);
         } else {
             self.inner.update_area(outer);
         }
     }
 
-    fn update_doc(&mut self, id: &str) -> Option<crate::ui::scrollable::Headings> {
+    fn update_doc(&mut self, id: &Id) -> Option<crate::ui::scrollable::Headings> {
         self.inner.update_doc(id, self.border.inner())
     }
 
-    fn jumpable_id(&self, x: u16, y: u16) -> Option<ID> {
+    fn jumpable_id(&self, x: u16, y: u16) -> Option<Id> {
         self.inner.jumpable_id(x, y)
     }
 }

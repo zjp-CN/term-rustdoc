@@ -31,8 +31,8 @@ impl Format for Type {
                     bounds.format::<Kind>(buf);
                 }
                 Type::Infer => buf.write(Syntax::Infer),
-                Type::RawPointer { mutable, type_ } => {
-                    buf.write(if *mutable {
+                Type::RawPointer { is_mutable, type_ } => {
+                    buf.write(if *is_mutable {
                         Syntax::RawPointerMut
                     } else {
                         Syntax::RawPointer
@@ -41,9 +41,9 @@ impl Format for Type {
                 }
                 Type::BorrowedRef {
                     lifetime,
-                    mutable,
+                    is_mutable,
                     type_,
-                } => borrow_ref::<Kind>(lifetime.as_deref(), *mutable, type_, buf),
+                } => borrow_ref::<Kind>(lifetime.as_deref(), *is_mutable, type_, buf),
                 Type::QualifiedPath {
                     name,
                     args,
@@ -54,7 +54,7 @@ impl Format for Type {
                     // If the trait path is empty (but can still carry an ID), the QualifiedPath
                     // is shown without the trait. If we were to use the name, `<Type as >::Name`
                     // will be shown; if we were to use the ID, &IDMap should be addded in format.
-                    if let Some(trait_path) = trait_.as_ref().filter(|s| !s.name.is_empty()) {
+                    if let Some(trait_path) = trait_.as_ref().filter(|s| !s.path.is_empty()) {
                         buf.write_in_angle_bracket(|buf| {
                             self_type.format::<Kind>(buf);
                             buf.write(Syntax::As);
@@ -67,6 +67,8 @@ impl Format for Type {
                     buf.write(name);
                     args.format::<Kind>(buf);
                 }
+                // FIXME: Pat
+                Type::Pat { .. } => todo!(),
             };
         });
     }

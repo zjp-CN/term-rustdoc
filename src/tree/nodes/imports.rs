@@ -1,5 +1,4 @@
 use super::*;
-use crate::tree::ID;
 use rustdoc_types::{ItemEnum, ItemKind, Use};
 
 /// Add the item of `pub use source {as name}` to DModule.
@@ -9,15 +8,15 @@ use rustdoc_types::{ItemEnum, ItemKind, Use};
 /// pub-use item shouldn't be a real tree node because the source
 /// can be any other item which should be merged into one of DModule's fields.
 pub(super) fn parse_import(
-    id: ID,
+    id: Id,
     import: &Use,
     map: &IDMap,
     dmod: &mut DModule,
-    kin: &mut Vec<ID>,
+    kin: &mut Vec<Id>,
 ) {
-    let Some(import_id) = &import.id else { return };
+    let Some(import_id) = import.id else { return };
     // Import's id can be empty when the source is Primitive.
-    if let Some(source) = map.indexmap().get(import_id) {
+    if let Some(source) = map.indexmap().get(&import_id) {
         match &source.inner {
             ItemEnum::Module(item) => {
                 // check id for ItemSummary/path existence:
@@ -61,8 +60,8 @@ pub(super) fn parse_import(
             },
             _ => (),
         }
-    } else if let Some(extern_item) = map.pathmap().get(import_id) {
-        let id = import_id.to_ID();
+    } else if let Some(extern_item) = map.pathmap().get(&import_id) {
+        let id = import_id;
         // TODO: external items are in path map, which means no further information
         // except full path and item kind will be known.
         // To get details of an external item, we need to compile the external crate,

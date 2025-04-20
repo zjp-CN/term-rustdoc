@@ -37,7 +37,7 @@ impl Declaration for Struct {
             }
             StructKind::Plain {
                 fields,
-                fields_stripped,
+                has_stripped_fields,
             } => {
                 where_predicates.format::<K>(buf);
                 buf.write(if where_predicates.is_empty() {
@@ -45,7 +45,7 @@ impl Declaration for Struct {
                 } else {
                     Punctuation::NewLine
                 });
-                plain::<K>(fields, *fields_stripped, map, buf);
+                plain::<K>(fields, *has_stripped_fields, map, buf);
             }
         };
     }
@@ -68,13 +68,12 @@ fn tuple<K: FindName>(fields: &[Option<Id>], map: &IDMap, buf: &mut StyledType) 
         let multiline = fields.len() > 1;
         buf.write_slice(
             fields,
-            |f, buf| {
+            |id, buf| {
                 if multiline {
                     buf.write(Punctuation::NewLine);
                     buf.write(Punctuation::Indent);
                 }
-                let id = f.as_ref().map(|id| &*id.0);
-                let field = id.and_then(|id| map.get_item(id).map(|x| &x.inner));
+                let field = id.and_then(|id| map.get_item(&id).map(|x| &x.inner));
                 if let Some(ItemEnum::StructField(f)) = field {
                     f.format::<K>(buf);
                 } else {
@@ -102,7 +101,7 @@ fn plain<K: FindName>(fields: &[Id], has_private_field: bool, map: &IDMap, buf: 
             |id, buf| {
                 buf.write(Punctuation::NewLine);
                 buf.write(Punctuation::Indent);
-                let Some(field) = map.get_item(&id.0) else {
+                let Some(field) = map.get_item(id) else {
                     error!(?id, "field item is not found");
                     return;
                 };

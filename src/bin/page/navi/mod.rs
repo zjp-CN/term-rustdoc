@@ -11,7 +11,8 @@ use ratatui::{
     layout::Position,
     prelude::{Buffer, Constraint, Layout, Rect},
 };
-use term_rustdoc::tree::{CrateDoc, ID};
+use rustdoc_types::Id;
+use term_rustdoc::tree::CrateDoc;
 
 pub use self::outline::{width as navi_outline_width, NaviAction};
 
@@ -35,7 +36,7 @@ impl Navigation {
         &mut self.border
     }
 
-    pub fn set_item_inner(&mut self, id: Option<&str>, doc: &CrateDoc) -> Option<ID> {
+    pub fn set_item_inner(&mut self, id: Option<Id>, doc: &CrateDoc) -> Option<Id> {
         self.display.outline.set_item_inner(id, doc)
     }
 

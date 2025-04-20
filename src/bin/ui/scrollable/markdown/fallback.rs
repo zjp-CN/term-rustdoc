@@ -8,6 +8,7 @@ use crate::{
     Result,
 };
 use ratatui::style::Style;
+use rustdoc_types::Id;
 use std::{fmt, ops::Deref};
 use term_rustdoc::{tree::CrateDoc, util::XString};
 use unicode_width::UnicodeWidthStr;
@@ -131,7 +132,7 @@ impl StyledLines {
     /// Only returns Some if a new doc is fetched.
     ///
     /// The Headings can still be empty because heading jumping isn't supported in syntect case.
-    pub fn update_doc(&mut self, id: &str, width: Option<f64>) -> Option<Headings> {
+    pub fn update_doc(&mut self, id: &Id, width: Option<f64>) -> Option<Headings> {
         if let Some(doc) = &self.doc {
             if let Some(doc) = doc.get_doc(id) {
                 return if let Some(width) = width {
@@ -178,7 +179,7 @@ impl ScrollText {
         (!self.lines.syntect && self.area.width > 1).then_some(self.area.width as f64)
     }
 
-    pub fn update_doc(&mut self, id: &str) -> Option<Headings> {
+    pub fn update_doc(&mut self, id: &Id) -> Option<Headings> {
         let width = self.wrapping_width();
         self.lines.update_doc(id, width)
     }

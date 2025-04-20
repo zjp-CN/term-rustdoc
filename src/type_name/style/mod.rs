@@ -7,13 +7,11 @@ mod type_;
 mod utils;
 
 use super::render::DeclarationLines;
-use crate::{
-    tree::{IdToID, ID},
-    util::XString,
-};
+use crate::util::XString;
 use std::fmt;
 
 pub use path::{long, long_path};
+use rustdoc_types::Id;
 
 #[derive(Default, Clone, Debug)]
 pub struct StyledType {
@@ -55,17 +53,17 @@ impl StyledType {
         buf
     }
 
-    fn write_id_name(&mut self, id: impl IdToID, name: &str) {
+    fn write_id_name(&mut self, id: Id, name: &str) {
         self.write_span_path_name(|buf| {
-            buf.write(Tag::Path(id.to_ID()));
+            buf.write(Tag::Path(id));
             buf.write(Tag::Name(name.into()));
         });
     }
 
-    fn write_vis_scope(&mut self, id: impl IdToID, path: &str) {
+    fn write_vis_scope(&mut self, id: Id, path: &str) {
         self.write(Tag::Decl(Decl::Vis(Vis::PubScope)));
         self.write_in_parentheses(|s| {
-            s.write(Tag::PubScope(id.to_ID()));
+            s.write(Tag::PubScope(id));
             s.write(Tag::Name(path.into()));
         });
     }
@@ -132,7 +130,7 @@ pub enum Tag {
     /// We use the ID to jump to another item.
     /// The Path do not include generics.
     /// A Path ID tag is conjuction with its Name tag.
-    Path(ID),
+    Path(Id),
     /// A Name is a short path an ID can refer to or somthing not statically known.
     /// E.g. short path/type name, function argument, name for field, variant and generics etc.
     Name(XString),
@@ -141,7 +139,7 @@ pub enum Tag {
     /// The scope id is in conjuction with a Name.
     /// `pub(scope)` is composed of [`Vis::PubScope`], [`Punctuation::ParenthesisStart`],
     /// [`Tag::Name`] and [`Punctuation::ParenthesisEnd`].
-    PubScope(ID),
+    PubScope(Id),
     /// In conjuction with [`Abi`].
     /// `extern "other_abi" ` is composed of [`Abi::Other`], [`Punctuation::Quote`],
     /// [`Tag::UnusualAbi`], [`Punctuation::Quote`] and [`Punctuation::WhiteSpace`].

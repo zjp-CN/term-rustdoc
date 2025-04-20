@@ -1,6 +1,6 @@
 use crate::tree::{
     impls::show::{show_ids, show_names, DocTree, Show},
-    IDMap, IDs, IdToID, Tag, ID,
+    IDMap, IDs, Tag,
 };
 use itertools::Itertools;
 use rustdoc_types::{Id, Impl, ItemEnum};
@@ -25,39 +25,40 @@ impl DImpl {
         if ids.is_empty() {
             return Default::default();
         }
-        let [mut inherent, mut trait_, mut auto, mut blanket]: [Vec<_>; 4] = Default::default();
-        for Id(id) in ids {
-            let id = id.as_str();
-            if id.starts_with("a:") {
-                auto.push(DImplInner::new_with_no_details(id));
-            } else if id.starts_with("b:") {
-                blanket.push(DImplInner::new_with_no_details(id));
-            } else if let Some(item) = map.get_item(id) {
-                if let ItemEnum::Impl(impl_) = &item.inner {
-                    if impl_.trait_.is_none() {
-                        inherent.push(DImplInner::new(id, impl_, map));
-                    } else {
-                        trait_.push(DImplInner::new(id, impl_, map));
-                    }
-                } else {
-                    warn!("{id:?} in Crate's index doesn't refer to an impl item");
-                }
-            } else {
-                warn!("the impl with {id:?} not found in Crate's index");
-            }
-        }
-        inherent.sort_unstable_by_key(|x| map.name(&x.id));
-        trait_.sort_unstable_by_key(|x| map.name(&x.id));
-        auto.sort_unstable_by_key(|x| map.name(&x.id));
-        blanket.sort_unstable_by_key(|x| map.name(&x.id));
-        let merged_inherent = DImplInner::merge_inherent_impls(&inherent, map);
-        DImpl {
-            inherent: inherent.into(),
-            trait_: trait_.into(),
-            auto: auto.into(),
-            blanket: blanket.into(),
-            merged_inherent: Box::new(merged_inherent),
-        }
+        // let [mut inherent, mut trait_, mut auto, mut blanket]: [Vec<_>; 4] = Default::default();
+        todo!();
+        // for id in ids {
+        // FIXME:
+        // if id.starts_with("a:") {
+        //     auto.push(DImplInner::new_with_no_details(id));
+        // } else if id.starts_with("b:") {
+        //     blanket.push(DImplInner::new_with_no_details(id));
+        // } else if let Some(item) = map.get_item(id) {
+        //     if let ItemEnum::Impl(impl_) = &item.inner {
+        //         if impl_.trait_.is_none() {
+        //             inherent.push(DImplInner::new(id, impl_, map));
+        //         } else {
+        //             trait_.push(DImplInner::new(id, impl_, map));
+        //         }
+        //     } else {
+        //         warn!("{id:?} in Crate's index doesn't refer to an impl item");
+        //     }
+        // } else {
+        //     warn!("the impl with {id:?} not found in Crate's index");
+        // }
+        // }
+        // inherent.sort_unstable_by_key(|x| map.name(&x.id));
+        // trait_.sort_unstable_by_key(|x| map.name(&x.id));
+        // auto.sort_unstable_by_key(|x| map.name(&x.id));
+        // blanket.sort_unstable_by_key(|x| map.name(&x.id));
+        // let merged_inherent = DImplInner::merge_inherent_impls(&inherent, map);
+        // DImpl {
+        //     inherent: inherent.into(),
+        //     trait_: trait_.into(),
+        //     auto: auto.into(),
+        //     blanket: blanket.into(),
+        //     merged_inherent: Box::new(merged_inherent),
+        // }
     }
     pub fn is_empty(&self) -> bool {
         self.auto.is_empty()
@@ -115,22 +116,35 @@ impl Show for DImpl {
     }
 }
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct DImplInner {
-    pub id: ID,
+    pub id: Id,
     pub functions: IDs,
     pub constants: IDs,
     pub types: IDs,
 }
 
+impl Default for DImplInner {
+    fn default() -> Self {
+        let id = Id(0);
+        let (functions, constants, types) = Default::default();
+        DImplInner {
+            id,
+            functions,
+            constants,
+            types,
+        }
+    }
+}
+
 impl DImplInner {
-    pub fn new(id: &str, imp: &Impl, map: &IDMap) -> Self {
-        let [mut functions, mut constants, mut types]: [Vec<ID>; 3] = Default::default();
-        for item in imp.items.iter().flat_map(|assc| map.get_item(&assc.0)) {
+    pub fn new(id: &Id, imp: &Impl, map: &IDMap) -> Self {
+        let [mut functions, mut constants, mut types]: [Vec<Id>; 3] = Default::default();
+        for item in imp.items.iter().flat_map(|assc| map.get_item(assc)) {
             match &item.inner {
-                ItemEnum::Function(_) => functions.push(item.id.to_ID()),
-                ItemEnum::Constant(_) => constants.push(item.id.to_ID()),
-                ItemEnum::TypeAlias(_) => types.push(item.id.to_ID()),
+                ItemEnum::Function(_) => functions.push(item.id),
+                ItemEnum::Constant { .. } => constants.push(item.id),
+                ItemEnum::TypeAlias(_) => types.push(item.id),
                 _ => (),
             };
         }
@@ -138,16 +152,16 @@ impl DImplInner {
         constants.sort_unstable_by_key(|id| map.name(id));
         types.sort_unstable_by_key(|id| map.name(id));
         DImplInner {
-            id: id.to_ID(),
+            id: *id,
             functions: functions.into(),
             constants: constants.into(),
             types: types.into(),
         }
     }
 
-    pub fn new_with_no_details(id: &str) -> Self {
+    pub fn new_with_no_details(id: Id) -> Self {
         DImplInner {
-            id: id.to_ID(),
+            id,
             ..Default::default()
         }
     }
@@ -167,7 +181,7 @@ impl DImplInner {
     }
 
     fn show_prettier(&self, tag: Tag, map: &IDMap) -> DocTree {
-        let root = DocTree::new(map.name(&self.id), tag, Some(self.id.as_str().into()));
+        let root = DocTree::new(map.name(&self.id), tag, Some(self.id));
         // too verbose!
         // let leaves = names_node!(
         //     self map root,
@@ -191,7 +205,7 @@ impl DImplInner {
     fn merge_inherent_impls(impls: &[Self], map: &IDMap) -> Self {
         let iter = impls.iter();
         Self {
-            id: ID::default(),
+            id: Id(0),
             functions: iter
                 .clone()
                 .flat_map(|x| x.functions.iter())

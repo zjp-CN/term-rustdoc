@@ -11,7 +11,7 @@ mod textline;
 use rustdoc_types::Crate;
 use std::{fmt, ops::Deref, rc::Rc};
 
-pub use id::{IDMap, IDs, IdAsStr, IdToID, IndexMap, PathMap, SliceToIds, ID};
+pub use id::{IDMap, IDs, IndexMap, PathMap};
 pub use impls::show::{DocTree, Show};
 pub use nodes::{
     DConstant, DEnum, DFunction, DImpl, DImplInner, DMacroAttr, DMacroDecl, DMacroDerv, DMacroFunc,

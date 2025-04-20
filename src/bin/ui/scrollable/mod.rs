@@ -1,6 +1,7 @@
 use crate::Result;
 use ratatui::buffer::Cell;
 use ratatui::prelude::{Buffer, Rect};
+use rustdoc_types::Id;
 use std::fmt;
 use term_rustdoc::tree::{TreeLine, TreeLines};
 
@@ -159,10 +160,10 @@ where
 
     /// Get the item id the current cursor points to.
     /// Non-item node doesn't have an id.
-    pub fn get_id(&self) -> Option<&str> {
+    pub fn get_id(&self) -> Option<Id> {
         self.all_lines()
             .get(self.cursor.y as usize + self.start)
-            .and_then(|l| l.id.as_deref())
+            .and_then(|l| l.id)
     }
 }
 

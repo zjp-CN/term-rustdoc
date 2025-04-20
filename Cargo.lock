@@ -479,12 +479,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 
 [[package]]
-name = "hashbag"
-version = "0.1.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98f494b2060b2a8f5e63379e1e487258e014cee1b1725a735816c0107a2e9d93"
-
-[[package]]
 name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -939,19 +933,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "public-api"
-version = "0.47.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92f0a3ef1a7c5a2cf381b0b689c68089127d457be055fefb1291a7fa1b6983cc"
-dependencies = [
- "hashbag",
- "rustdoc-types 0.38.0",
- "serde",
- "serde_json",
- "thiserror 2.0.12",
-]
-
-[[package]]
 name = "pulldown-cmark"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1135,18 +1116,9 @@ dependencies = [
 
 [[package]]
 name = "rustdoc-types"
-version = "0.38.0"
+version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77ecde53e08f3f1d7a67fb635914e053b85a024c73b920524acaa5c2d78482a6"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "rustdoc-types"
-version = "0.40.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39c891e8dfc3b35c614707145e1483d74a9c66f85f709f8cfa67b208d355016e"
+checksum = "79f6e675de57460d306a273321d3799b010b23713144caffe00b4a4fde83620e"
 dependencies = [
  "serde",
 ]
@@ -1442,7 +1414,6 @@ dependencies = [
  "insta",
  "itertools 0.12.1",
  "nucleo-matcher",
- "public-api",
  "pulldown-cmark",
  "ratatui",
  "rayon",
@@ -1450,7 +1421,7 @@ dependencies = [
  "regex",
  "rustc-hash",
  "rustdoc-json",
- "rustdoc-types 0.40.0",
+ "rustdoc-types",
  "self_cell",
  "semver",
  "serde",

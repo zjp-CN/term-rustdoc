@@ -13,9 +13,8 @@ name = "term-rustdoc"
 path = "src/bin/main.rs"
 
 [dependencies]
-rustdoc-types = "0.40"
+rustdoc-types = "0.41"
 rustdoc-json = "0.9"
-public-api = "0.47"
 redb = "1.5"
 
 serde = { version = "1", features = ["derive", "rc"] }
